@@ -119,6 +119,17 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           loadingIndicatorColor: Colors.white,
           child: Text('Single Press Button ($counter)'),
         ),
+        SinglePressButton(
+          onPressed: null,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          backgroundColor: Colors.purple,
+          disabledColor: Colors.purple.shade200,
+          borderRadius: 8.0,
+          elevation: 4.0,
+          showLoadingIndicator: true,
+          loadingIndicatorColor: Colors.white,
+          child: Text('Single Press Button ($counter)'),
+        ),
       ],
     );
   }

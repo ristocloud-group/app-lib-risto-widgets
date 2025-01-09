@@ -46,7 +46,7 @@ class SinglePressButton extends StatefulWidget {
   ///
   /// This callback can be asynchronous and is invoked only once per press.
   /// It is responsible for handling the primary action of the button.
-  final Future<void> Function() onPressed;
+  final Future<void> Function()? onPressed;
 
   /// The amount of space to surround the child inside the button.
   ///
@@ -135,7 +135,7 @@ class SinglePressButton extends StatefulWidget {
   const SinglePressButton({
     super.key,
     required this.child,
-    required this.onPressed,
+    this.onPressed,
     this.padding,
     this.margin,
     this.backgroundColor,
@@ -178,7 +178,7 @@ class _SinglePressButtonState extends State<SinglePressButton> {
     widget.onStartProcessing?.call();
 
     try {
-      await widget.onPressed();
+      await widget.onPressed!();
     } catch (error) {
       // Invoke onError callback if provided.
       if (widget.onError != null) {
@@ -217,7 +217,12 @@ class _SinglePressButtonState extends State<SinglePressButton> {
     return Container(
       margin: widget.margin, // Apply the external margin here
       child: CustomActionButton(
-        onPressed: _isProcessing ? null : _handlePress,
+        onPressed: _isProcessing
+            ? null
+            : (widget.onPressed != null)
+                ? _handlePress
+                : null,
+        disabledBackgroundColor: widget.disabledColor,
         padding: widget.padding,
         backgroundColor: backgroundColor,
         borderRadius: widget.borderRadius,
