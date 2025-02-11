@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:risto_widgets/risto_widgets.dart';
-import 'package:risto_widgets/widgets/buttons/expandable_list_tile_button.dart';
+import 'package:risto_widgets/widgets/expandable/expandable_list_tile_button.dart';
 
 void main() {
   testWidgets(
