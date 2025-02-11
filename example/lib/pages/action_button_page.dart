@@ -128,7 +128,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           elevation: 4.0,
           showLoadingIndicator: true,
           loadingIndicatorColor: Colors.white,
-          child: Text('Single Press Button ($counter)'),
+          child: Text('Disabled Single Press Button ($counter)'),
         ),
       ],
     );
