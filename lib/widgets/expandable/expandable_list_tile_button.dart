@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'list_tile_button.dart';
+import '../buttons/list_tile_button.dart';
 
 /// A widget that provides an expandable list tile button with customizable headers and content.
 ///
