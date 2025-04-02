@@ -1,4 +1,4 @@
-library risto_widgets;
+library;
 
 export 'widgets/buttons/custom_action_button.dart';
 export 'widgets/buttons/custom_icon_text.dart';
