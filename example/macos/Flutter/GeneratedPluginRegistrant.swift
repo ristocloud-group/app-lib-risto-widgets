@@ -7,7 +7,7 @@ import Foundation
 
 import path_provider_foundation
 import risto_widgets
-import sqflite
+import sqflite_darwin
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))

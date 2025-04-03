@@ -1,4 +1,4 @@
-package francescodema.dev.risto_widgets_example;
+package com.ristocloudgroup.lib.risto_widgets_example;
 
 import io.flutter.embedding.android.FlutterActivity;
 

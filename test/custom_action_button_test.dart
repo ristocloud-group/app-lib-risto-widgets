@@ -3,8 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
 void main() {
-  group('ActionButtonWrapper Tests', () {});
-
   group('CustomActionButton Tests', () {
     testWidgets('CustomActionButton increments counter when pressed',
         (WidgetTester tester) async {
@@ -33,7 +31,7 @@ void main() {
       expect(counter, 1);
     });
 
-    testWidgets('CustomActionButton.flat renders correctly with 0 elevation',
+    testWidgets('CustomActionButton.flat renders correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -48,28 +46,31 @@ void main() {
       );
 
       expect(find.text('Flat Button'), findsOneWidget);
-      final elevatedButton =
-          tester.widget<ElevatedButton>(find.byType(ElevatedButton));
-      expect(elevatedButton.style?.elevation?.resolve({}), equals(0.0));
+
+      // Ensure the button is a TextButton
+      expect(find.byType(TextButton), findsOneWidget);
+
+      // Ensure there is no ElevatedButton
+      expect(find.byType(ElevatedButton), findsNothing);
     });
 
-    testWidgets('CustomActionButton.raised renders with correct elevation',
+    testWidgets('CustomActionButton.elevated renders with correct elevation',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CustomActionButton.raised(
+            body: CustomActionButton.elevated(
               onPressed: () {},
               backgroundColor: Colors.green,
               elevation: 5.0,
-              child: const Text('Raised Button'),
+              child: const Text('Elevated Button'),
             ),
           ),
         ),
       );
 
       // Expect the button to be present
-      expect(find.text('Raised Button'), findsOneWidget);
+      expect(find.text('Elevated Button'), findsOneWidget);
 
       // Find the ElevatedButton within the CustomActionButton
       final elevatedButtonFinder = find.descendant(
@@ -86,41 +87,80 @@ void main() {
       expect(elevatedButton.style?.elevation?.resolve({}), equals(5.0));
     });
 
-    testWidgets('CustomActionButton.raised renders with correct elevation',
+    testWidgets('CustomActionButton.minimal renders correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CustomActionButton.raised(
+            body: CustomActionButton.minimal(
               onPressed: () {},
-              backgroundColor: Colors.green,
-              elevation: 5.0,
-              child: const Text('Raised Button'),
+              child: const Text('Minimal Button'),
             ),
           ),
         ),
       );
 
-      // Ensure the button is present
-      expect(find.text('Raised Button'), findsOneWidget);
+      expect(find.text('Minimal Button'), findsOneWidget);
 
-      // Find the ElevatedButton widget using find.byType
-      final elevatedButton =
-          tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      // Ensure the button is a TextButton
+      expect(find.byType(TextButton), findsOneWidget);
 
-      // Verify the elevation is correct
-      expect(elevatedButton.style?.elevation?.resolve({}), equals(5.0));
+      // Ensure that the button has no overlay or splash
+      final textButton = tester.widget<TextButton>(find.byType(TextButton));
+
+      // Check that overlayColor is transparent
+      final overlayColor = textButton.style?.overlayColor?.resolve({});
+
+      expect(overlayColor, Colors.transparent);
+
+      // Check that splashFactory is NoSplash
+      expect(textButton.style?.splashFactory, NoSplash.splashFactory);
+    });
+
+    testWidgets('CustomActionButton.longPress triggers onLongPress',
+        (WidgetTester tester) async {
+      int longPressCounter = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomActionButton.longPress(
+              onPressed: () {},
+              onLongPress: () {
+                longPressCounter++;
+              },
+              child: const Text('Long Press Button'),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Long Press Button'), findsOneWidget);
+
+      // Simulate a long press
+      final gesture = await tester
+          .startGesture(tester.getCenter(find.byType(CustomActionButton)));
+      await tester
+          .pump(const Duration(milliseconds: 600)); // Recognize long press
+      await tester
+          .pump(const Duration(milliseconds: 300)); // Allow timer to trigger
+
+      // Release the gesture
+      await gesture.up();
+
+      expect(longPressCounter, greaterThan(0));
     });
 
     testWidgets('CustomActionButton shows disabled state correctly',
         (WidgetTester tester) async {
-      // Build the widget with a disabled button
+      int counter = 0;
+
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
-            body: CustomActionButton(
+            body: CustomActionButton.elevated(
               onPressed: null, // Disabled state
-              child: Text('Disabled Button'),
+              child: const Text('Disabled Button'),
             ),
           ),
         ),
@@ -129,51 +169,26 @@ void main() {
       // Verify the disabled button is present with correct text
       expect(find.text('Disabled Button'), findsOneWidget);
 
-      // Verify that a CustomActionDisable is rendered instead of ElevatedButton
-      final customActionDisableFinder = find.byType(CustomActionDisable);
-      expect(customActionDisableFinder, findsOneWidget);
+      // Locate the CustomActionButton widget
+      final customActionButtonFinder = find.byType(CustomActionButton);
+      expect(customActionButtonFinder, findsOneWidget);
 
-      // Now find the specific `Container` inside `CustomActionDisable`
-      final containerFinder = find.descendant(
-        of: customActionDisableFinder,
-        matching: find.byType(Container),
-      );
+      // Find the specific AbsorbPointer inside the CustomActionButton
+      final absorbPointerFinder = find.descendant(
+          of: customActionButtonFinder, matching: find.byType(AbsorbPointer));
+      expect(absorbPointerFinder, findsOneWidget);
 
-      expect(
-          containerFinder, findsOneWidget); // Ensure there's only one container
+      // Ensure that the AbsorbPointer is absorbing (i.e., button is disabled)
+      final absorbPointerWidget =
+          tester.widget<AbsorbPointer>(absorbPointerFinder);
+      expect(absorbPointerWidget.absorbing, true);
 
-      // Verify the decoration of the Container (background color and border)
-      final container = tester.widget<Container>(containerFinder);
-      final decoration = container.decoration as BoxDecoration;
+      // Try to tap the button
+      await tester.tap(customActionButtonFinder, warnIfMissed: false);
+      await tester.pump();
 
-      // Check for the disabled color and transparent border
-      expect(decoration.color,
-          equals(Theme.of(tester.element(containerFinder)).disabledColor));
-      expect(decoration.border?.top.color, equals(Colors.transparent));
-
-      // Ensure no interaction (disabled state)
-      await tester.tap(find.byType(CustomActionButton));
-      await tester.pump(); // No state change should occur
-    });
-  });
-
-  group('CustomIconText Tests', () {
-    testWidgets('CustomIconText renders with correct icon and text',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: CustomIconText(
-              icon: Icons.star,
-              text: 'Star',
-              color: Colors.amber,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.byIcon(Icons.star), findsOneWidget);
-      expect(find.text('Star'), findsOneWidget);
+      // Counter should not have incremented
+      expect(counter, 0);
     });
   });
 }

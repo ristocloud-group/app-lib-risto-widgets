@@ -1,4 +1,4 @@
-package francescodema.dev.risto_widgets;
+package com.ristocloudgroup.lib.risto_widgets;
 
 import androidx.annotation.NonNull;
 

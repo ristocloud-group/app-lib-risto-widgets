@@ -7,14 +7,14 @@ void main() {
       (WidgetTester tester) async {
     // Arrange
     final items = [
-      NavigationItem(
-        page: const Text('Page 1'),
-        icon: const Icon(Icons.home),
+      const NavigationItem(
+        page: Text('Page 1'),
+        icon: Icon(Icons.home),
         label: 'Home',
       ),
-      NavigationItem(
-        page: const Text('Page 2'),
-        icon: const Icon(Icons.search),
+      const NavigationItem(
+        page: Text('Page 2'),
+        icon: Icon(Icons.search),
         label: 'Search',
       ),
     ];
@@ -37,14 +37,14 @@ void main() {
       (WidgetTester tester) async {
     // Arrange
     final items = [
-      NavigationItem(
-        page: const Text('Page 1'),
-        icon: const Icon(Icons.home),
+      const NavigationItem(
+        page: Text('Page 1'),
+        icon: Icon(Icons.home),
         label: 'Home',
       ),
-      NavigationItem(
-        page: const Text('Page 2'),
-        icon: const Icon(Icons.search),
+      const NavigationItem(
+        page: Text('Page 2'),
+        icon: Icon(Icons.search),
         label: 'Search',
       ),
     ];
@@ -67,14 +67,14 @@ void main() {
       (WidgetTester tester) async {
     // Arrange
     final items = [
-      NavigationItem(
-        page: const Text('Page 1'),
-        icon: const Icon(Icons.home),
+      const NavigationItem(
+        page: Text('Page 1'),
+        icon: Icon(Icons.home),
         label: 'Home',
       ),
-      NavigationItem(
-        page: const Text('Page 2'),
-        icon: const Icon(Icons.search),
+      const NavigationItem(
+        page: Text('Page 2'),
+        icon: Icon(Icons.search),
         label: 'Search',
       ),
     ];
@@ -109,14 +109,14 @@ void main() {
       (WidgetTester tester) async {
     // Arrange
     final items = [
-      NavigationItem(
-        page: const Text('Page 1'),
-        icon: const Icon(Icons.home),
+      const NavigationItem(
+        page: Text('Page 1'),
+        icon: Icon(Icons.home),
         label: 'Home',
       ),
-      NavigationItem(
-        page: const Text('Page 2'),
-        icon: const Icon(Icons.search),
+      const NavigationItem(
+        page: Text('Page 2'),
+        icon: Icon(Icons.search),
         label: 'Search',
       ),
     ];
