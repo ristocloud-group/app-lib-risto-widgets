@@ -78,6 +78,94 @@ class ExpandablePage extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: 20),
+
+        // Expandable Animated Card Example
+        Text(
+          'Expandable Animated Card Example',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 20),
+        ExpandableAnimatedCard(
+          // Explicitly setting a consistent border radius
+          backgroundColor: Colors.blueGrey,
+          collapsedBuilder: (context) {
+            return Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.blueGrey,
+              ),
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Breaking News",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "A brief summary of the news goes here...",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            );
+          },
+          expandedBuilder: (context) {
+            return SingleChildScrollView(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16.0),
+                color: Colors.blueGrey,
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Breaking News",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "A brief summary of the news goes here...",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      "Full Article",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "Here is the full detailed content of the article. It includes more details, background information, "
+                      "and additional commentary that provides a deeper insight into the story. "
+                      "The transition is smooth and fluid, ensuring the animation feels persistent and natural.",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      "Additional Information:",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    Text("• Detail 1", style: TextStyle(fontSize: 16)),
+                    Text("• Detail 2", style: TextStyle(fontSize: 16)),
+                    Text("• Detail 3", style: TextStyle(fontSize: 16)),
+                  ],
+                ),
+              ),
+            );
+          },
+          onClose: () {
+            // Dismiss the overlay by popping it from the Navigator.
+            Navigator.of(context).pop();
+          },
+        ),
       ],
     );
   }
