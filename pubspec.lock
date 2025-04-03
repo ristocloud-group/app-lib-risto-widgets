@@ -162,10 +162,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_markdown
-      sha256: "999a4e3cb3e1532a971c86d6c73a480264f6a687959d4887cb4e2990821827e4"
+      sha256: "634622a3a826d67cb05c0e3e576d1812c430fa98404e95b60b131775c73d76ec"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.4+2"
+    version: "0.7.7"
   flutter_test:
     dependency: "direct dev"
     description: flutter
