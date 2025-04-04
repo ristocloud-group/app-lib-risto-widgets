@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/extentions.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
 class CustomSheetPage extends StatelessWidget {

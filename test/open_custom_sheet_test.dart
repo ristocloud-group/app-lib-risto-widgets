@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:risto_widgets/extentions.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
 void main() {

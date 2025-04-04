@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/extentions.dart';
+import 'package:risto_widgets/extensions.dart';
 
 /// Types of buttons available in [CustomActionButton].
 enum ButtonType { elevated, flat, minimal, longPress }

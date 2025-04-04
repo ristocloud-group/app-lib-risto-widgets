@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/extentions.dart';
+import 'package:risto_widgets/extensions.dart';
 
 import '../buttons/list_tile_button.dart';
 

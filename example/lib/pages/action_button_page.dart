@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/extentions.dart';
 import 'package:risto_widgets/risto_widgets.dart'; // Ensure correct path
 
 class ActionButtonPage extends StatefulWidget {
