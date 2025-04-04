@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extentions.dart';
 
 import '../buttons/list_tile_button.dart';
 
@@ -312,7 +313,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
               width: double.infinity,
               decoration: BoxDecoration(
                 color: widget.expandedColor ??
-                    theme.colorScheme.secondary.withOpacity(0.3),
+                    theme.colorScheme.secondary.withCustomOpacity(0.3),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(10),
                   bottomRight: Radius.circular(10),

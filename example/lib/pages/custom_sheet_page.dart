@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extentions.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
 class CustomSheetPage extends StatelessWidget {
@@ -134,7 +135,7 @@ class CustomSheetPage extends StatelessWidget {
           onPressed: () {
             OpenCustomSheet(
               barrierDismissible: true,
-              barrierColor: Colors.black.withOpacity(0.5),
+              barrierColor: Colors.black.withCustomOpacity(0.5),
               onClose: (value) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

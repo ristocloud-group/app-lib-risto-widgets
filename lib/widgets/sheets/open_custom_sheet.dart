@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extentions.dart';
 
 import '../buttons/custom_action_button.dart';
 import '../buttons/list_tile_button.dart';
@@ -200,7 +201,7 @@ class OpenCustomSheet {
   }) {
     return OpenCustomSheet(
       barrierDismissible: barrierDismissible,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: Colors.black.withCustomOpacity(0.5),
       onClose: onClose,
       backgroundColor: backgroundColor,
       handleColor: handleColor,
