@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extensions.dart';
 
 import '../buttons/custom_action_button.dart';
 
@@ -451,7 +452,7 @@ class IncrementDecrementWidget extends StatefulWidget {
       borderColor: borderColor,
       borderRadius: effectiveBorderRadius,
       // Set the border radius
-      splashColor: Colors.grey.withOpacity(0.2),
+      splashColor: Colors.grey.withCustomOpacity(0.2),
       incrementIcon: incrementIcon,
       decrementIcon: decrementIcon,
       buttonShape: RoundedRectangleBorder(
@@ -683,6 +684,6 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
   Color? _iconColor(BuildContext context, bool isEnabled) {
     final Color defaultColor =
         widget.iconColor ?? Theme.of(context).iconTheme.color!;
-    return isEnabled ? defaultColor : defaultColor.withOpacity(0.2);
+    return isEnabled ? defaultColor : defaultColor.withCustomOpacity(0.2);
   }
 }

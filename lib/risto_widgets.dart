@@ -1,4 +1,4 @@
-library risto_widgets;
+library;
 
 export 'widgets/buttons/custom_action_button.dart';
 export 'widgets/buttons/custom_icon_text.dart';
@@ -10,3 +10,5 @@ export 'widgets/input/increment_decrement_widget.dart';
 export 'widgets/layouts/padded_widgets.dart';
 export 'widgets/navigation/custom_bottom_navbar.dart';
 export 'widgets/sheets/open_custom_sheet.dart';
+
+export 'extensions.dart';

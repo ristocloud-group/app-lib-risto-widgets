@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extensions.dart';
 
 import '../buttons/custom_action_button.dart';
 import '../buttons/list_tile_button.dart';
@@ -200,7 +201,7 @@ class OpenCustomSheet {
   }) {
     return OpenCustomSheet(
       barrierDismissible: barrierDismissible,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: Colors.black.withCustomOpacity(0.5),
       onClose: onClose,
       backgroundColor: backgroundColor,
       handleColor: handleColor,
@@ -261,8 +262,8 @@ class OpenCustomSheet {
       handleColor: handleColor,
       sheetShape: sheetShape,
       sheetPadding: sheetPadding,
-      showDefaultButtons: false,
       // Disable default buttons for scrollable sheet
+      showDefaultButtons: false,
       body: body,
     );
   }
@@ -313,42 +314,44 @@ class OpenCustomSheet {
           );
         } else {
           // For non-scrollable sheet, enable scrolling only if necessary
-          return Container(
-            constraints: BoxConstraints(
-              maxHeight: maxHeight,
-            ),
-            decoration: BoxDecoration(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(10)),
-              color: backgroundColor ?? Theme.of(context).cardColor,
-            ),
-            padding: sheetPadding ?? const EdgeInsets.only(bottom: 16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (handleColor != Colors.transparent)
-                  _buildHandle(handleColor),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 20),
-                      child: body(scrollController: null),
+          return SafeArea(
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: maxHeight,
+              ),
+              decoration: BoxDecoration(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(10)),
+                color: backgroundColor ?? Theme.of(context).cardColor,
+              ),
+              padding: sheetPadding ?? const EdgeInsets.only(bottom: 16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (handleColor != Colors.transparent)
+                    _buildHandle(handleColor),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 20),
+                        child: body(scrollController: null),
+                      ),
                     ),
                   ),
-                ),
-                if (showDefaultButtons)
-                  _buildButtons(
-                    context,
-                    firstButtonColor,
-                    secondButtonColor,
-                    firstButtonTextColor,
-                    secondButtonTextColor,
-                    buttonSpacing,
-                    confirmButtonText,
-                    cancelButtonText,
-                  ),
-              ],
+                  if (showDefaultButtons)
+                    _buildButtons(
+                      context,
+                      firstButtonColor,
+                      secondButtonColor,
+                      firstButtonTextColor,
+                      secondButtonTextColor,
+                      buttonSpacing,
+                      confirmButtonText,
+                      cancelButtonText,
+                    ),
+                ],
+              ),
             ),
           );
         }
