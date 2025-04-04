@@ -52,8 +52,10 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           backgroundColor: Colors.green,
           splashColor: Colors.white.withOpacity(0.2),
           borderRadius: 8.0,
-          child: Text('Flat Button ($counter)',
-              style: const TextStyle(color: Colors.white)),
+          child: Text(
+            'Flat Button ($counter)',
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
         // Minimal Button Example
         CustomActionButton.minimal(
@@ -63,8 +65,10 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
             });
           },
           margin: const EdgeInsets.symmetric(vertical: 8),
-          child: Text('Minimal Button ($counter)',
-              style: const TextStyle(color: Colors.black)),
+          child: Text(
+            'Minimal Button ($counter)',
+            style: const TextStyle(color: Colors.black),
+          ),
         ),
         // Long Press Button Example
         CustomActionButton.longPress(
@@ -91,7 +95,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           elevation: 4.0,
           onPressed: null,
           margin: const EdgeInsets.symmetric(vertical: 8),
-          backgroundColor: Colors.grey,
+          backgroundColor: Colors.indigo,
           borderRadius: 8.0,
           // Disabled
           child: Text(
@@ -112,23 +116,12 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           onPressed: _incrementCounterAsync,
           margin: const EdgeInsets.symmetric(vertical: 8),
           backgroundColor: Colors.purple,
-          disabledColor: Colors.purple.shade200,
+          foregroundColor: Colors.white,
           borderRadius: 8.0,
           elevation: 4.0,
           showLoadingIndicator: true,
-          loadingIndicatorColor: Colors.white,
+          loadingIndicatorColor: Colors.black,
           child: Text('Single Press Button ($counter)'),
-        ),
-        SinglePressButton(
-          onPressed: null,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          backgroundColor: Colors.purple,
-          disabledColor: Colors.purple.shade200,
-          borderRadius: 8.0,
-          elevation: 4.0,
-          showLoadingIndicator: true,
-          loadingIndicatorColor: Colors.white,
-          child: Text('Disabled Single Press Button ($counter)'),
         ),
       ],
     );
