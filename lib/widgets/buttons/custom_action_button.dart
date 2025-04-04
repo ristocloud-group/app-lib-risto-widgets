@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extentions.dart';
 
 /// Types of buttons available in [CustomActionButton].
 enum ButtonType { elevated, flat, minimal, longPress }
@@ -387,7 +388,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     final ButtonStyle buttonStyle = TextButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.white,
       backgroundColor: widget.backgroundColor ?? Theme.of(context).primaryColor,
-      overlayColor: widget.splashColor ?? Colors.grey.withOpacity(0.2),
+      overlayColor: widget.splashColor ?? Colors.grey.withCustomOpacity(0.2),
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: widget.shape ??

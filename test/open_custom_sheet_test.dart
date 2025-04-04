@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:risto_widgets/extentions.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
 void main() {
@@ -135,7 +136,7 @@ void main() {
                 onPressed: () {
                   OpenCustomSheet(
                     barrierDismissible: true,
-                    barrierColor: Colors.black.withOpacity(0.5),
+                    barrierColor: Colors.black.withCustomOpacity(0.5),
                     onClose: (value) {
                     },
                     backgroundColor: Colors.white,
@@ -265,7 +266,7 @@ void main() {
                 onPressed: () {
                   OpenCustomSheet(
                     barrierDismissible: true,
-                    barrierColor: Colors.black.withOpacity(0.5),
+                    barrierColor: Colors.black.withCustomOpacity(0.5),
                     onClose: (value) {
                       dismissed = value == null;
                     },
@@ -314,7 +315,7 @@ void main() {
                   OpenCustomSheet(
                     barrierDismissible: false,
                     // Disable barrier dismiss
-                    barrierColor: Colors.black.withOpacity(0.5),
+                    barrierColor: Colors.black.withCustomOpacity(0.5),
                     onClose: (value) {
                       dismissed = value == null;
                     },
@@ -369,7 +370,7 @@ void main() {
                 onPressed: () {
                   OpenCustomSheet(
                     barrierDismissible: true,
-                    barrierColor: Colors.black.withOpacity(0.5),
+                    barrierColor: Colors.black.withCustomOpacity(0.5),
                     onClose: (value) {
                       sheetResult = value;
                     },

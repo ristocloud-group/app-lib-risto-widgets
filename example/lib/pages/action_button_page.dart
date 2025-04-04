@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extentions.dart';
 import 'package:risto_widgets/risto_widgets.dart'; // Ensure correct path
 
 class ActionButtonPage extends StatefulWidget {
@@ -50,7 +51,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           },
           margin: const EdgeInsets.symmetric(vertical: 8),
           backgroundColor: Colors.green,
-          splashColor: Colors.white.withOpacity(0.2),
+          splashColor: Colors.white.withCustomOpacity(0.2),
           borderRadius: 8.0,
           child: Text('Flat Button ($counter)',
               style: const TextStyle(color: Colors.white)),
