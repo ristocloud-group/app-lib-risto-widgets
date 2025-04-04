@@ -51,6 +51,9 @@ class CustomActionButton extends StatefulWidget {
   /// The border color of the button when it is disabled.
   final Color? disabledBorderColor;
 
+  /// The text color of the button when it is disabled.
+  final Color? disabledForegroundColor;
+
   /// The border color of the button.
   final Color? borderColor;
 
@@ -91,6 +94,7 @@ class CustomActionButton extends StatefulWidget {
     this.splashColor,
     this.disabledBackgroundColor,
     this.disabledBorderColor,
+    this.disabledForegroundColor,
     this.borderColor,
     this.elevation,
     this.borderRadius,
@@ -114,6 +118,7 @@ class CustomActionButton extends StatefulWidget {
     Color? splashColor,
     Color? disabledBackgroundColor,
     Color? disabledForegroundColor,
+    Color? disabledBorderColor,
     Color? borderColor,
     double elevation = 2.0,
     double borderRadius = 8.0,
@@ -133,7 +138,8 @@ class CustomActionButton extends StatefulWidget {
       shadowColor: shadowColor,
       splashColor: splashColor,
       disabledBackgroundColor: disabledBackgroundColor,
-      disabledBorderColor: disabledForegroundColor,
+      disabledBorderColor: disabledBorderColor,
+      disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
       elevation: elevation,
       borderRadius: borderRadius,
@@ -157,6 +163,7 @@ class CustomActionButton extends StatefulWidget {
     Color? foregroundColor,
     Color? splashColor,
     Color? disabledBackgroundColor,
+    Color? disabledBorderColor,
     Color? disabledForegroundColor,
     Color? borderColor,
     double borderRadius = 8.0,
@@ -175,7 +182,8 @@ class CustomActionButton extends StatefulWidget {
       backgroundColor: backgroundColor,
       splashColor: splashColor,
       disabledBackgroundColor: disabledBackgroundColor,
-      disabledBorderColor: disabledForegroundColor,
+      disabledBorderColor: disabledBorderColor,
+      disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
       borderRadius: borderRadius,
       shape: shape,
@@ -194,9 +202,10 @@ class CustomActionButton extends StatefulWidget {
   factory CustomActionButton.minimal({
     required VoidCallback? onPressed,
     required Widget child,
-    Color? foregroundColor,
-    Color? disabledForegroundColor,
     Color? borderColor,
+    Color? foregroundColor,
+    Color? disabledBorderColor,
+    Color? disabledForegroundColor,
     double? width,
     double? height,
     OutlinedBorder? shape,
@@ -207,7 +216,8 @@ class CustomActionButton extends StatefulWidget {
       buttonType: ButtonType.minimal,
       onPressed: onPressed,
       foregroundColor: foregroundColor,
-      disabledBorderColor: disabledForegroundColor,
+      disabledBorderColor: disabledBorderColor,
+      disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
       width: width,
       height: height,
@@ -230,6 +240,7 @@ class CustomActionButton extends StatefulWidget {
     Color? shadowColor,
     Color? splashColor,
     Color? disabledBackgroundColor,
+    Color? disabledBorderColor,
     Color? disabledForegroundColor,
     Color? borderColor,
     double elevation = 2.0,
@@ -251,7 +262,8 @@ class CustomActionButton extends StatefulWidget {
       shadowColor: shadowColor,
       splashColor: splashColor,
       disabledBackgroundColor: disabledBackgroundColor,
-      disabledBorderColor: disabledForegroundColor,
+      disabledBorderColor: disabledBorderColor,
+      disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
       elevation: elevation,
       borderRadius: borderRadius,
@@ -272,8 +284,50 @@ class CustomActionButton extends StatefulWidget {
 class _CustomActionButtonState extends State<CustomActionButton> {
   Timer? _longPressTimer;
 
-  /// Handles the long-press action by repeatedly invoking [widget.onLongPress]
-  /// at a fixed interval.
+  /// Returns a lighter version of the given [color] by interpolating towards white.
+  Color _lighter(Color color, [double amount = 0.5]) {
+    return Color.lerp(color, Colors.white, amount)!;
+  }
+
+  /// Returns the color to use when disabled.
+  ///
+  /// If [disabled] is provided, it is used; otherwise, if [normal] is provided,
+  /// returns a lighter version of it; if neither is provided, returns [fallback].
+  Color _disabledColor(Color? disabled, Color? normal, Color fallback) {
+    if (disabled != null) return disabled;
+    if (normal != null) return _lighter(normal, 0.5);
+    return fallback;
+  }
+
+  /// Computes the effective text style based on the disabled state.
+  TextStyle _effectiveTextStyle(BuildContext context,
+      {required bool disabled}) {
+    if (disabled) {
+      return TextStyle(
+        color: _disabledColor(
+          widget.disabledForegroundColor,
+          widget.foregroundColor,
+          Theme.of(context).disabledColor,
+        ),
+      );
+    } else {
+      return TextStyle(
+        color: widget.foregroundColor ??
+            Theme.of(context).textTheme.labelLarge?.color ??
+            Colors.white,
+      );
+    }
+  }
+
+  /// Wraps the child with a DefaultTextStyle using the effective text style.
+  Widget _wrapChild(BuildContext context, {required bool disabled}) {
+    return DefaultTextStyle(
+      style: _effectiveTextStyle(context, disabled: disabled),
+      child: widget.child,
+    );
+  }
+
+  /// Handles long-press actions by periodically invoking [widget.onLongPress].
   void _handleLongPress() {
     if (widget.onLongPress != null) {
       _longPressTimer = Timer.periodic(
@@ -309,27 +363,29 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     }
   }
 
-  /// Builds a disabled button when [onPressed] is null.
+  /// Builds the disabled button.
   Widget _buildDisabledButton(BuildContext context) {
     final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
       overlayColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      foregroundColor: widget.foregroundColor ?? Colors.transparent,
-      backgroundColor: widget.disabledBackgroundColor ??
-          widget.backgroundColor ??
-          Theme.of(context).primaryColor,
+      foregroundColor: _disabledColor(widget.disabledForegroundColor,
+          widget.foregroundColor, Theme.of(context).disabledColor),
+      backgroundColor: _disabledColor(widget.disabledBackgroundColor,
+          widget.backgroundColor, Theme.of(context).disabledColor),
       shadowColor: widget.shadowColor ?? Colors.black,
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: widget.shape ??
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(widget.borderRadius ?? 8.0),
-            side: (widget.disabledBorderColor ?? widget.borderColor) != null
+            // For the border, apply the disabled logic only if a base border color is provided.
+            side: (widget.borderColor != null ||
+                    widget.disabledBorderColor != null)
                 ? BorderSide(
-                    color: widget.disabledBorderColor ??
-                        widget.borderColor ??
-                        Colors.transparent,
-                    width: 1)
+                    color: _disabledColor(widget.disabledBorderColor,
+                        widget.borderColor, Theme.of(context).disabledColor),
+                    width: 1,
+                  )
                 : BorderSide.none,
           ),
       elevation: widget.elevation,
@@ -344,15 +400,16 @@ class _CustomActionButtonState extends State<CustomActionButton> {
         child: ElevatedButton(
           style: buttonStyle,
           onPressed: () {},
-          child: widget.child,
+          child: _wrapChild(context, disabled: true),
         ),
       ),
     );
   }
 
-  /// Builds an elevated button style.
+  /// Builds the elevated button style.
   Widget _buildElevatedButton(BuildContext context) {
     final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
+      // The foregroundColor is used for icons; text is wrapped with DefaultTextStyle.
       foregroundColor: widget.foregroundColor ?? Colors.white,
       backgroundColor: widget.backgroundColor ?? Theme.of(context).primaryColor,
       shadowColor: widget.shadowColor,
@@ -377,12 +434,12 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       child: ElevatedButton(
         style: buttonStyle,
         onPressed: widget.onPressed,
-        child: widget.child,
+        child: _wrapChild(context, disabled: false),
       ),
     );
   }
 
-  /// Builds a flat button style.
+  /// Builds the flat button style.
   Widget _buildFlatButton(BuildContext context) {
     final ButtonStyle buttonStyle = TextButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.white,
@@ -407,12 +464,12 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       child: TextButton(
         style: buttonStyle,
         onPressed: widget.onPressed,
-        child: widget.child,
+        child: _wrapChild(context, disabled: false),
       ),
     );
   }
 
-  /// Builds a minimal button style.
+  /// Builds the minimal button style.
   Widget _buildMinimalButton(BuildContext context) {
     final ButtonStyle buttonStyle = TextButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.black,
@@ -435,12 +492,12 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       child: TextButton(
         style: buttonStyle,
         onPressed: widget.onPressed,
-        child: widget.child,
+        child: _wrapChild(context, disabled: false),
       ),
     );
   }
 
-  /// Builds a button that supports long-press actions.
+  /// Builds the long-press button style.
   Widget _buildLongPressButton(BuildContext context) {
     final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.white,
@@ -474,7 +531,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
         child: ElevatedButton(
           style: buttonStyle,
           onPressed: widget.onPressed,
-          child: widget.child,
+          child: _wrapChild(context, disabled: false),
         ),
       ),
     );
