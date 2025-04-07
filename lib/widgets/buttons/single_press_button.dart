@@ -7,9 +7,8 @@ import 'custom_action_button.dart';
 /// making it ideal for handling actions that shouldn't be executed multiple times
 /// concurrently, such as network requests.
 ///
-/// The [SinglePressButton] provides options to display a loading indicator
-/// while processing, customize its appearance, and handle processing states
-/// with callbacks.
+/// The [SinglePressButton] provides options to display a loading indicator,
+/// customize its appearance, and handle processing states with callbacks.
 ///
 /// Example usage:
 /// ```dart
@@ -21,6 +20,9 @@ import 'custom_action_button.dart';
 ///   showLoadingIndicator: true,
 ///   backgroundColor: Colors.blue,
 ///   disabledColor: Colors.blueAccent,
+///   foregroundColor: Colors.white, // Sets the text color
+///   borderColor: Colors.red,
+///   disableTextColor: Colors.grey,
 ///   borderRadius: 12.0,
 ///   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
 ///   width: 200,
@@ -46,6 +48,7 @@ class SinglePressButton extends StatefulWidget {
   ///
   /// This callback can be asynchronous and is invoked only once per press.
   /// It is responsible for handling the primary action of the button.
+  /// If null, the button is disabled.
   final Future<void> Function()? onPressed;
 
   /// The amount of space to surround the child inside the button.
@@ -67,13 +70,18 @@ class SinglePressButton extends StatefulWidget {
   ///
   /// This color is displayed when the button is in a processing state.
   /// If not specified, it defaults to the theme's disabled color.
-  final Color? disabledColor;
+  final Color? disabledBackgroundColor;
 
   /// The border radius of the button.
   ///
   /// Controls the roundness of the button's corners.
   /// Defaults to 8.0.
   final double borderRadius;
+
+  /// The foreground color (text/icon color) of the button.
+  ///
+  /// If not specified, the button's text color will be derived from the theme.
+  final Color? foregroundColor;
 
   /// The text style for the button's label.
   ///
@@ -128,9 +136,26 @@ class SinglePressButton extends StatefulWidget {
   /// Provides a way to handle exceptions thrown by the [onPressed] callback.
   final void Function(Object error)? onError;
 
+  /// The border color of the button.
+  ///
+  /// If provided, it overrides the default border color for the button.
+  final Color? borderColor;
+
+  /// The text color of the button when it is disabled.
+  ///
+  /// This color is displayed when the button is not interactive, for example,
+  /// when [onPressed] is null.
+  final Color? disabledForegroundColor;
+
+  /// The border color of the button when it is disabled.
+  ///
+  /// This color is displayed when the button is not interactive, for example,
+  /// when [onPressed] is null.
+  final Color? disabledBorderColor;
+
   /// Creates a [SinglePressButton].
   ///
-  /// The [child] and [onPressed] parameters are required.
+  /// The [child] parameter is required.
   /// The [borderRadius] defaults to 8.0, and [showLoadingIndicator] defaults to `false`.
   const SinglePressButton({
     super.key,
@@ -139,7 +164,11 @@ class SinglePressButton extends StatefulWidget {
     this.padding,
     this.margin,
     this.backgroundColor,
-    this.disabledColor,
+    this.disabledBackgroundColor,
+    this.foregroundColor,
+    this.disabledForegroundColor,
+    this.borderColor,
+    this.disabledBorderColor,
     this.borderRadius = 8.0,
     this.textStyle,
     this.elevation,
@@ -168,7 +197,7 @@ class _SinglePressButtonState extends State<SinglePressButton> {
   /// Ensures that the callback is invoked only once per press.
   /// Manages the processing state and handles optional callbacks for processing events.
   Future<void> _handlePress() async {
-    if (_isProcessing) return;
+    if (_isProcessing || widget.onPressed == null) return;
 
     setState(() {
       _isProcessing = true;
@@ -180,11 +209,9 @@ class _SinglePressButtonState extends State<SinglePressButton> {
     try {
       await widget.onPressed!();
     } catch (error) {
-      // Invoke onError callback if provided.
       if (widget.onError != null) {
         widget.onError!(error);
       } else {
-        // If no onError is provided, rethrow the exception.
         rethrow;
       }
     } finally {
@@ -192,8 +219,6 @@ class _SinglePressButtonState extends State<SinglePressButton> {
         setState(() {
           _isProcessing = false;
         });
-
-        // Invoke onFinishProcessing callback if provided.
         widget.onFinishProcessing?.call();
       }
     }
@@ -201,30 +226,19 @@ class _SinglePressButtonState extends State<SinglePressButton> {
 
   @override
   Widget build(BuildContext context) {
-    // Determine the button's background color based on its state.
-    final Color backgroundColor = _isProcessing
-        ? (widget.disabledColor ?? Theme.of(context).disabledColor)
-        : (widget.backgroundColor ?? Theme.of(context).primaryColor);
-
-    // Determine the text style, merging with provided [textStyle] if any.
-    final TextStyle effectiveTextStyle = widget.textStyle ??
-        Theme.of(context).textTheme.labelLarge!.copyWith(
-              color: widget.backgroundColor != null
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).textTheme.labelLarge!.color,
-            );
+    final bool isDisabled = _isProcessing || widget.onPressed == null;
 
     return Container(
-      margin: widget.margin, // Apply the external margin here
+      margin: widget.margin,
       child: CustomActionButton(
-        onPressed: _isProcessing
-            ? null
-            : (widget.onPressed != null)
-                ? _handlePress
-                : null,
-        disabledBackgroundColor: widget.disabledColor,
+        onPressed: isDisabled ? null : _handlePress,
         padding: widget.padding,
-        backgroundColor: backgroundColor,
+        backgroundColor: widget.backgroundColor,
+        disabledBackgroundColor: widget.disabledBackgroundColor,
+        foregroundColor: widget.foregroundColor,
+        disabledForegroundColor: widget.disabledForegroundColor,
+        borderColor: widget.borderColor,
+        disabledBorderColor: widget.disabledBorderColor,
         borderRadius: widget.borderRadius,
         elevation: widget.elevation,
         shape: widget.shape,
@@ -233,23 +247,20 @@ class _SinglePressButtonState extends State<SinglePressButton> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Original child
-            DefaultTextStyle(
-              style: effectiveTextStyle,
-              child: widget.child,
-            ),
-
-            // Loading indicator overlay
+            widget.child,
             if (_isProcessing && widget.showLoadingIndicator)
-              SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    widget.loadingIndicatorColor ??
-                        Theme.of(context).colorScheme.onPrimary,
+              // Use Positioned.fill so that the loader is constrained to the original button size.
+              Positioned.fill(
+                child: Center(
+                  child: FittedBox(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        widget.loadingIndicatorColor ??
+                            Theme.of(context).colorScheme.onPrimary,
+                      ),
+                      strokeWidth: 2.5,
+                    ),
                   ),
-                  strokeWidth: 2.5,
                 ),
               ),
           ],
