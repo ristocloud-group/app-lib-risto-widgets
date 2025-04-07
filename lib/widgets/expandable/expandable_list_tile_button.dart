@@ -1,108 +1,242 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/extensions.dart';
 
+// Assuming ListTileButton and IconListTileButton are imported correctly below
 import '../buttons/list_tile_button.dart';
+
+/// A controller to manage the expansion state of an [ExpandableListTileButton] externally.
+///
+/// Use this controller to programmatically control the expansion state (expand/collapse)
+/// and to listen for state changes.
+class ExpandableController extends ChangeNotifier {
+  bool _isExpanded;
+
+  /// Creates an expandable controller.
+  ///
+  /// The initial state can be set using [initialExpanded]. Defaults to false.
+  ExpandableController({bool initialExpanded = false})
+      : _isExpanded = initialExpanded;
+
+  /// Whether the tile is currently expanded.
+  bool get isExpanded => _isExpanded;
+
+  /// Expands the tile.
+  ///
+  /// Does nothing if the tile is already expanded.
+  /// Notifies listeners.
+  void expand() {
+    if (!_isExpanded) {
+      _isExpanded = true;
+      notifyListeners();
+    }
+  }
+
+  /// Collapses the tile.
+  ///
+  /// Does nothing if the tile is already collapsed.
+  /// Notifies listeners.
+  void collapse() {
+    if (_isExpanded) {
+      _isExpanded = false;
+      notifyListeners();
+    }
+  }
+
+  /// Toggles the expansion state of the tile.
+  ///
+  /// Notifies listeners.
+  void toggle() {
+    _isExpanded = !_isExpanded;
+    notifyListeners();
+  }
+}
 
 /// A widget that provides an expandable list tile button with customizable headers and content.
 ///
-/// The [ExpandableListTileButton] can be used to create a list tile that expands to reveal additional content when tapped.
-/// It supports custom headers, icons, and expanded content.
+/// The [ExpandableListTileButton] can be used to create a list tile that expands to reveal
+/// additional content when tapped. It supports custom headers, icons, expanded content,
+/// elevation for the combined widget, disabled state, and external control via [ExpandableController].
+///
+/// Uses a Stack layout to ensure the header remains fully rounded and the body expands smoothly beneath it.
+/// Background colors for the header and expanded body areas are specified separately using
+/// [headerBackgroundColor] and [expandedBodyColor]. For backward compatibility,
+/// [backgroundColor] and [expandedColor] can also be used, but the newer names are preferred.
 ///
 /// Example usage:
 /// ```dart
+/// ExpandableController _controller = ExpandableController();
+/// // ...
 /// ExpandableListTileButton.listTile(
+///   controller: _controller,
 ///   title: Text('Tap to expand'),
-///   expanded: Text('Expanded content here'),
+///   expanded: Padding(
+///     padding: const EdgeInsets.all(16.0),
+///     child: Text('Expanded content goes here.'),
+///   ),
+///   margin: EdgeInsets.all(8),
+///   elevation: 4,
+///   headerBackgroundColor: Colors.blue[100], // Preferred
+///   expandedBodyColor: Colors.blue[50],    // Preferred
+///   borderRadius: BorderRadius.circular(12),
 /// );
 /// ```
 class ExpandableListTileButton extends StatefulWidget {
   /// The content to display when the tile is expanded.
   final Widget expanded;
 
-  /// The primary content of the tile when collapsed.
+  /// The primary content of the tile when collapsed (used by default headers).
   final Widget? title;
 
-  /// Additional content displayed below the [title] when collapsed.
+  /// Additional content displayed below the [title] when collapsed (used by default headers).
   final Widget? subtitle;
 
-  /// The background color of the tile when collapsed.
+  /// The background color of the header area.
+  /// If null, [backgroundColor] is used. If both are null, theme default is used.
+  /// Using [headerBackgroundColor] is preferred for clarity.
+  final Color? headerBackgroundColor;
+
+  /// The background color of the expanded content area.
+  /// If null, [expandedColor] is used. If both are null, theme default is used.
+  /// Using [expandedBodyColor] is preferred for clarity.
+  final Color? expandedBodyColor;
+
+  /// An alternative way to set the header background color for backward compatibility.
+  /// [headerBackgroundColor] takes priority if both are provided.
   final Color? backgroundColor;
 
-  /// The background color of the expanded content.
+  /// An alternative way to set the expanded body background color for backward compatibility.
+  /// [expandedBodyColor] takes priority if both are provided.
   final Color? expandedColor;
 
-  /// The color of the leading icon.
+  /// The color of the leading icon (used by default `.iconListTile` header).
   final Color? iconColor;
 
-  /// The color of the trailing expand/collapse icon.
+  /// The color of the trailing expand/collapse icon (used by default headers).
   final Color? trailingIconColor;
 
-  /// The color of the border around the tile.
+  /// The color of the border around the combined widget. Applied to the header Material shape.
   final Color? borderColor;
 
-  /// The elevation of the tile's shadow.
+  /// The elevation of the header's shadow.
   final double elevation;
 
-  /// The leading widget of the tile, typically an icon or avatar.
+  /// The external margin around the widget.
+  final EdgeInsetsGeometry? margin;
+
+  /// Factor to scale the size of the leading icon (used by default `.iconListTile` header).
+  final double? leadingSizeFactor;
+
+  /// The leading widget of the tile (used by default `.listTile` header).
   final Widget? leading;
 
-  /// The icon data for the leading icon.
+  /// The icon data for the leading icon (used by default `.iconListTile` header).
   final IconData? icon;
 
   /// A builder function to create a custom header widget.
   ///
-  /// The function provides a [tapAction] callback and a [isExpanded] boolean to control the expansion state.
-  final Widget Function(Function tapAction, bool isExpanded)? customHeader;
+  /// The function provides a `tapAction` callback, an `isExpanded` boolean,
+  /// and a `isDisabled` boolean. The custom header should handle its own internal layout.
+  final Widget Function(Function() tapAction, bool isExpanded, bool isDisabled)?
+      customHeaderBuilder;
+
+  /// Controls the radius of the corners for the header and the overall shape.
+  final BorderRadius borderRadius;
+
+  /// Whether the tile is interactive. If true, the tile cannot be expanded or collapsed
+  /// by user tap, and its appearance is dimmed.
+  final bool disabled;
+
+  /// Alignment of the [expanded] widget within the body container.
+  final AlignmentGeometry bodyAlignment;
+
+  /// An optional controller to manage the expansion state externally.
+  /// If provided, the widget's state will synchronize with the controller.
+  /// If null, the widget manages its own expansion state internally.
+  final ExpandableController? controller;
+
+  // Internal fields to store the resolved background colors, prioritizing new parameters.
+  final Color? _finalHeaderBackgroundColor;
+  final Color? _finalExpandedBodyColor;
 
   /// Creates an [ExpandableListTileButton] with the given properties.
+  ///
+  /// Use this constructor when providing a [customHeaderBuilder].
+  /// At least one of [customHeaderBuilder] or [title] must be non-null.
+  ///
+  /// Accepts both [headerBackgroundColor]/[expandedBodyColor] (preferred) and
+  /// [backgroundColor]/[expandedColor] (for backward compatibility).
   const ExpandableListTileButton({
     super.key,
     required this.expanded,
+    this.customHeaderBuilder,
     this.title,
     this.subtitle,
-    this.backgroundColor,
-    this.expandedColor,
+    this.headerBackgroundColor,
+    this.expandedBodyColor,
+    this.backgroundColor, // Kept for backward compatibility
+    this.expandedColor, // Kept for backward compatibility
     this.iconColor,
     this.trailingIconColor,
     this.borderColor,
-    this.elevation = 4.0,
+    this.elevation = 1,
+    this.margin,
+    this.leadingSizeFactor,
     this.leading,
     this.icon,
-    this.customHeader,
-  });
+    this.borderRadius = const BorderRadius.all(Radius.circular(10)),
+    this.disabled = false,
+    this.bodyAlignment = Alignment.center,
+    this.controller,
+  })  : _finalHeaderBackgroundColor = headerBackgroundColor ?? backgroundColor,
+        // Prioritize new name
+        _finalExpandedBodyColor = expandedBodyColor ?? expandedColor,
+        // Prioritize new name
+        assert(customHeaderBuilder != null || title != null,
+            'Either customHeaderBuilder or title must be provided for the header.');
 
-  /// Creates an [ExpandableListTileButton] with a default [ListTileButton] header.
-  ///
-  /// Example usage:
-  /// ```dart
-  /// ExpandableListTileButton.listTile(
-  ///   title: Text('Tap to expand'),
-  ///   expanded: Text('Expanded content here'),
-  /// );
-  /// ```
+  /// Creates an [ExpandableListTileButton] with a default header based on [ListTile].
+  /// Accepts both [headerBackgroundColor]/[expandedBodyColor] (preferred) and
+  /// [backgroundColor]/[expandedColor] (for backward compatibility).
   factory ExpandableListTileButton.listTile({
+    Key? key,
     required Widget expanded,
     required Widget title,
     Widget? subtitle,
-    Color? backgroundColor,
-    Color? expandedColor,
+    Color? headerBackgroundColor,
+    Color? expandedBodyColor,
+    Color? backgroundColor, // Kept for backward compatibility
+    Color? expandedColor, // Kept for backward compatibility
     Color? trailingIconColor,
     Color? borderColor,
-    double elevation = 4.0,
+    double elevation = 1,
     Widget? leading,
+    EdgeInsetsGeometry? margin,
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
+    bool disabled = false,
+    AlignmentGeometry bodyAlignment = Alignment.center,
+    ExpandableController? controller,
   }) {
     return ExpandableListTileButton(
+      key: key,
       expanded: expanded,
       title: title,
       subtitle: subtitle,
+      headerBackgroundColor: headerBackgroundColor,
       backgroundColor: backgroundColor,
+      expandedBodyColor: expandedBodyColor,
       expandedColor: expandedColor,
       trailingIconColor: trailingIconColor,
       borderColor: borderColor,
       elevation: elevation,
+      margin: margin,
       leading: leading,
-      customHeader: (toggleExpansion, isExpanded) => ListTileButton(
-        onPressed: () => toggleExpansion.call(),
+      borderRadius: borderRadius,
+      disabled: disabled,
+      bodyAlignment: bodyAlignment,
+      controller: controller,
+      customHeaderBuilder: (toggleExpansion, isExpanded, isDisabled) =>
+          ListTileButton(
+        onPressed: toggleExpansion,
         leading: leading,
         body: title,
         subtitle: subtitle,
@@ -110,91 +244,110 @@ class ExpandableListTileButton extends StatefulWidget {
           isExpanded ? Icons.expand_less : Icons.expand_more,
           color: trailingIconColor,
         ),
-        backgroundColor: backgroundColor,
+        backgroundColor: Colors.transparent,
+        disabled: isDisabled,
       ),
     );
   }
 
-  /// Creates an [ExpandableListTileButton] with a default [IconListTileButton] header.
-  ///
-  /// Example usage:
-  /// ```dart
-  /// ExpandableListTileButton.iconListTile(
-  ///   icon: Icons.info,
-  ///   title: Text('Tap to expand'),
-  ///   expanded: Text('Expanded content here'),
-  /// );
-  /// ```
+  /// Creates an [ExpandableListTileButton] with a default header using an icon on the left.
+  /// Accepts both [headerBackgroundColor]/[expandedBodyColor] (preferred) and
+  /// [backgroundColor]/[expandedColor] (for backward compatibility).
   factory ExpandableListTileButton.iconListTile({
+    Key? key,
     required Widget expanded,
     required IconData icon,
     required Widget title,
     Widget? subtitle,
-    Color? backgroundColor,
-    Color? expandedColor,
+    Color? headerBackgroundColor,
+    Color? expandedBodyColor,
+    Color? backgroundColor, // Kept for backward compatibility
+    Color? expandedColor, // Kept for backward compatibility
     Color? iconColor,
     Color? trailingIconColor,
     Color? borderColor,
-    double elevation = 4.0,
-    double sizeFactor = 1.0,
+    double elevation = 1,
+    double? leadingSizeFactor,
+    EdgeInsetsGeometry? margin,
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
+    bool disabled = false,
+    AlignmentGeometry bodyAlignment = Alignment.center,
+    ExpandableController? controller,
   }) {
     return ExpandableListTileButton(
+      key: key,
       expanded: expanded,
       title: title,
       subtitle: subtitle,
+      headerBackgroundColor: headerBackgroundColor,
       backgroundColor: backgroundColor,
+      expandedBodyColor: expandedBodyColor,
       expandedColor: expandedColor,
       icon: icon,
       iconColor: iconColor,
       trailingIconColor: trailingIconColor,
       borderColor: borderColor,
       elevation: elevation,
-      customHeader: (toggleExpansion, isExpanded) => IconListTileButton(
+      margin: margin,
+      leadingSizeFactor: leadingSizeFactor,
+      borderRadius: borderRadius,
+      disabled: disabled,
+      bodyAlignment: bodyAlignment,
+      controller: controller,
+      customHeaderBuilder: (toggleExpansion, isExpanded, isDisabled) =>
+          IconListTileButton(
         icon: icon,
+        iconColor: iconColor,
+        leadingSizeFactor: leadingSizeFactor ?? 1.0,
         title: title,
         subtitle: subtitle,
         trailing: Icon(
           isExpanded ? Icons.expand_less : Icons.expand_more,
           color: trailingIconColor,
         ),
-        onPressed: () => toggleExpansion.call(),
-        backgroundColor: backgroundColor,
-        iconColor: iconColor,
-        leadingSizeFactor: sizeFactor,
+        onPressed: toggleExpansion,
+        backgroundColor: Colors.transparent,
+        disabled: isDisabled,
       ),
     );
   }
 
-  /// Creates an [ExpandableListTileButton] with a custom header.
-  ///
-  /// The [customHeader] builder function is used to create the header widget.
-  ///
-  /// Example usage:
-  /// ```dart
-  /// ExpandableListTileButton.custom(
-  ///   expanded: Text('Expanded content here'),
-  ///   customHeader: (toggleExpansion, isExpanded) => YourCustomHeaderWidget(),
-  /// );
-  /// ```
+  /// Creates an [ExpandableListTileButton] with a completely custom header provided by [customHeaderBuilder].
+  /// Accepts both [headerBackgroundColor]/[expandedBodyColor] (preferred) and
+  /// [backgroundColor]/[expandedColor] (for backward compatibility).
   factory ExpandableListTileButton.custom({
+    Key? key,
     required Widget expanded,
-    required Widget Function(Function tapAction, bool isExpanded) customHeader,
-    Color? backgroundColor,
-    Color? expandedColor,
-    Color? iconColor,
-    Color? trailingIconColor,
+    required Widget Function(
+            Function() tapAction, bool isExpanded, bool isDisabled)
+        customHeaderBuilder,
+    Color? headerBackgroundColor,
+    Color? expandedBodyColor,
+    Color? backgroundColor, // Kept for backward compatibility
+    Color? expandedColor, // Kept for backward compatibility
     Color? borderColor,
-    double elevation = 4.0,
+    double elevation = 1,
+    EdgeInsetsGeometry? margin,
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
+    bool disabled = false,
+    AlignmentGeometry bodyAlignment = Alignment.center,
+    ExpandableController? controller,
   }) {
     return ExpandableListTileButton(
+      key: key,
       expanded: expanded,
+      customHeaderBuilder: customHeaderBuilder,
+      headerBackgroundColor: headerBackgroundColor,
       backgroundColor: backgroundColor,
+      expandedBodyColor: expandedBodyColor,
       expandedColor: expandedColor,
-      iconColor: iconColor,
-      trailingIconColor: trailingIconColor,
       borderColor: borderColor,
       elevation: elevation,
-      customHeader: customHeader,
+      margin: margin,
+      borderRadius: borderRadius,
+      disabled: disabled,
+      bodyAlignment: bodyAlignment,
+      controller: controller,
     );
   }
 
@@ -205,163 +358,267 @@ class ExpandableListTileButton extends StatefulWidget {
 
 class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     with SingleTickerProviderStateMixin {
-  /// Tracks the expansion state of the tile.
-  bool _isExpanded = false;
+  /// Tracks the logical expansion state of the tile.
+  late bool _isExpanded;
 
-  /// Controls the animation for expanding and collapsing.
-  late AnimationController _controller;
+  /// Controls the animation for the expand/collapse transition.
+  late AnimationController _animationController;
 
-  /// The animation for size transition.
+  /// Defines the curve and value of the size animation.
   late Animation<double> _animation;
 
-  /// The widget displayed in the expanded area.
-  late Widget _bodyWidget;
+  /// Flag indicating if the expansion state is controlled externally via [widget.controller].
+  bool _isStateManagedExternally = false;
 
-  /// The height of the header widget.
-  double _headerHeight = 0.0;
-
-  /// A key to identify the header widget and measure its size.
+  /// Key to access the header widget's context and size.
   final GlobalKey _headerKey = GlobalKey();
 
-  /// Initializes the state of the widget, sets up the animation controller, and measures the header height.
+  /// Stores the measured height of the header.
+  double _headerHeight = 0.0; // Default height, updated after first frame
+
+  /// Initializes the state, animation controller, listeners, and measures header height.
   @override
   void initState() {
     super.initState();
-    _bodyWidget = const SizedBox();
-    _controller = AnimationController(
+    _isStateManagedExternally = widget.controller != null;
+    _isExpanded =
+        _isStateManagedExternally ? widget.controller!.isExpanded : false;
+
+    _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 300),
     );
+
     _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
+      parent: _animationController,
+      curve: Curves.easeInOutCubic,
     );
 
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.dismissed) {
-        setState(() {
-          _bodyWidget = const SizedBox();
-        });
-      } else if (status == AnimationStatus.forward ||
-          status == AnimationStatus.completed) {
-        setState(() {
-          _bodyWidget = widget.expanded;
-        });
-      }
-    });
+    if (_isExpanded) {
+      _animationController.value = 1.0;
+    }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateHeaderHeight();
-    });
+    if (_isStateManagedExternally) {
+      widget.controller!.addListener(_handleControllerChanged);
+    }
+
+    // Measure header height after the first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateHeaderHeight());
   }
 
-  /// Updates the height of the header widget.
+  /// Callback function invoked when the external [ExpandableController] notifies changes.
+  void _handleControllerChanged() {
+    if (widget.controller?.isExpanded != _isExpanded && mounted) {
+      _syncExpansionState(widget.controller!.isExpanded);
+    }
+  }
+
+  /// Called when the widget configuration changes. Handles controller updates and header height measurement.
+  @override
+  void didUpdateWidget(covariant ExpandableListTileButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.controller != oldWidget.controller) {
+      oldWidget.controller?.removeListener(_handleControllerChanged);
+      _isStateManagedExternally = widget.controller != null;
+      if (_isStateManagedExternally) {
+        widget.controller?.removeListener(_handleControllerChanged);
+        widget.controller?.addListener(_handleControllerChanged);
+        if (widget.controller!.isExpanded != _isExpanded) {
+          _syncExpansionState(widget.controller!.isExpanded);
+        }
+      }
+    }
+    // Re-measure header height after potentially relevant changes.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateHeaderHeight());
+  }
+
+  /// Cleans up resources, primarily the animation controller and controller listener.
+  @override
+  void dispose() {
+    _animationController.dispose();
+    widget.controller?.removeListener(_handleControllerChanged);
+    super.dispose();
+  }
+
+  /// Measures the header's height using its GlobalKey.
   void _updateHeaderHeight() {
     final RenderBox? renderBox =
         _headerKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
-      final height = renderBox.size.height;
-      if (_headerHeight != height) {
+      final currentHeight = renderBox.size.height;
+      if (_headerHeight != currentHeight && mounted) {
+        // Use a minimal height if measured height is too small,
+        // e.g., during initial layout phases.
+        // Also consider adding a small buffer if needed.
         setState(() {
-          _headerHeight = height;
+          _headerHeight = currentHeight > 10
+              ? currentHeight
+              : 50.0; // Example fallback/minimum
         });
       }
+    } else if (_headerHeight == 0.0 && mounted) {
+      // Fallback if measurement fails initially
+      setState(() {
+        _headerHeight = 50.0; // Estimate a reasonable default
+      });
     }
   }
 
-  /// Called whenever the widget configuration changes.
-  @override
-  void didUpdateWidget(covariant ExpandableListTileButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateHeaderHeight();
-    });
-  }
-
-  /// Disposes the animation controller.
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  /// Toggles the expansion state of the tile and triggers the animation.
+  /// Toggles the expansion state, either by telling the controller or managing internally.
   void _toggleExpansion() {
+    if (widget.disabled) return;
+
+    if (_isStateManagedExternally) {
+      widget.controller!.toggle();
+    } else {
+      _syncExpansionState(!_isExpanded);
+    }
+  }
+
+  /// Updates the internal `_isExpanded` state and triggers the animation.
+  /// This is the single point of truth for changing the visual expansion state.
+  void _syncExpansionState(bool expand) {
+    if (!mounted) return;
     setState(() {
-      _isExpanded = !_isExpanded;
+      _isExpanded = expand;
       if (_isExpanded) {
-        _controller.forward();
+        _animationController.forward();
       } else {
-        _controller.reverse();
+        _animationController.reverse();
       }
     });
   }
 
-  /// Builds the widget tree.
+  /// Builds the visual structure of the widget using the revised Stack layout.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Use the resolved background colors stored in the final fields
+    final effectiveHeaderBgColor =
+        widget._finalHeaderBackgroundColor ?? theme.cardColor;
+    final effectiveExpandedBodyColor = widget._finalExpandedBodyColor ??
+        theme.colorScheme.secondary.withCustomOpacity(0.1);
 
-    return Stack(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: _headerHeight / 2),
-          child: SizeTransition(
-            sizeFactor: _animation,
-            axisAlignment: 1.0,
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: widget.expandedColor ??
-                    theme.colorScheme.secondary.withCustomOpacity(0.3),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
-                ),
-                border: Border.all(
-                  color: widget.borderColor ?? Colors.transparent,
+    final headerWidget = widget.customHeaderBuilder != null
+        ? widget.customHeaderBuilder!(
+            _toggleExpansion, _isExpanded, widget.disabled)
+        : _buildDefaultHeader(context, theme);
+
+    // Calculate padding values, potentially adjusting for border radius
+    // Using half height might be a good starting point as per original logic.
+    // Experiment with this value if the visual gap persists.
+    final double topPaddingValue = _headerHeight / 2.0;
+    // final double overlap = widget.borderRadius.bottomLeft.y / 2.0; // Alternative idea
+    // final double topPaddingValue = _headerHeight - overlap; // Alternative idea
+
+    return IgnorePointer(
+      ignoring: widget.disabled,
+      child: Opacity(
+        opacity: widget.disabled ? 0.5 : 1.0,
+        child: Container(
+          margin: widget.margin,
+          // No outer Material needed, header and body handle their appearance.
+          child: Stack(
+            children: [
+              // --- Body Section (Animated & Padded) ---
+              // Pad the SizeTransition down to position it below the header area
+              Padding(
+                padding: EdgeInsets.only(top: topPaddingValue),
+                // Position below header center-line
+                child: SizeTransition(
+                  sizeFactor: _animation,
+                  axis: Axis.vertical,
+                  // axisAlignment: 1.0, // Try original alignment?
+                  axisAlignment: -1.0, // Animate from its top edge
+                  child: Container(
+                    // Body Container
+                    clipBehavior: Clip.antiAlias,
+                    // Clip internal content if needed
+                    decoration: BoxDecoration(
+                      color: effectiveExpandedBodyColor,
+                      // Body needs bottom corners rounded to match overall shape
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: widget.borderRadius.bottomLeft,
+                        bottomRight: widget.borderRadius.bottomRight,
+                      ),
+                    ),
+                    alignment: widget.bodyAlignment,
+                    // Add internal padding to push content below header visually
+                    padding: EdgeInsets.only(top: topPaddingValue),
+                    // Push content down
+                    child: widget.expanded, // Body content
+                  ),
                 ),
               ),
-              padding: EdgeInsets.only(top: _headerHeight / 2),
-              child: _bodyWidget,
-            ),
+              // --- Header Section (Always Visible & Rounded) ---
+              // Use Material for header's shape, elevation, and color
+              Material(
+                key: _headerKey,
+                // Assign key to measure height
+                elevation: widget.elevation,
+                color: effectiveHeaderBgColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: widget.borderRadius, // Always fully rounded
+                  side: widget.borderColor != null
+                      ? BorderSide(color: widget.borderColor!)
+                      : BorderSide.none,
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: headerWidget, // The actual header widget
+              ),
+            ],
           ),
         ),
-        Container(
-          key: _headerKey,
-          child: widget.customHeader != null
-              ? widget.customHeader!(_toggleExpansion, _isExpanded)
-              : _buildDefaultHeader(context, theme),
-        ),
-      ],
+      ),
     );
   }
 
-  /// Builds the default header if [customHeader] is not provided.
+  /// Builds the appropriate default header (ListTile or IconListTile style)
+  /// if a [customHeaderBuilder] was not provided.
   Widget _buildDefaultHeader(BuildContext context, ThemeData theme) {
-    return widget.icon != null
-        ? IconListTileButton(
-            icon: widget.icon!,
-            iconColor: widget.iconColor ?? theme.iconTheme.color,
-            title: widget.title!,
-            subtitle: widget.subtitle,
-            onPressed: _toggleExpansion,
-            trailing: Icon(
-              _isExpanded ? Icons.expand_less : Icons.expand_more,
-              color: widget.trailingIconColor ?? theme.iconTheme.color,
-            ),
-            backgroundColor: widget.backgroundColor ?? theme.cardColor,
-          )
-        : ListTileButton(
-            onPressed: _toggleExpansion,
-            leading: widget.leading,
-            body: widget.title,
-            subtitle: widget.subtitle,
-            trailing: Icon(
-              _isExpanded ? Icons.expand_less : Icons.expand_more,
-              color: widget.trailingIconColor ?? theme.iconTheme.color,
-            ),
-            backgroundColor: widget.backgroundColor ?? theme.cardColor,
-          );
+    // Ensure you have imported ListTileButton and IconListTileButton correctly
+    if (widget.icon != null && widget.title != null) {
+      // Build IconListTile style header
+      return IconListTileButton(
+        // Assuming IconListTileButton is imported
+        icon: widget.icon!,
+        iconColor: widget.iconColor,
+        leadingSizeFactor: widget.leadingSizeFactor ?? 1.0,
+        title: widget.title!,
+        subtitle: widget.subtitle,
+        trailing: Icon(
+          _isExpanded ? Icons.expand_less : Icons.expand_more,
+          color: widget.trailingIconColor,
+        ),
+        onPressed: _toggleExpansion,
+        // Background is handled by the Material wrapping this header
+        backgroundColor: Colors.transparent,
+        // Pass disabled state down
+        disabled: widget.disabled,
+        // Ensure internal elements like ListTile handle disabled state if needed
+      );
+    } else if (widget.title != null) {
+      // Build ListTile style header
+      return ListTileButton(
+        // Assuming ListTileButton is imported
+        onPressed: _toggleExpansion,
+        leading: widget.leading,
+        body: widget.title,
+        subtitle: widget.subtitle,
+        trailing: Icon(
+          _isExpanded ? Icons.expand_less : Icons.expand_more,
+          color: widget.trailingIconColor,
+        ),
+        // Background is handled by the Material wrapping this header
+        backgroundColor: Colors.transparent,
+        // Pass disabled state down
+        disabled: widget.disabled,
+        // Ensure internal elements like ListTile handle disabled state if needed
+      );
+    } else {
+      // Fallback (should not be reached due to assertion)
+      return const SizedBox.shrink();
+    }
   }
 }

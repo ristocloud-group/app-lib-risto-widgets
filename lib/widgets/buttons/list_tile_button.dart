@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// A customizable list tile button that wraps content in a rounded container
 /// and provides tap and long-press callbacks. Ideal for creating interactive
-/// list items with consistent styling.
+/// list items with consistent styling. Now supports a disabled state.
 ///
 /// Example usage:
 /// ```dart
@@ -10,16 +10,21 @@ import 'package:flutter/material.dart';
 ///   onPressed: () {},
 ///   leading: Icon(Icons.star),
 ///   body: Text('List Tile Button'),
+///   disabled: false,
 /// );
 /// ```
 class ListTileButton extends StatelessWidget {
   // Behavior
 
-  /// Callback when the tile is tapped.
+  /// Callback when the tile is tapped. Ignored if [disabled] is true.
   final VoidCallback? onPressed;
 
-  /// Callback when the tile is long-pressed.
+  /// Callback when the tile is long-pressed. Ignored if [disabled] is true.
   final VoidCallback? onLongPress;
+
+  /// Whether the button is interactive. Defaults to false.
+  /// If true, onPressed/onLongPress are ignored and the button is dimmed.
+  final bool disabled;
 
   // Layout
 
@@ -87,6 +92,7 @@ class ListTileButton extends StatelessWidget {
     super.key,
     this.onPressed,
     this.onLongPress,
+    this.disabled = false,
     this.margin,
     this.padding,
     this.bodyPadding,
@@ -115,13 +121,13 @@ class ListTileButton extends StatelessWidget {
         child: Center(
           child: SizedBox(
             key: const Key('leading_wrapper'),
-            // Added Key for testing
-            width: 24.0 * leadingSizeFactor,
-            height: 24.0 * leadingSizeFactor,
+            // Use IconTheme size as base for scaling if available, else default 24.0
+            width: (IconTheme.of(context).size ?? 24.0) * leadingSizeFactor,
+            height: (IconTheme.of(context).size ?? 24.0) * leadingSizeFactor,
             child: FittedBox(
               fit: BoxFit.contain,
               alignment: Alignment.center,
-              child: leading,
+              child: leading, // The actual leading widget (e.g., Icon)
             ),
           ),
         ),
@@ -140,42 +146,48 @@ class ListTileButton extends StatelessWidget {
       );
     }
 
-    return RoundedContainer(
-      margin: margin,
-      borderColor: borderColor,
-      backgroundColor: backgroundColor,
-      elevation: elevation,
-      borderRadius: borderRadius,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(borderRadius),
-          onTap: onPressed,
-          onLongPress: onLongPress,
-          child: Padding(
-            padding: padding ?? const EdgeInsets.all(8),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: minHeight ?? 50.0,
-              ),
-              child: IntrinsicHeight(
-                child: Row(
-                  children: [
-                    if (leadingWidget != null) leadingWidget,
-                    Expanded(
-                      child: ListTile(
-                        titleAlignment: bodyAlignment,
-                        visualDensity: visualDensity ?? VisualDensity.compact,
-                        contentPadding:
-                            bodyPadding ?? const EdgeInsets.only(left: 8),
-                        minVerticalPadding: 0,
-                        minLeadingWidth: 0,
-                        title: body,
-                        subtitle: subtitle,
+    // Wrap in Opacity for disabled state
+    return Opacity(
+      opacity: disabled ? 0.5 : 1.0,
+      child: RoundedContainer(
+        margin: margin,
+        borderColor: borderColor,
+        backgroundColor: backgroundColor,
+        elevation: elevation,
+        borderRadius: borderRadius,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(borderRadius),
+            // Disable callbacks if disabled
+            onTap: disabled ? null : onPressed,
+            onLongPress: disabled ? null : onLongPress,
+            child: Padding(
+              padding: padding ?? const EdgeInsets.all(8),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: minHeight ?? 50.0,
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      if (leadingWidget != null) leadingWidget,
+                      Expanded(
+                        child: ListTile(
+                          titleAlignment: bodyAlignment,
+                          visualDensity: visualDensity ?? VisualDensity.compact,
+                          contentPadding:
+                              bodyPadding ?? const EdgeInsets.only(left: 8),
+                          minVerticalPadding: 0,
+                          minLeadingWidth: 0,
+                          title: body,
+                          subtitle: subtitle,
+                          enabled: !disabled,
+                        ),
                       ),
-                    ),
-                    if (trailingWidget != null) trailingWidget,
-                  ],
+                      if (trailingWidget != null) trailingWidget,
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -187,6 +199,7 @@ class ListTileButton extends StatelessWidget {
 }
 
 /// A convenience widget that combines an icon with a [ListTileButton].
+/// Now supports a disabled state.
 ///
 /// Example usage:
 /// ```dart
@@ -194,13 +207,17 @@ class ListTileButton extends StatelessWidget {
 ///   icon: Icons.settings,
 ///   title: Text('Settings'),
 ///   onPressed: () {},
+///   disabled: true,
 /// );
 /// ```
 class IconListTileButton extends StatelessWidget {
   // Behavior
 
-  /// Callback when the tile is tapped.
+  /// Callback when the tile is tapped. Ignored if [disabled] is true.
   final VoidCallback? onPressed;
+
+  /// Whether the button is interactive. Defaults to false.
+  final bool disabled;
 
   // Layout
 
@@ -261,6 +278,7 @@ class IconListTileButton extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.onPressed,
+    this.disabled = false,
     this.backgroundColor,
     this.borderColor,
     this.iconColor,
@@ -276,13 +294,13 @@ class IconListTileButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Pass all parameters, including disabled, down to ListTileButton
     return ListTileButton(
       margin: margin,
       padding: padding,
       bodyPadding: bodyPadding,
       leadingPadding: leadingPadding,
       trailingPadding: trailingPadding,
-
       backgroundColor: backgroundColor,
       borderColor: borderColor,
       elevation: elevation,
@@ -291,58 +309,30 @@ class IconListTileButton extends StatelessWidget {
       subtitle: subtitle,
       trailing: trailing,
       onPressed: onPressed,
+      disabled: disabled,
+      // Pass the Icon widget directly; ListTileButton will handle scaling via FittedBox
       leading: Icon(
         icon,
         color: iconColor ?? Theme.of(context).iconTheme.color,
-        size: 24.0,
+        // REMOVED fixed size: size: 24.0,
       ),
-      leadingSizeFactor: leadingSizeFactor,
-      bodyAlignment: ListTileTitleAlignment.threeLine,
+      leadingSizeFactor: leadingSizeFactor, // Pass the factor for scaling logic
     );
   }
 }
 
+// --- Unchanged Widgets Below ---
+
 /// A container with rounded corners and optional border and elevation.
-///
-/// Used internally by [ListTileButton] to wrap content with consistent styling.
-///
-/// Example usage:
-/// ```dart
-/// RoundedContainer(
-///   child: Text('Content'),
-///   backgroundColor: Colors.white,
-///   borderColor: Colors.grey,
-/// );
-/// ```
 class RoundedContainer extends StatelessWidget {
-  // Layout
-
-  /// External margin around the container.
   final EdgeInsetsGeometry? margin;
-
-  /// Internal padding within the container.
   final EdgeInsetsGeometry? padding;
-
-  // Content
-
-  /// The widget below this widget in the tree.
   final Widget child;
-
-  // Style
-
-  /// Background color of the container.
   final Color? backgroundColor;
-
-  /// Border color of the container.
   final Color? borderColor;
-
-  /// Border radius of the container's rounded corners.
   final double borderRadius;
-
-  /// Elevation of the container's shadow.
   final double? elevation;
 
-  /// Creates a [RoundedContainer] with customizable styling.
   const RoundedContainer({
     super.key,
     required this.child,
@@ -377,39 +367,14 @@ class RoundedContainer extends StatelessWidget {
   }
 }
 
-/// A widget that displays two buttons side by side, typically used at the bottom
-/// of a sheet or dialog for actions like "Confirm" and "Cancel".
-///
-/// Example usage:
-/// ```dart
-/// DoubleListTileButtons(
-///   firstButton: ElevatedButton(
-///     onPressed: () {},
-///     child: Text('Cancel'),
-///   ),
-///   secondButton: ElevatedButton(
-///     onPressed: () {},
-///     child: Text('Confirm'),
-///   ),
-/// );
-/// ```
+/// A widget that displays two buttons side by side.
 class DoubleListTileButtons extends StatelessWidget {
-  /// The first button to display.
   final Widget firstButton;
-
-  /// The second button to display.
   final Widget secondButton;
-
-  /// Padding around the buttons.
   final EdgeInsetsGeometry padding;
-
-  /// Whether the buttons should expand to fill the available width.
   final bool expanded;
-
-  /// Space between the two buttons.
   final double? space;
 
-  /// Creates a [DoubleListTileButtons] widget.
   const DoubleListTileButtons({
     super.key,
     required this.firstButton,
