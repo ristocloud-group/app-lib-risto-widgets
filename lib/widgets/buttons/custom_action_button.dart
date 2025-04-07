@@ -455,6 +455,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
                 ? BorderSide(color: widget.borderColor!, width: 1)
                 : BorderSide.none,
           ),
+      elevation: widget.elevation,
       splashFactory: widget.splashFactory ?? InkRipple.splashFactory,
     );
 
@@ -462,7 +463,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       margin: widget.margin,
       width: widget.width,
       height: widget.height,
-      child: TextButton(
+      child: ElevatedButton(
         style: buttonStyle,
         onPressed: widget.onPressed,
         child: _wrapChild(context, disabled: false),
