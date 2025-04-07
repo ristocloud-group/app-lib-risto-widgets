@@ -14,10 +14,12 @@ class ExpandablePage extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // Standard Expandable List Tile Button
+        // Standard Expandable List Tile Button with margin and elevation
         ExpandableListTileButton.listTile(
+          margin: const EdgeInsets.all(12),
           backgroundColor: Colors.blueGrey[600],
           expandedColor: Colors.blue[300],
+          elevation: 6.0,
           expanded: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16.0),
@@ -34,10 +36,12 @@ class ExpandablePage extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // Icon List Tile Button with Expandable
+        // Icon List Tile Button with Expandable using leadingSizeFactor
         ExpandableListTileButton.iconListTile(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
           backgroundColor: Colors.blueGrey[600],
           expandedColor: Colors.blue[300],
+          elevation: 6.0,
           expanded: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16.0),
@@ -53,14 +57,16 @@ class ExpandablePage extends StatelessWidget {
           ),
           icon: Icons.account_circle,
           iconColor: Colors.white,
-          sizeFactor: 2,
+          leadingSizeFactor: 2.0,
         ),
         const SizedBox(height: 20),
 
-        // Custom Header with Expandable Content
+        // Custom Header with Expandable Content, margin and elevation
         ExpandableListTileButton.custom(
+          margin: const EdgeInsets.all(12),
           backgroundColor: Colors.blueGrey[600],
           expandedColor: Colors.blue[300],
+          elevation: 6.0,
           expanded: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16.0),
@@ -80,7 +86,7 @@ class ExpandablePage extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // Expandable Animated Card Example
+        // Expandable Animated Card Example (unchanged)
         Text(
           'Expandable Animated Card Example',
           style: Theme.of(context).textTheme.titleLarge,

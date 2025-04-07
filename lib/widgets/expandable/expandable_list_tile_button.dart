@@ -5,14 +5,15 @@ import '../buttons/list_tile_button.dart';
 
 /// A widget that provides an expandable list tile button with customizable headers and content.
 ///
-/// The [ExpandableListTileButton] can be used to create a list tile that expands to reveal additional content when tapped.
-/// It supports custom headers, icons, and expanded content.
+/// The [ExpandableListTileButton] can be used to create a list tile that expands to reveal
+/// additional content when tapped. It supports custom headers, icons, and expanded content.
 ///
 /// Example usage:
 /// ```dart
 /// ExpandableListTileButton.listTile(
 ///   title: Text('Tap to expand'),
 ///   expanded: Text('Expanded content here'),
+///   margin: EdgeInsets.all(8),
 /// );
 /// ```
 class ExpandableListTileButton extends StatefulWidget {
@@ -43,6 +44,12 @@ class ExpandableListTileButton extends StatefulWidget {
   /// The elevation of the tile's shadow.
   final double elevation;
 
+  /// The external margin around the widget.
+  final EdgeInsetsGeometry? margin;
+
+  /// Factor to scale the size of the leading icon.
+  final double? leadingSizeFactor;
+
   /// The leading widget of the tile, typically an icon or avatar.
   final Widget? leading;
 
@@ -66,6 +73,8 @@ class ExpandableListTileButton extends StatefulWidget {
     this.trailingIconColor,
     this.borderColor,
     this.elevation = 4.0,
+    this.margin,
+    this.leadingSizeFactor,
     this.leading,
     this.icon,
     this.customHeader,
@@ -90,6 +99,7 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? borderColor,
     double elevation = 4.0,
     Widget? leading,
+    EdgeInsetsGeometry? margin,
   }) {
     return ExpandableListTileButton(
       expanded: expanded,
@@ -100,6 +110,7 @@ class ExpandableListTileButton extends StatefulWidget {
       trailingIconColor: trailingIconColor,
       borderColor: borderColor,
       elevation: elevation,
+      margin: margin,
       leading: leading,
       customHeader: (toggleExpansion, isExpanded) => ListTileButton(
         onPressed: () => toggleExpansion.call(),
@@ -136,7 +147,8 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? trailingIconColor,
     Color? borderColor,
     double elevation = 4.0,
-    double sizeFactor = 1.0,
+    double? leadingSizeFactor,
+    EdgeInsetsGeometry? margin,
   }) {
     return ExpandableListTileButton(
       expanded: expanded,
@@ -149,8 +161,12 @@ class ExpandableListTileButton extends StatefulWidget {
       trailingIconColor: trailingIconColor,
       borderColor: borderColor,
       elevation: elevation,
+      margin: margin,
+      leadingSizeFactor: leadingSizeFactor,
       customHeader: (toggleExpansion, isExpanded) => IconListTileButton(
         icon: icon,
+        iconColor: iconColor,
+        leadingSizeFactor: leadingSizeFactor ?? 1.0,
         title: title,
         subtitle: subtitle,
         trailing: Icon(
@@ -159,8 +175,6 @@ class ExpandableListTileButton extends StatefulWidget {
         ),
         onPressed: () => toggleExpansion.call(),
         backgroundColor: backgroundColor,
-        iconColor: iconColor,
-        leadingSizeFactor: sizeFactor,
       ),
     );
   }
@@ -185,6 +199,8 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? trailingIconColor,
     Color? borderColor,
     double elevation = 4.0,
+    EdgeInsetsGeometry? margin,
+    double? leadingSizeFactor,
   }) {
     return ExpandableListTileButton(
       expanded: expanded,
@@ -194,6 +210,8 @@ class ExpandableListTileButton extends StatefulWidget {
       trailingIconColor: trailingIconColor,
       borderColor: borderColor,
       elevation: elevation,
+      margin: margin,
+      leadingSizeFactor: leadingSizeFactor,
       customHeader: customHeader,
     );
   }
@@ -302,38 +320,41 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Stack(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: _headerHeight / 2),
-          child: SizeTransition(
-            sizeFactor: _animation,
-            axisAlignment: 1.0,
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: widget.expandedColor ??
-                    theme.colorScheme.secondary.withCustomOpacity(0.3),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
+    return Container(
+      margin: widget.margin,
+      child: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: _headerHeight / 2),
+            child: SizeTransition(
+              sizeFactor: _animation,
+              axisAlignment: 1.0,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: widget.expandedColor ??
+                      theme.colorScheme.secondary.withCustomOpacity(0.3),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                  border: Border.all(
+                    color: widget.borderColor ?? Colors.transparent,
+                  ),
                 ),
-                border: Border.all(
-                  color: widget.borderColor ?? Colors.transparent,
-                ),
+                padding: EdgeInsets.only(top: _headerHeight / 2),
+                child: _bodyWidget,
               ),
-              padding: EdgeInsets.only(top: _headerHeight / 2),
-              child: _bodyWidget,
             ),
           ),
-        ),
-        Container(
-          key: _headerKey,
-          child: widget.customHeader != null
-              ? widget.customHeader!(_toggleExpansion, _isExpanded)
-              : _buildDefaultHeader(context, theme),
-        ),
-      ],
+          Container(
+            key: _headerKey,
+            child: widget.customHeader != null
+                ? widget.customHeader!(_toggleExpansion, _isExpanded)
+                : _buildDefaultHeader(context, theme),
+          ),
+        ],
+      ),
     );
   }
 
@@ -343,6 +364,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
         ? IconListTileButton(
             icon: widget.icon!,
             iconColor: widget.iconColor ?? theme.iconTheme.color,
+            leadingSizeFactor: widget.leadingSizeFactor ?? 1.0,
             title: widget.title!,
             subtitle: widget.subtitle,
             onPressed: _toggleExpansion,
