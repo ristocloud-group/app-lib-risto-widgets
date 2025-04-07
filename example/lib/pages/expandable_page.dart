@@ -1,42 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/risto_widgets.dart'; // Assuming this imports ExpandableListTileButton, PaddedChildrenList, etc.
-
-// Assuming CustomActionButton exists and accepts onPressed and child.
-// If it needs isDisabled, you'll need to modify it.
-class CustomActionButton extends StatelessWidget {
-  final VoidCallback? onPressed;
-  final Widget child;
-  final Color? backgroundColor;
-  final EdgeInsetsGeometry? margin;
-  final bool disabled; // Assuming it might accept disabled
-
-  const CustomActionButton({
-    super.key,
-    this.onPressed,
-    required this.child,
-    this.backgroundColor,
-    this.margin,
-    this.disabled = false, // Default value
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: margin ?? EdgeInsets.zero,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), // Example border radius
-          ),
-        ),
-        onPressed: disabled ? null : onPressed,
-        child: child,
-      ),
-    );
-  }
-}
+import 'package:risto_widgets/risto_widgets.dart';
 
 class ExpandablePage extends StatelessWidget {
   const ExpandablePage({super.key});
@@ -61,26 +24,23 @@ class ExpandablePage extends StatelessWidget {
         const SizedBox(height: 8),
         ExpandableListTileButton.listTile(
           margin: const EdgeInsets.symmetric(vertical: 8),
-          // Use preferred parameter names
           headerBackgroundColor: Colors.teal[700],
           expandedBodyColor: Colors.teal[100],
           elevation: 4.0,
           borderRadius: BorderRadius.circular(12),
-          // Custom border radius
-          // Align content in the expanded body
           bodyAlignment: Alignment.bottomCenter,
           expanded: Container(
-            // No need for width: double.infinity; Column stretches horizontally
             padding: const EdgeInsets.all(16.0),
             child: const Text(
               'Expanded content aligned to bottom center',
-              textAlign: TextAlign.center, // Text alignment within Text widget
+              textAlign: TextAlign.center,
             ),
           ),
           title: const Text('Aligned Body Content', style: whiteTextStyle),
           subtitle: const Text('Using bodyAlignment', style: white70TextStyle),
           leading: const Icon(Icons.format_align_center, color: Colors.white),
-          trailingIconColor: Colors.white, // Color for the expand/collapse icon
+          // Updated Icon
+          trailingIconColor: Colors.white,
         ),
         const SizedBox(height: 20),
 
@@ -92,12 +52,10 @@ class ExpandablePage extends StatelessWidget {
         const SizedBox(height: 8),
         ExpandableListTileButton.iconListTile(
           margin: const EdgeInsets.symmetric(vertical: 8),
-          // Use preferred parameter names
           headerBackgroundColor: Colors.indigo[600],
           expandedBodyColor: Colors.indigo[100],
           elevation: 6.0,
           borderRadius: BorderRadius.circular(8),
-          // Different radius
           expanded: const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text('Expanded content with scaled icon.'),
@@ -112,10 +70,8 @@ class ExpandablePage extends StatelessWidget {
           ),
           icon: Icons.account_circle,
           iconColor: Colors.amberAccent,
-          // Custom icon color
           leadingSizeFactor: 1.5,
-          // Make icon larger
-          trailingIconColor: Colors.amberAccent, // Match icon color
+          trailingIconColor: Colors.amberAccent,
         ),
         const SizedBox(height: 20),
 
@@ -127,35 +83,23 @@ class ExpandablePage extends StatelessWidget {
         const SizedBox(height: 8),
         ExpandableListTileButton.custom(
           margin: const EdgeInsets.symmetric(vertical: 8),
-          // Use preferred parameter names
-          // Set header bg to transparent if custom header has its own bg
           headerBackgroundColor: Colors.transparent,
           expandedBodyColor: Colors.deepPurple[100],
           elevation: 0,
-          // Set elevation to 0 to see border clearly
           borderColor: Colors.deepPurple,
-          // Add a border
           borderRadius: BorderRadius.circular(16),
-          // Larger radius
           expanded: const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text('Expanded content for custom header.'),
           ),
-          // Pass disabled state to the custom builder
           customHeaderBuilder:
               (tapAction, isExpanded, isDisabled) => CustomActionButton(
-                // Example: Custom header handles its own background and disabled state
                 backgroundColor:
                     isDisabled ? Colors.grey[700] : Colors.deepPurple[700],
                 margin: EdgeInsets.zero,
-                // Let Expandable handle margin
                 onPressed: tapAction,
-                // Use the provided tapAction
-                disabled: isDisabled,
-                // Pass disabled state
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  // Add padding inside button
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -183,15 +127,12 @@ class ExpandablePage extends StatelessWidget {
         const SizedBox(height: 8),
         ExpandableListTileButton.listTile(
           margin: const EdgeInsets.symmetric(vertical: 8),
-          // Use preferred parameter names
           headerBackgroundColor: Colors.blueGrey[800],
-          // Darker when disabled
           expandedBodyColor: Colors.blueGrey[400],
           elevation: 2.0,
-          // Lower elevation maybe
           borderRadius: BorderRadius.circular(10),
-          // Explicitly set disabled to true
           disabled: true,
+          // Correctly set to disabled
           expanded: const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text('This content should not be reachable.'),
@@ -209,20 +150,32 @@ class ExpandablePage extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
-        // Use a StatefulWidget to manage the controller
         const ExpandableControllerExample(),
         const SizedBox(height: 20),
 
-        // --- Original Expandable Animated Card Example (Unchanged) ---
+        // --- Original Expandable Animated Card Example (With Fix) ---
         Text('Expandable Animated Card Example', style: titleStyle),
         const SizedBox(height: 20),
         ExpandableAnimatedCard(
-          backgroundColor: Colors.blueGrey,
+          // Explicitly setting a consistent border radius for the expanded state
+          borderRadius: BorderRadius.circular(20),
+          backgroundColor: Colors.blueGrey.shade700,
+          // Slightly darker shade
+          headerBackgroundColor: Colors.blueGrey.shade100,
+          // Light header
+          headerTextColor: Colors.black87,
+          overlayBackgroundColor: Colors.white.withCustomOpacity(0.7),
+          // Darker scrim
+          bottomMargin: MediaQuery.of(context).padding.bottom + 16,
+
+          // Dynamic bottom margin
           collapsedBuilder: (context) {
+            // Keep consistent styling with the expanded view if desired
             return Container(
               decoration: BoxDecoration(
+                // Match the borderRadius specified for the expanded card
                 borderRadius: BorderRadius.circular(20),
-                color: Colors.blueGrey,
+                color: Colors.blueGrey[700], // Match background color
               ),
               width: double.infinity,
               padding: const EdgeInsets.all(16.0),
@@ -240,7 +193,7 @@ class ExpandablePage extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "A brief summary of the news goes here...",
+                    "Tap to read the full story...",
                     style: TextStyle(fontSize: 16, color: Colors.white70),
                   ),
                 ],
@@ -248,55 +201,90 @@ class ExpandablePage extends StatelessWidget {
             );
           },
           expandedBuilder: (context) {
-            // Note: expandedBuilder in ExpandableAnimatedCard might not need SingleChildScrollView
-            // if the card itself handles scrolling or sizing appropriately.
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16.0),
-              color: Colors.blueGrey[100], // Lighter background when expanded
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Breaking News",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "A brief summary of the news goes here...",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    "Full Article",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Here is the full detailed content of the article. It includes more details, background information, "
-                    "and additional commentary that provides a deeper insight into the story. "
-                    "The transition is smooth and fluid, ensuring the animation feels persistent and natural.",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    "Additional Information:",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text("• Detail 1", style: TextStyle(fontSize: 16)),
-                  Text("• Detail 2", style: TextStyle(fontSize: 16)),
-                  Text("• Detail 3", style: TextStyle(fontSize: 16)),
-                ],
+            // Ensure the expanded content itself doesn't clash with card background
+            // Often good to have the Container here manage padding/color if needed,
+            // or ensure children handle their own text colors etc.
+            return SingleChildScrollView(
+              // Essential for long content
+              physics: const AlwaysScrollableScrollPhysics(),
+              // Ensure scrolling works even if content is short
+              child: Padding(
+                // Add padding *inside* the scroll view
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Breaking News",
+                      style: TextStyle(
+                        fontSize: 22, // Slightly larger in expanded view
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "A brief summary of the news goes here, providing a bit more context than the collapsed view.",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Full Article",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Here is the full detailed content of the article. It includes more details, background information, "
+                      "and additional commentary that provides a deeper insight into the story. "
+                      "The transition is smooth and fluid, ensuring the animation feels persistent and natural. "
+                      "This section can be quite long, hence the need for SingleChildScrollView. "
+                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+                      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Additional Information:",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "• Detail 1: More data points.",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                    const Text(
+                      "• Detail 2: Related links or sources.",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                    const Text(
+                      "• Detail 3: Author information.",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                    // Add more content to test scrolling
+                    const SizedBox(height: 300),
+                    const Text(
+                      "End of Content",
+                      style: TextStyle(fontSize: 16, color: Colors.white70),
+                    ),
+                  ],
+                ),
               ),
             );
           },
           onClose: () {
-            // Example: Show a snackbar or just log
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Expandable Card Closed')),
-            );
-            // If used in an overlay, pop: Navigator.of(context).pop();
+            debugPrint("Expandable card overlay was closed!");
           },
         ),
       ],
@@ -322,10 +310,8 @@ class _ExpandableControllerExampleState
   void initState() {
     super.initState();
     _controller = ExpandableController(initialExpanded: false);
-    // Optional: Add listener to react to state changes
     _controller.addListener(() {
-      // print("Controller state changed: ${_controller.isExpanded}");
-      // You might call setState here if external UI needs to update based on controller state
+      // Optional: React to state changes if needed
     });
   }
 
@@ -341,7 +327,6 @@ class _ExpandableControllerExampleState
       mainAxisSize: MainAxisSize.min,
       children: [
         ExpandableListTileButton.listTile(
-          // Pass the controller to the widget
           controller: _controller,
           margin: const EdgeInsets.symmetric(vertical: 8),
           headerBackgroundColor: Colors.orange[700],
@@ -364,7 +349,6 @@ class _ExpandableControllerExampleState
           trailingIconColor: Colors.white,
         ),
         const SizedBox(height: 8),
-        // Buttons to control the ExpandableListTileButton via the controller
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
