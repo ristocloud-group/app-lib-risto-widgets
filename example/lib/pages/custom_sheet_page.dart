@@ -21,10 +21,13 @@ class CustomSheetPage extends StatelessWidget {
               context,
               body: const Text('Are you sure you want to proceed?'),
               onClose: (value) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(
-                      value == true ? 'Action Confirmed' : 'Action Cancelled'),
-                ));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      value == true ? 'Action Confirmed' : 'Action Cancelled',
+                    ),
+                  ),
+                );
               },
               backgroundColor: Colors.white,
               handleColor: Colors.grey,
@@ -53,17 +56,20 @@ class CustomSheetPage extends StatelessWidget {
                 return ListView.builder(
                   controller: scrollController,
                   itemCount: 50,
-                  itemBuilder: (context, index) => ListTile(
-                    title: Text('Item $index'),
-                  ),
+                  itemBuilder:
+                      (context, index) => ListTile(title: Text('Item $index')),
                 );
               },
               onClose: (value) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(value == true
-                      ? 'Scrolled Action Confirmed'
-                      : 'Scrolled Action Cancelled'),
-                ));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      value == true
+                          ? 'Scrolled Action Confirmed'
+                          : 'Scrolled Action Cancelled',
+                    ),
+                  ),
+                );
               },
               backgroundColor: Colors.white,
               handleColor: Colors.grey,
@@ -105,9 +111,11 @@ class CustomSheetPage extends StatelessWidget {
                 ],
               ),
               onClose: (value) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(value == true ? 'Confirmed' : 'Cancelled'),
-                ));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(value == true ? 'Confirmed' : 'Cancelled'),
+                  ),
+                );
               },
               backgroundColor: Colors.white,
               handleColor: Colors.grey,
@@ -126,53 +134,111 @@ class CustomSheetPage extends StatelessWidget {
           onPressed: () {
             OpenCustomSheet(
               barrierDismissible: true,
-              barrierColor: Colors.black.withOpacity(0.5),
+              barrierColor: Colors.black.withCustomOpacity(0.5),
               onClose: (value) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content:
-                      Text(value == true ? 'Submitted' : 'Action Cancelled'),
-                ));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      value == true ? 'Submitted' : 'Action Cancelled',
+                    ),
+                  ),
+                );
               },
               backgroundColor: Colors.white,
               handleColor: Colors.grey,
-              sheetPadding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-              body: ({scrollController}) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Enter Details',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  const TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Name',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  CustomActionButton.flat(
-                    onPressed: () => Navigator.pop(context, true),
-                    backgroundColor: Colors.green,
-                    margin: EdgeInsets.zero,
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
+              sheetPadding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 10.0,
               ),
+              body:
+                  ({scrollController}) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Enter Details',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 16),
+                      const TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      CustomActionButton.flat(
+                        onPressed: () => Navigator.pop(context, true),
+                        backgroundColor: Colors.green,
+                        margin: EdgeInsets.zero,
+                        child: const Text(
+                          'Submit',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
             ).show(context);
           },
           child: const Text('Open Custom Form Sheet'),
+        ),
+        CustomActionButton(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => Scaffold(
+                      appBar: AppBar(title: Text("Test safe area")),
+                      body: PaddedChildrenList(
+                        children: [
+                          CustomActionButton(
+                            child: Text("Test confirm sheet"),
+                            onPressed: () {
+                              OpenCustomSheet.openConfirmSheet(
+                                context,
+                                body: const Text(
+                                  'Are you sure you want to proceed?',
+                                ),
+                                onClose: (value) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        value == true
+                                            ? 'Action Confirmed'
+                                            : 'Action Cancelled',
+                                      ),
+                                    ),
+                                  );
+                                },
+                                backgroundColor: Colors.white,
+                                handleColor: Colors.grey,
+                                firstButtonColor: Colors.red,
+                                secondButtonColor: Colors.green,
+                                firstButtonTextColor: Colors.white,
+                                secondButtonTextColor: Colors.white,
+                                buttonSpacing: 8.0,
+                                confirmButtonText: "Confirm",
+                                cancelButtonText: "Cancel",
+                              ).show(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+              ),
+            );
+          },
+
+          child: Text("Safe area test"),
         ),
       ],
     );
