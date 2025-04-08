@@ -353,16 +353,8 @@ class _ExpandableControllerExampleState
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ElevatedButton(
-              onPressed: () => _controller.expand(),
-              child: const Text('Expand'),
-            ),
-            ElevatedButton(
               onPressed: () => _controller.toggle(),
               child: const Text('Toggle'),
-            ),
-            ElevatedButton(
-              onPressed: () => _controller.collapse(),
-              child: const Text('Collapse'),
             ),
           ],
         ),

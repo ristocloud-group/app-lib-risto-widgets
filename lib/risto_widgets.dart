@@ -11,4 +11,7 @@ export 'widgets/layouts/padded_widgets.dart';
 export 'widgets/navigation/custom_bottom_navbar.dart';
 export 'widgets/sheets/open_custom_sheet.dart';
 
+export 'package:expandable/expandable.dart' show ExpandableController;
+
+
 export 'extensions.dart';
