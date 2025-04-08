@@ -1,55 +1,9 @@
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/extensions.dart';
 
 // Assuming ListTileButton and IconListTileButton are imported correctly below
 import '../buttons/list_tile_button.dart';
-
-/// A controller to manage the expansion state of an [ExpandableListTileButton] externally.
-///
-/// Use this controller to programmatically control the expansion state (expand/collapse)
-/// and to listen for state changes.
-class ExpandableController extends ChangeNotifier {
-  bool _isExpanded;
-
-  /// Creates an expandable controller.
-  ///
-  /// The initial state can be set using [initialExpanded]. Defaults to false.
-  ExpandableController({bool initialExpanded = false})
-      : _isExpanded = initialExpanded;
-
-  /// Whether the tile is currently expanded.
-  bool get isExpanded => _isExpanded;
-
-  /// Expands the tile.
-  ///
-  /// Does nothing if the tile is already expanded.
-  /// Notifies listeners.
-  void expand() {
-    if (!_isExpanded) {
-      _isExpanded = true;
-      notifyListeners();
-    }
-  }
-
-  /// Collapses the tile.
-  ///
-  /// Does nothing if the tile is already collapsed.
-  /// Notifies listeners.
-  void collapse() {
-    if (_isExpanded) {
-      _isExpanded = false;
-      notifyListeners();
-    }
-  }
-
-  /// Toggles the expansion state of the tile.
-  ///
-  /// Notifies listeners.
-  void toggle() {
-    _isExpanded = !_isExpanded;
-    notifyListeners();
-  }
-}
 
 /// A widget that provides an expandable list tile button with customizable headers and content.
 ///
@@ -382,7 +336,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     super.initState();
     _isStateManagedExternally = widget.controller != null;
     _isExpanded =
-        _isStateManagedExternally ? widget.controller!.isExpanded : false;
+        _isStateManagedExternally ? widget.controller!.expanded : false;
 
     _animationController = AnimationController(
       vsync: this,
@@ -408,8 +362,8 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
 
   /// Callback function invoked when the external [ExpandableController] notifies changes.
   void _handleControllerChanged() {
-    if (widget.controller?.isExpanded != _isExpanded && mounted) {
-      _syncExpansionState(widget.controller!.isExpanded);
+    if (widget.controller?.expanded != _isExpanded && mounted) {
+      _syncExpansionState(widget.controller!.expanded);
     }
   }
 
@@ -424,8 +378,8 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       if (_isStateManagedExternally) {
         widget.controller?.removeListener(_handleControllerChanged);
         widget.controller?.addListener(_handleControllerChanged);
-        if (widget.controller!.isExpanded != _isExpanded) {
-          _syncExpansionState(widget.controller!.isExpanded);
+        if (widget.controller!.expanded != _isExpanded) {
+          _syncExpansionState(widget.controller!.expanded);
         }
       }
     }
