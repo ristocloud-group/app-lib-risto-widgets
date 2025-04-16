@@ -231,6 +231,7 @@ class IconListTileButton extends StatelessWidget {
   final EdgeInsetsGeometry? bodyPadding;
 
   /// Padding around the [leading] widget.
+  /// Defaults to [EdgeInsets.symmetric(horizontal: 5)].
   final EdgeInsetsGeometry? leadingPadding;
 
   /// Padding around the [trailing] widget.
@@ -299,7 +300,7 @@ class IconListTileButton extends StatelessWidget {
       margin: margin,
       padding: padding,
       bodyPadding: bodyPadding,
-      leadingPadding: leadingPadding,
+      leadingPadding: leadingPadding ?? EdgeInsets.symmetric(horizontal: 5),
       trailingPadding: trailingPadding,
       backgroundColor: backgroundColor,
       borderColor: borderColor,
@@ -314,7 +315,6 @@ class IconListTileButton extends StatelessWidget {
       leading: Icon(
         icon,
         color: iconColor ?? Theme.of(context).iconTheme.color,
-        // REMOVED fixed size: size: 24.0,
       ),
       leadingSizeFactor: leadingSizeFactor, // Pass the factor for scaling logic
     );

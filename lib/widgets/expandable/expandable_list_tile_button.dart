@@ -215,8 +215,9 @@ class ExpandableListTileButton extends StatefulWidget {
     Widget? subtitle,
     Color? headerBackgroundColor,
     Color? expandedBodyColor,
-    Color? backgroundColor, // Kept for backward compatibility
-    Color? expandedColor, // Kept for backward compatibility
+    Color? backgroundColor,
+    Color? expandedColor,
+    EdgeInsetsGeometry? leadingPadding,
     Color? iconColor,
     Color? trailingIconColor,
     Color? borderColor,
@@ -253,6 +254,7 @@ class ExpandableListTileButton extends StatefulWidget {
         icon: icon,
         iconColor: iconColor,
         leadingSizeFactor: leadingSizeFactor ?? 1.0,
+        leadingPadding: leadingPadding,
         title: title,
         subtitle: subtitle,
         trailing: Icon(
