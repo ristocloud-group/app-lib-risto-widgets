@@ -2,11 +2,7 @@ import 'dart:ui';
 
 extension CustomOpacity on Color {
   Color withCustomOpacity(double opacity) {
-    return withValues(
-      red: r.toDouble(),
-      green: g.toDouble(),
-      blue: b.toDouble(),
-      alpha: (opacity * 255).roundToDouble(),
-    );
+    assert(opacity >= 0.0 && opacity <= 1.0);
+    return withAlpha((255.0 * opacity).round());
   }
 }

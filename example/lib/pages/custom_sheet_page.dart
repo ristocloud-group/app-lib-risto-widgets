@@ -30,6 +30,7 @@ class CustomSheetPage extends StatelessWidget {
                 );
               },
               backgroundColor: Colors.white,
+              barrierDismissible: true,
               handleColor: Colors.grey,
               firstButtonColor: Colors.red,
               secondButtonColor: Colors.green,

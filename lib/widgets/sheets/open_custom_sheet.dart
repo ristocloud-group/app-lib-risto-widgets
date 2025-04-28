@@ -188,6 +188,7 @@ class OpenCustomSheet {
     required Widget body,
     Function(dynamic)? onClose,
     Color? backgroundColor,
+    Color? barrierColor,
     Color? handleColor,
     bool barrierDismissible = true,
     Color? firstButtonColor,
@@ -201,7 +202,7 @@ class OpenCustomSheet {
   }) {
     return OpenCustomSheet(
       barrierDismissible: barrierDismissible,
-      barrierColor: Colors.black.withCustomOpacity(0.5),
+      barrierColor: barrierColor ?? Colors.black.withCustomOpacity(0.5),
       onClose: onClose,
       backgroundColor: backgroundColor,
       handleColor: handleColor,
