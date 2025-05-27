@@ -371,8 +371,12 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       surfaceTintColor: Colors.transparent,
       foregroundColor: _disabledColor(widget.disabledForegroundColor,
           widget.foregroundColor, Theme.of(context).disabledColor),
-      backgroundColor: _disabledColor(widget.disabledBackgroundColor,
-          widget.backgroundColor, Theme.of(context).disabledColor),
+      backgroundColor: _disabledColor(
+          widget.disabledBackgroundColor,
+          widget.backgroundColor,
+          widget.buttonType == ButtonType.minimal
+              ? Colors.transparent
+              : Theme.of(context).disabledColor),
       shadowColor: widget.shadowColor ?? Colors.black,
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

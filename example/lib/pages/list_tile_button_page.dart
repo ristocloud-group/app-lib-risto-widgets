@@ -59,10 +59,7 @@ class ListTileButtonPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text("21"),
-                Padding(
-                  padding: EdgeInsets.only(top: 2.0),
-                  child: Text("set"),
-                )
+                Padding(padding: EdgeInsets.only(top: 2.0), child: Text("set")),
               ],
             ),
             leadingSizeFactor: 2,
@@ -71,9 +68,7 @@ class ListTileButtonPage extends StatelessWidget {
             body: const Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('List Tile Button column leading'),
-              ],
+              children: <Widget>[Text('List Tile Button column leading')],
             ),
           ),
           const SizedBox(height: 16),
@@ -139,10 +134,53 @@ class ListTileButtonPage extends StatelessWidget {
             ),
             secondButton: ListTileButton(
               margin: const EdgeInsets.only(left: 8.0),
-              body:
-                  const Center(child: Text('Second Button without Elevation')),
+              body: const Center(
+                child: Text('Second Button without Elevation'),
+              ),
               onPressed: () {},
               backgroundColor: Colors.green,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.75,
+            height: MediaQuery.of(context).size.height * 0.045,
+            child: DoubleListTileButtons(
+              space: 10,
+              firstButton: IconListTileButton(
+                onPressed: () {},
+                icon: Icons.school,
+                iconColor: Colors.white,
+                title: Text(
+                  'Profilo',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                ),
+                backgroundColor: Colors.blueAccent,
+                borderRadius: 19 * 2,
+                margin: EdgeInsets.zero,
+                padding: EdgeInsets.zero,
+                leadingPadding: EdgeInsets.only(left: 10 / 2, right: 10 / 3),
+                bodyPadding: EdgeInsets.zero,
+              ),
+              secondButton: IconListTileButton(
+                onPressed: () {},
+                icon: Icons.restaurant_menu,
+                iconColor: Colors.white,
+                title: Text(
+                  'Assente',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                ),
+                backgroundColor: Colors.red,
+                borderRadius: 19 * 2,
+                margin: EdgeInsets.zero,
+                padding: EdgeInsets.zero,
+                leadingPadding: EdgeInsets.only(left: 10 / 2, right: 10 / 3),
+                bodyPadding: EdgeInsets.zero,
+              ),
             ),
           ),
         ],

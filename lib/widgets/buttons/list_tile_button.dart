@@ -178,6 +178,7 @@ class ListTileButton extends StatelessWidget {
                           visualDensity: visualDensity ?? VisualDensity.compact,
                           contentPadding:
                               bodyPadding ?? const EdgeInsets.only(left: 8),
+                          dense: true,
                           minVerticalPadding: 0,
                           minLeadingWidth: 0,
                           title: body,
@@ -331,6 +332,7 @@ class RoundedContainer extends StatelessWidget {
   final Color? backgroundColor;
   final Color? borderColor;
   final double borderRadius;
+  final double borderWidth;
   final double? elevation;
 
   const RoundedContainer({
@@ -341,6 +343,7 @@ class RoundedContainer extends StatelessWidget {
     this.backgroundColor,
     this.borderColor,
     this.borderRadius = 10,
+    this.borderWidth = 1,
     this.elevation,
   });
 
@@ -357,7 +360,7 @@ class RoundedContainer extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadius),
             border: borderColor != null
-                ? Border.all(color: borderColor!, width: 2)
+                ? Border.all(color: borderColor!, width: borderWidth)
                 : null,
           ),
           child: child,
