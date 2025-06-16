@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
+import 'package:risto_widgets_example/pages/infinite_snap_list_page.dart';
 
 // Import the pages
 import 'pages/action_button_page.dart';
@@ -19,9 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Custom Widgets Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const HomePage(),
     );
   }
@@ -67,15 +66,18 @@ class _HomePageState extends State<HomePage> {
         icon: Icon(Icons.open_in_new),
         label: 'Custom Sheets',
       ),
+      const NavigationItem(
+        page: InfiniteSnapListPage(),
+        icon: Icon(Icons.repeat),
+        label: 'Infinite Snap List',
+      ),
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Custom Widgets Demo'),
-      ),
+      appBar: AppBar(title: const Text('Custom Widgets Demo')),
       body: CustomBottomNavBar(
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
