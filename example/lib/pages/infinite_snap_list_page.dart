@@ -161,7 +161,7 @@ class _InfiniteSnapListPageState extends State<InfiniteSnapListPage> {
                         Text(
                           'ID: ${item.id}',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                            color: Colors.white.withCustomOpacity(0.7),
                             // Usa withOpacity direttamente
                             fontSize: 12,
                           ),
