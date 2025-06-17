@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:risto_widgets/risto_widgets.dart'; // Assicurati che il percorso sia corretto
+import 'package:risto_widgets/risto_widgets.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// A sample data class to demonstrate the widget's genericity.
@@ -138,7 +138,6 @@ class _InfiniteSnapListPageState extends State<InfiniteSnapListPage> {
               itemSpacing: 10,
               itemBuilder: (context, item, index, isSelected) {
                 return Container(
-                  // Colore trasparente per l'item di base, l'overlay gestisce il colore quando selezionato
                   decoration: BoxDecoration(
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(12.0),
@@ -162,7 +161,6 @@ class _InfiniteSnapListPageState extends State<InfiniteSnapListPage> {
                           'ID: ${item.id}',
                           style: TextStyle(
                             color: Colors.white.withCustomOpacity(0.7),
-                            // Usa withOpacity direttamente
                             fontSize: 12,
                           ),
                         ),
@@ -170,14 +168,13 @@ class _InfiniteSnapListPageState extends State<InfiniteSnapListPage> {
                   ),
                 );
               },
-              // Esempio di shimmer personalizzato per *singolo elemento*
               loadingShimmerItemBuilder: (context, index) {
                 return Shimmer.fromColors(
                   baseColor: Colors.grey.shade300,
                   highlightColor: Colors.grey.shade100,
                   child: Container(
-                    width: 100, // Larghezza dell'item shimmer
-                    height: 100, // Altezza dell'item shimmer
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(12.0),
@@ -185,23 +182,20 @@ class _InfiniteSnapListPageState extends State<InfiniteSnapListPage> {
                   ),
                 );
               },
-              // Fornisci un builder personalizzato per l'overlay dell'elemento selezionato
               selectedItemOverlayBuilder: (
                 context,
-                totalItemSlotWidth, // Rinominato per chiarezza nel widget
+                totalItemSlotWidth,
                 itemHeight,
               ) {
                 return Container(
                   width: totalItemSlotWidth,
-                  // Usa la larghezza totale dello slot
                   height: itemHeight,
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent, // Mantenuto il colore blu
+                    color: Colors.blueAccent,
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                 );
               },
-              // Fornisci un builder personalizzato per lo stato di lista vuota
               emptyListBuilder: (context) {
                 return const Center(
                   child: Column(
@@ -217,7 +211,6 @@ class _InfiniteSnapListPageState extends State<InfiniteSnapListPage> {
                   ),
                 );
               },
-              // Fornisci un builder personalizzato per lo stato di errore
               errorBuilder:
                   (context, error) => Center(
                     child: Column(
@@ -240,34 +233,16 @@ class _InfiniteSnapListPageState extends State<InfiniteSnapListPage> {
                       ],
                     ),
                   ),
-              // Fornisci un builder personalizzato per l'indicatore di caricamento (non shimmer)
               loadingIndicatorBuilder: (context) {
                 return const Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.green, // Colore verde senza customOpacity
-                    ),
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                     strokeWidth: 4,
                   ),
                 );
               },
             ),
           ),
-        ),
-        const SizedBox(height: 20),
-        Text(
-          'Interact with the list by scrolling horizontally. When an item is centered, it gets selected, and if it\'s at an edge, new items will load.',
-          style: Theme.of(context).textTheme.bodyMedium,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 20),
-        CustomActionButton.elevated(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('External action performed!')),
-            );
-          },
-          child: const Text('Test External Button'),
         ),
       ],
     );
