@@ -1,157 +1,222 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:risto_widgets/extensions.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'infinite_snap_list_bloc/infinite_snap_list_bloc.dart';
 
-/// Widget per una lista orizzontale con snap e fetch infinito bidirezionale.
-/// Fornisce un'ampia personalizzazione attraverso parametri diretti e builder.
+/// Controller for programmatic selection, jump, and scroll control of InfiniteSnapList.
+/// Attach this to the widget to interact from the outside (select, jump, animate).
+class InfiniteSnapListController<T> extends ChangeNotifier {
+  void Function(T item)? _selectItem;
+  void Function(int index)? _jumpTo;
+  void Function(int index)? _animateTo;
+
+  T? Function()? _getSelectedItem;
+  int? Function()? _getSelectedIndex;
+
+  /// Internal: Attach methods from the InfiniteSnapList widget.
+  void _attach({
+    required void Function(T) selectItem,
+    required void Function(int) jumpTo,
+    required void Function(int) animateTo,
+    required T? Function() getSelectedItem,
+    required int? Function() getSelectedIndex,
+  }) {
+    _selectItem = selectItem;
+    _jumpTo = jumpTo;
+    _animateTo = animateTo;
+    _getSelectedItem = getSelectedItem;
+    _getSelectedIndex = getSelectedIndex;
+  }
+
+  /// Programmatically select an item by value (will snap and scroll to it).
+  void selectItem(T item) => _selectItem?.call(item);
+
+  /// Jump directly to an index (no animation).
+  void jumpTo(int index) => _jumpTo?.call(index);
+
+  /// Animate scrolling to a specific index.
+  void animateTo(int index) => _animateTo?.call(index);
+
+  /// Get the currently selected item (if available).
+  T? get selectedItem => _getSelectedItem?.call();
+
+  /// Get the currently selected index (if available).
+  int? get selectedIndex => _getSelectedIndex?.call();
+}
+
+/// A snap-scrolling list widget with infinite, bidirectional fetch, external control, and accessibility.
+/// Highly customizable for item rendering, overlays, loading, empty/error state, and more.
 class InfiniteSnapList<T> extends StatefulWidget {
-  /// Il BLoC che gestisce lo stato e la logica di caricamento della lista.
+  /// The BLoC instance that manages state and data loading.
   final InfiniteListBloc<T> bloc;
 
-  /// Builder per renderizzare un singolo elemento della lista.
-  /// Riceve il contesto, l'elemento, il suo indice e se è selezionato.
-  final Widget Function(
-      BuildContext context, T item, int index, bool isSelected) itemBuilder;
+  /// Optional controller for programmatic interaction.
+  final InfiniteSnapListController<T>? controller;
 
-  /// Builder opzionale per un singolo elemento shimmer durante il caricamento iniziale.
-  /// Riceve il [BuildContext] e l'indice dell'elemento.
-  /// Se non fornito, viene utilizzato un builder predefinito personalizzabile.
-  final Widget Function(BuildContext context, int index)?
-      loadingShimmerItemBuilder;
+  /// Builder for each item; provides context, item value, index, and isSelected.
+  final Widget Function(BuildContext, T, int, bool) itemBuilder;
 
-  /// Larghezza desiderata per ogni elemento della lista.
-  final double itemWidth;
+  // --- Callbacks ---
+  /// Called when a new item is selected (via tap, swipe, or controller).
+  final void Function(T item, int index)? onItemSelected;
 
-  /// Altezza desiderata per ogni elemento della lista.
-  final double itemHeight;
+  /// Optional: called when scroll starts.
+  final VoidCallback? onScrollStart;
 
-  /// Spaziatura tra gli elementi della lista.
-  final double itemSpacing;
+  /// Optional: called when scroll ends.
+  final VoidCallback? onScrollEnd;
 
-  /// La fisica dello scroll della lista.
-  final ScrollPhysics scrollPhysics;
+  // --- Layout ---
+  /// Scroll direction (Axis.horizontal or Axis.vertical). Default: horizontal.
+  final Axis scrollDirection;
 
-  /// Messaggio da visualizzare quando la lista è vuota e nessun `emptyListBuilder` è fornito.
-  final String emptyListMessage;
+  /// How the selected item/overlay is aligned in the viewport.
+  final AlignmentGeometry itemAlignment;
 
-  /// Builder opzionale per visualizzare un errore.
-  /// Riceve il [BuildContext] e l'?[Exception].
-  /// Se non fornito, viene utilizzato un builder predefinito personalizzabile.
-  final Widget Function(BuildContext context, Exception)? errorBuilder;
+  /// Padding for the list as a whole.
+  final EdgeInsetsGeometry listPadding;
 
-  /// Numero di elementi shimmer da mostrare durante il caricamento iniziale.
+  // --- Loading/Empty/Error/Loader ---
+  /// Optional: custom builder for shimmer (loading placeholder) items.
+  final Widget Function(BuildContext, int)? loadingShimmerItemBuilder;
+
+  /// How many shimmer items to display during initial loading.
   final int initialItemsCountForShimmer;
 
-  /// Builder opzionale per l'overlay dell'elemento selezionato.
-  /// Riceve il [BuildContext], la larghezza totale dello slot dell'elemento
-  /// (itemWidth + itemSpacing) e l'altezza dell'elemento.
-  /// Se non fornito, viene utilizzato un builder predefinito personalizzabile.
-  final Widget Function(
-          BuildContext context, double totalItemSlotWidth, double itemHeight)?
-      selectedItemOverlayBuilder;
+  /// Optional: custom builder for the loader indicator when fetching more items.
+  final Widget Function(BuildContext)? loadingIndicatorBuilder;
 
-  /// Builder opzionale per l'indicatore di caricamento (es. durante il fetch di nuovi dati).
-  /// Riceve il [BuildContext].
-  /// Se non fornito, viene utilizzato un builder predefinito personalizzabile.
-  final Widget Function(BuildContext context)? loadingIndicatorBuilder;
+  /// Optional: custom builder for the empty state.
+  final Widget Function(BuildContext)? emptyListBuilder;
 
-  /// Builder opzionale per la lista vuota.
-  /// Riceve il [BuildContext].
-  /// Se non fornito, viene utilizzato un builder predefinito personalizzabile.
-  final Widget Function(BuildContext context)? emptyListBuilder;
+  /// Optional: custom builder for the error state.
+  final Widget Function(BuildContext, Exception)? errorBuilder;
 
-  /// Colore di base per lo shimmer predefinito.
-  final Color? shimmerBaseColor;
+  /// Default/fallback message for empty list state.
+  final String emptyListMessage;
 
-  /// Colore di highlight per lo shimmer predefinito.
-  final Color? shimmerHighlightColor;
-
-  /// Raggio del bordo per lo shimmer predefinito.
-  final BorderRadius? shimmerBorderRadius;
-
-  /// Colore per l'overlay dell'elemento selezionato predefinito.
-  final Color? selectedOverlayColor;
-
-  /// Raggio del bordo per l'overlay dell'elemento selezionato predefinito.
-  final BorderRadius? selectedOverlayBorderRadius;
-
-  /// Larghezza del tratto per l'indicatore di caricamento predefinito (CircularProgressIndicator).
-  final double? loadingIndicatorStrokeWidth;
-
-  /// Colore per l'indicatore di caricamento predefinito (CircularProgressIndicator).
-  final Color? loadingIndicatorColor;
-
-  /// Stile del testo per il messaggio di lista vuota predefinito.
+  /// Optional: text style for the empty message.
   final TextStyle? emptyListTextStyle;
 
-  /// Padding per il messaggio di lista vuota predefinito.
+  /// Optional: padding for the empty message.
   final EdgeInsetsGeometry? emptyListPadding;
 
-  /// Stile del testo per il messaggio di errore predefinito.
+  /// Optional: text style for error messages.
   final TextStyle? errorTextStyle;
 
-  /// Padding per il messaggio di errore predefinito.
+  /// Optional: padding for error messages.
   final EdgeInsetsGeometry? errorPadding;
 
-  /// Raggio del bordo per l'effetto InkWell di ogni elemento tappabile.
+  // --- Overlay ---
+  /// Optional: custom overlay builder for selected item highlight.
+  final Widget Function(BuildContext, double, double)?
+      selectedItemOverlayBuilder;
+
+  /// Default color for the selected item overlay.
+  final Color? selectedOverlayColor;
+
+  /// Default border radius for the selected item overlay.
+  final BorderRadius? selectedOverlayBorderRadius;
+
+  // --- Item Size & Style ---
+  /// Width of each item.
+  final double itemWidth;
+
+  /// Height of each item.
+  final double itemHeight;
+
+  /// Spacing between items.
+  final double itemSpacing;
+
+  /// Border radius for InkWell effects on items.
   final BorderRadius? itemInkWellBorderRadius;
 
-  /// Durata dell'animazione di fade quando un elemento cambia stato (es. selezionato/deselezionato).
+  /// Duration for fade-in/out when selection changes.
   final Duration itemFadeAnimationDuration;
 
-  /// Durata dell'animazione di snap per centrare un elemento.
+  // --- Scroll/Snap ---
+  /// Scroll physics for the list (e.g. BouncingScrollPhysics).
+  final ScrollPhysics scrollPhysics;
+
+  /// Duration of the snap animation.
   final Duration snapAnimationDuration;
 
-  /// Curva dell'animazione di snap per centrare un elemento.
+  /// Curve of the snap animation.
   final Curve snapAnimationCurve;
 
-  /// Durata del timer prima che avvenga lo snap dopo lo scroll.
+  /// Timer duration before snapping after scroll.
   final Duration snapTimerDuration;
 
-  /// Colore dello splash effect dell'InkWell.
-  final Color? inkWellSplashColor;
+  // --- Shimmer Colors ---
+  final Color? shimmerBaseColor;
+  final Color? shimmerHighlightColor;
+  final BorderRadius? shimmerBorderRadius;
 
-  /// Colore di highlight dell'InkWell.
+  // --- Loader Colors ---
+  final double? loadingIndicatorStrokeWidth;
+  final Color? loadingIndicatorColor;
+
+  // --- InkWell Colors ---
+  final Color? inkWellSplashColor;
   final Color? inkWellHighlightColor;
 
+  // --- Accessibility ---
+  /// Builder for semantic labels for each item, for screen readers.
+  final String Function(T item)? semanticLabelBuilder;
+
+  // --- Focus/Keyboard Navigation ---
+  /// If true, enables keyboard navigation (arrow keys to change selection).
+  final bool enableKeyboardNavigation;
+
+  /// Constructor for InfiniteSnapList. All parameters are optional except bloc and itemBuilder.
   const InfiniteSnapList({
     super.key,
     required this.bloc,
     required this.itemBuilder,
+    this.controller,
+    this.onItemSelected,
+    this.onScrollStart,
+    this.onScrollEnd,
+    this.scrollDirection = Axis.horizontal,
+    this.itemAlignment = Alignment.center,
+    this.listPadding = const EdgeInsets.symmetric(horizontal: 8),
     this.loadingShimmerItemBuilder,
+    this.initialItemsCountForShimmer = 7,
+    this.loadingIndicatorBuilder,
+    this.emptyListBuilder,
+    this.errorBuilder,
+    this.emptyListMessage = 'No items available.',
+    this.emptyListTextStyle,
+    this.emptyListPadding,
+    this.errorTextStyle,
+    this.errorPadding,
+    this.selectedItemOverlayBuilder,
+    this.selectedOverlayColor,
+    this.selectedOverlayBorderRadius,
     this.itemWidth = 60,
     this.itemHeight = 80,
     this.itemSpacing = 12,
-    this.scrollPhysics = const BouncingScrollPhysics(),
-    this.emptyListMessage = 'Nessun elemento disponibile.',
-    this.errorBuilder,
-    this.initialItemsCountForShimmer = 7,
-    this.selectedItemOverlayBuilder,
-    this.loadingIndicatorBuilder,
-    this.emptyListBuilder,
-    this.shimmerBaseColor,
-    this.shimmerHighlightColor,
-    this.shimmerBorderRadius,
-    this.selectedOverlayColor,
-    this.selectedOverlayBorderRadius,
-    this.loadingIndicatorStrokeWidth = 2,
-    this.loadingIndicatorColor,
-    this.emptyListTextStyle,
-    this.emptyListPadding = const EdgeInsets.all(16.0),
-    this.errorTextStyle,
-    this.errorPadding = const EdgeInsets.all(16.0),
     this.itemInkWellBorderRadius,
     this.itemFadeAnimationDuration = const Duration(milliseconds: 300),
+    this.scrollPhysics = const BouncingScrollPhysics(),
     this.snapAnimationDuration = const Duration(milliseconds: 300),
     this.snapAnimationCurve = Curves.easeOut,
     this.snapTimerDuration = const Duration(milliseconds: 200),
+    this.shimmerBaseColor,
+    this.shimmerHighlightColor,
+    this.shimmerBorderRadius,
+    this.loadingIndicatorStrokeWidth,
+    this.loadingIndicatorColor,
     this.inkWellSplashColor,
     this.inkWellHighlightColor,
+    this.semanticLabelBuilder,
+    this.enableKeyboardNavigation = true,
   });
 
   @override
@@ -159,20 +224,23 @@ class InfiniteSnapList<T> extends StatefulWidget {
 }
 
 class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
-  late final ScrollController _controller;
+  late ScrollController _controller; // No longer 'final' as it's re-initialized
   Timer? _snapTimer;
   bool _isInitializing = true;
   bool _isSnapping = false;
-  int _lastSnappedIndex =
-      -1; // Indice dell'ultimo elemento su cui è stato fatto lo snap
+  int _lastSnappedIndex = -1;
   late StreamSubscription _blocSubscription;
+  final FocusNode _focusNode = FocusNode();
 
-  double _currentActualWidth = 0; // Larghezza attuale del widget
-  double _currentStartEndPadding =
-      0; // Padding da applicare all'inizio e alla fine della lista
+  double _currentActualMainAxis = 0; // Current viewport width or height
+  double _currentStartEndPadding = 0;
 
-  // Larghezza totale occupata da un singolo elemento (larghezza + spaziatura)
-  double get _totalItemSlotWidth => widget.itemWidth + widget.itemSpacing;
+  /// Calculates the total size (main axis) for each item including spacing.
+  double get _totalItemSlotMainAxis =>
+      (widget.scrollDirection == Axis.horizontal
+          ? widget.itemWidth
+          : widget.itemHeight) +
+      widget.itemSpacing;
 
   @override
   void initState() {
@@ -180,43 +248,41 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     _controller = ScrollController();
     _controller.addListener(_onScroll);
 
-    // Sottoscrizione per gestire i cambiamenti di stato del BLoC
+    // Attach methods to the controller for programmatic access.
+    widget.controller?._attach(
+      selectItem: _selectItem,
+      jumpTo: _jumpTo,
+      animateTo: _animateTo,
+      getSelectedItem: _getSelectedItem,
+      getSelectedIndex: _getSelectedIndex,
+    );
+
+    // Listen to BLoC stream to handle fetch and item selection.
     _blocSubscription = widget.bloc.stream.listen((state) {
       if (state is LoadedState<T>) {
-        // Applica la compensazione se sono stati aggiunti elementi all'inizio (prepended)
+        // Compensate for newly prepended items so scroll position is visually consistent.
         if (state.prependedItemCount > 0 && _controller.hasClients) {
-          final compensationOffset =
-              state.prependedItemCount * _totalItemSlotWidth;
-          final currentOffset = _controller.offset;
-          final newTargetOffset = currentOffset + compensationOffset;
-
-          // Esegui il jumpTo immediatamente per prevenire il flash visivo
-          _controller.jumpTo(newTargetOffset);
-          debugPrint(
-              'InfiniteSnapList: Compensato offset per ${state.prependedItemCount} elementi prepended. Nuovo offset: $newTargetOffset');
+          final compensation =
+              state.prependedItemCount * _totalItemSlotMainAxis;
+          _controller.jumpTo(_controller.offset + compensation);
         }
-
-        // Dopo qualsiasi compensazione o caricamento, assicurati che l'elemento selezionato sia centrato.
-        // Questo viene posticipato al prossimo frame per assicurare che il layout sia aggiornato.
+        // Snap to the currently selected item after any new fetch.
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_controller.hasClients &&
+          if (mounted &&
+              _controller.hasClients &&
+              _controller.position.hasContentDimensions &&
               state.state.items.isNotEmpty &&
               state.state.selectedItem != null) {
-            final targetIndex =
-                state.state.items.indexOf(state.state.selectedItem!);
-            if (targetIndex != -1) {
-              _snapTo(targetIndex);
+            final idx = state.state.items.indexOf(state.state.selectedItem!);
+            if (idx != -1) {
+              _snapTo(idx, animate: true, notifyCallback: false);
             }
           }
         });
-      } else if (state is ErrorState<T>) {
-        debugPrint(
-            'InfiniteSnapList: Errore nello stato del BLoC: ${state.error}');
       }
     });
 
-    // Imposta _isInitializing a false dopo un breve ritardo per permettere al BLoC
-    // di avviare il caricamento e al LayoutBuilder di ottenere la larghezza effettiva.
+    // Delay initialization for correct layout measurement.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 50), () {
         if (mounted) setState(() => _isInitializing = false);
@@ -225,95 +291,247 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
   }
 
   @override
+  void didUpdateWidget(covariant InfiniteSnapList<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // If scroll direction or item dimensions change, re-initialize the controller
+    // to ensure layout metrics are recalculated.
+    final bool layoutConfigChanged =
+        oldWidget.scrollDirection != widget.scrollDirection ||
+            oldWidget.itemWidth != widget.itemWidth ||
+            oldWidget.itemHeight != widget.itemHeight ||
+            oldWidget.itemSpacing != widget.itemSpacing;
+
+    if (layoutConfigChanged) {
+      // Dispose the old controller
+      _controller.removeListener(_onScroll);
+      _controller.dispose();
+
+      // Create a new controller
+      _controller = ScrollController();
+      _controller.addListener(_onScroll);
+
+      // Re-attach the external controller to ensure it points to the new internal controller
+      widget.controller?._attach(
+        selectItem: _selectItem,
+        jumpTo: _jumpTo,
+        animateTo: _animateTo,
+        getSelectedItem: _getSelectedItem,
+        getSelectedIndex: _getSelectedIndex,
+      );
+
+      // Schedule the snap to the selected item in the next frame
+      // AFTER the layout has had a chance to rebuild with new dimensions.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Ensure widget is still mounted and controller is ready
+        if (mounted &&
+            _controller.hasClients &&
+            _controller.position.hasContentDimensions &&
+            widget.bloc.state.state.items.isNotEmpty &&
+            widget.bloc.state.state.selectedItem != null) {
+          final idx = widget.bloc.state.state.items
+              .indexOf(widget.bloc.state.state.selectedItem!);
+          if (idx != -1) {
+            _snapTo(idx,
+                animate: false,
+                notifyCallback:
+                    false); // Use jumpTo (animate: false) for immediate repositioning
+          }
+        }
+      });
+    } else if (oldWidget.controller != widget.controller) {
+      // Only re-attach if the controller instance itself changes
+      widget.controller?._attach(
+        selectItem: _selectItem,
+        jumpTo: _jumpTo,
+        animateTo: _animateTo,
+        getSelectedItem: _getSelectedItem,
+        getSelectedIndex: _getSelectedIndex,
+      );
+    }
+  }
+
+  @override
   void dispose() {
     _snapTimer?.cancel();
     _controller.removeListener(_onScroll);
     _controller.dispose();
     _blocSubscription.cancel();
+    _focusNode.dispose();
     super.dispose();
   }
 
-  /// Callback richiamato ad ogni scroll della lista.
-  /// Calcola l'elemento più vicino al centro e avvia un timer per lo snap.
-  void _onScroll() {
-    // Evita di eseguire la logica di snap durante l'inizializzazione, uno snap attivo, o quando la larghezza non è disponibile.
-    if (_isInitializing || _isSnapping || _currentActualWidth == 0) return;
+  // ===== CONTROLLER API (internal methods exposed to controller) =====
 
-    final currentItems = widget.bloc.state.state.items;
-    if (currentItems.isEmpty) return;
-
-    // Calcola il centro della viewport rispetto all'estensione di scroll
-    final double viewportCenterInScrollExtent =
-        _controller.offset + (_currentActualWidth / 2);
-
-    double minDistance = double.infinity;
-    int closestIndex = 0;
-
-    // Trova l'elemento più vicino al centro della viewport
-    for (int i = 0; i < currentItems.length; i++) {
-      // Calcola il centro dello slot dell'elemento rispetto all'estensione di scroll
-      final double itemSlotCenterInScrollExtent = _currentStartEndPadding +
-          (i * _totalItemSlotWidth) +
-          (_totalItemSlotWidth / 2);
-
-      final double distance =
-          (itemSlotCenterInScrollExtent - viewportCenterInScrollExtent).abs();
-
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestIndex = i;
-      }
-    }
-
-    // Cancella il timer precedente e avviane uno nuovo per lo snap,
-    // evitando snap continui durante lo scroll rapido.
-    _snapTimer?.cancel();
-    _snapTimer = Timer(widget.snapTimerDuration, () => _snapTo(closestIndex));
+  /// Selects an item by value, animating to it if present.
+  void _selectItem(T item) {
+    final idx = widget.bloc.state.state.items.indexOf(item);
+    if (idx != -1) _snapTo(idx, animate: true);
   }
 
-  /// Esegue lo snap (animazione di scroll) all'elemento specificato.
-  void _snapTo(int index) {
-    final bloc = widget.bloc;
-    final currentItems = bloc.state.state.items;
-    // Controlli di validità
-    if (index < 0 ||
-        index >= currentItems.length ||
-        !_controller.hasClients ||
-        _currentActualWidth == 0) {
+  /// Jumps instantly to an index in the list.
+  void _jumpTo(int index) {
+    if (!_controller.hasClients || !_controller.position.hasContentDimensions) {
+      return;
+    }
+    final double itemContentMainAxisDim =
+        widget.scrollDirection == Axis.horizontal
+            ? widget.itemWidth
+            : widget.itemHeight;
+    final double listPaddingStart = widget.scrollDirection == Axis.horizontal
+        ? widget.listPadding.horizontal / 2
+        : widget.listPadding.vertical / 2;
+    final double offset = listPaddingStart +
+        _currentStartEndPadding +
+        (index * _totalItemSlotMainAxis) +
+        (widget.itemSpacing / 2) +
+        (itemContentMainAxisDim / 2) -
+        (_currentActualMainAxis / 2);
+
+    _controller.jumpTo(offset);
+    widget.bloc.add(SelectItemEvent<T>(widget.bloc.state.state.items[index]));
+  }
+
+  /// Animates scroll to a specific index.
+  void _animateTo(int index) {
+    if (!_controller.hasClients || !_controller.position.hasContentDimensions) {
+      return;
+    }
+    final double itemContentMainAxisDim =
+        widget.scrollDirection == Axis.horizontal
+            ? widget.itemWidth
+            : widget.itemHeight;
+    final double listPaddingStart = widget.scrollDirection == Axis.horizontal
+        ? widget.listPadding.horizontal / 2
+        : widget.listPadding.vertical / 2;
+    final double offset = listPaddingStart +
+        _currentStartEndPadding +
+        (index * _totalItemSlotMainAxis) +
+        (widget.itemSpacing / 2) +
+        (itemContentMainAxisDim / 2) -
+        (_currentActualMainAxis / 2);
+
+    _controller.animateTo(
+      offset,
+      duration: widget.snapAnimationDuration,
+      curve: widget.snapAnimationCurve,
+    );
+    widget.bloc.add(SelectItemEvent<T>(widget.bloc.state.state.items[index]));
+  }
+
+  /// Returns the currently selected item, if available.
+  T? _getSelectedItem() => widget.bloc.state.state.selectedItem;
+
+  /// Returns the index of the currently selected item.
+  int? _getSelectedIndex() =>
+      widget.bloc.state.state.items.indexOf(_getSelectedItem() as T);
+
+  // ===== SNAP/SCROLL LOGIC =====
+
+  /// Called on scroll updates; schedules snapping to the nearest item after a delay.
+  void _onScroll() {
+    if (_isInitializing ||
+        _isSnapping ||
+        _currentActualMainAxis == 0 ||
+        !_controller.position.hasContentDimensions) {
+      return;
+    }
+    final items = widget.bloc.state.state.items;
+    if (items.isEmpty) {
       return;
     }
 
-    // Calcola l'offset di scroll target per centrare l'elemento
-    final double targetScrollOffset = (index * _totalItemSlotWidth);
+    final double itemContentMainAxisDim =
+        widget.scrollDirection == Axis.horizontal
+            ? widget.itemWidth
+            : widget.itemHeight;
+    final double listPaddingStart = widget.scrollDirection == Axis.horizontal
+        ? widget.listPadding.horizontal / 2
+        : widget.listPadding.vertical / 2;
 
-    // Clampa l'offset per assicurarsi che non superi i limiti di scroll
-    final maxScrollExtent = _controller.position.maxScrollExtent;
-    final clampedTargetOffset = targetScrollOffset.clamp(0.0, maxScrollExtent);
+    final double viewportCenterInScrollExtent = _controller.offset +
+        (_currentActualMainAxis / 2) -
+        listPaddingStart -
+        _currentStartEndPadding;
 
-    // Imposta il flag _isSnapping per disabilitare lo scroll manuale durante l'animazione
+    double minDist = double.infinity;
+    int closestIdx = 0;
+    for (int i = 0; i < items.length; i++) {
+      // Calcola il centro del CONTENUTO dell'elemento rispetto all'inizio del Content Size Box della ListView.
+      final double itemContentCenterInScrollExtent =
+          (i * _totalItemSlotMainAxis) +
+              (widget.itemSpacing / 2) +
+              (itemContentMainAxisDim / 2);
+
+      final double distance =
+          (itemContentCenterInScrollExtent - viewportCenterInScrollExtent)
+              .abs();
+
+      if (distance < minDist) {
+        minDist = distance;
+        closestIdx = i;
+      }
+    }
+    _snapTimer?.cancel();
+    _snapTimer = Timer(widget.snapTimerDuration, () => _snapTo(closestIdx));
+  }
+
+  /// Animates or jumps to the given item index. Calls onItemSelected if appropriate.
+  void _snapTo(int index, {bool animate = true, bool notifyCallback = true}) {
+    final items = widget.bloc.state.state.items;
+    if (index < 0 ||
+        index >= items.length ||
+        !_controller.hasClients ||
+        !_controller.position.hasContentDimensions ||
+        _currentActualMainAxis == 0) {
+      return;
+    }
+
+    final double itemContentMainAxisDim =
+        widget.scrollDirection == Axis.horizontal
+            ? widget.itemWidth
+            : widget.itemHeight;
+    final double listPaddingStart = widget.scrollDirection == Axis.horizontal
+        ? widget.listPadding.horizontal / 2
+        : widget.listPadding.vertical / 2;
+
+    final double targetOffset = listPaddingStart +
+        _currentStartEndPadding +
+        (index * _totalItemSlotMainAxis) +
+        (widget.itemSpacing / 2) +
+        (itemContentMainAxisDim / 2) -
+        (_currentActualMainAxis / 2);
+
+    final maxExtent = _controller.position.maxScrollExtent;
+    final clampedTarget = targetOffset.clamp(0.0, maxExtent);
+
     _isSnapping = true;
-    _controller
-        .animateTo(
-      clampedTargetOffset,
-      duration: widget.snapAnimationDuration,
-      curve: widget.snapAnimationCurve,
-    )
-        .whenComplete(() {
-      // Resetta il flag una volta completata l'animazione
+    Future snapFuture;
+    if (animate) {
+      snapFuture = _controller.animateTo(
+        clampedTarget,
+        duration: widget.snapAnimationDuration,
+        curve: widget.snapAnimationCurve,
+      );
+    } else {
+      snapFuture = Future(() => _controller.jumpTo(clampedTarget));
+    }
+    snapFuture.whenComplete(() {
       _isSnapping = false;
-
-      // Se l'elemento su cui è stato fatto lo snap è diverso dall'ultimo, notifica il BLoC
-      final selected = currentItems[index];
       if (_lastSnappedIndex != index) {
         _lastSnappedIndex = index;
-        bloc.add(SelectItemEvent<T>(selected));
+        widget.bloc.add(SelectItemEvent<T>(items[index]));
+        if (notifyCallback && widget.onItemSelected != null) {
+          widget.onItemSelected!(items[index], index);
+        }
       }
     });
   }
 
+  // ========== MAIN WIDGET BUILD ==========
+
   @override
   Widget build(BuildContext context) {
-    // Utilizza BlocBuilder per ricostruire il widget in base ai cambiamenti di stato del BLoC
     return BlocBuilder<InfiniteListBloc<T>, InfiniteSnapListState<T>>(
       bloc: widget.bloc,
       builder: (context, state) {
@@ -321,154 +539,239 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
         final selected = state.state.selectedItem;
         final selectedItemIndex = items.indexOf(selected);
 
-        // Gestione dello stato iniziale o di caricamento iniziale
+        // --- Initial state or shimmer loading ---
         if (state is InitialState<T> ||
             (state is LoadingState<T> &&
                 state.state.loadingDirection == LoadingDirection.initial)) {
-          // Utilizza LayoutBuilder per ottenere la larghezza effettiva del widget
-          // prima di costruire la lista shimmer.
           return LayoutBuilder(
             builder: (context, constraints) {
-              _currentActualWidth = constraints.maxWidth;
-              _currentStartEndPadding =
-                  (_currentActualWidth / 2) - (_totalItemSlotWidth / 2);
+              _currentActualMainAxis = widget.scrollDirection == Axis.horizontal
+                  ? constraints.maxWidth
+                  : constraints.maxHeight;
+              _currentStartEndPadding = max(0.0,
+                  (_currentActualMainAxis / 2) - (_totalItemSlotMainAxis / 2));
               return _buildShimmerList(
                   context, widget.initialItemsCountForShimmer);
             },
           );
         }
 
-        // Gestione dello stato di errore
+        // --- Error state ---
         if (state is ErrorState<T>) {
           return widget.errorBuilder?.call(context, state.error) ??
               _defaultErrorBuilder(context, state.error);
         }
 
-        // Gestione dello stato di lista vuota
+        // --- Empty state ---
         if (items.isEmpty) {
           return widget.emptyListBuilder?.call(context) ??
               _defaultEmptyListBuilder(context);
         }
 
-        // Determina se mostrare l'indicatore di caricamento (solo se non è il caricamento iniziale
-        // e ci sono già elementi nella lista).
         final isLoading = state is LoadingState<T>;
-        final loadingDirection = state.state.loadingDirection;
-        final showLoader =
-            isLoading && loadingDirection != null && items.isNotEmpty;
+        final loadingDir = state.state.loadingDirection;
+        final showLoader = isLoading && loadingDir != null && items.isNotEmpty;
 
-        return SizedBox(
-          width: double.infinity,
-          height: widget.itemHeight,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Aggiorna larghezza effettiva e padding
-              _currentActualWidth = constraints.maxWidth;
-              _currentStartEndPadding =
-                  (_currentActualWidth / 2) - (_totalItemSlotWidth / 2);
+        return Focus(
+          focusNode: widget.enableKeyboardNavigation ? _focusNode : null,
+          autofocus: widget.enableKeyboardNavigation,
+          onKeyEvent: widget.enableKeyboardNavigation ? _onKey : null,
+          child: SizedBox(
+            width: widget.scrollDirection == Axis.horizontal
+                ? double.infinity
+                : widget.itemWidth,
+            height: widget.scrollDirection == Axis.horizontal
+                ? widget.itemHeight
+                : double.infinity,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                _currentActualMainAxis =
+                    widget.scrollDirection == Axis.horizontal
+                        ? constraints.maxWidth
+                        : constraints.maxHeight;
+                _currentStartEndPadding = max(
+                    0.0,
+                    (_currentActualMainAxis / 2) -
+                        (_totalItemSlotMainAxis / 2));
 
-              return Stack(
-                children: [
-                  // Overlay dell'elemento selezionato posizionato al centro
-                  Center(
-                    child: widget.selectedItemOverlayBuilder?.call(
-                            context, _totalItemSlotWidth, widget.itemHeight) ??
-                        _defaultSelectedItemOverlayBuilder(
-                            context, _totalItemSlotWidth, widget.itemHeight),
-                  ),
-                  // La lista scrollabile degli elementi
-                  ListView.builder(
-                    controller: _controller,
-                    scrollDirection: Axis.horizontal,
-                    // Disabilita lo scroll manuale durante lo snap o il caricamento
-                    physics: (_isSnapping || showLoader)
-                        ? const NeverScrollableScrollPhysics()
-                        : widget.scrollPhysics,
-                    padding: EdgeInsets.symmetric(
-                        horizontal: _currentStartEndPadding),
-                    itemCount: items.length,
-                    itemBuilder: (context, i) {
-                      final item = items[i];
-                      final isSelected = i == selectedItemIndex;
+                return Stack(
+                  children: [
+                    // --- Selected item overlay ---
+                    Align(
+                      alignment: widget.itemAlignment,
+                      child: widget.selectedItemOverlayBuilder?.call(
+                              context, widget.itemWidth, widget.itemHeight) ??
+                          _defaultSelectedItemOverlayBuilder(
+                              context, widget.itemWidth, widget.itemHeight),
+                    ),
+                    // --- Main item list ---
+                    ListView.builder(
+                      controller: _controller,
+                      scrollDirection: widget.scrollDirection,
+                      physics: (_isSnapping || showLoader)
+                          ? const NeverScrollableScrollPhysics()
+                          : widget.scrollPhysics,
+                      padding: widget.listPadding.add(
+                        widget.scrollDirection == Axis.horizontal
+                            ? EdgeInsets.symmetric(
+                                horizontal: _currentStartEndPadding)
+                            : EdgeInsets.symmetric(
+                                vertical: _currentStartEndPadding),
+                      ),
+                      itemCount: items.length,
+                      itemBuilder: (context, i) {
+                        final item = items[i];
+                        final isSelected = i == selectedItemIndex;
 
-                      return SizedBox(
-                        width: _totalItemSlotWidth,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: widget.itemSpacing / 2),
-                          child: InkWell(
-                            // Abilita il tap solo se non è in corso uno snap o un caricamento
-                            onTap: () {
-                              if (!_isSnapping && !isLoading) {
-                                _snapTo(i);
-                              }
-                            },
-                            borderRadius: widget.itemInkWellBorderRadius ??
-                                BorderRadius.circular(8),
-                            splashColor: widget.inkWellSplashColor,
-                            highlightColor: widget.inkWellHighlightColor,
-                            child: SizedBox(
-                              width: widget.itemWidth,
-                              height: widget.itemHeight,
-                              child: AnimatedSwitcher(
-                                duration: widget.itemFadeAnimationDuration,
-                                transitionBuilder: (child, animation) {
-                                  return FadeTransition(
-                                      opacity: animation, child: child);
+                        return SizedBox(
+                          width: widget.scrollDirection == Axis.horizontal
+                              ? _totalItemSlotMainAxis
+                              : widget.itemWidth,
+                          height: widget.scrollDirection == Axis.vertical
+                              ? _totalItemSlotMainAxis
+                              : widget.itemHeight,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  widget.scrollDirection == Axis.horizontal
+                                      ? widget.itemSpacing / 2
+                                      : 0,
+                              vertical: widget.scrollDirection == Axis.vertical
+                                  ? widget.itemSpacing / 2
+                                  : 0,
+                            ),
+                            child: Semantics(
+                              label: widget.semanticLabelBuilder?.call(item),
+                              selected: isSelected,
+                              child: InkWell(
+                                onTap: () {
+                                  if (!_isSnapping && !isLoading) _snapTo(i);
                                 },
-                                // La chiave è fondamentale per AnimatedSwitcher per animare correttamente i cambiamenti
-                                child: FittedBox(
-                                  key: ValueKey(item),
-                                  fit: BoxFit.contain,
-                                  child: widget.itemBuilder(
-                                      context, item, i, isSelected),
+                                borderRadius: widget.itemInkWellBorderRadius ??
+                                    BorderRadius.circular(8),
+                                splashColor: widget.inkWellSplashColor,
+                                highlightColor: widget.inkWellHighlightColor,
+                                child: SizedBox(
+                                  width: widget.itemWidth,
+                                  height: widget.itemHeight,
+                                  child: AnimatedSwitcher(
+                                    duration: widget.itemFadeAnimationDuration,
+                                    transitionBuilder: (child, animation) =>
+                                        FadeTransition(
+                                            opacity: animation, child: child),
+                                    child: FittedBox(
+                                      key: ValueKey(item),
+                                      fit: BoxFit.contain,
+                                      child: widget.itemBuilder(
+                                          context, item, i, isSelected),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                  // Indicatore di caricamento posizionato a sinistra o a destra
-                  if (showLoader)
-                    Positioned(
-                      right:
-                          loadingDirection == LoadingDirection.right ? 0 : null,
-                      left:
-                          loadingDirection == LoadingDirection.left ? 0 : null,
-                      top: 0,
-                      bottom: 0,
-                      child: SizedBox(
-                        width: widget.itemWidth,
-                        child: Center(
-                          child:
-                              widget.loadingIndicatorBuilder?.call(context) ??
-                                  _defaultLoadingIndicatorBuilder(context),
+                        );
+                      },
+                    ),
+                    // --- Loader for fetching more items ---
+                    if (showLoader)
+                      Positioned(
+                        right: widget.scrollDirection == Axis.horizontal &&
+                                loadingDir == LoadingDirection.right
+                            ? 0
+                            : null,
+                        left: widget.scrollDirection == Axis.horizontal &&
+                                loadingDir == LoadingDirection.left
+                            ? 0
+                            : null,
+                        top: widget.scrollDirection == Axis.vertical &&
+                                loadingDir == LoadingDirection.left
+                            ? 0
+                            : null,
+                        bottom: widget.scrollDirection == Axis.vertical &&
+                                loadingDir == LoadingDirection.right
+                            ? 0
+                            : null,
+                        child: SizedBox(
+                          width: widget.scrollDirection == Axis.horizontal
+                              ? widget.itemWidth
+                              : null,
+                          height: widget.scrollDirection == Axis.vertical
+                              ? widget.itemHeight
+                              : null,
+                          child: Center(
+                            child:
+                                widget.loadingIndicatorBuilder?.call(context) ??
+                                    _defaultLoadingIndicatorBuilder(context),
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              );
-            },
+                  ],
+                );
+              },
+            ),
           ),
         );
       },
     );
   }
 
-  /// Costruisce una lista di elementi shimmer.
+  /// Handles keyboard arrow navigation for selection.
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
+    final items = widget.bloc.state.state.items;
+    final selected = widget.bloc.state.state.selectedItem;
+    final idx = items.indexOf(selected);
+
+    if (widget.scrollDirection == Axis.horizontal) {
+      if (event.logicalKey == LogicalKeyboardKey.arrowRight &&
+          idx < items.length - 1) {
+        _snapTo(idx + 1);
+        return KeyEventResult.handled;
+      }
+      if (event.logicalKey == LogicalKeyboardKey.arrowLeft && idx > 0) {
+        _snapTo(idx - 1);
+        return KeyEventResult.handled;
+      }
+    } else {
+      if (event.logicalKey == LogicalKeyboardKey.arrowDown &&
+          idx < items.length - 1) {
+        _snapTo(idx + 1);
+        return KeyEventResult.handled;
+      }
+      if (event.logicalKey == LogicalKeyboardKey.arrowUp && idx > 0) {
+        _snapTo(idx - 1);
+        return KeyEventResult.handled;
+      }
+    }
+    return KeyEventResult.ignored;
+  }
+
+  /// Builds a shimmer loading placeholder list.
   Widget _buildShimmerList(BuildContext context, int count) {
     return SizedBox(
-      width: double.infinity,
-      height: widget.itemHeight,
+      width: widget.scrollDirection == Axis.horizontal
+          ? double.infinity
+          : widget.itemWidth,
+      height: widget.scrollDirection == Axis.horizontal
+          ? widget.itemHeight
+          : double.infinity,
       child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: _currentStartEndPadding),
-        // Lo scroll è disabilitato per la lista shimmer
+        scrollDirection: widget.scrollDirection,
+        padding: widget.listPadding.add(
+          widget.scrollDirection == Axis.horizontal
+              ? EdgeInsets.symmetric(horizontal: _currentStartEndPadding)
+              : EdgeInsets.symmetric(vertical: _currentStartEndPadding),
+        ),
         physics: const NeverScrollableScrollPhysics(),
         itemCount: count,
-        separatorBuilder: (_, __) => SizedBox(width: widget.itemSpacing),
+        separatorBuilder: (_, __) => SizedBox(
+          width: widget.scrollDirection == Axis.horizontal
+              ? widget.itemSpacing
+              : 0,
+          height:
+              widget.scrollDirection == Axis.vertical ? widget.itemSpacing : 0,
+        ),
         itemBuilder: (context, index) {
           return widget.loadingShimmerItemBuilder?.call(context, index) ??
               _defaultShimmerItemBuilder(context, index);
@@ -477,14 +780,12 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     );
   }
 
-  /// Builder predefinito per un singolo elemento shimmer.
+  /// Default shimmer item for loading state.
   Widget _defaultShimmerItemBuilder(BuildContext context, int index) {
-    // Recupera i colori dal tema o usa i fallback predefiniti
     final baseColor = widget.shimmerBaseColor ?? Colors.grey.shade300;
     final highlightColor = widget.shimmerHighlightColor ?? Colors.grey.shade100;
     final borderRadius =
         widget.shimmerBorderRadius ?? BorderRadius.circular(8.0);
-
     return Shimmer.fromColors(
       baseColor: baseColor,
       highlightColor: highlightColor,
@@ -492,24 +793,23 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
         width: widget.itemWidth,
         height: widget.itemHeight,
         decoration: BoxDecoration(
-          color: baseColor, // Usa il colore di base anche per il container
+          color: baseColor,
           borderRadius: borderRadius,
         ),
       ),
     );
   }
 
-  /// Builder predefinito per l'overlay dell'elemento selezionato.
+  /// Default overlay for the selected item.
   Widget _defaultSelectedItemOverlayBuilder(
-      BuildContext context, double totalItemSlotWidth, double itemHeight) {
+      BuildContext context, double w, double h) {
     final overlayColor = widget.selectedOverlayColor ??
         Theme.of(context).colorScheme.secondary.withCustomOpacity(0.2);
     final borderRadius =
         widget.selectedOverlayBorderRadius ?? BorderRadius.circular(8.0);
-
     return Container(
-      width: totalItemSlotWidth,
-      height: itemHeight,
+      width: w,
+      height: h,
       decoration: BoxDecoration(
         color: overlayColor,
         borderRadius: borderRadius,
@@ -517,27 +817,25 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     );
   }
 
-  /// Builder predefinito per l'indicatore di caricamento.
+  /// Default loading indicator widget.
   Widget _defaultLoadingIndicatorBuilder(BuildContext context) {
-    final indicatorColor = widget.loadingIndicatorColor; // Nullable
-    final strokeWidth = widget.loadingIndicatorStrokeWidth ?? 2; // Default 2
-
+    final indicatorColor = widget.loadingIndicatorColor;
+    final strokeWidth = widget.loadingIndicatorStrokeWidth ?? 2;
     return Center(
       child: CircularProgressIndicator(
         strokeWidth: strokeWidth,
         valueColor: indicatorColor != null
             ? AlwaysStoppedAnimation<Color>(indicatorColor)
-            : null, // Usa il colore se fornito, altrimenti usa il default del tema
+            : null,
       ),
     );
   }
 
-  /// Builder predefinito per il messaggio di lista vuota.
+  /// Default empty state widget.
   Widget _defaultEmptyListBuilder(BuildContext context) {
     final textStyle =
         widget.emptyListTextStyle ?? Theme.of(context).textTheme.bodyLarge;
     final padding = widget.emptyListPadding ?? const EdgeInsets.all(16.0);
-
     return Center(
       child: Padding(
         padding: padding,
@@ -547,12 +845,11 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     );
   }
 
-  /// Builder predefinito per il messaggio di errore.
+  /// Default error state widget.
   Widget _defaultErrorBuilder(BuildContext context, Exception error) {
     final textStyle =
         widget.errorTextStyle ?? const TextStyle(color: Colors.red);
     final padding = widget.errorPadding ?? const EdgeInsets.all(16.0);
-
     return Center(
       child: Padding(
         padding: padding,

@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
         label: 'Custom Sheets',
       ),
       const NavigationItem(
-        page: InfiniteSnapListPage(),
+        page: InfiniteSnapDemoPage(),
         icon: Icon(Icons.repeat),
         label: 'Infinite Snap List',
       ),

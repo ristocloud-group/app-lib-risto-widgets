@@ -1,250 +1,349 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:risto_widgets/risto_widgets.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:risto_widgets/risto_widgets.dart'; // Assicurati che questo import sia corretto
 
-/// A sample data class to demonstrate the widget's genericity.
-/// It can be any type of data that your BLoC handles.
-class SampleData {
-  final String id;
-  final String name;
-  final Color color;
+/// Example data type for the infinite snap list demo.
+/// Should implement == and hashCode for correct comparison.
+class DemoItem {
+  final int value;
 
-  SampleData({required this.id, required this.name, required this.color});
+  DemoItem(this.value);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SampleData && runtimeType == other.runtimeType && id == other.id;
+      other is DemoItem &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => value.hashCode;
 
   @override
-  String toString() {
-    return 'SampleData{id: $id, name: $name}';
-  }
+  String toString() => 'Item $value';
 }
 
-/// Example implementation of your InfiniteListBloc for testing InfiniteSnapList.
-/// This BLoC simulates fetching data from a source and handles bidirectional loading.
-class SampleInfiniteSnapBloc extends InfiniteListBloc<SampleData> {
-  final List<SampleData> _allPossibleItems = List.generate(
-    100,
-    (index) => SampleData(
-      id: index.toString(),
-      name: 'Item ${index + 1}',
-      color: Colors.primaries[index % Colors.primaries.length],
-    ),
-  );
+/// Simple InfiniteListBloc implementation for demonstration purposes.
+/// Generates synthetic values based on the offset item.
+class DemoSnapBloc extends InfiniteListBloc<DemoItem> {
+  // Inizializza il BLoC con uno stato iniziale contenente un elemento selezionato.
+  // Questo attiverà la logica di fetching iniziale in InfiniteListBloc.
+  DemoSnapBloc() : super(initValue: DemoItem(0));
 
-  SampleInfiniteSnapBloc({required super.initValue});
-
-  /// Implements the abstract [fetchItems] method from [InfiniteListBloc].
-  ///
-  /// This method simulates fetching items from a data source.
-  /// It retrieves items to the left and right of a given [offset] (pivot element),
-  /// limiting the number of retrieved items via [leftLimit] and [rightLimit].
+  /// Simulate async fetching of more items to the left and right.
+  /// This method is called by the InfiniteListBloc superclass.
   @override
-  Future<(List<SampleData>, List<SampleData>)> fetchItems({
+  Future<(List<DemoItem>, List<DemoItem>)> fetchItems({
     required int leftLimit,
     required int rightLimit,
-    required SampleData offset,
+    required DemoItem offset,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 700));
-
-    final offsetIndex = _allPossibleItems.indexOf(offset);
-
-    if (offsetIndex == -1) {
-      debugPrint(
-        "Offset not found in the list of available items: ${offset.name}",
-      );
-      return (<SampleData>[], <SampleData>[]);
-    }
-
-    List<SampleData> left = [];
-    List<SampleData> right = [];
-
-    if (leftLimit > 0) {
-      final startIndex = (offsetIndex - leftLimit).clamp(
-        0,
-        _allPossibleItems.length,
-      );
-      left = _allPossibleItems.sublist(startIndex, offsetIndex);
-    }
-
-    if (rightLimit > 0) {
-      final endIndex = (offsetIndex + 1 + rightLimit).clamp(
-        0,
-        _allPossibleItems.length,
-      );
-      right = _allPossibleItems.sublist(offsetIndex + 1, endIndex);
-    }
-
+    await Future.delayed(
+      const Duration(milliseconds: 600),
+    ); // Simulate network delay
+    // Example: fetches values left/right of the current offset
+    List<DemoItem> left = List.generate(
+      leftLimit,
+      (i) => DemoItem(offset.value - leftLimit + i),
+    );
+    List<DemoItem> right = List.generate(
+      rightLimit,
+      (i) => DemoItem(offset.value + 1 + i),
+    );
     debugPrint(
-      'Fetched around ${offset.name}: Left ${left.length} items, Right ${right.length} items',
+      'Fetched around ${offset.value}: Left ${left.length} items, Right ${right.length} items',
     );
     return (left, right);
   }
 }
 
-/// Test page for the InfiniteSnapList widget.
-/// This page integrates the BLoC and the widget to demonstrate its functionality.
-class InfiniteSnapListPage extends StatefulWidget {
-  const InfiniteSnapListPage({super.key});
+class InfiniteSnapDemoPage extends StatefulWidget {
+  const InfiniteSnapDemoPage({super.key});
 
   @override
-  State<InfiniteSnapListPage> createState() => _InfiniteSnapListPageState();
+  State<InfiniteSnapDemoPage> createState() => _InfiniteSnapDemoPageState();
 }
 
-class _InfiniteSnapListPageState extends State<InfiniteSnapListPage> {
-  late final SampleInfiniteSnapBloc _bloc;
+class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
+  late final DemoSnapBloc _bloc; // Inizializza con `late` e nel `initState`
+  final _controller = InfiniteSnapListController<DemoItem>();
+
+  Axis _direction = Axis.horizontal;
+  bool _showCustomShimmer = false;
+  bool _showCustomOverlay = false;
 
   @override
   void initState() {
     super.initState();
-    final initialSelectedItem = SampleData(
-      id: '50',
-      name: 'Item 51',
-      color: Colors.blue,
-    );
-    _bloc = SampleInfiniteSnapBloc(initValue: initialSelectedItem);
+    _bloc = DemoSnapBloc(); // Crea il BLoC qui
   }
 
   @override
   void dispose() {
     _bloc.close();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return PaddedChildrenList(
-      children: [
-        Text(
-          'Infinite Snap List Example',
-          style: Theme.of(context).textTheme.titleLarge,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 20),
-        BlocProvider<SampleInfiniteSnapBloc>.value(
-          value: _bloc,
-          child: SizedBox(
-            height: 120,
-            child: InfiniteSnapList<SampleData>(
-              bloc: _bloc,
-              itemWidth: 100,
-              itemHeight: 100,
-              itemSpacing: 10,
-              itemBuilder: (context, item, index, isSelected) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        item.name,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                          fontSize: isSelected ? 18 : 16,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      if (isSelected)
-                        Text(
-                          'ID: ${item.id}',
-                          style: TextStyle(
-                            color: Colors.white.withCustomOpacity(0.7),
-                            fontSize: 12,
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              },
-              loadingShimmerItemBuilder: (context, index) {
-                return Shimmer.fromColors(
-                  baseColor: Colors.grey.shade300,
-                  highlightColor: Colors.grey.shade100,
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                  ),
-                );
-              },
-              selectedItemOverlayBuilder: (
-                context,
-                totalItemSlotWidth,
-                itemHeight,
-              ) {
-                return Container(
-                  width: totalItemSlotWidth,
-                  height: itemHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                );
-              },
-              emptyListBuilder: (context) {
-                return const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.inbox, size: 50, color: Colors.grey),
-                      SizedBox(height: 10),
-                      Text(
-                        'No items found.',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              errorBuilder:
-                  (context, error) => Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 50,
-                          color: Colors.red,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'An error occurred: ${error.toString()}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              loadingIndicatorBuilder: (context) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                    strokeWidth: 4,
-                  ),
-                );
-              },
+    return BlocProvider.value(
+      value: _bloc,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('InfiniteSnapList DEMO'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.rotate_90_degrees_ccw),
+              tooltip: 'Switch direction',
+              onPressed:
+                  () => setState(() {
+                    _direction =
+                        _direction == Axis.horizontal
+                            ? Axis.vertical
+                            : Axis.horizontal;
+                  }),
             ),
+            IconButton(
+              icon: const Icon(Icons.nightlight),
+              tooltip: 'Custom shimmer',
+              onPressed:
+                  () =>
+                      setState(() => _showCustomShimmer = !_showCustomShimmer),
+              color: _showCustomShimmer ? Colors.amber : null,
+            ),
+            IconButton(
+              icon: const Icon(Icons.rectangle),
+              tooltip: 'Custom overlay',
+              onPressed:
+                  () =>
+                      setState(() => _showCustomOverlay = !_showCustomOverlay),
+              color: _showCustomOverlay ? Colors.red : null,
+            ),
+          ],
+        ),
+        backgroundColor: Colors.grey[100],
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Horizontal scrollable control bar
+              BlocBuilder<DemoSnapBloc, InfiniteSnapListState<DemoItem>>(
+                // Avvolgi i pulsanti in un BlocBuilder per accedere allo stato del BLoC
+                builder: (context, state) {
+                  final items = state.state.items;
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _demoButton(
+                        'Go to Start', // Rinomina per chiarezza
+                        () {
+                          if (items.isNotEmpty) {
+                            _controller.jumpTo(
+                              0,
+                            ); // Vai all'inizio della lista caricata
+                          }
+                        },
+                      ),
+                      _demoButton(
+                        'Go to 0',
+                        () => _controller.selectItem(
+                          DemoItem(0),
+                        ), // Continua a selezionare l'elemento 0
+                      ),
+                      _demoButton(
+                        'Go to End', // Rinomina per chiarezza
+                        () {
+                          if (items.isNotEmpty) {
+                            _controller.jumpTo(
+                              items.length - 1,
+                            ); // Vai alla fine della lista caricata
+                          }
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+              // Selected item indicator
+              BlocBuilder<DemoSnapBloc, InfiniteSnapListState<DemoItem>>(
+                builder: (context, state) {
+                  final selected = _controller.selectedItem?.value ?? 0;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Selected: $selected',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  );
+                },
+              ),
+              // Main list demo in a card
+              // Utilizziamo un Flexible per racchiudere la Card.
+              // Questo garantisce un tipo di widget consistente nel Column,
+              // impedendo la ricreazione dello stato di InfiniteSnapList al cambio di orientamento.
+              Flexible(
+                child: Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  elevation: 3,
+                  color: Colors.grey[50],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18.0,
+                      vertical: 12.0,
+                    ),
+                    child: InfiniteSnapList<DemoItem>(
+                      bloc: _bloc,
+                      controller: _controller,
+                      scrollDirection: _direction,
+                      itemWidth: 80,
+                      itemHeight: 80,
+                      itemSpacing: 16,
+                      // listPadding qui è il padding *all'interno* del ListView.
+                      // I vincoli di altezza/larghezza per l'intero InfiniteSnapList sono dati dal genitore (Flexible/Card).
+                      listPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      // Assicurati che questo sia corretto per entrambi gli orientamenti se non vuoi padding verticali diversi
+                      itemAlignment: Alignment.center,
+                      enableKeyboardNavigation: true,
+                      semanticLabelBuilder: (item) => 'Item ${item.value}',
+                      onItemSelected: (item, idx) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Selected ${item.value} at $idx'),
+                          ),
+                        );
+                      },
+                      // Item visual
+                      itemBuilder:
+                          (ctx, item, idx, isSelected) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            // `width` e `height` dell'AnimatedContainer dovrebbero essere fissi come `itemWidth` e `itemHeight` del widget
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color:
+                                  isSelected ? Colors.blue[50] : Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              boxShadow:
+                                  isSelected
+                                      ? [
+                                        BoxShadow(
+                                          color: Colors.blue.withCustomOpacity(
+                                            0.15,
+                                          ),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ]
+                                      : [],
+                              border: Border.all(
+                                color:
+                                    isSelected
+                                        ? Colors.blueAccent
+                                        : Colors.grey.shade300,
+                                width: isSelected ? 2.4 : 1,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              item.value.toString(),
+                              style: TextStyle(
+                                fontSize: isSelected ? 32 : 22,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    isSelected
+                                        ? Colors.blue[900]
+                                        : Colors.grey[800],
+                                letterSpacing: 1.1,
+                              ),
+                            ),
+                          ),
+                      // Custom shimmer for loading state (optional, toggle as you wish)
+                      loadingShimmerItemBuilder:
+                          _showCustomShimmer
+                              ? (ctx, i) => Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.purple, Colors.orange],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                              )
+                              : null,
+                      // Custom overlay for selected item (optional, toggle as you wish)
+                      selectedItemOverlayBuilder:
+                          _showCustomOverlay
+                              ? (ctx, w, h) => IgnorePointer(
+                                child: Container(
+                                  width: w,
+                                  height: h,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.red,
+                                      width: 3,
+                                    ),
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.check,
+                                      color: Colors.red,
+                                      size: 34,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              : null,
+                      // Loader while fetching more items (edge)
+                      loadingIndicatorBuilder:
+                          (ctx) => const CircularProgressIndicator.adaptive(),
+                      // Empty state
+                      emptyListBuilder:
+                          (ctx) =>
+                              const Center(child: Text('No items available!')),
+                      // Error state
+                      errorBuilder:
+                          (ctx, err) => Center(
+                            child: Text(
+                              'Error: ${err.toString()}',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
+    );
+  }
+
+  // Helper for compact, rounded demo buttons
+  Widget _demoButton(String label, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          shape: StadiumBorder(),
+          side: BorderSide(color: Colors.blue.shade100),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.deepPurple,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        ),
+        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+      ),
     );
   }
 }
