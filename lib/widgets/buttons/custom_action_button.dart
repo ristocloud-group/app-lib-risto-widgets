@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:risto_widgets/extensions.dart';
 
 /// Types of buttons available in [CustomActionButton].
-enum ButtonType { elevated, flat, minimal, longPress }
+enum ButtonType { elevated, flat, minimal, longPress, rounded }
 
 /// A customizable button widget that can be configured as elevated, flat,
 /// minimal, or long-press button types. Provides a flexible API to adjust
@@ -278,6 +278,49 @@ class CustomActionButton extends StatefulWidget {
     );
   }
 
+  /// Creates a fully rounded button (semicirconferenze sui lati).
+  ///
+  /// The [onPressed], [height] e [child] sono obbligatori.
+  /// [height] viene usata per calcolare il raggio = height / 2.
+  factory CustomActionButton.rounded({
+    required VoidCallback? onPressed,
+    required Widget child,
+    Color? backgroundColor,
+    Color? foregroundColor,
+    Color? shadowColor,
+    Color? splashColor,
+    Color? disabledBackgroundColor,
+    Color? disabledBorderColor,
+    Color? disabledForegroundColor,
+    Color? borderColor,
+    double? width,
+    double? height,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+    double elevation = 2.0,
+    InteractiveInkFeatureFactory? splashFactory,
+  }) {
+    return CustomActionButton(
+      buttonType: ButtonType.rounded,
+      onPressed: onPressed,
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      shadowColor: shadowColor,
+      splashColor: splashColor,
+      disabledBackgroundColor: disabledBackgroundColor,
+      disabledBorderColor: disabledBorderColor,
+      disabledForegroundColor: disabledForegroundColor,
+      borderColor: borderColor,
+      elevation: elevation,
+      width: width,
+      height: height,
+      padding: padding,
+      margin: margin,
+      splashFactory: splashFactory,
+      child: child,
+    );
+  }
+
   @override
   State<CustomActionButton> createState() => _CustomActionButtonState();
 }
@@ -359,8 +402,11 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       case ButtonType.elevated:
         return _buildElevatedButton(context);
       case ButtonType.flat:
-      default:
         return _buildFlatButton(context);
+      case ButtonType.rounded:
+        return _buildRoundedButton(context);
+      default:
+        return _buildElevatedButton(context);
     }
   }
 
@@ -535,6 +581,44 @@ class _CustomActionButtonState extends State<CustomActionButton> {
           onPressed: widget.onPressed,
           child: _wrapChild(context, disabled: false),
         ),
+      ),
+    );
+  }
+
+  Widget _buildRoundedButton(BuildContext context) {
+    final bool disabled = widget.onPressed == null;
+
+    // Usa StadiumBorder al posto di RoundedRectangleBorder:
+    final OutlinedBorder shape = widget.shape ??
+        StadiumBorder(
+          side: widget.borderColor != null
+              ? BorderSide(color: widget.borderColor!, width: 1)
+              : BorderSide.none,
+        );
+
+    final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
+      foregroundColor: widget.foregroundColor ?? Colors.white,
+      backgroundColor: widget.backgroundColor ?? Theme.of(context).primaryColor,
+      shadowColor: widget.shadowColor,
+      elevation: widget.elevation,
+      padding: widget.padding ??
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: shape,
+    ).copyWith(
+      overlayColor: widget.splashColor != null
+          ? WidgetStateProperty.all(widget.splashColor)
+          : null,
+      splashFactory: widget.splashFactory,
+    );
+
+    return Container(
+      margin: widget.margin,
+      width: widget.width,
+      height: widget.height,
+      child: ElevatedButton(
+        style: buttonStyle,
+        onPressed: widget.onPressed,
+        child: _wrapChild(context, disabled: disabled),
       ),
     );
   }
