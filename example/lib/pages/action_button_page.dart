@@ -101,7 +101,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           foregroundColor: Colors.white,
           splashColor: Colors.deepOrangeAccent,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          child: Text('Counter: $counter'),
+          child: Text('Rounded Button ($counter)'),
         ),
 
         // Disabled Press Button Example
