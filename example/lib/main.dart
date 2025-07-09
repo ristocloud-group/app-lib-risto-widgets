@@ -19,9 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Custom Widgets Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const HomePage(),
     );
   }
@@ -73,9 +71,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Custom Widgets Demo'),
-      ),
+      appBar: AppBar(title: const Text('Custom Widgets Demo')),
       body: CustomBottomNavBar(
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
