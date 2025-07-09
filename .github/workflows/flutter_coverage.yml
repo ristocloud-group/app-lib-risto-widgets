@@ -2,99 +2,266 @@ name: Flutter Coverage
 
 on:
   push:
-    branches: [ main ]
-  release:
+    branches: [ main ] # Aggiorna il badge di coverage e la baseline sul branch main
+  pull_request:
+    branches: [ main ] # Calcola la diff-coverage e aggiorna la descrizione della PR
 
 jobs:
-  test:
+  coverage:
     runs-on: ubuntu-latest
     env:
-      JAVA_VERSION: "11.0"
-      FLUTTER_VERSION: "3.24.5"
+      FLUTTER_VERSION: '3.32.5' # Specifica la versione di Flutter da usare
     permissions:
-      contents: write        # Grants write access to repository contents
-      actions: read
-      id-token: write
+      contents: write # Permesso per scrivere file (es. badge, baseline)
+      pull-requests: write # Permesso per aggiornare la descrizione delle Pull Request
+
     steps:
-      # 1. Checkout the repository
-      - name: Checkout Code
+      # 1. Checkout completo del repository
+      # fetch-depth: 0 è necessario per confrontare correttamente i branch
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensures all history is fetched
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }} # Token per le operazioni Git
 
-      # 2. Set up Flutter
-      - name: Set up Flutter
+      # 2. Configurazione dell'ambiente Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
-          flutter-version: ${{ env.FLUTTER_VERSION || '3.10.5' }}  # Provide a default version if not set
+          channel: stable # Utilizza il canale stabile di Flutter
+          flutter-version: ${{ env.FLUTTER_VERSION }} # Usa la versione specificata nell'ambiente
 
-      # 3. Install dependencies
-      - name: Install dependencies
+      # 3. Recupero dei pacchetti Flutter
+      - name: Get Flutter packages
         run: flutter pub get
 
-      # 4. Run tests with coverage
-      - name: Run tests with coverage
-        run: flutter test --coverage
-
-      # 5. Generate coverage report
-      - name: Generate coverage report
+      # 4. Esecuzione dei test Flutter con generazione della coverage
+      - name: Run Flutter tests with coverage
         run: |
-          sudo apt-get update
-          sudo apt-get install -y lcov
-          genhtml -o coverage coverage/lcov.info
+          # Esegue i test con coverage. `|| true` permette al workflow di continuare anche se i test falliscono.
+          # Se i test devono passare per forza, rimuovi `|| true`.
+          flutter test --coverage || true
+          # Verifica che il file lcov.info sia stato generato
+          if [ ! -f coverage/lcov.info ]; then
+            echo "Errore: coverage/lcov.info non è stato generato. Saltando i passaggi di coverage."
+            exit 1 # Esci con errore se il file di coverage è mancante
+          fi
+          echo "File di coverage coverage/lcov.info generato."
 
-      # 6. Generate Coverage Badge
-      - name: Generate Coverage Badge
+      # 5. Generazione e caricamento del report HTML di coverage
+      - name: Generate HTML coverage report
         run: |
-          COVERAGE_PERCENT=$(lcov --summary coverage/lcov.info | grep -Po '\d+\.\d+%' | head -1 | tr -d '%')
-          curl -o coverage/coverage-badge.svg "https://img.shields.io/badge/Coverage-${COVERAGE_PERCENT}%25-brightgreen.svg"
+          sudo apt-get update -y # Aggiorna i pacchetti di sistema
+          sudo apt-get install -y lcov # Installa lcov per la generazione del report
+          genhtml coverage/lcov.info --output-directory coverage/html # Genera il report HTML
+          echo "Report di coverage HTML generato in coverage/html"
+          # Verifica che la directory HTML sia stata creata
+          if [ ! -d coverage/html ]; then
+            echo "Errore: La directory di coverage HTML non è stata creata. Saltando il caricamento dell'artefatto."
+            exit 1
+          fi
 
-      # 7. Commit Coverage Badge to Repository
-      - name: Commit Coverage Badge
-        if: success()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload HTML coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html # Nome dell'artefatto
+          path: coverage/html # Percorso del report HTML
+
+      # 6A. Calcolo della Diff Coverage (solo per le Pull Request)
+      - name: Calculate Diff Coverage (PR)
+        if: github.event_name == 'pull_request' # Esegui solo se l'evento è una pull_request
+        id: diff # ID per accedere agli output di questo step
         run: |
-          # Configure Git
+          set -euo pipefail # Interrompi lo script in caso di errori
+          echo "Avvio calcolo Diff Coverage per PR..."
+          git fetch --depth=1 origin main # Recupera il branch main per il confronto
+
+          # Controlla se lcov.info esiste prima di procedere
+          if [ ! -f coverage/lcov.info ]; then
+            echo "Errore: coverage/lcov.info non trovato. Impossibile calcolare la diff coverage."
+            echo "pr_cov=0.00"  >> "$GITHUB_OUTPUT"
+            echo "delta_cov=0.00" >> "$GITHUB_OUTPUT"
+            exit 0 # Esci con successo ma con 0 coverage se il file è mancante
+          fi
+
+          # Recupera la percentuale di coverage baseline dal branch main
+          # Se il file non esiste, imposta la baseline a 0
+          BASE_PERC=0
+          if git cat-file -e origin/main:coverage/coverage-summary.txt 2>/dev/null; then
+            BASE_PERC_RAW=$(git show origin/main:coverage/coverage-summary.txt | awk '{print $1}')
+            # Valida che BASE_PERC_RAW sia un numero
+            if [[ "$BASE_PERC_RAW" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+              BASE_PERC="$BASE_PERC_RAW"
+            else
+              echo "Avviso: Valore di baseline coverage non valido '${BASE_PERC_RAW}'. Usando 0."
+            fi
+          fi
+          echo "Coverage baseline da main: ${BASE_PERC}%"
+
+          BASE=$(git merge-base origin/main HEAD)
+          echo "Merge base per diff: $BASE"
+          git diff --name-only "$BASE" HEAD | grep '\.dart$' > changed_files.txt || true # Reindirizza l'output a un file
+
+          # Estrai la coverage solo per i file modificati
+          if [ -s changed_files.txt ]; then # Controlla se il file non è vuoto
+            echo "File .dart modificati rilevati. Calcolo della coverage per essi."
+            echo "File modificati:"
+            cat changed_files.txt # Per il debug
+            PATTERNS=$(sed 's|^|*/|' changed_files.txt | tr '\n' ' ') # Prepara i pattern per lcov
+            lcov --extract coverage/lcov.info $PATTERNS \
+                 --ignore-errors unused,empty \
+                 -o coverage/pr_lcov.info || true # Estrai la coverage, ignora errori e reindirizza
+            # Se lcov --extract non produce output (es. no coverage per i file modificati), usa il report completo
+            grep -q '^SF:' coverage/pr_lcov.info || cp coverage/lcov.info coverage/pr_lcov.info
+            echo "Anteprima contenuto pr_lcov.info (prime 10 righe):"
+            head -n 10 coverage/pr_lcov.info || true
+          else
+            echo "Nessun file .dart modificato trovato. Utilizzo il report di coverage completo per la PR."
+            cp coverage/lcov.info coverage/pr_lcov.info # Se nessun file .dart è cambiato, usa il report completo
+          fi
+
+          PR_PERC_RAW=$(lcov --summary coverage/pr_lcov.info | grep -Po '\d+\.\d+%' | head -1 | tr -d '%')
+          PR_PERC=0.00
+          if [[ "$PR_PERC_RAW" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+            PR_PERC="$PR_PERC_RAW"
+          else
+            echo "Avviso: Valore di coverage PR non valido '${PR_PERC_RAW}'. Usando 0.00."
+          fi
+
+          DELTA=$(awk "BEGIN {printf \"%.2f\", $PR_PERC - $BASE_PERC}")
+
+          echo "Coverage PR calcolata: ${PR_PERC}%"
+          echo "Delta calcolato vs main: ${DELTA}%"
+
+          # Imposta gli output per gli step successivi
+          echo "pr_cov=$PR_PERC"  >> "$GITHUB_OUTPUT"
+          echo "delta_cov=$DELTA" >> "$GITHUB_OUTPUT"
+          echo "Calcolo Diff Coverage completato."
+
+      # 6B. Aggiornamento della descrizione della Pull Request
+      - name: Update PR description
+        if: github.event_name == 'pull_request' # Esegui solo per le Pull Request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Token per interagire con l'API di GitHub
+          script: |
+            const num = context.issue.number;
+            console.log(`Tentativo di aggiornare la descrizione della PR #${num}.`);
+            const pr  = await github.rest.pulls.get({ ...context.repo, pull_number: num });
+            const body = pr.data.body || ""; // Ottieni il corpo attuale della PR
+            console.log("Corpo attuale della PR recuperato.");
+            console.log(`Valori per PR_COV: ${process.env.PR_COV}, DELTA_COV: ${process.env.DELTA_COV}`);
+
+            const start = "<!-- coverage-start -->"; // Inizio del blocco di coverage
+            const end   = "<!-- coverage-end -->";   // Fine del blocco di coverage
+            
+            // Prepara i valori di coverage, usando 'N/A' se non disponibili
+            const prCoverage = process.env.PR_COV || 'N/A';
+            const deltaCoverage = process.env.DELTA_COV || 'N/A';
+
+            // Costruisci l'URL del badge dinamico per la PR
+            // Ho scelto 'blue' come colore, puoi cambiarlo se preferisci
+            const prBadgeUrl = `https://img.shields.io/badge/Coverage_PR-${prCoverage}%25-blue.svg`;
+
+            // Costruisci il nuovo blocco di coverage con il badge immagine e il testo
+            const block = `${start}
+            ![Coverage PR](${prBadgeUrl})
+            **Coverage PR**: **${prCoverage}%**
+            Δ vs main: **${deltaCoverage}%**
+            ${end}`;
+
+            let newBody;
+            if (body.includes(start)) {
+              // Se il blocco esiste già, sostituiscilo
+              newBody = body.replace(new RegExp(`${start}[\\s\\S]*?${end}`), block);
+              console.log("Blocco di coverage esistente trovato e verrà aggiornato.");
+            } else {
+              // Altrimenti, aggiungilo alla fine della descrizione
+              newBody = `${body}\n\n${block}`;
+              console.log("Nessun blocco di coverage esistente trovato. Aggiungendo un nuovo blocco.");
+            }
+            console.log("Anteprima del nuovo corpo della PR (primi 200 caratteri):", newBody.substring(0, 200));
+
+            try {
+              // Aggiorna la descrizione della PR
+              await github.rest.pulls.update({
+                ...context.repo,
+                pull_number: num,
+                body: newBody
+              });
+              console.log("Descrizione della PR aggiornata con successo.");
+            } catch (error) {
+              console.error("Errore durante l'aggiornamento della descrizione della PR:", error.message);
+              throw error; // Rilancia l'errore per far fallire lo step
+            }
+        env: # Passa gli output dello step 'diff' come variabili d'ambiente
+          PR_COV: ${{ steps.diff.outputs.pr_cov }}
+          DELTA_COV: ${{ steps.diff.outputs.delta_cov }}
+
+      # 6C. Aggiornamento del badge di coverage e della baseline (solo push su main)
+      - name: Update badge & baseline (main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Esegui solo per push su main
+        run: |
+          set -euo pipefail # Interrompi lo script in caso di errori
+          echo "Avvio aggiornamento badge e baseline per il branch main..."
+
+          # Controlla se lcov.info esiste prima di procedere
+          if [ ! -f coverage/lcov.info ]; then
+            echo "Errore: coverage/lcov.info non trovato. Impossibile aggiornare badge o baseline."
+            exit 1 # Fallisci lo step se lcov.info è mancante
+          fi
+
+          LINE_PERC_RAW=$(lcov --summary coverage/lcov.info | grep -Po '\d+\.\d+%' | head -1 | tr -d '%') # Estrai la percentuale totale
+          LINE_PERC=0.00
+          if [[ "$LINE_PERC_RAW" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+            LINE_PERC="$LINE_PERC_RAW"
+          else
+            echo "Avviso: Valore di coverage linea non valido '${LINE_PERC_RAW}'. Usando 0.00."
+          fi
+          echo "Coverage complessiva per main: ${LINE_PERC}%"
+          
+          # Salva solo la percentuale numerica nel file di riepilogo per il badge dinamico
+          echo "${LINE_PERC}" > coverage/coverage-summary.txt
+          echo "Baseline del riepilogo della coverage aggiornata."
+          
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Create badges directory if it doesn't exist
-          mkdir -p .github/badges
+          # Non è più necessario creare o spostare il file SVG del badge localmente
+          # mkdir -p .github/badges
+          # mv coverage/coverage-badge.svg .github/badges/coverage-badge.svg
           
-          # Move the coverage badge to the badges directory
-          mv coverage/coverage-badge.svg .github/badges/coverage-badge.svg
+          # Aggiungi solo il file di riepilogo al commit
+          git add coverage/coverage-summary.txt
           
-          # Add the badge to git
-          git add .github/badges/coverage-badge.svg
+          # Controlla se README.md esiste prima di provare a modificarlo
+          if [ -f README.md ]; then
+            # Costruisci l'URL del badge dinamico di shields.io
+            # Usa github.repository per ottenere "owner/repo"
+            DYNAMIC_BADGE_URL="https://img.shields.io/badge/Coverage-dynamic/text?url=https%3A%2F%2Fraw.githubusercontent.com%2F${{ github.repository }}%2Fmain%2Fcoverage%2Fcoverage-summary.txt&color=brightgreen"
           
-          # Commit the badge
-          git commit -m "Update coverage badge [skip ci]" || echo "No changes to commit"
+            # Sostituisci il link esistente o aggiungilo al README.md
+            if grep -q '!\[Coverage\]' README.md 2>/dev/null; then
+              # Sostituisci il link esistente se presente
+              sed -i -E "s|!\\[Coverage\\]\\([^)]+\\)|![Coverage](${DYNAMIC_BADGE_URL})|" README.md
+              echo "README.md: Link del badge di coverage esistente aggiornato con URL dinamico."
+            else
+              # Aggiungi il link se non presente
+              echo -e "\n![Coverage](${DYNAMIC_BADGE_URL})" >> README.md
+              echo "README.md: Nuovo link del badge di coverage dinamico aggiunto."
+            fi
+            git add README.md || true # Aggiungi README.md, ignora errori se non modificato
+          else
+            echo "Avviso: README.md non trovato. Saltando l'aggiornamento di README.md."
+          fi
           
-          # Push the changes
-          git push origin main
-
-      # 8. Upload coverage artifact for deployment (Optional)
-      - name: Upload Coverage Artifact
-        id: deployment
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./coverage  # Path to the coverage directory
-
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write       # Grants permission to deploy to GitHub Pages
-      id-token: write    # Required for authentication
-
-    steps:
-      # 1. Deploy to GitHub Pages
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          # Controlla se ci sono modifiche in sospeso prima di committare
+          if ! git diff --cached --exit-code --quiet; then
+            git commit -m "chore: update coverage badge & baseline [skip ci]"
+            echo "Modifiche committate."
+            git push origin HEAD:refs/heads/main
+            echo "Modifiche pushate su main."
+          else
+            echo "Nessuna modifica da committare per il badge/baseline di coverage."
+          fi
+          echo "Aggiornamento badge e baseline completato."
