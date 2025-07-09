@@ -51,7 +51,7 @@ void main() {
 
       expect(find.byType(TextButton), findsNothing);
 
-      final ElevatedButton button = tester.widget(find.byType(ElevatedButton));
+      tester.widget(find.byType(ElevatedButton));
       final elevatedButton = tester.widget<ElevatedButton>(find.descendant(
         of: find.byType(CustomActionButton),
         matching: find.byType(ElevatedButton),
