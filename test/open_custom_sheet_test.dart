@@ -8,7 +8,6 @@ void main() {
   group('OpenCustomSheet Tests', () {
     testWidgets('Confirm buttons are visible in openConfirmSheet',
         (WidgetTester tester) async {
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -18,8 +17,7 @@ void main() {
                   OpenCustomSheet.openConfirmSheet(
                     context,
                     body: const Text('Are you sure?'),
-                    onClose: (value) {
-                    },
+                    onClose: (value) {},
                     confirmButtonText: 'Confirm',
                     cancelButtonText: 'Cancel',
                   ).show(context); // Ensure to call the show() method
@@ -126,7 +124,6 @@ void main() {
 
     testWidgets('Confirm buttons are not visible in normal sheet',
         (WidgetTester tester) async {
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -136,8 +133,7 @@ void main() {
                   OpenCustomSheet(
                     barrierDismissible: true,
                     barrierColor: Colors.black.withCustomOpacity(0.5),
-                    onClose: (value) {
-                    },
+                    onClose: (value) {},
                     backgroundColor: Colors.white,
                     handleColor: Colors.grey,
                     sheetPadding: const EdgeInsets.symmetric(
@@ -203,7 +199,6 @@ void main() {
 
     testWidgets('Scrollable sheet works correctly',
         (WidgetTester tester) async {
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -225,8 +220,7 @@ void main() {
                         ),
                       );
                     },
-                    onClose: (value) {
-                    },
+                    onClose: (value) {},
                     backgroundColor: Colors.white,
                     handleColor: Colors.grey,
                   ).show(context);
