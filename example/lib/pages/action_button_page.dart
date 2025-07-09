@@ -90,6 +90,20 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           child: Text('Long Press Button ($counter)'),
         ),
 
+        CustomActionButton.rounded(
+          onPressed: () {
+            setState(() {
+              counter++;
+            });
+          },
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          backgroundColor: Colors.orange,
+          foregroundColor: Colors.white,
+          splashColor: Colors.deepOrangeAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          child: Text('Rounded Button ($counter)'),
+        ),
+
         // Disabled Press Button Example
         CustomActionButton(
           elevation: 4.0,
