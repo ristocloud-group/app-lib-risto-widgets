@@ -18,9 +18,7 @@ class _IncrementDecrementPageState extends State<IncrementDecrementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Increment/Decrement Examples'),
-      ),
+      appBar: AppBar(title: const Text('Increment/Decrement Examples')),
       body: PaddedChildrenList(
         children: [
           // Flat Example with synchronous callback returning int?
