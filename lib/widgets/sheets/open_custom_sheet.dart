@@ -300,13 +300,16 @@ class OpenCustomSheet {
                       const BorderRadius.vertical(top: Radius.circular(10)),
                   color: backgroundColor ?? Theme.of(context).cardColor,
                 ),
-                padding: sheetPadding ?? const EdgeInsets.only(bottom: 16.0),
+                padding: padding ?? const EdgeInsets.only(bottom: 16.0),
                 child: Column(
                   children: [
                     if (handleColor != Colors.transparent)
                       _buildHandle(handleColor),
                     Expanded(
-                      child: body(scrollController: scrollController),
+                      child: Padding(
+                        padding: sheetPadding ?? EdgeInsets.zero,
+                        child: body(scrollController: scrollController),
+                      ),
                     ),
                   ],
                 ),
@@ -325,7 +328,7 @@ class OpenCustomSheet {
                     const BorderRadius.vertical(top: Radius.circular(10)),
                 color: backgroundColor ?? Theme.of(context).cardColor,
               ),
-              padding: sheetPadding ?? const EdgeInsets.only(bottom: 16.0),
+              padding: padding ?? const EdgeInsets.only(bottom: 16.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -334,8 +337,9 @@ class OpenCustomSheet {
                   Flexible(
                     child: SingleChildScrollView(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 20),
+                        padding: sheetPadding ??
+                            const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 20),
                         child: body(scrollController: null),
                       ),
                     ),
