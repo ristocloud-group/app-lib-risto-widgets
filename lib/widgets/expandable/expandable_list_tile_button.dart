@@ -443,6 +443,27 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       _animationController.value = 1.0;
     }
 
+    // Add listener for animation status changes
+    _animationController.addStatusListener((status) {
+      // Rebuild the widget when the animation completes,
+      // specifically when collapsing to ensure widget removal.
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
+        // Only trigger setState if the expansion state is not managed externally
+        // AND if the current animation status does not match the _isExpanded state
+        // (e.g., if it completed dismissing but _isExpanded is still true, which shouldn't happen with proper sync)
+        if (!_isStateManagedExternally && mounted) {
+          // A minor optimization: only call setState if it actually changes the rendering outcome
+          // i.e., if we are not expanded and the animation just finished reversing.
+          if (!_isExpanded && status == AnimationStatus.dismissed) {
+            setState(() {
+              /* Empty setState to trigger rebuild */
+            });
+          }
+        }
+      }
+    });
+
     if (_isStateManagedExternally) {
       widget.controller!.addListener(_handleControllerChanged);
     }
@@ -558,77 +579,60 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       return;
     }
 
+    // Re-create actualHeaderContent for the overlay, ensuring consistency
+    final Widget actualHeaderContentForOverlay =
+        widget.customHeaderBuilder != null
+            ? widget.customHeaderBuilder!(
+                _toggleExpansion, _isExpanded, widget.disabled)
+            : _buildDefaultHeader(
+                context, Theme.of(context)); // Pass context and theme
+
     _overlayEntry = OverlayEntry(builder: (context) {
       final theme = Theme.of(context);
       final effectiveExpandedBodyColor = widget._finalExpandedBodyColor ??
           theme.colorScheme.secondary.withCustomOpacity(0.1);
 
-      // The horizontal padding of the ExpandableListTileButton itself
-      final double horizontalMargin = (widget.margin is EdgeInsets)
-          ? (widget.margin as EdgeInsets).horizontal
-          : 0.0;
-
       return CompositedTransformFollower(
         link: _layerLink,
         showWhenUnlinked: false,
-        // The offset positions the top-left of the follower relative to the targetAnchor.
-        // We want the overlay's top to be exactly at the header's top-left.
         offset: Offset(0.0, 0.0),
-        // No additional offset, match target directly
         targetAnchor: Alignment.topLeft,
         followerAnchor: Alignment.topLeft,
         child: Stack(
-          // Ensure the stack's size matches the header's width for its children
           children: [
-            // 1. The Expanding Body (drawn underneath)
-            // It needs to be positioned relative to the top of the overall overlay content (which aligns with the header's top).
             Positioned(
               top: _headerHeight - widget.borderRadius.bottomLeft.y,
-              // Start below header, accounting for overlap
               left: 0,
-              // The width here needs to match the overall width of the expandablte tile, accounting for external margins
               width: _headerWidth,
               child: Material(
                 elevation: widget.elevation,
-                // Apply elevation to the expanded body
                 borderRadius: BorderRadius.only(
                   bottomLeft: widget.borderRadius.bottomLeft,
                   bottomRight: widget.borderRadius.bottomRight,
                 ),
                 color: effectiveExpandedBodyColor,
                 clipBehavior: Clip.antiAlias,
-                // Crucial for clipping content within borderRadius
                 child: SizeTransition(
                   sizeFactor: _animation,
                   axis: Axis.vertical,
                   axisAlignment: -1.0,
-                  // Aligns to the bottom (expands downwards)
                   child: IntrinsicHeight(
-                    // Allows content to dictate its own height
                     child: Padding(
-                      // This padding pushes the content down, ensuring it visually starts
-                      // from the correct point relative to the header's original bottom radius.
                       padding: EdgeInsets.only(
                           top: widget.borderRadius.bottomLeft.y),
-                      // Use the bottom radius as top padding
                       child: Align(
                         alignment: widget.bodyAlignment,
-                        child: widget.expanded, // The actual expanded content
+                        child: widget.expanded,
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-            // 2. The Header Copy (drawn on top)
-            // This Material will draw the header's shape, color, border, and elevation
-            // OVER the expanding content below it.
+            // This is the header copy that will be visible in the overlay
             Material(
               elevation: widget.elevation,
-              // Apply same elevation as original header
               color: (widget._finalHeaderBackgroundColor ?? theme.cardColor),
-              // Give it the original header color
-              // Use the custom shape to control borderRadius and border drawing
               shape: RemainsRoundedBorder(
                 topRadius: widget.borderRadius.topLeft.x,
                 bottomRadius: widget.borderRadius.bottomLeft.x,
@@ -636,14 +640,11 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
                 borderWidth: widget.borderColor != null ? 1.0 : 0.0,
               ),
               clipBehavior: Clip.antiAlias,
-              // Ensures the header's content is clipped by its rounded shape
               child: SizedBox(
                 height: _headerHeight,
-                width: _headerWidth, // Explicitly set width to match header
-                child: widget.customHeaderBuilder != null
-                    ? widget.customHeaderBuilder!(
-                        _toggleExpansion, _isExpanded, widget.disabled)
-                    : _buildDefaultHeader(context, theme),
+                width: _headerWidth,
+                child:
+                    actualHeaderContentForOverlay, // Use the prepared content for overlay
               ),
             ),
           ],
@@ -683,7 +684,9 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     final effectiveExpandedBodyColor = widget._finalExpandedBodyColor ??
         theme.colorScheme.secondary.withCustomOpacity(0.1);
 
-    final headerWidget = widget.customHeaderBuilder != null
+    // The header content. This will be drawn in the overlay if _useOverlay is true.
+    // In the main tree, the CompositedTransformTarget will be a placeholder.
+    final Widget actualHeaderContent = widget.customHeaderBuilder != null
         ? widget.customHeaderBuilder!(
             _toggleExpansion, _isExpanded, widget.disabled)
         : _buildDefaultHeader(context, theme);
@@ -698,15 +701,13 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
           margin: widget.margin,
           child: Stack(
             clipBehavior: Clip.none,
-            // Allow children to draw outside stack bounds
             children: [
-              // This SizedBox helps maintain the overall widget size in the parent layout
-              // even when the expanded content is in an overlay. It acts as a visual placeholder.
               SizedBox(height: placeholderHeight),
-              // Only render the inline expanded body if not using overlay
-              if (!widget._useOverlay)
+              // Only render the inline expanded body if not using overlay AND
+              // if it's expanded or an animation is running.
+              if (!widget._useOverlay &&
+                  (_isExpanded || _animationController.isAnimating))
                 Padding(
-                  // Padding here accounts for the header's half-height overlap
                   padding: EdgeInsets.only(top: placeholderHeight / 2),
                   child: SizeTransition(
                     sizeFactor: _animation,
@@ -714,7 +715,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
                     axisAlignment: -1.0,
                     child: Container(
                       clipBehavior: Clip.antiAlias,
-                      // Ensures content is clipped by rounded corners
                       decoration: BoxDecoration(
                         color: effectiveExpandedBodyColor,
                         borderRadius: BorderRadius.only(
@@ -728,25 +728,23 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
                     ),
                   ),
                 ),
-              // The header, which is the CompositedTransformTarget for the overlay
               CompositedTransformTarget(
                 link: _layerLink,
                 child: Material(
                   key: _headerKey,
                   elevation: widget.elevation,
                   color: effectiveHeaderBgColor,
-                  // Use the custom shape to control borderRadius and border drawing
                   shape: RemainsRoundedBorder(
                     topRadius: widget.borderRadius.topLeft.x,
-                    // Assuming uniform top radius
                     bottomRadius: widget.borderRadius.bottomLeft.x,
-                    // Assuming uniform bottom radius
                     borderColor: widget.borderColor,
                     borderWidth: widget.borderColor != null ? 1.0 : 0.0,
                   ),
                   clipBehavior: Clip.antiAlias,
-                  // Ensures the header's content is clipped by its rounded shape
-                  child: headerWidget,
+                  // Hide actual header content in the main tree when overlay is active
+                  child: widget._useOverlay && _isExpanded
+                      ? const SizedBox.shrink()
+                      : actualHeaderContent,
                 ),
               ),
             ],
@@ -871,7 +869,6 @@ class RemainsRoundedBorder extends RoundedRectangleBorder {
         borderWidth: lerpDouble(a.borderWidth, borderWidth, t)!,
       );
     }
-    // Explicitly cast to ShapeBorder as super.lerpFrom is guaranteed to return non-null.
     return super.lerpFrom(a, t) as ShapeBorder;
   }
 
@@ -885,7 +882,6 @@ class RemainsRoundedBorder extends RoundedRectangleBorder {
         borderWidth: lerpDouble(borderWidth, b.borderWidth, t)!,
       );
     }
-    // Explicitly cast to ShapeBorder as super.lerpTo is guaranteed to return non-null.
     return super.lerpTo(b, t) as ShapeBorder;
   }
 
