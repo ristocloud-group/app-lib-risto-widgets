@@ -115,9 +115,6 @@ class ExpandableListTileButton extends StatefulWidget {
   /// The final resolved background color for the expanded body, prioritizing [expandedBodyColor].
   final Color? _finalExpandedBodyColor;
 
-  /// If non-null, constrains the leading widget to this size.
-  final Size? leadingSize;
-
   /// If non-null, constrains the trailing widget to this size.
   final Size? trailingSize;
 
@@ -153,7 +150,6 @@ class ExpandableListTileButton extends StatefulWidget {
     this.disabled = false,
     this.bodyAlignment = Alignment.center,
     this.controller,
-    this.leadingSize,
     this.trailingSize,
     bool overlay = false,
   })  : _finalHeaderBackgroundColor = headerBackgroundColor ?? backgroundColor,
@@ -341,7 +337,7 @@ class ExpandableListTileButton extends StatefulWidget {
     bool disabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
     ExpandableController? controller,
-    Size? leadingSize,
+    double leadingSizeFactor = 1,
     Size? trailingSize,
   }) {
     return ExpandableListTileButton(
@@ -360,14 +356,12 @@ class ExpandableListTileButton extends StatefulWidget {
       disabled: disabled,
       bodyAlignment: bodyAlignment,
       controller: controller,
-      leadingSize: leadingSize,
       trailingSize: trailingSize,
       overlay: true,
       customHeaderBuilder: (toggle, isExp, isDis) => ListTileButton(
         onPressed: toggle,
-        leading: (leadingSize != null && leading != null)
-            ? SizedBox.fromSize(size: leadingSize, child: leading)
-            : leading,
+        leading: leading,
+        leadingSizeFactor: leadingSizeFactor,
         body: title,
         subtitle: subtitle,
         trailing: trailingSize != null
@@ -741,7 +735,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
                     borderWidth: widget.borderColor != null ? 1.0 : 0.0,
                   ),
                   clipBehavior: Clip.antiAlias,
-                  // Hide actual header content in the main tree when overlay is active
                   child: widget._useOverlay && _isExpanded
                       ? const SizedBox.shrink()
                       : actualHeaderContent,

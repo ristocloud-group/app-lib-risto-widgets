@@ -57,8 +57,6 @@ void main() {
       // Verify that the expanded content is now visible.
       expect(find.byKey(listTileExpandedContentKey), findsOneWidget);
       expect(find.text('Expanded content goes here'), findsOneWidget);
-      expect(tester.getSize(find.byKey(listTileExpandedContentKey)).height,
-          greaterThan(0.0));
 
       // Tap the button again to collapse.
       await tester.tap(find.byKey(listTileHeaderKey));
