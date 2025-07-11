@@ -15,79 +15,37 @@ import 'package:flutter/material.dart';
 /// ```
 class ListTileButton extends StatelessWidget {
   // Behavior
-
-  /// Callback when the tile is tapped. Ignored if [disabled] is true.
   final VoidCallback? onPressed;
-
-  /// Callback when the tile is long-pressed. Ignored if [disabled] is true.
   final VoidCallback? onLongPress;
-
-  /// Whether the button is interactive. Defaults to false.
-  /// If true, onPressed/onLongPress are ignored and the button is dimmed.
   final bool disabled;
 
   // Layout
-
-  /// External margin around the tile.
   final EdgeInsetsGeometry? margin;
-
-  /// Internal padding within the tile.
   final EdgeInsetsGeometry? padding;
-
-  /// Padding for the [body] within the [ListTile].
   final EdgeInsetsGeometry? bodyPadding;
-
-  /// Padding around the [leading] widget.
   final EdgeInsetsGeometry? leadingPadding;
-
-  /// Padding around the [trailing] widget.
   final EdgeInsetsGeometry? trailingPadding;
 
   // Content
-
-  /// Widget to display at the start of the tile.
   final Widget? leading;
-
-  /// Factor to scale the size of the leading widget.
   final double leadingSizeFactor;
-
-  /// The primary content of the tile.
   final Widget? body;
-
-  /// Additional content displayed below the [body].
   final Widget? subtitle;
-
-  /// Widget to display at the end of the tile.
   final Widget? trailing;
 
   // Style
-
-  /// Background color of the tile.
   final Color? backgroundColor;
-
-  /// Border color of the tile.
   final Color? borderColor;
-
-  /// Border radius of the tile's rounded corners.
   final double borderRadius;
-
-  /// Elevation of the tile's shadow.
   final double? elevation;
 
   // Visual Aspects
-
-  /// Visual density of the tile to control compactness.
   final VisualDensity? visualDensity;
-
-  /// Alignment of the [body] within the tile.
-  final ListTileTitleAlignment? bodyAlignment;
+  final Alignment blockAlignment;
 
   // Constraints
-
-  /// Minimum height of the tile.
   final double? minHeight;
 
-  /// Creates a [ListTileButton] with customizable content and styling.
   const ListTileButton({
     super.key,
     this.onPressed,
@@ -108,88 +66,106 @@ class ListTileButton extends StatelessWidget {
     this.borderRadius = 10,
     this.elevation,
     this.visualDensity,
-    this.bodyAlignment,
+    this.blockAlignment = Alignment.centerLeft,
     this.minHeight,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Leading icon or widget
     Widget? leadingWidget;
     if (leading != null) {
       leadingWidget = Padding(
         padding: leadingPadding ?? EdgeInsets.zero,
-        child: Center(
-          child: SizedBox(
-            key: const Key('leading_wrapper'),
-            // Use IconTheme size as base for scaling if available, else default 24.0
-            width: (IconTheme.of(context).size ?? 24.0) * leadingSizeFactor,
-            height: (IconTheme.of(context).size ?? 24.0) * leadingSizeFactor,
-            child: FittedBox(
-              fit: BoxFit.contain,
-              alignment: Alignment.center,
-              child: leading, // The actual leading widget (e.g., Icon)
-            ),
-          ),
+        child: SizedBox(
+          width: (IconTheme.of(context).size ?? 24) * leadingSizeFactor,
+          height: (IconTheme.of(context).size ?? 24) * leadingSizeFactor,
+          child: FittedBox(child: leading!),
         ),
       );
     }
 
+    // Title and subtitle stacked vertically
+    Widget textBlock = Padding(
+      padding: bodyPadding ?? const EdgeInsets.only(left: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (body != null)
+            DefaultTextStyle(
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium!
+                  .copyWith(color: disabled ? Colors.grey : null),
+              child: body!,
+            ),
+          if (subtitle != null)
+            DefaultTextStyle(
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(color: disabled ? Colors.grey : null),
+              child: subtitle!,
+            ),
+        ],
+      ),
+    );
+
+    // Combine leading + text
+    Widget block = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (leadingWidget != null) leadingWidget,
+        Flexible(child: textBlock),
+      ],
+    );
+
+    // Trailing widget
     Widget? trailingWidget;
     if (trailing != null) {
       trailingWidget = Padding(
-        padding: trailingPadding ?? const EdgeInsets.only(right: 12),
-        child: Container(
-          alignment: Alignment.center,
-          height: double.infinity,
-          child: trailing,
-        ),
+        padding: trailingPadding ?? const EdgeInsets.only(left: 12),
+        child: trailing,
       );
     }
 
-    // Wrap in Opacity for disabled state
     return Opacity(
       opacity: disabled ? 0.5 : 1.0,
       child: RoundedContainer(
         margin: margin,
-        borderColor: borderColor,
+        padding: padding,
         backgroundColor: backgroundColor,
-        elevation: elevation,
+        borderColor: borderColor,
         borderRadius: borderRadius,
+        elevation: elevation,
         child: Material(
           type: MaterialType.transparency,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
           child: InkWell(
             borderRadius: BorderRadius.circular(borderRadius),
-            // Disable callbacks if disabled
             onTap: disabled ? null : onPressed,
             onLongPress: disabled ? null : onLongPress,
-            child: Padding(
+            child: Container(
               padding: padding ?? const EdgeInsets.all(8),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: minHeight ?? 50.0,
-                ),
-                child: IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      if (leadingWidget != null) leadingWidget,
-                      Expanded(
-                        child: ListTile(
-                          titleAlignment: bodyAlignment,
-                          visualDensity: visualDensity ?? VisualDensity.compact,
-                          contentPadding:
-                              bodyPadding ?? const EdgeInsets.only(left: 8),
-                          dense: true,
-                          minVerticalPadding: 0,
-                          minLeadingWidth: 0,
-                          title: body,
-                          subtitle: subtitle,
-                          enabled: !disabled,
-                        ),
-                      ),
-                      if (trailingWidget != null) trailingWidget,
-                    ],
+              constraints: BoxConstraints(minHeight: minHeight ?? 50),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: blockAlignment,
+                      child: block,
+                    ),
                   ),
-                ),
+                  if (trailingWidget != null) ...[
+                    const SizedBox(width: 8),
+                    trailingWidget,
+                  ],
+                ],
               ),
             ),
           ),
@@ -213,66 +189,30 @@ class ListTileButton extends StatelessWidget {
 /// ```
 class IconListTileButton extends StatelessWidget {
   // Behavior
-
-  /// Callback when the tile is tapped. Ignored if [disabled] is true.
   final VoidCallback? onPressed;
-
-  /// Whether the button is interactive. Defaults to false.
   final bool disabled;
 
   // Layout
-
-  /// External margin around the tile.
   final EdgeInsetsGeometry? margin;
-
-  /// Internal padding within the tile.
   final EdgeInsetsGeometry? padding;
-
-  /// Padding for the [body] within the [ListTile].
   final EdgeInsetsGeometry? bodyPadding;
-
-  /// Padding around the [leading] widget.
-  /// Defaults to [EdgeInsets.symmetric(horizontal: 5)].
   final EdgeInsetsGeometry? leadingPadding;
-
-  /// Padding around the [trailing] widget.
   final EdgeInsetsGeometry? trailingPadding;
 
   // Content
-
-  /// Icon to display at the start of the tile.
   final IconData icon;
-
-  /// The primary content of the tile.
   final Widget title;
-
-  /// Additional content displayed below the [title].
   final Widget? subtitle;
-
-  /// Widget to display at the end of the tile.
   final Widget? trailing;
 
   // Style
-
-  /// Background color of the tile.
   final Color? backgroundColor;
-
-  /// Border color of the tile.
   final Color? borderColor;
-
-  /// Color of the icon.
   final Color? iconColor;
-
-  /// Factor to scale the size of the leading icon.
   final double leadingSizeFactor;
-
-  /// Elevation of the tile's shadow.
   final double? elevation;
-
-  /// Border radius of the tile's rounded corners.
   final double borderRadius;
 
-  /// Creates an [IconListTileButton] with an icon and customizable content.
   const IconListTileButton({
     super.key,
     required this.icon,
@@ -296,7 +236,6 @@ class IconListTileButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Pass all parameters, including disabled, down to ListTileButton
     return ListTileButton(
       margin: margin,
       padding: padding,
@@ -312,17 +251,14 @@ class IconListTileButton extends StatelessWidget {
       trailing: trailing,
       onPressed: onPressed,
       disabled: disabled,
-      // Pass the Icon widget directly; ListTileButton will handle scaling via FittedBox
       leading: Icon(
         icon,
         color: iconColor ?? Theme.of(context).iconTheme.color,
       ),
-      leadingSizeFactor: leadingSizeFactor, // Pass the factor for scaling logic
+      leadingSizeFactor: leadingSizeFactor,
     );
   }
 }
-
-// --- Unchanged Widgets Below ---
 
 /// A container with rounded corners and optional border and elevation.
 class RoundedContainer extends StatelessWidget {
@@ -337,9 +273,9 @@ class RoundedContainer extends StatelessWidget {
 
   const RoundedContainer({
     super.key,
-    required this.child,
     this.margin,
     this.padding,
+    required this.child,
     this.backgroundColor,
     this.borderColor,
     this.borderRadius = 10,

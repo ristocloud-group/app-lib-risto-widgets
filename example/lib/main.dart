@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 import 'package:risto_widgets_example/pages/infinite_snap_list_page.dart';
+import 'package:risto_widgets_example/pages/navigation_widget_page.dart';
 
 // Import the pages
 import 'pages/action_button_page.dart';
@@ -70,6 +71,11 @@ class _HomePageState extends State<HomePage> {
         page: InfiniteSnapDemoPage(),
         icon: Icon(Icons.repeat),
         label: 'Infinite Snap List',
+      ),
+      const NavigationItem(
+        page: NavigationWidgetPage(),
+        icon: Icon(Icons.swap_horiz),
+        label: 'Nav Switcher',
       ),
     ]);
   }
