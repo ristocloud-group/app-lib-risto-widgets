@@ -185,6 +185,9 @@ class SectionSwitcher extends StatefulWidget {
   /// padding around the content area (below the segments)
   final EdgeInsets contentPadding;
 
+  /// outer margin _around_ the segmented control (doesn’t affect pages)
+  final EdgeInsets segmentedMargin;
+
   // ── SEGMENTED CONTROL CUSTOMIZATION ───────────────────────────
   final Color? segmentedBackgroundColor;
   final Color? segmentedIndicatorColor;
@@ -210,6 +213,7 @@ class SectionSwitcher extends StatefulWidget {
     this.segmentedPadding = EdgeInsets.zero,
     this.segmentedItemSpacing = 4.0,
     this.contentPadding = EdgeInsets.zero,
+    this.segmentedMargin = EdgeInsets.zero,
 
     // segmented control
     this.segmentedBackgroundColor,
@@ -270,7 +274,8 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // segmented control
-        SizedBox(
+        Container(
+          margin: widget.segmentedMargin,
           height: widget.segmentedHeight,
           child: SegmentedControl(
             segments: segments,
