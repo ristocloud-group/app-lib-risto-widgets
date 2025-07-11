@@ -101,17 +101,15 @@ void main() {
     );
 
     // Act
-    final container = tester.widget<Container>(
-      find
-          .descendant(
-            of: find.byType(SegmentedControl),
-            matching: find.byType(Container),
-          )
-          .first,
+    // Find the Material widget used for the track by matching its color
+    final trackMaterialFinder = find.descendant(
+      of: find.byType(SegmentedControl),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is Material && widget.color == bgColor,
+      ),
     );
-    final decoration = container.decoration as BoxDecoration;
 
     // Assert
-    expect(decoration.color, equals(bgColor));
+    expect(trackMaterialFinder, findsOneWidget);
   });
 }

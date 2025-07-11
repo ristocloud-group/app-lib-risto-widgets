@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/extensions.dart';
 
 import 'custom_bottom_navbar.dart';
 
 /// A reusable segmented control for toggling between options.
-/// Supports custom segments, animations, and styling.
+/// Supports custom segments, animations, styling, and elevation.
 class SegmentedControl extends StatefulWidget {
   final List<Widget> segments;
   final int initialIndex;
@@ -20,11 +19,13 @@ class SegmentedControl extends StatefulWidget {
   final double borderWidth;
   final Color? backgroundColor;
   final EdgeInsets padding;
+  final double elevation;
 
   // Indicator styling
   final Color? indicatorColor;
   final List<BoxShadow>? indicatorShadow;
   final EdgeInsets? indicatorMargin;
+  final double indicatorElevation;
 
   // Text styling
   final TextStyle? unselectedTextStyle;
@@ -42,9 +43,11 @@ class SegmentedControl extends StatefulWidget {
     this.borderWidth = 1.0,
     this.backgroundColor,
     this.padding = const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+    this.elevation = 0.0,
     this.indicatorColor,
     this.indicatorShadow,
     this.indicatorMargin,
+    this.indicatorElevation = 0.0,
     this.unselectedTextStyle,
     this.selectedTextStyle,
   }) : assert(segments.length > 1, 'At least two segments required');
@@ -102,62 +105,64 @@ class _SegmentedControlState extends State<SegmentedControl> {
         final innerHeight = height - widget.padding.vertical;
         final margin = widget.indicatorMargin ?? EdgeInsets.zero;
 
-        return Container(
-          height: height,
-          decoration: BoxDecoration(
-            color: backCol,
-            borderRadius: radius,
-            border: widget.borderColor != null
-                ? Border.all(
-                    color: widget.borderColor!, width: widget.borderWidth)
-                : null,
-          ),
-          child: Padding(
-            padding: widget.padding,
-            child: Stack(
-              children: [
-                AnimatedPositioned(
-                  left: _currentIndex * indicatorWidth + margin.left,
-                  top: margin.top,
-                  duration: widget.duration,
-                  curve: widget.curve,
-                  child: Container(
-                    width: indicatorWidth - margin.horizontal,
-                    height: innerHeight - margin.vertical,
-                    decoration: BoxDecoration(
-                      color: widget.indicatorColor ?? Colors.white,
+        return Material(
+          elevation: widget.elevation,
+          borderRadius: radius,
+          color: backCol,
+          child: Container(
+            height: height,
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              border: widget.borderColor != null
+                  ? Border.all(
+                      color: widget.borderColor!, width: widget.borderWidth)
+                  : null,
+            ),
+            child: Padding(
+              padding: widget.padding,
+              child: Stack(
+                children: [
+                  AnimatedPositioned(
+                    left: _currentIndex * indicatorWidth + margin.left,
+                    top: margin.top,
+                    duration: widget.duration,
+                    curve: widget.curve,
+                    child: Material(
+                      elevation: widget.indicatorElevation,
                       borderRadius: radius,
-                      boxShadow: widget.indicatorShadow ??
-                          [
-                            BoxShadow(
-                              color: Colors.black.withCustomOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                    ),
-                  ),
-                ),
-                Row(
-                  children: List.generate(count, (index) {
-                    return Expanded(
-                      child: InkWell(
-                        borderRadius: radius,
-                        onTap: () => _onTap(index),
-                        child: Center(
-                          child: AnimatedDefaultTextStyle(
-                            duration: widget.duration,
-                            style: _currentIndex == index
-                                ? selectedStyle
-                                : unselectedStyle,
-                            child: widget.segments[index],
-                          ),
+                      color: widget.indicatorColor ?? Colors.white,
+                      shadowColor: Colors.black,
+                      child: Container(
+                        width: indicatorWidth - margin.horizontal,
+                        height: innerHeight - margin.vertical,
+                        decoration: BoxDecoration(
+                          borderRadius: radius,
+                          boxShadow: widget.indicatorShadow,
                         ),
                       ),
-                    );
-                  }),
-                ),
-              ],
+                    ),
+                  ),
+                  Row(
+                    children: List.generate(count, (index) {
+                      return Expanded(
+                        child: InkWell(
+                          borderRadius: radius,
+                          onTap: () => _onTap(index),
+                          child: Center(
+                            child: AnimatedDefaultTextStyle(
+                              duration: widget.duration,
+                              style: _currentIndex == index
+                                  ? selectedStyle
+                                  : unselectedStyle,
+                              child: widget.segments[index],
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -193,6 +198,8 @@ class SectionSwitcher extends StatefulWidget {
   final Color? segmentedIndicatorColor;
   final List<BoxShadow>? segmentedIndicatorShadow;
   final EdgeInsets? segmentedIndicatorMargin;
+  final double segmentedElevation;
+  final double segmentedIndicatorElevation;
   final TextStyle? segmentedUnselectedTextStyle;
   final TextStyle? segmentedSelectedTextStyle;
   final BorderRadius? segmentedBorderRadius;
@@ -220,6 +227,8 @@ class SectionSwitcher extends StatefulWidget {
     this.segmentedIndicatorColor,
     this.segmentedIndicatorShadow,
     this.segmentedIndicatorMargin,
+    this.segmentedElevation = 0.0,
+    this.segmentedIndicatorElevation = 0.0,
     this.segmentedUnselectedTextStyle,
     this.segmentedSelectedTextStyle,
     this.segmentedBorderRadius,
@@ -289,6 +298,8 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
             indicatorColor: widget.segmentedIndicatorColor,
             indicatorShadow: widget.segmentedIndicatorShadow,
             indicatorMargin: widget.segmentedIndicatorMargin,
+            elevation: widget.segmentedElevation,
+            indicatorElevation: widget.segmentedIndicatorElevation,
             unselectedTextStyle: widget.segmentedUnselectedTextStyle,
             selectedTextStyle: widget.segmentedSelectedTextStyle,
             borderRadius: widget.segmentedBorderRadius,
