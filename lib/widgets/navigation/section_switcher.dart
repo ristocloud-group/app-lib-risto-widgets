@@ -166,45 +166,65 @@ class _SegmentedControlState extends State<SegmentedControl> {
   }
 }
 
-/// A section switcher that displays a [SegmentedControl] and changes
-/// the content below it. Content height adjusts dynamically and
-/// pages slide locked side-by-side in correct directions.
+/// A section switcher that displays a [SegmentedControl] and
+/// animates between pages. Fully style‐ and size‐configurable.
 class SectionSwitcher extends StatefulWidget {
   final List<NavigationItem> items;
   final int initialIndex;
 
-  // SegmentedControl customization
+  // ── SIZING & SPACING ───────────────────────────────────────────
+  /// height of the segmented control bar
+  final double segmentedHeight;
+
+  /// inner padding _inside_ the segmented track
+  final EdgeInsets segmentedPadding;
+
+  /// gap between icon & label in each segment
+  final double segmentedItemSpacing;
+
+  /// padding around the content area (below the segments)
+  final EdgeInsets contentPadding;
+
+  // ── SEGMENTED CONTROL CUSTOMIZATION ───────────────────────────
   final Color? segmentedBackgroundColor;
   final Color? segmentedIndicatorColor;
   final List<BoxShadow>? segmentedIndicatorShadow;
   final EdgeInsets? segmentedIndicatorMargin;
   final TextStyle? segmentedUnselectedTextStyle;
   final TextStyle? segmentedSelectedTextStyle;
+  final BorderRadius? segmentedBorderRadius;
+  final Color? segmentedBorderColor;
+  final double segmentedBorderWidth;
 
-  // Animation & layout
+  // ── ANIMATION ────────────────────────────────────────────────
   final Duration duration;
   final Curve curve;
-  final EdgeInsets padding;
-  final BorderRadius? borderRadius;
-  final Color? borderColor;
-  final double borderWidth;
 
   const SectionSwitcher({
     super.key,
     required this.items,
     this.initialIndex = 0,
-    this.duration = const Duration(milliseconds: 300),
-    this.curve = Curves.easeInOut,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    this.borderRadius,
-    this.borderColor,
-    this.borderWidth = 1.0,
+
+    // sizing & padding
+    this.segmentedHeight = 40.0,
+    this.segmentedPadding = EdgeInsets.zero,
+    this.segmentedItemSpacing = 4.0,
+    this.contentPadding = EdgeInsets.zero,
+
+    // segmented control
     this.segmentedBackgroundColor,
     this.segmentedIndicatorColor,
     this.segmentedIndicatorShadow,
     this.segmentedIndicatorMargin,
     this.segmentedUnselectedTextStyle,
     this.segmentedSelectedTextStyle,
+    this.segmentedBorderRadius,
+    this.segmentedBorderColor,
+    this.segmentedBorderWidth = 1.0,
+
+    // animation
+    this.duration = const Duration(milliseconds: 300),
+    this.curve = Curves.easeInOut,
   }) : assert(items.length > 1, 'At least two items required');
 
   @override
@@ -233,74 +253,82 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
 
   @override
   Widget build(BuildContext context) {
-    final segments = widget.items
-        .map((nav) => Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [nav.icon, const SizedBox(width: 4), Text(nav.label)],
-            ))
-        .toList();
+    // build each segment as icon + label with your custom spacing
+    final segments = widget.items.map((nav) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          nav.icon,
+          SizedBox(width: widget.segmentedItemSpacing),
+          Text(nav.label),
+        ],
+      );
+    }).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: widget.padding,
-          child: SizedBox(
-            height: 40,
-            child: SegmentedControl(
-              segments: segments,
-              initialIndex: _selectedIndex,
-              onSegmentSelected: _onSegmentSelected,
-              duration: widget.duration,
-              curve: widget.curve,
-              borderRadius: widget.borderRadius,
-              borderColor: widget.borderColor,
-              borderWidth: widget.borderWidth,
-              backgroundColor: widget.segmentedBackgroundColor,
-              indicatorColor: widget.segmentedIndicatorColor,
-              indicatorShadow: widget.segmentedIndicatorShadow,
-              indicatorMargin: widget.segmentedIndicatorMargin,
-              unselectedTextStyle: widget.segmentedUnselectedTextStyle,
-              selectedTextStyle: widget.segmentedSelectedTextStyle,
-              padding: EdgeInsets.zero,
-            ),
+        // segmented control
+        SizedBox(
+          height: widget.segmentedHeight,
+          child: SegmentedControl(
+            segments: segments,
+            initialIndex: _selectedIndex,
+            onSegmentSelected: _onSegmentSelected,
+            duration: widget.duration,
+            curve: widget.curve,
+            // pass through your new style props:
+            padding: widget.segmentedPadding,
+            backgroundColor: widget.segmentedBackgroundColor,
+            indicatorColor: widget.segmentedIndicatorColor,
+            indicatorShadow: widget.segmentedIndicatorShadow,
+            indicatorMargin: widget.segmentedIndicatorMargin,
+            unselectedTextStyle: widget.segmentedUnselectedTextStyle,
+            selectedTextStyle: widget.segmentedSelectedTextStyle,
+            borderRadius: widget.segmentedBorderRadius,
+            borderColor: widget.segmentedBorderColor,
+            borderWidth: widget.segmentedBorderWidth,
           ),
         ),
-        AnimatedSwitcher(
-          duration: widget.duration,
-          switchInCurve: widget.curve,
-          switchOutCurve: widget.curve,
-          layoutBuilder: (current, previous) => Stack(
-            clipBehavior: Clip.none,
-            children: [
-              if (current != null) current,
-              ...previous,
-            ],
-          ),
-          transitionBuilder: (child, animation) {
-            final isIncoming = child.key == ValueKey<int>(_selectedIndex);
-            final enterOffset = _selectedIndex > _previousIndex
-                ? const Offset(1, 0)
-                : const Offset(-1, 0);
-            final exitOffset = _selectedIndex > _previousIndex
-                ? const Offset(-1, 0)
-                : const Offset(1, 0);
 
-            final tween = isIncoming
-                ? Tween<Offset>(begin: enterOffset, end: Offset.zero)
-                : Tween<Offset>(begin: Offset.zero, end: exitOffset);
-            final anim = isIncoming ? animation : ReverseAnimation(animation);
+        // content area with its own padding
+        Padding(
+          padding: widget.contentPadding,
+          child: AnimatedSwitcher(
+            duration: widget.duration,
+            switchInCurve: widget.curve,
+            switchOutCurve: widget.curve,
+            layoutBuilder: (current, previous) => Stack(
+              clipBehavior: Clip.none,
+              children: [
+                if (current != null) current,
+                ...previous,
+              ],
+            ),
+            transitionBuilder: (child, animation) {
+              final isIncoming = child.key == ValueKey<int>(_selectedIndex);
+              final enter = _selectedIndex > _previousIndex
+                  ? const Offset(1, 0)
+                  : const Offset(-1, 0);
+              final exit = _selectedIndex > _previousIndex
+                  ? const Offset(-1, 0)
+                  : const Offset(1, 0);
+              final tween = isIncoming
+                  ? Tween<Offset>(begin: enter, end: Offset.zero)
+                  : Tween<Offset>(begin: Offset.zero, end: exit);
+              final anim = isIncoming ? animation : ReverseAnimation(animation);
 
-            return SlideTransition(
-              position:
-                  anim.drive(tween.chain(CurveTween(curve: widget.curve))),
-              child: child,
-            );
-          },
-          child: KeyedSubtree(
-            key: ValueKey<int>(_selectedIndex),
-            child: widget.items[_selectedIndex].page,
+              return SlideTransition(
+                position:
+                    anim.drive(tween.chain(CurveTween(curve: widget.curve))),
+                child: child,
+              );
+            },
+            child: KeyedSubtree(
+              key: ValueKey<int>(_selectedIndex),
+              child: widget.items[_selectedIndex].page,
+            ),
           ),
         ),
       ],
