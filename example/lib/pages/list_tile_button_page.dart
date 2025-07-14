@@ -63,7 +63,6 @@ class ListTileButtonPage extends StatelessWidget {
             ),
             leading: const Icon(Icons.info, color: Colors.blue),
             blockAlignment: Alignment.center,
-            minHeight: 10,
           ),
           ListTileButton(
             onPressed: () => {},

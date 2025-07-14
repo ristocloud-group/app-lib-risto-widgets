@@ -71,6 +71,8 @@ class CustomActionButton extends StatefulWidget {
   final double? height;
 
   /// The minimum height of the button. Defaults to 60.0.
+  /// If set to 0, the button will adapt to the minimum possible height
+  /// required by its content.
   final double minHeight;
 
   /// The shape of the button's material.
@@ -153,7 +155,6 @@ class CustomActionButton extends StatefulWidget {
       width: width,
       height: height,
       minHeight: minHeight,
-      // Passed minHeight
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
@@ -199,7 +200,6 @@ class CustomActionButton extends StatefulWidget {
       width: width,
       height: height,
       minHeight: minHeight,
-      // Passed minHeight
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
@@ -234,7 +234,6 @@ class CustomActionButton extends StatefulWidget {
       width: width,
       height: height,
       minHeight: minHeight,
-      // Passed minHeight
       shape: shape,
       padding: padding,
       margin: margin,
@@ -286,7 +285,6 @@ class CustomActionButton extends StatefulWidget {
       width: width,
       height: height,
       minHeight: minHeight,
-      // Passed minHeight
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
@@ -332,7 +330,6 @@ class CustomActionButton extends StatefulWidget {
       width: width,
       height: height,
       minHeight: minHeight,
-      // Passed minHeight
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
@@ -407,6 +404,20 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     _longPressTimer?.cancel();
   }
 
+  /// Determines the effective minimum size for the button.
+  /// If [widget.height] is provided, it takes precedence.
+  /// If [widget.minHeight] is 0, it returns null to allow intrinsic sizing.
+  /// Otherwise, it uses [widget.minHeight].
+  Size? _getEffectiveMinimumSize() {
+    if (widget.height != null) {
+      return Size(widget.width ?? 0, widget.height!);
+    } else if (widget.minHeight == 0) {
+      return null;
+    } else {
+      return Size(widget.width ?? 0, widget.minHeight);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.onPressed == null && widget.buttonType != ButtonType.longPress) {
@@ -460,7 +471,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
           ),
       elevation: widget.elevation,
       // Apply minimum size based on width and minHeight/height
-      minimumSize: Size(widget.width ?? 0, widget.height ?? widget.minHeight),
+      minimumSize: _getEffectiveMinimumSize(),
     );
 
     return Container(
@@ -498,7 +509,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       overlayColor: widget.splashColor ?? Colors.transparent,
       splashFactory: widget.splashFactory,
       // Apply minimum size based on width and minHeight/height
-      minimumSize: Size(widget.width ?? 0, widget.height ?? widget.minHeight),
+      minimumSize: _getEffectiveMinimumSize(),
     );
 
     return Container(
@@ -531,7 +542,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       elevation: widget.elevation,
       splashFactory: widget.splashFactory ?? InkRipple.splashFactory,
       // Apply minimum size based on width and minHeight/height
-      minimumSize: Size(widget.width ?? 0, widget.height ?? widget.minHeight),
+      minimumSize: _getEffectiveMinimumSize(),
     );
 
     return Container(
@@ -558,7 +569,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
           ? BorderSide(color: widget.borderColor!, width: 1)
           : BorderSide.none,
       // Apply minimum size based on width and minHeight/height
-      minimumSize: Size(widget.width ?? 0, widget.height ?? widget.minHeight),
+      minimumSize: _getEffectiveMinimumSize(),
     ).copyWith(
       overlayColor: WidgetStateProperty.all(Colors.transparent),
       splashFactory: NoSplash.splashFactory,
@@ -593,7 +604,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
           ),
       elevation: widget.elevation ?? 2.0,
       // Apply minimum size based on width and minHeight/height
-      minimumSize: Size(widget.width ?? 0, widget.height ?? widget.minHeight),
+      minimumSize: _getEffectiveMinimumSize(),
     ).copyWith(
       overlayColor: widget.splashColor != null
           ? WidgetStateProperty.all(widget.splashColor)
@@ -638,7 +649,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
       // Apply minimum size based on width and minHeight/height
-      minimumSize: Size(widget.width ?? 0, widget.height ?? widget.minHeight),
+      minimumSize: _getEffectiveMinimumSize(),
     ).copyWith(
       overlayColor: widget.splashColor != null
           ? WidgetStateProperty.all(widget.splashColor)

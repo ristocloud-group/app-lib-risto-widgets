@@ -44,7 +44,7 @@ class ListTileButton extends StatelessWidget {
   final Alignment blockAlignment;
 
   // Constraints
-  final double? minHeight;
+  final double minHeight;
 
   const ListTileButton({
     super.key,
@@ -67,7 +67,7 @@ class ListTileButton extends StatelessWidget {
     this.elevation,
     this.visualDensity,
     this.blockAlignment = Alignment.centerLeft,
-    this.minHeight,
+    this.minHeight = 60.0,
   });
 
   @override
@@ -131,6 +131,11 @@ class ListTileButton extends StatelessWidget {
       );
     }
 
+    // Determine the effective minHeight for the Container
+    BoxConstraints constraints = BoxConstraints(
+      minHeight: minHeight == 0 ? 0.0 : minHeight,
+    );
+
     return Opacity(
       opacity: disabled ? 0.5 : 1.0,
       child: RoundedContainer(
@@ -151,7 +156,7 @@ class ListTileButton extends StatelessWidget {
             onLongPress: disabled ? null : onLongPress,
             child: Container(
               padding: padding ?? const EdgeInsets.all(8),
-              constraints: BoxConstraints(minHeight: minHeight ?? 50),
+              constraints: constraints, // Apply the dynamic constraints
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -213,6 +218,9 @@ class IconListTileButton extends StatelessWidget {
   final double? elevation;
   final double borderRadius;
 
+  // Constraints
+  final double minHeight;
+
   const IconListTileButton({
     super.key,
     required this.icon,
@@ -232,6 +240,7 @@ class IconListTileButton extends StatelessWidget {
     this.trailingPadding,
     this.elevation,
     this.borderRadius = 10,
+    this.minHeight = 60.0, // Default value set here
   });
 
   @override
@@ -256,6 +265,7 @@ class IconListTileButton extends StatelessWidget {
         color: iconColor ?? Theme.of(context).iconTheme.color,
       ),
       leadingSizeFactor: leadingSizeFactor,
+      minHeight: minHeight,
     );
   }
 }
