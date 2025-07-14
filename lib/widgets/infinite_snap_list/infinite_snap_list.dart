@@ -54,7 +54,7 @@ class InfiniteSnapListController<T> extends ChangeNotifier {
 /// Highly customizable for item rendering, overlays, loading, empty/error state, and more.
 class InfiniteSnapList<T> extends StatefulWidget {
   /// The BLoC instance that manages state and data loading.
-  final InfiniteListBloc<T> bloc;
+  final InfiniteSnapListBloc<T> bloc;
 
   /// Optional controller for programmatic interaction.
   final InfiniteSnapListController<T>? controller;
@@ -532,7 +532,7 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<InfiniteListBloc<T>, InfiniteSnapListState<T>>(
+    return BlocBuilder<InfiniteSnapListBloc<T>, InfiniteSnapListState<T>>(
       bloc: widget.bloc,
       builder: (context, state) {
         final items = state.state.items;

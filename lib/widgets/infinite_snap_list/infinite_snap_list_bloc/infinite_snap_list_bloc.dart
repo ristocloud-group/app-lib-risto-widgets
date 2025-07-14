@@ -9,7 +9,7 @@ part 'infinite_snap_list_state.dart';
 /// sfruttando il comportamento snap per caricare nuovi item solo quando
 /// si raggiunge la prima o l'ultima posizione, mantenendo traccia dell'item selezionato.
 /// Richiede un `initValue` per pre-selezionare l’elemento di partenza (offset iniziale).
-abstract class InfiniteListBloc<T>
+abstract class InfiniteSnapListBloc<T>
     extends Bloc<InfiniteSnapListEvent, InfiniteSnapListState<T>> {
   /// Limite di fetch di default
   final int defaultLimit;
@@ -17,7 +17,7 @@ abstract class InfiniteListBloc<T>
   /// Elemento iniziale da selezionare (offset di partenza), non null
   final T initValue;
 
-  InfiniteListBloc({required this.initValue, this.defaultLimit = 10})
+  InfiniteSnapListBloc({required this.initValue, this.defaultLimit = 10})
       : super(
           InitialState<T>(
             ISLState<T>(
