@@ -259,7 +259,7 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
 
     // Listen to BLoC stream to handle fetch and item selection.
     _blocSubscription = widget.bloc.stream.listen((state) {
-      if (state is LoadedState<T>) {
+      if (state is ISLoadedState<T>) {
         // Compensate for newly prepended items so scroll position is visually consistent.
         if (state.prependedItemCount > 0 && _controller.hasClients) {
           final compensation =
@@ -540,8 +540,8 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
         final selectedItemIndex = items.indexOf(selected);
 
         // --- Initial state or shimmer loading ---
-        if (state is InitialState<T> ||
-            (state is LoadingState<T> &&
+        if (state is ISLInitialState<T> ||
+            (state is ISLLoadingState<T> &&
                 state.state.loadingDirection == LoadingDirection.initial)) {
           return LayoutBuilder(
             builder: (context, constraints) {
@@ -557,7 +557,7 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
         }
 
         // --- Error state ---
-        if (state is ErrorState<T>) {
+        if (state is ISLErrorState<T>) {
           return widget.errorBuilder?.call(context, state.error) ??
               _defaultErrorBuilder(context, state.error);
         }
@@ -568,7 +568,7 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
               _defaultEmptyListBuilder(context);
         }
 
-        final isLoading = state is LoadingState<T>;
+        final isLoading = state is ISLLoadingState<T>;
         final loadingDir = state.state.loadingDirection;
         final showLoader = isLoading && loadingDir != null && items.isNotEmpty;
 

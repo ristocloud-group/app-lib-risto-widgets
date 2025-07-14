@@ -19,7 +19,7 @@ abstract class InfiniteSnapListBloc<T>
 
   InfiniteSnapListBloc({required this.initValue, this.defaultLimit = 10})
       : super(
-          InitialState<T>(
+          ISLInitialState<T>(
             ISLState<T>(
               items: [],
               selectedItem: initValue,
@@ -47,14 +47,14 @@ abstract class InfiniteSnapListBloc<T>
         selected != current.first &&
         selected != current.last &&
         state.state.selectedItem != selected) {
-      emit(LoadedState<T>(
+      emit(ISLoadedState<T>(
         state.state.copyWith(selectedItem: selected, loadingDirection: null),
       ));
       return;
     }
 
     // Evita di caricare di nuovo se stiamo già caricando e l'elemento selezionato non è cambiato
-    if (state is LoadingState && state.state.selectedItem == selected) {
+    if (state is ISLLoadingState && state.state.selectedItem == selected) {
       return;
     }
 
@@ -70,7 +70,7 @@ abstract class InfiniteSnapListBloc<T>
 
     // Emettiamo LoadingState solo se c'è una direzione di caricamento
     if (directionToLoad != null) {
-      emit(LoadingState<T>(state.state.copyWith(
+      emit(ISLLoadingState<T>(state.state.copyWith(
         loadingDirection: directionToLoad,
         selectedItem: selected,
       )));
@@ -113,7 +113,7 @@ abstract class InfiniteSnapListBloc<T>
       // Emette LoadedState solo se c'è stato un caricamento o se l'elemento selezionato è cambiato
       // Questo previene emissioni ridondanti quando non c'è caricamento effettivo
       if (directionToLoad != null || state.state.selectedItem != selected) {
-        emit(LoadedState<T>(
+        emit(ISLoadedState<T>(
           state.state.copyWith(
             items: updated,
             selectedItem: selected,
@@ -123,7 +123,7 @@ abstract class InfiniteSnapListBloc<T>
         ));
       }
     } catch (e) {
-      emit(ErrorState<T>(state.state.copyWith(loadingDirection: null),
+      emit(ISLErrorState<T>(state.state.copyWith(loadingDirection: null),
           error: Exception(e.toString())));
     }
   }
