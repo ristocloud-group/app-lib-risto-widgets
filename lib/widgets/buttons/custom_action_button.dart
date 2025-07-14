@@ -106,7 +106,7 @@ class CustomActionButton extends StatefulWidget {
     this.borderRadius,
     this.width,
     this.height,
-    this.minHeight = 60.0, // Default value for minHeight
+    this.minHeight = 60.0,
     this.shape,
     this.padding,
     this.margin,
@@ -133,7 +133,7 @@ class CustomActionButton extends StatefulWidget {
     OutlinedBorder? shape,
     double? width,
     double? height,
-    double minHeight = 60.0, // Added minHeight to factory
+    double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     InteractiveInkFeatureFactory? splashFactory,
@@ -170,6 +170,7 @@ class CustomActionButton extends StatefulWidget {
     required Widget child,
     Color? backgroundColor,
     Color? foregroundColor,
+    Color? shadowColor,
     Color? splashColor,
     Color? disabledBackgroundColor,
     Color? disabledBorderColor,
@@ -180,7 +181,7 @@ class CustomActionButton extends StatefulWidget {
     OutlinedBorder? shape,
     double? width,
     double? height,
-    double minHeight = 60.0, // Added minHeight to factory
+    double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     InteractiveInkFeatureFactory? splashFactory,
@@ -190,6 +191,7 @@ class CustomActionButton extends StatefulWidget {
       onPressed: onPressed,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
+      shadowColor: shadowColor,
       splashColor: splashColor,
       disabledBackgroundColor: disabledBackgroundColor,
       disabledBorderColor: disabledBorderColor,
@@ -217,9 +219,10 @@ class CustomActionButton extends StatefulWidget {
     Color? foregroundColor,
     Color? disabledBorderColor,
     Color? disabledForegroundColor,
+    Color? shadowColor,
     double? width,
     double? height,
-    double minHeight = 60.0, // Added minHeight to factory
+    double minHeight = 60.0,
     OutlinedBorder? shape,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
@@ -231,6 +234,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBorderColor: disabledBorderColor,
       disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
+      shadowColor: shadowColor,
       width: width,
       height: height,
       minHeight: minHeight,
@@ -262,7 +266,7 @@ class CustomActionButton extends StatefulWidget {
     OutlinedBorder? shape,
     double? width,
     double? height,
-    double minHeight = 60.0, // Added minHeight to factory
+    double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     InteractiveInkFeatureFactory? splashFactory,
@@ -309,7 +313,7 @@ class CustomActionButton extends StatefulWidget {
     Color? borderColor,
     double? width,
     double? height,
-    double minHeight = 60.0, // Added minHeight to factory
+    double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     double elevation = 2.0,
@@ -540,6 +544,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
                 : BorderSide.none,
           ),
       elevation: widget.elevation,
+      shadowColor: widget.shadowColor ?? Colors.transparent,
       splashFactory: widget.splashFactory ?? InkRipple.splashFactory,
       // Apply minimum size based on width and minHeight/height
       minimumSize: _getEffectiveMinimumSize(),
@@ -564,6 +569,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: widget.shape ?? const RoundedRectangleBorder(),
+      shadowColor: widget.shadowColor ?? Colors.transparent,
       backgroundColor: Colors.transparent,
       side: widget.borderColor != null
           ? BorderSide(color: widget.borderColor!, width: 1)
