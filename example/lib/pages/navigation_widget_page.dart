@@ -36,7 +36,7 @@ class NavigationWidgetPage extends StatelessWidget {
             segmentedIndicatorColor: Colors.white,
             segmentedIndicatorShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: Colors.black.withCustomOpacity(0.15),
                 blurRadius: 12,
                 offset: Offset(0, 4),
               ),
