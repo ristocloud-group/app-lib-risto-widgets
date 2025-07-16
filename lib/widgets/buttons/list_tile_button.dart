@@ -133,7 +133,7 @@ class ListTileButton extends StatelessWidget {
 
     // Determine the effective minHeight for the Container
     BoxConstraints constraints = BoxConstraints(
-      minHeight: minHeight == 0 ? 0.0 : minHeight,
+      minHeight: minHeight,
     );
 
     return Opacity(
@@ -181,7 +181,7 @@ class ListTileButton extends StatelessWidget {
 }
 
 /// A convenience widget that combines an icon with a [ListTileButton].
-/// Now supports a disabled state.
+/// Now supports a disabled state and minHeight constraint.
 ///
 /// Example usage:
 /// ```dart
@@ -190,6 +190,7 @@ class ListTileButton extends StatelessWidget {
 ///   title: Text('Settings'),
 ///   onPressed: () {},
 ///   disabled: true,
+///   minHeight: 70,
 /// );
 /// ```
 class IconListTileButton extends StatelessWidget {
@@ -240,7 +241,7 @@ class IconListTileButton extends StatelessWidget {
     this.trailingPadding,
     this.elevation,
     this.borderRadius = 10,
-    this.minHeight = 60.0, // Default value set here
+    this.minHeight = 60.0,
   });
 
   @override
@@ -249,7 +250,8 @@ class IconListTileButton extends StatelessWidget {
       margin: margin,
       padding: padding,
       bodyPadding: bodyPadding,
-      leadingPadding: leadingPadding ?? EdgeInsets.symmetric(horizontal: 5),
+      leadingPadding:
+          leadingPadding ?? const EdgeInsets.symmetric(horizontal: 5),
       trailingPadding: trailingPadding,
       backgroundColor: backgroundColor,
       borderColor: borderColor,
