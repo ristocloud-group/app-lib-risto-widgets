@@ -219,6 +219,10 @@ class IconListTileButton extends StatelessWidget {
   final double? elevation;
   final double borderRadius;
 
+  // Visual Aspects
+  final VisualDensity? visualDensity;
+  final Alignment blockAlignment;
+
   // Constraints
   final double minHeight;
 
@@ -241,6 +245,8 @@ class IconListTileButton extends StatelessWidget {
     this.trailingPadding,
     this.elevation,
     this.borderRadius = 10,
+    this.visualDensity,
+    this.blockAlignment = Alignment.centerLeft,
     this.minHeight = 60.0,
   });
 
@@ -267,6 +273,8 @@ class IconListTileButton extends StatelessWidget {
         color: iconColor ?? Theme.of(context).iconTheme.color,
       ),
       leadingSizeFactor: leadingSizeFactor,
+      visualDensity: visualDensity,
+      blockAlignment: blockAlignment,
       minHeight: minHeight,
     );
   }
