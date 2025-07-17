@@ -47,11 +47,16 @@ void main() {
 
       expect(find.text('Flat Button'), findsOneWidget);
 
-      // Ensure the button is a TextButton
-      expect(find.byType(TextButton), findsOneWidget);
+      expect(find.byType(ElevatedButton), findsOneWidget);
 
-      // Ensure there is no ElevatedButton
-      expect(find.byType(ElevatedButton), findsNothing);
+      expect(find.byType(TextButton), findsNothing);
+
+      tester.widget(find.byType(ElevatedButton));
+      final elevatedButton = tester.widget<ElevatedButton>(find.descendant(
+        of: find.byType(CustomActionButton),
+        matching: find.byType(ElevatedButton),
+      ));
+      expect(elevatedButton.style?.elevation?.resolve({}), equals(null));
     });
 
     testWidgets('CustomActionButton.elevated renders with correct elevation',

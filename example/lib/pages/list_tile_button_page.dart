@@ -52,6 +52,19 @@ class ListTileButtonPage extends StatelessWidget {
             leadingSizeFactor: 1.5,
           ),
           ListTileButton(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            body: const Text('List Tile Button center'),
+            backgroundColor: Colors.white,
+            elevation: 2,
+            trailing: Icon(
+              Icons.error,
+              size: 18,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            leading: const Icon(Icons.info, color: Colors.blue),
+            blockAlignment: Alignment.center,
+          ),
+          ListTileButton(
             onPressed: () => {},
             backgroundColor: Colors.white,
             leading: const Column(

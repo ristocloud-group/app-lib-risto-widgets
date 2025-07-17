@@ -119,9 +119,50 @@ class ExpandablePage extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // --- Example 4: Disabled .listTile ---
+        // --- Example 4: .overlayMenu floats expanded under header, above other UI ---
         Text(
-          '4. Disabled ListTile',
+          '4. Overlay Menu Example',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        ExpandableListTileButton.overlayMenu(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          headerBackgroundColor: Colors.deepPurple[700],
+          expandedBodyColor: Colors.deepPurple[50],
+          elevation: 4.0,
+          borderRadius: BorderRadius.circular(12),
+          leading: CircleAvatar(radius: 80, backgroundColor: Colors.pink),
+          bodyAlignment: Alignment.center,
+          leadingSizeFactor: 1.5,
+          title: const Text('Overlay Header', style: whiteTextStyle),
+          subtitle: const Text('Tap to show overlay', style: white70TextStyle),
+          trailingIconColor: Colors.white,
+          expanded: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                child: const Text(
+                  'This content is rendered in an OverlayEntry, staying under the header '
+                  'but floating above the rest of the UI.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              ListTileButton(
+                padding: const EdgeInsets.all(16.0),
+                body: const Text(
+                  'This content is rendered in an OverlayEntry, staying under the header',
+                  textAlign: TextAlign.center,
+                ),
+                onPressed: () => debugPrint('Press!'),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // --- Example 5: Disabled .listTile ---
+        Text(
+          '5. Disabled ListTile',
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
@@ -144,9 +185,9 @@ class ExpandablePage extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // --- Example 5: Using ExpandableController ---
+        // --- Example 6: Using ExpandableController ---
         Text(
-          '5. Controlled Expansion',
+          '6. Controlled Expansion',
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),

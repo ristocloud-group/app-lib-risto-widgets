@@ -14,4 +14,5 @@ export 'widgets/infinite_snap_list/infinite_snap_list_bloc/infinite_snap_list_bl
 export 'widgets/input/increment_decrement_widget.dart';
 export 'widgets/layouts/padded_widgets.dart';
 export 'widgets/navigation/custom_bottom_navbar.dart';
+export 'widgets/navigation/section_switcher.dart';
 export 'widgets/sheets/open_custom_sheet.dart';
