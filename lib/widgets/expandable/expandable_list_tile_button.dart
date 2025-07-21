@@ -769,7 +769,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       return ListTileButton(
         onPressed: _toggleExpansion,
         leading: widget.leading,
-        body: widget.title,
+        body: widget.title!,
         subtitle: widget.subtitle,
         trailing: Icon(
           _isExpanded ? Icons.expand_less : Icons.expand_more,

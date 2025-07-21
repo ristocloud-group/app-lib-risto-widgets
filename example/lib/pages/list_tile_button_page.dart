@@ -42,7 +42,7 @@ class ListTileButtonPage extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 8),
             body: const Text('List Tile Button with icon'),
             backgroundColor: Colors.white,
-            subtitle: const Text('Subtitle Text'),
+            subtitle: const Text('Without action'),
             trailing: Icon(
               Icons.error,
               size: 18,
@@ -54,6 +54,7 @@ class ListTileButtonPage extends StatelessWidget {
           ListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
             body: const Text('List Tile Button center'),
+            subtitle: const Text('Disabled'),
             backgroundColor: Colors.white,
             elevation: 2,
             trailing: Icon(
@@ -62,7 +63,9 @@ class ListTileButtonPage extends StatelessWidget {
               color: Theme.of(context).iconTheme.color,
             ),
             leading: const Icon(Icons.info, color: Colors.blue),
-            blockAlignment: Alignment.center,
+            contentAlignment: Alignment.center,
+            leadingSizeFactor: 1.5,
+            disabled: true,
           ),
           ListTileButton(
             onPressed: () => {},
@@ -78,11 +81,7 @@ class ListTileButtonPage extends StatelessWidget {
             leadingSizeFactor: 2,
             trailing: const Icon(Icons.arrow_forward),
             subtitle: const Text('Subtitle Text'),
-            body: const Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[Text('List Tile Button column leading')],
-            ),
+            body: Text('List Tile Button column leading'),
           ),
           const SizedBox(height: 16),
           IconListTileButton(
@@ -105,11 +104,32 @@ class ListTileButtonPage extends StatelessWidget {
             icon: Icons.star_border,
             subtitle: const Text('Subtitle Text'),
             onPressed: () {},
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.transparent,
+            elevation: 1,
+            shadowColor: Colors.transparent,
             borderColor: Colors.purple,
             iconColor: Colors.purple,
             trailing: const Icon(Icons.arrow_forward),
             leadingSizeFactor: 1.0,
+          ),
+          const SizedBox(height: 16),
+          ListTileButton(
+            onPressed: () {},
+            body: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.calendar_today, color: Colors.purple),
+                Text('Pianifica assenza'),
+              ],
+            ),
+            backgroundColor: Colors.white,
+            borderColor: Colors.purple,
+            leadingSizeFactor: 1.2,
+            elevation: 1.5,
+            bodyPadding: EdgeInsets.zero,
+            borderRadius: 18,
+            contentAlignment: Alignment.center,
+            minHeight: 70,
           ),
           const SizedBox(height: 20),
           Text(
@@ -155,6 +175,40 @@ class ListTileButtonPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          DoubleListTileButtons(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            space: 16.0,
+            firstButton: ListTileButton(
+              margin: const EdgeInsets.only(right: 8.0),
+              body: const Center(child: Text('First Button without Elevation')),
+              onPressed: () {},
+              backgroundColor: Colors.red,
+            ),
+            secondButton: ListTileButton(
+              onPressed: () {},
+              body: Padding(
+                padding: const EdgeInsets.all(5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Icon(Icons.calendar_today, color: Colors.purple),
+                    ),
+                    Expanded(child: Text('Pianifica assenza')),
+                  ],
+                ),
+              ),
+              backgroundColor: Colors.white,
+              borderColor: Colors.purple,
+              leadingSizeFactor: 1.2,
+              elevation: 1.5,
+              borderRadius: 18,
+              padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+              contentAlignment: Alignment.center,
+              minHeight: 50,
+            ),
+          ),
+          const SizedBox(height: 16),
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.75,
             height: MediaQuery.of(context).size.height * 0.045,
@@ -176,6 +230,7 @@ class ListTileButtonPage extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 leadingPadding: EdgeInsets.only(left: 10 / 2, right: 10 / 3),
                 bodyPadding: EdgeInsets.zero,
+                contentAlignment: Alignment.center,
               ),
               secondButton: IconListTileButton(
                 onPressed: () {},
@@ -193,6 +248,7 @@ class ListTileButtonPage extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 leadingPadding: EdgeInsets.only(left: 10 / 2, right: 10 / 3),
                 bodyPadding: EdgeInsets.zero,
+                contentAlignment: Alignment.center,
               ),
             ),
           ),
