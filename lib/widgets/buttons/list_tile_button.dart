@@ -271,7 +271,7 @@ class IconListTileButton extends StatelessWidget {
     this.elevation,
     this.borderRadius = 10,
     this.margin,
-    this.padding,
+    this.padding = const EdgeInsets.symmetric(horizontal: 8),
     this.bodyPadding,
     this.leadingPadding,
     this.trailingPadding,
