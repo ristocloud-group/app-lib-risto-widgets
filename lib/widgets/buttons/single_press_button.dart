@@ -94,6 +94,11 @@ class SinglePressButton extends StatefulWidget {
   /// If not specified, it defaults to the theme's elevated button elevation.
   final double? elevation;
 
+  /// The shadow color of the button when elevation is applied.
+  ///
+  /// If not specified, it defaults to the theme's shadow color.
+  final Color? shadowColor;
+
   /// The shape of the button's material.
   ///
   /// Allows for customizing the button's outline and borders.
@@ -172,6 +177,7 @@ class SinglePressButton extends StatefulWidget {
     this.borderRadius = 8.0,
     this.textStyle,
     this.elevation,
+    this.shadowColor,
     this.shape,
     this.showLoadingIndicator = false,
     this.loadingIndicatorColor,
@@ -241,6 +247,7 @@ class _SinglePressButtonState extends State<SinglePressButton> {
         disabledBorderColor: widget.disabledBorderColor,
         borderRadius: widget.borderRadius,
         elevation: widget.elevation,
+        shadowColor: widget.shadowColor,
         shape: widget.shape,
         width: widget.width,
         height: widget.height,

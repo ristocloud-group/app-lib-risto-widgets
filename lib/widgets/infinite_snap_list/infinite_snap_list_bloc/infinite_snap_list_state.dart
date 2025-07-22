@@ -39,21 +39,21 @@ abstract class InfiniteSnapListState<T> extends Equatable {
 }
 
 /// Stato iniziale prima di caricare i dati
-class InitialState<T> extends InfiniteSnapListState<T> {
-  const InitialState(super.s);
+class ISLInitialState<T> extends InfiniteSnapListState<T> {
+  const ISLInitialState(super.s);
 }
 
 /// Stato di caricamento
-class LoadingState<T> extends InfiniteSnapListState<T> {
-  const LoadingState(super.s);
+class ISLLoadingState<T> extends InfiniteSnapListState<T> {
+  const ISLLoadingState(super.s);
 }
 
 /// Stato con dati caricati (items aggiornati)
-class LoadedState<T> extends InfiniteSnapListState<T> {
+class ISLoadedState<T> extends InfiniteSnapListState<T> {
   // Aggiunto il campo prependedItemCount a LoadedState
   final int prependedItemCount;
 
-  const LoadedState(super.s,
+  const ISLoadedState(super.s,
       {this.prependedItemCount = 0}); // Valore di default 0
 
   @override
@@ -61,16 +61,16 @@ class LoadedState<T> extends InfiniteSnapListState<T> {
 }
 
 /// Stato di errore
-class ErrorState<T> extends InfiniteSnapListState<T> {
+class ISLErrorState<T> extends InfiniteSnapListState<T> {
   final Exception error;
 
-  const ErrorState(super.s, {required this.error});
+  const ISLErrorState(super.s, {required this.error});
 
   @override
   List<Object?> get props => [...super.props, error];
 }
 
 /// Stato che indica che non ci sono più item da caricare
-class NoMoreItemsState<T> extends InfiniteSnapListState<T> {
-  const NoMoreItemsState(super.s);
+class ISLNoMoreItemsState<T> extends InfiniteSnapListState<T> {
+  const ISLNoMoreItemsState(super.s);
 }

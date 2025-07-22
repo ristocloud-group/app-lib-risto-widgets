@@ -25,6 +25,7 @@ void main() {
                 child: const Text('Expanded content goes here'),
               );
             },
+            headerIcon: Icons.arrow_back,
             // When onClose is called, pop the overlay.
             onClose: () {
               Navigator.of(tester.element(find.byType(Scaffold))).pop();

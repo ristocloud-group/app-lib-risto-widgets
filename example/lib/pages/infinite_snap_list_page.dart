@@ -25,7 +25,7 @@ class DemoItem {
 
 /// Simple InfiniteListBloc implementation for demonstration purposes.
 /// Generates synthetic values based on the offset item.
-class DemoSnapBloc extends InfiniteListBloc<DemoItem> {
+class DemoSnapBloc extends InfiniteSnapListBloc<DemoItem> {
   // Inizializza il BLoC con uno stato iniziale contenente un elemento selezionato.
   // Questo attiverà la logica di fetching iniziale in InfiniteListBloc.
   DemoSnapBloc() : super(initValue: DemoItem(0));

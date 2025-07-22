@@ -1,66 +1,53 @@
 import 'package:flutter/material.dart';
 
-/// A customizable list tile button that wraps content in a rounded container
-/// and provides tap and long-press callbacks. Ideal for creating interactive
-/// list items with consistent styling. Now supports a disabled state.
+/// A customizable, tappable list tile styled as a rounded card.
 ///
-/// Example usage:
-/// ```dart
-/// ListTileButton(
-///   onPressed: () {},
-///   leading: Icon(Icons.star),
-///   body: Text('List Tile Button'),
-///   disabled: false,
-/// );
-/// ```
+/// Features:
+/// - Leading widget support (icon or custom widget).
+/// - Main content (`body`) and optional `subtitle`, both aligned via `contentAlignment`.
+/// - Optional trailing widget (icon or custom).
+/// - Disabled state with reduced opacity and callbacks disabled.
+/// - Configurable margins, paddings, border, background, elevation, and shadow color.
+/// - Minimum height constraint for consistent sizing.
 class ListTileButton extends StatelessWidget {
-  // Behavior
-
-  /// Callback when the tile is tapped. Ignored if [disabled] is true.
+  /// Called when the tile is tapped.
   final VoidCallback? onPressed;
 
-  /// Callback when the tile is long-pressed. Ignored if [disabled] is true.
+  /// Called when the tile is long-pressed.
   final VoidCallback? onLongPress;
 
-  /// Whether the button is interactive. Defaults to false.
-  /// If true, onPressed/onLongPress are ignored and the button is dimmed.
+  /// When true, reduces opacity and disables tap callbacks.
   final bool disabled;
 
-  // Layout
-
-  /// External margin around the tile.
+  /// Outer margin around the rounded container.
   final EdgeInsetsGeometry? margin;
 
-  /// Internal padding within the tile.
+  /// Inner padding inside the container around the row.
   final EdgeInsetsGeometry? padding;
 
-  /// Padding for the [body] within the [ListTile].
+  /// Horizontal padding applied around the text block.
   final EdgeInsetsGeometry? bodyPadding;
 
-  /// Padding around the [leading] widget.
+  /// Padding around the leading widget.
   final EdgeInsetsGeometry? leadingPadding;
 
-  /// Padding around the [trailing] widget.
+  /// Padding around the trailing widget.
   final EdgeInsetsGeometry? trailingPadding;
 
-  // Content
-
-  /// Widget to display at the start of the tile.
+  /// Optional leading widget (icon or custom).
   final Widget? leading;
 
-  /// Factor to scale the size of the leading widget.
+  /// Scale factor for the leading widget’s size.
   final double leadingSizeFactor;
 
-  /// The primary content of the tile.
-  final Widget? body;
+  /// Main content of the tile.
+  final Widget body;
 
-  /// Additional content displayed below the [body].
+  /// Optional subtitle below [body].
   final Widget? subtitle;
 
-  /// Widget to display at the end of the tile.
+  /// Optional trailing widget (icon or custom).
   final Widget? trailing;
-
-  // Style
 
   /// Background color of the tile.
   final Color? backgroundColor;
@@ -68,33 +55,29 @@ class ListTileButton extends StatelessWidget {
   /// Border color of the tile.
   final Color? borderColor;
 
-  /// Border radius of the tile's rounded corners.
+  /// Color of the shadow when [elevation] is set.
+  final Color? shadowColor;
+
+  /// Corner radius of the tile.
   final double borderRadius;
 
-  /// Elevation of the tile's shadow.
+  /// Elevation (shadow depth) of the tile.
   final double? elevation;
 
-  // Visual Aspects
-
-  /// Visual density of the tile to control compactness.
-  final VisualDensity? visualDensity;
-
-  /// Alignment of the [body] within the tile.
-  final ListTileTitleAlignment? bodyAlignment;
-
-  // Constraints
+  /// Alignment of the [body] and [subtitle] within their column
+  /// (e.g. `Alignment.centerLeft`, `Alignment.center`, `Alignment.centerRight`).
+  final Alignment contentAlignment;
 
   /// Minimum height of the tile.
-  final double? minHeight;
+  final double minHeight;
 
-  /// Creates a [ListTileButton] with customizable content and styling.
   const ListTileButton({
     super.key,
     this.onPressed,
     this.onLongPress,
     this.disabled = false,
     this.margin,
-    this.padding,
+    this.padding = const EdgeInsets.symmetric(horizontal: 8),
     this.bodyPadding,
     this.leadingPadding,
     this.trailingPadding,
@@ -105,91 +88,89 @@ class ListTileButton extends StatelessWidget {
     this.trailing,
     this.backgroundColor,
     this.borderColor,
+    this.shadowColor,
     this.borderRadius = 10,
     this.elevation,
-    this.visualDensity,
-    this.bodyAlignment,
-    this.minHeight,
+    this.contentAlignment = Alignment.centerLeft,
+    this.minHeight = 60.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    Widget? leadingWidget;
-    if (leading != null) {
-      leadingWidget = Padding(
-        padding: leadingPadding ?? EdgeInsets.zero,
-        child: Center(
-          child: SizedBox(
-            key: const Key('leading_wrapper'),
-            // Use IconTheme size as base for scaling if available, else default 24.0
-            width: (IconTheme.of(context).size ?? 24.0) * leadingSizeFactor,
-            height: (IconTheme.of(context).size ?? 24.0) * leadingSizeFactor,
-            child: FittedBox(
-              fit: BoxFit.contain,
-              alignment: Alignment.center,
-              child: leading, // The actual leading widget (e.g., Icon)
+    final CrossAxisAlignment textCross = contentAlignment.x <= -0.5
+        ? CrossAxisAlignment.start
+        : contentAlignment.x >= 0.5
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.center;
+
+    final Widget? leadingWidget = leading == null
+        ? null
+        : Padding(
+            padding: leadingPadding ?? EdgeInsets.zero,
+            child: SizedBox(
+              width: (IconTheme.of(context).size ?? 24) * leadingSizeFactor,
+              height: (IconTheme.of(context).size ?? 24) * leadingSizeFactor,
+              child: FittedBox(child: leading!),
             ),
-          ),
-        ),
-      );
-    }
+          );
 
-    Widget? trailingWidget;
-    if (trailing != null) {
-      trailingWidget = Padding(
-        padding: trailingPadding ?? const EdgeInsets.only(right: 12),
-        child: Container(
-          alignment: Alignment.center,
-          height: double.infinity,
-          child: trailing,
-        ),
-      );
-    }
+    final Widget? trailingWidget = trailing == null
+        ? null
+        : Padding(
+            padding: trailingPadding ?? EdgeInsets.zero,
+            child: trailing,
+          );
 
-    // Wrap in Opacity for disabled state
+    final Widget textBlock = Flexible(
+      fit: FlexFit.tight,
+      child: Padding(
+        padding: bodyPadding ?? const EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: textCross,
+          children: [
+            body,
+            if (subtitle != null) ...[
+              const SizedBox(height: 4),
+              subtitle!,
+            ],
+          ],
+        ),
+      ),
+    );
+
+    final Widget row = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (leadingWidget != null) leadingWidget,
+        textBlock,
+        if (trailingWidget != null) trailingWidget,
+      ],
+    );
+
     return Opacity(
       opacity: disabled ? 0.5 : 1.0,
       child: RoundedContainer(
         margin: margin,
-        borderColor: borderColor,
         backgroundColor: backgroundColor,
-        elevation: elevation,
+        borderColor: borderColor,
+        shadowColor: shadowColor,
         borderRadius: borderRadius,
+        elevation: elevation,
         child: Material(
           type: MaterialType.transparency,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
           child: InkWell(
             borderRadius: BorderRadius.circular(borderRadius),
-            // Disable callbacks if disabled
             onTap: disabled ? null : onPressed,
             onLongPress: disabled ? null : onLongPress,
-            child: Padding(
-              padding: padding ?? const EdgeInsets.all(8),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: minHeight ?? 50.0,
-                ),
-                child: IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      if (leadingWidget != null) leadingWidget,
-                      Expanded(
-                        child: ListTile(
-                          titleAlignment: bodyAlignment,
-                          visualDensity: visualDensity ?? VisualDensity.compact,
-                          contentPadding:
-                              bodyPadding ?? const EdgeInsets.only(left: 8),
-                          dense: true,
-                          minVerticalPadding: 0,
-                          minLeadingWidth: 0,
-                          title: body,
-                          subtitle: subtitle,
-                          enabled: !disabled,
-                        ),
-                      ),
-                      if (trailingWidget != null) trailingWidget,
-                    ],
-                  ),
-                ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: minHeight),
+              child: Padding(
+                padding: padding ?? EdgeInsets.zero,
+                child: row,
               ),
             ),
           ),
@@ -200,7 +181,7 @@ class ListTileButton extends StatelessWidget {
 }
 
 /// A convenience widget that combines an icon with a [ListTileButton].
-/// Now supports a disabled state.
+/// Supports a disabled state, shadow color, and minimum height constraint.
 ///
 /// Example usage:
 /// ```dart
@@ -209,50 +190,28 @@ class ListTileButton extends StatelessWidget {
 ///   title: Text('Settings'),
 ///   onPressed: () {},
 ///   disabled: true,
+///   shadowColor: Colors.grey,
+///   minHeight: 70,
 /// );
 /// ```
 class IconListTileButton extends StatelessWidget {
-  // Behavior
-
-  /// Callback when the tile is tapped. Ignored if [disabled] is true.
-  final VoidCallback? onPressed;
-
-  /// Whether the button is interactive. Defaults to false.
-  final bool disabled;
-
-  // Layout
-
-  /// External margin around the tile.
-  final EdgeInsetsGeometry? margin;
-
-  /// Internal padding within the tile.
-  final EdgeInsetsGeometry? padding;
-
-  /// Padding for the [body] within the [ListTile].
-  final EdgeInsetsGeometry? bodyPadding;
-
-  /// Padding around the [leading] widget.
-  /// Defaults to [EdgeInsets.symmetric(horizontal: 5)].
-  final EdgeInsetsGeometry? leadingPadding;
-
-  /// Padding around the [trailing] widget.
-  final EdgeInsetsGeometry? trailingPadding;
-
-  // Content
-
-  /// Icon to display at the start of the tile.
+  /// The icon to display as the leading widget.
   final IconData icon;
 
-  /// The primary content of the tile.
+  /// The primary text of the tile.
   final Widget title;
 
-  /// Additional content displayed below the [title].
+  /// Optional subtitle text below the title.
   final Widget? subtitle;
 
-  /// Widget to display at the end of the tile.
+  /// Optional trailing widget.
   final Widget? trailing;
 
-  // Style
+  /// Called when the tile is tapped.
+  final VoidCallback? onPressed;
+
+  /// When true, the tile is disabled (reduced opacity and callbacks disabled).
+  final bool disabled;
 
   /// Background color of the tile.
   final Color? backgroundColor;
@@ -260,19 +219,42 @@ class IconListTileButton extends StatelessWidget {
   /// Border color of the tile.
   final Color? borderColor;
 
-  /// Color of the icon.
+  /// Color of the leading icon.
   final Color? iconColor;
 
-  /// Factor to scale the size of the leading icon.
+  /// Color of the shadow when elevation is set.
+  final Color? shadowColor;
+
+  /// Scale factor for the leading icon size.
   final double leadingSizeFactor;
 
-  /// Elevation of the tile's shadow.
+  /// Elevation (shadow depth) of the tile.
   final double? elevation;
 
-  /// Border radius of the tile's rounded corners.
+  /// Radius of the tile corners.
   final double borderRadius;
 
-  /// Creates an [IconListTileButton] with an icon and customizable content.
+  /// Outer margin around the tile.
+  final EdgeInsetsGeometry? margin;
+
+  /// Inner padding of the tile container.
+  final EdgeInsetsGeometry? padding;
+
+  /// Padding around the title and subtitle.
+  final EdgeInsetsGeometry? bodyPadding;
+
+  /// Padding around the leading icon.
+  final EdgeInsetsGeometry? leadingPadding;
+
+  /// Padding around the trailing widget.
+  final EdgeInsetsGeometry? trailingPadding;
+
+  /// Alignment of the title and subtitle within the text column.
+  final Alignment contentAlignment;
+
+  /// Minimum height of the tile.
+  final double minHeight;
+
   const IconListTileButton({
     super.key,
     required this.icon,
@@ -284,67 +266,89 @@ class IconListTileButton extends StatelessWidget {
     this.backgroundColor,
     this.borderColor,
     this.iconColor,
+    this.shadowColor,
     this.leadingSizeFactor = 1.0,
+    this.elevation,
+    this.borderRadius = 10,
     this.margin,
-    this.padding,
+    this.padding = const EdgeInsets.symmetric(horizontal: 8),
     this.bodyPadding,
     this.leadingPadding,
     this.trailingPadding,
-    this.elevation,
-    this.borderRadius = 10,
+    this.contentAlignment = Alignment.centerLeft,
+    this.minHeight = 60.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Pass all parameters, including disabled, down to ListTileButton
     return ListTileButton(
+      onPressed: onPressed,
+      disabled: disabled,
+      backgroundColor: backgroundColor,
+      borderColor: borderColor,
+      shadowColor: shadowColor,
+      elevation: elevation,
+      borderRadius: borderRadius,
       margin: margin,
       padding: padding,
       bodyPadding: bodyPadding,
-      leadingPadding: leadingPadding ?? EdgeInsets.symmetric(horizontal: 5),
+      leadingPadding:
+          leadingPadding ?? const EdgeInsets.symmetric(horizontal: 5),
       trailingPadding: trailingPadding,
-      backgroundColor: backgroundColor,
-      borderColor: borderColor,
-      elevation: elevation,
-      borderRadius: borderRadius,
-      body: title,
-      subtitle: subtitle,
-      trailing: trailing,
-      onPressed: onPressed,
-      disabled: disabled,
-      // Pass the Icon widget directly; ListTileButton will handle scaling via FittedBox
       leading: Icon(
         icon,
         color: iconColor ?? Theme.of(context).iconTheme.color,
       ),
-      leadingSizeFactor: leadingSizeFactor, // Pass the factor for scaling logic
+      leadingSizeFactor: leadingSizeFactor,
+      body: title,
+      subtitle: subtitle,
+      trailing: trailing,
+      contentAlignment: contentAlignment,
+      minHeight: minHeight,
     );
   }
 }
 
-// --- Unchanged Widgets Below ---
-
-/// A container with rounded corners and optional border and elevation.
+/// A container with rounded corners, optional border, and elevation with custom shadow color.
 class RoundedContainer extends StatelessWidget {
+  /// Outer margin around the container.
   final EdgeInsetsGeometry? margin;
+
+  /// Inner padding within the container.
   final EdgeInsetsGeometry? padding;
+
+  /// The child widget to display inside the container.
   final Widget child;
+
+  /// Background color of the container.
   final Color? backgroundColor;
+
+  /// Color of the border around the container.
   final Color? borderColor;
-  final double borderRadius;
+
+  /// Width of the border.
   final double borderWidth;
+
+  /// Radius of the container's corners.
+  final double borderRadius;
+
+  /// Elevation (shadow depth) of the container.
   final double? elevation;
+
+  /// Color of the container's shadow.
+  final Color? shadowColor;
 
   const RoundedContainer({
     super.key,
-    required this.child,
     this.margin,
     this.padding,
+    required this.child,
     this.backgroundColor,
     this.borderColor,
     this.borderRadius = 10,
     this.borderWidth = 1,
     this.elevation,
+    this.shadowColor,
   });
 
   @override
@@ -353,6 +357,7 @@ class RoundedContainer extends StatelessWidget {
       padding: margin ?? EdgeInsets.zero,
       child: Material(
         elevation: elevation ?? 0,
+        shadowColor: shadowColor,
         borderRadius: BorderRadius.circular(borderRadius),
         color: backgroundColor ?? Theme.of(context).cardColor,
         child: Container(

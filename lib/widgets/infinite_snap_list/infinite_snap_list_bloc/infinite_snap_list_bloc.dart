@@ -9,7 +9,7 @@ part 'infinite_snap_list_state.dart';
 /// sfruttando il comportamento snap per caricare nuovi item solo quando
 /// si raggiunge la prima o l'ultima posizione, mantenendo traccia dell'item selezionato.
 /// Richiede un `initValue` per pre-selezionare l’elemento di partenza (offset iniziale).
-abstract class InfiniteListBloc<T>
+abstract class InfiniteSnapListBloc<T>
     extends Bloc<InfiniteSnapListEvent, InfiniteSnapListState<T>> {
   /// Limite di fetch di default
   final int defaultLimit;
@@ -17,9 +17,9 @@ abstract class InfiniteListBloc<T>
   /// Elemento iniziale da selezionare (offset di partenza), non null
   final T initValue;
 
-  InfiniteListBloc({required this.initValue, this.defaultLimit = 10})
+  InfiniteSnapListBloc({required this.initValue, this.defaultLimit = 10})
       : super(
-          InitialState<T>(
+          ISLInitialState<T>(
             ISLState<T>(
               items: [],
               selectedItem: initValue,
@@ -47,14 +47,14 @@ abstract class InfiniteListBloc<T>
         selected != current.first &&
         selected != current.last &&
         state.state.selectedItem != selected) {
-      emit(LoadedState<T>(
+      emit(ISLoadedState<T>(
         state.state.copyWith(selectedItem: selected, loadingDirection: null),
       ));
       return;
     }
 
     // Evita di caricare di nuovo se stiamo già caricando e l'elemento selezionato non è cambiato
-    if (state is LoadingState && state.state.selectedItem == selected) {
+    if (state is ISLLoadingState && state.state.selectedItem == selected) {
       return;
     }
 
@@ -70,7 +70,7 @@ abstract class InfiniteListBloc<T>
 
     // Emettiamo LoadingState solo se c'è una direzione di caricamento
     if (directionToLoad != null) {
-      emit(LoadingState<T>(state.state.copyWith(
+      emit(ISLLoadingState<T>(state.state.copyWith(
         loadingDirection: directionToLoad,
         selectedItem: selected,
       )));
@@ -113,7 +113,7 @@ abstract class InfiniteListBloc<T>
       // Emette LoadedState solo se c'è stato un caricamento o se l'elemento selezionato è cambiato
       // Questo previene emissioni ridondanti quando non c'è caricamento effettivo
       if (directionToLoad != null || state.state.selectedItem != selected) {
-        emit(LoadedState<T>(
+        emit(ISLoadedState<T>(
           state.state.copyWith(
             items: updated,
             selectedItem: selected,
@@ -123,7 +123,7 @@ abstract class InfiniteListBloc<T>
         ));
       }
     } catch (e) {
-      emit(ErrorState<T>(state.state.copyWith(loadingDirection: null),
+      emit(ISLErrorState<T>(state.state.copyWith(loadingDirection: null),
           error: Exception(e.toString())));
     }
   }

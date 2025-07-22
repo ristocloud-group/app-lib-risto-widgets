@@ -70,6 +70,15 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
             style: const TextStyle(color: Colors.black),
           ),
         ),
+        CustomActionButton.minimal(
+          onPressed: null,
+          shadowColor: Colors.transparent,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(
+            'Disabled Minimal Button ($counter)',
+            style: const TextStyle(color: Colors.black),
+          ),
+        ),
         // Long Press Button Example
         CustomActionButton.longPress(
           onPressed: () {

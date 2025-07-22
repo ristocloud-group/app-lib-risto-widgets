@@ -37,7 +37,7 @@ void main() {
 
       // Tap the ListTileButton and verify it triggers the onPressed callback.
       await tester.tap(find.byType(ListTileButton));
-      await tester.pump(); // Rebuild the widget with the new state.
+      await tester.pump();
 
       expect(buttonPressed, true);
     });
@@ -110,14 +110,17 @@ void main() {
       final iconFinder = find.byIcon(Icons.access_alarm);
       expect(iconFinder, findsOneWidget);
 
-      // Find the wrapper Container using the Key.
-      final containerFinder = find.byKey(const Key('leading_wrapper'));
-      expect(containerFinder, findsOneWidget);
+      // Find the SizedBox ancestor wrapping the leading icon.
+      final sizedBoxFinder = find.ancestor(
+        of: iconFinder,
+        matching: find.byType(SizedBox),
+      );
+      expect(sizedBoxFinder, findsOneWidget);
 
-      // Retrieve the size of the wrapper Container.
-      final Size containerSize = tester.getSize(containerFinder);
-      expect(containerSize.width, 24.0 * sizeFactor);
-      expect(containerSize.height, 24.0 * sizeFactor);
+      // Retrieve the size of the wrapper SizedBox.
+      final Size boxSize = tester.getSize(sizedBoxFinder);
+      expect(boxSize.width, 24.0 * sizeFactor);
+      expect(boxSize.height, 24.0 * sizeFactor);
     });
   });
 
@@ -157,14 +160,17 @@ void main() {
       final iconFinder = find.byIcon(Icons.star);
       expect(iconFinder, findsOneWidget);
 
-      // Find the wrapper Container using the Key.
-      final containerFinder = find.byKey(const Key('leading_wrapper'));
-      expect(containerFinder, findsOneWidget);
+      // Find the SizedBox ancestor wrapping the leading icon.
+      final sizedBoxFinder = find.ancestor(
+        of: iconFinder,
+        matching: find.byType(SizedBox),
+      );
+      expect(sizedBoxFinder, findsOneWidget);
 
-      // Retrieve the size of the wrapper Container.
-      final Size containerSize = tester.getSize(containerFinder);
-      expect(containerSize.width, 24.0 * sizeFactor);
-      expect(containerSize.height, 24.0 * sizeFactor);
+      // Retrieve the size of the wrapper SizedBox.
+      final Size boxSize = tester.getSize(sizedBoxFinder);
+      expect(boxSize.width, 24.0 * sizeFactor);
+      expect(boxSize.height, 24.0 * sizeFactor);
     });
 
     testWidgets('IconListTileButton responds to tap',
@@ -188,7 +194,7 @@ void main() {
 
       // Tap the IconListTileButton and verify it triggers the onPressed callback.
       await tester.tap(find.byType(IconListTileButton));
-      await tester.pump(); // Rebuild the widget with the new state.
+      await tester.pump();
 
       expect(buttonPressed, true);
     });
@@ -240,14 +246,17 @@ void main() {
       final iconFinder = find.byIcon(Icons.thumb_up);
       expect(iconFinder, findsOneWidget);
 
-      // Find the wrapper Container using the Key.
-      final containerFinder = find.byKey(const Key('leading_wrapper'));
-      expect(containerFinder, findsOneWidget);
+      // Find the SizedBox ancestor wrapping the leading icon.
+      final sizedBoxFinder = find.ancestor(
+        of: iconFinder,
+        matching: find.byType(SizedBox),
+      );
+      expect(sizedBoxFinder, findsOneWidget);
 
-      // Retrieve the size of the wrapper Container.
-      final Size containerSize = tester.getSize(containerFinder);
-      expect(containerSize.width, 24.0 * sizeFactor);
-      expect(containerSize.height, 24.0 * sizeFactor);
+      // Retrieve the size of the wrapper SizedBox.
+      final Size boxSize = tester.getSize(sizedBoxFinder);
+      expect(boxSize.width, 24.0 * sizeFactor);
+      expect(boxSize.height, 24.0 * sizeFactor);
     });
   });
 

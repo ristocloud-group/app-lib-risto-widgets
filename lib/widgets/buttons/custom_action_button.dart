@@ -70,6 +70,11 @@ class CustomActionButton extends StatefulWidget {
   /// The height of the button.
   final double? height;
 
+  /// The minimum height of the button. Defaults to 60.0.
+  /// If set to 0, the button will adapt to the minimum possible height
+  /// required by its content.
+  final double minHeight;
+
   /// The shape of the button's material.
   final OutlinedBorder? shape;
 
@@ -101,6 +106,7 @@ class CustomActionButton extends StatefulWidget {
     this.borderRadius,
     this.width,
     this.height,
+    this.minHeight = 60.0,
     this.shape,
     this.padding,
     this.margin,
@@ -127,6 +133,7 @@ class CustomActionButton extends StatefulWidget {
     OutlinedBorder? shape,
     double? width,
     double? height,
+    double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     InteractiveInkFeatureFactory? splashFactory,
@@ -147,6 +154,7 @@ class CustomActionButton extends StatefulWidget {
       shape: shape,
       width: width,
       height: height,
+      minHeight: minHeight,
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
@@ -162,6 +170,7 @@ class CustomActionButton extends StatefulWidget {
     required Widget child,
     Color? backgroundColor,
     Color? foregroundColor,
+    Color? shadowColor,
     Color? splashColor,
     Color? disabledBackgroundColor,
     Color? disabledBorderColor,
@@ -172,6 +181,7 @@ class CustomActionButton extends StatefulWidget {
     OutlinedBorder? shape,
     double? width,
     double? height,
+    double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     InteractiveInkFeatureFactory? splashFactory,
@@ -181,6 +191,7 @@ class CustomActionButton extends StatefulWidget {
       onPressed: onPressed,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
+      shadowColor: shadowColor,
       splashColor: splashColor,
       disabledBackgroundColor: disabledBackgroundColor,
       disabledBorderColor: disabledBorderColor,
@@ -190,6 +201,7 @@ class CustomActionButton extends StatefulWidget {
       shape: shape,
       width: width,
       height: height,
+      minHeight: minHeight,
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
@@ -207,8 +219,10 @@ class CustomActionButton extends StatefulWidget {
     Color? foregroundColor,
     Color? disabledBorderColor,
     Color? disabledForegroundColor,
+    Color? shadowColor,
     double? width,
     double? height,
+    double minHeight = 60.0,
     OutlinedBorder? shape,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
@@ -220,8 +234,10 @@ class CustomActionButton extends StatefulWidget {
       disabledBorderColor: disabledBorderColor,
       disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
+      shadowColor: shadowColor,
       width: width,
       height: height,
+      minHeight: minHeight,
       shape: shape,
       padding: padding,
       margin: margin,
@@ -250,6 +266,7 @@ class CustomActionButton extends StatefulWidget {
     OutlinedBorder? shape,
     double? width,
     double? height,
+    double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     InteractiveInkFeatureFactory? splashFactory,
@@ -271,6 +288,7 @@ class CustomActionButton extends StatefulWidget {
       shape: shape,
       width: width,
       height: height,
+      minHeight: minHeight,
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
@@ -295,6 +313,7 @@ class CustomActionButton extends StatefulWidget {
     Color? borderColor,
     double? width,
     double? height,
+    double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     double elevation = 2.0,
@@ -314,6 +333,7 @@ class CustomActionButton extends StatefulWidget {
       elevation: elevation,
       width: width,
       height: height,
+      minHeight: minHeight,
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
@@ -388,6 +408,20 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     _longPressTimer?.cancel();
   }
 
+  /// Determines the effective minimum size for the button.
+  /// If [widget.height] is provided, it takes precedence.
+  /// If [widget.minHeight] is 0, it returns null to allow intrinsic sizing.
+  /// Otherwise, it uses [widget.minHeight].
+  Size? _getEffectiveMinimumSize() {
+    if (widget.height != null) {
+      return Size(widget.width ?? 0, widget.height!);
+    } else if (widget.minHeight == 0) {
+      return null;
+    } else {
+      return Size(widget.width ?? 0, widget.minHeight);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.onPressed == null && widget.buttonType != ButtonType.longPress) {
@@ -440,12 +474,14 @@ class _CustomActionButtonState extends State<CustomActionButton> {
                 : BorderSide.none,
           ),
       elevation: widget.elevation,
+      // Apply minimum size based on width and minHeight/height
+      minimumSize: _getEffectiveMinimumSize(),
     );
 
     return Container(
       margin: widget.margin,
       width: widget.width,
-      height: widget.height,
+      height: widget.height, // Container height still respects explicit height
       child: AbsorbPointer(
         absorbing: true,
         child: ElevatedButton(
@@ -476,12 +512,14 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       elevation: widget.elevation ?? 2.0,
       overlayColor: widget.splashColor ?? Colors.transparent,
       splashFactory: widget.splashFactory,
+      // Apply minimum size based on width and minHeight/height
+      minimumSize: _getEffectiveMinimumSize(),
     );
 
     return Container(
       margin: widget.margin,
       width: widget.width,
-      height: widget.height,
+      height: widget.height, // Container height still respects explicit height
       child: ElevatedButton(
         style: buttonStyle,
         onPressed: widget.onPressed,
@@ -506,13 +544,16 @@ class _CustomActionButtonState extends State<CustomActionButton> {
                 : BorderSide.none,
           ),
       elevation: widget.elevation,
+      shadowColor: widget.shadowColor ?? Colors.transparent,
       splashFactory: widget.splashFactory ?? InkRipple.splashFactory,
+      // Apply minimum size based on width and minHeight/height
+      minimumSize: _getEffectiveMinimumSize(),
     );
 
     return Container(
       margin: widget.margin,
       width: widget.width,
-      height: widget.height,
+      height: widget.height, // Container height still respects explicit height
       child: ElevatedButton(
         style: buttonStyle,
         onPressed: widget.onPressed,
@@ -528,10 +569,13 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: widget.shape ?? const RoundedRectangleBorder(),
+      shadowColor: widget.shadowColor ?? Colors.transparent,
       backgroundColor: Colors.transparent,
       side: widget.borderColor != null
           ? BorderSide(color: widget.borderColor!, width: 1)
           : BorderSide.none,
+      // Apply minimum size based on width and minHeight/height
+      minimumSize: _getEffectiveMinimumSize(),
     ).copyWith(
       overlayColor: WidgetStateProperty.all(Colors.transparent),
       splashFactory: NoSplash.splashFactory,
@@ -540,7 +584,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     return Container(
       margin: widget.margin,
       width: widget.width,
-      height: widget.height,
+      height: widget.height, // Container height still respects explicit height
       child: TextButton(
         style: buttonStyle,
         onPressed: widget.onPressed,
@@ -565,6 +609,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
                 : BorderSide.none,
           ),
       elevation: widget.elevation ?? 2.0,
+      // Apply minimum size based on width and minHeight/height
+      minimumSize: _getEffectiveMinimumSize(),
     ).copyWith(
       overlayColor: widget.splashColor != null
           ? WidgetStateProperty.all(widget.splashColor)
@@ -575,7 +621,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     return Container(
       margin: widget.margin,
       width: widget.width,
-      height: widget.height,
+      height: widget.height, // Container height still respects explicit height
       child: GestureDetector(
         onTap: widget.onPressed,
         onLongPressStart: (_) => _handleLongPress(),
@@ -608,6 +654,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
+      // Apply minimum size based on width and minHeight/height
+      minimumSize: _getEffectiveMinimumSize(),
     ).copyWith(
       overlayColor: widget.splashColor != null
           ? WidgetStateProperty.all(widget.splashColor)
@@ -618,7 +666,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     return Container(
       margin: widget.margin,
       width: widget.width,
-      height: widget.height,
+      height: widget.height, // Container height still respects explicit height
       child: ElevatedButton(
         style: buttonStyle,
         onPressed: widget.onPressed,
