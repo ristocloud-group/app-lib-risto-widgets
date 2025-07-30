@@ -127,9 +127,10 @@ class ExpandablePage extends StatelessWidget {
         const SizedBox(height: 8),
         ExpandableListTileButton.overlayMenu(
           margin: const EdgeInsets.symmetric(vertical: 8),
-          headerBackgroundColor: Colors.deepPurple[700],
-          expandedBodyColor: Colors.deepPurple[50],
-          elevation: 4.0,
+          headerBackgroundColor: Colors.blueGrey,
+          expandedBodyColor: Colors.grey,
+          elevation: 1,
+          borderColor: Colors.blue,
           borderRadius: BorderRadius.circular(12),
           leading: CircleAvatar(radius: 80, backgroundColor: Colors.pink),
           bodyAlignment: Alignment.center,
