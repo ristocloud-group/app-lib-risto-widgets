@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'custom_bottom_navbar.dart';
+import 'package:risto_widgets/risto_widgets.dart';
 
 // -----------------------------------------------------------------------------
 // Style Class
@@ -159,26 +158,19 @@ class SegmentedControl extends StatefulWidget {
     this.duration = const Duration(milliseconds: 300),
     this.curve = Curves.easeInOut,
     this.style = const SegmentedControlStyle(),
-  }) : assert(segments.length > 1, 'At least two segments required');
+  }) : assert(segments.length > 0, 'At least one segment is required.');
 
-  /// A helper method to create a [SegmentedControlStyle] from a set of
-  /// individual properties, similar to [ElevatedButton.styleFrom].
-  ///
-  /// This is a convenient way to customize the control's appearance without
-  /// instantiating a [SegmentedControlStyle] object directly.
+  /// A helper method to create a [SegmentedControlStyle].
   static SegmentedControlStyle styleFrom({
-    // Track styling
     BorderRadius? borderRadius,
     Color? borderColor,
     double? borderWidth,
     Color? backgroundColor,
     EdgeInsets? padding,
     double? elevation,
-    // Indicator styling
     Color? indicatorColor,
     EdgeInsets? indicatorMargin,
     double? indicatorElevation,
-    // Text styling
     TextStyle? unselectedTextStyle,
     TextStyle? selectedTextStyle,
   }) {
@@ -220,6 +212,8 @@ class _SegmentedControlState extends State<SegmentedControl> {
   }
 
   void _onTap(int index) {
+    // This logic correctly handles the single-item case by doing nothing,
+    // as _currentIndex will always equal the tapped index (0).
     if (_currentIndex != index) {
       setState(() => _currentIndex = index);
       widget.onSegmentSelected?.call(index);
@@ -248,6 +242,7 @@ class _SegmentedControlState extends State<SegmentedControl> {
             constraints.maxHeight.isFinite ? constraints.maxHeight : 40.0;
         final totalWidth = constraints.maxWidth;
         final count = widget.segments.length;
+        // This calculation is safe, as the assert ensures count is at least 1.
         final indicatorWidth = (totalWidth - style.padding.horizontal) / count;
         final innerHeight = height - style.padding.vertical;
         final margin = style.indicatorMargin ?? EdgeInsets.zero;
@@ -270,6 +265,7 @@ class _SegmentedControlState extends State<SegmentedControl> {
               padding: style.padding,
               child: Stack(
                 children: [
+                  // The indicator is still built, which is correct. It will just fill the entire space.
                   AnimatedPositioned(
                     left: _currentIndex * indicatorWidth + margin.left,
                     top: margin.top,
@@ -319,43 +315,7 @@ class _SegmentedControlState extends State<SegmentedControl> {
 // Section Switcher Widget
 // -----------------------------------------------------------------------------
 
-/// A composite widget that combines a [SegmentedControl] with an
-/// [AnimatedSwitcher] to create a seamless, tab-like interface.
-///
-/// It takes a list of [NavigationItem]s and manages the state for displaying
-/// the correct page content when a segment is selected.
-///
-/// {@tool snippet}
-/// An example of creating a `SectionSwitcher` with three items.
-///
-/// ```dart
-/// final _items = [
-///   NavigationItem(
-///     page: Center(child: Text('Home Page')),
-///     icon: Icon(Icons.home),
-///     label: 'Home',
-///   ),
-///   NavigationItem(
-///     page: Center(child: Text('Search Page')),
-///     icon: Icon(Icons.search),
-///     label: 'Search',
-///   ),
-///   NavigationItem(
-///     page: Center(child: Text('Profile Page')),
-///     icon: Icon(Icons.person),
-///     label: 'Profile',
-///   ),
-/// ];
-///
-/// SectionSwitcher(
-///   items: _items,
-///   segmentedControlStyle: SegmentedControl.styleFrom(
-///     backgroundColor: Colors.grey.shade200,
-///     indicatorColor: Colors.white,
-///   ),
-/// )
-/// ```
-/// {@end-tool}
+/// A composite widget that combines a [SegmentedControl] with an [AnimatedSwitcher].
 class SectionSwitcher extends StatefulWidget {
   /// A list of [NavigationItem] objects, each defining a page and its
   /// corresponding segment appearance (icon and label).
@@ -397,17 +357,14 @@ class SectionSwitcher extends StatefulWidget {
     super.key,
     required this.items,
     this.initialIndex = 0,
-    // Layout
     this.segmentedHeight = 40.0,
     this.segmentedItemSpacing = 4.0,
     this.contentPadding = EdgeInsets.zero,
     this.segmentedMargin = EdgeInsets.zero,
-    // Style
     this.segmentedControlStyle,
-    // Animation
     this.duration = const Duration(milliseconds: 300),
     this.curve = Curves.easeInOut,
-  }) : assert(items.length > 1, 'At least two items required');
+  }) : assert(items.length > 0, 'At least one item is required.');
 
   @override
   State<SectionSwitcher> createState() => _SectionSwitcherState();
@@ -435,7 +392,7 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
 
   @override
   Widget build(BuildContext context) {
-    final segments = widget.items.map((nav) {
+    final segments = widget.items.map((NavigationItem nav) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -465,6 +422,7 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
         ),
         Padding(
           padding: widget.contentPadding,
+          // The AnimatedSwitcher correctly handles a single child by simply displaying it.
           child: AnimatedSwitcher(
             duration: widget.duration,
             switchInCurve: widget.curve,

@@ -88,6 +88,25 @@ class NavigationWidgetPage extends StatelessWidget {
                 style: customSegmentedControlStyle,
               ),
             ),
+            const Divider(height: 40),
+
+            const Text(
+              'Standalone SegmentedControl Example single segment',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 50,
+              child: SegmentedControl(
+                segments: const [
+                  Text('Option A'),
+                ],
+                onSegmentSelected: (index) {
+                  debugPrint('SegmentedControl selected index: $index');
+                },
+                style: customSegmentedControlStyle,
+              ),
+            ),
           ],
         ),
       ),
