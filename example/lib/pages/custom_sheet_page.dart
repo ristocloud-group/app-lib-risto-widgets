@@ -1,247 +1,263 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
-class CustomSheetPage extends StatelessWidget {
+class CustomSheetPage extends StatefulWidget {
   const CustomSheetPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return PaddedChildrenList(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Custom Sheet Example',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        // Button to open the confirmation sheet
-        CustomActionButton(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          onPressed: () {
-            OpenCustomSheet.openConfirmSheet(
-              context,
-              body: const Text('Are you sure you want to proceed?'),
-              onClose: (value) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      value == true ? 'Action Confirmed' : 'Action Cancelled',
-                    ),
-                  ),
-                );
-              },
-              backgroundColor: Colors.white,
-              barrierDismissible: true,
-              handleColor: Colors.grey,
-              firstButtonColor: Colors.red,
-              secondButtonColor: Colors.green,
-              firstButtonTextColor: Colors.white,
-              secondButtonTextColor: Colors.white,
-              buttonSpacing: 8.0,
-              confirmButtonText: "Confirm",
-              cancelButtonText: "Cancel",
-            ).show(context);
-          },
-          child: const Text('Open Confirm Sheet'),
-        ),
-        // Button to open a scrollable sheet without confirmation buttons
-        CustomActionButton(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          onPressed: () {
-            OpenCustomSheet.scrollableSheet(
-              context,
-              expand: true,
-              initialChildSize: 0.5,
-              minChildSize: 0.25,
-              maxChildSize: 0.8,
-              body: ({scrollController}) {
-                return ListView.builder(
-                  controller: scrollController,
-                  itemCount: 50,
-                  itemBuilder:
-                      (context, index) => ListTile(title: Text('Item $index')),
-                );
-              },
-              onClose: (value) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      value == true
-                          ? 'Scrolled Action Confirmed'
-                          : 'Scrolled Action Cancelled',
-                    ),
-                  ),
-                );
-              },
-              backgroundColor: Colors.white,
-              handleColor: Colors.grey,
-            ).show(context);
-          },
-          child: const Text('Open Scrollable Sheet'),
-        ),
-        // Button to open a large confirmation sheet
-        CustomActionButton(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          onPressed: () {
-            OpenCustomSheet.openConfirmSheet(
-              context,
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'This is a large body content',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada.',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Additional Information:',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  ...List.generate(
-                    5,
-                    (index) => ListTile(
-                      leading: const Icon(Icons.info),
-                      title: Text('Detail $index'),
-                    ),
-                  ),
-                ],
-              ),
-              onClose: (value) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(value == true ? 'Confirmed' : 'Cancelled'),
-                  ),
-                );
-              },
-              backgroundColor: Colors.white,
-              handleColor: Colors.grey,
-              firstButtonColor: Colors.red,
-              secondButtonColor: Colors.green,
-              firstButtonTextColor: Colors.white,
-              secondButtonTextColor: Colors.white,
-              buttonSpacing: 8.0,
-            ).show(context);
-          },
-          child: const Text('Open Large Confirm Sheet'),
-        ),
-        // Button to open a custom form sheet without confirmation buttons
-        CustomActionButton(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          onPressed: () {
-            OpenCustomSheet(
-              barrierDismissible: true,
-              barrierColor: Colors.black.withCustomOpacity(0.5),
-              onClose: (value) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      value == true ? 'Submitted' : 'Action Cancelled',
-                    ),
-                  ),
-                );
-              },
-              backgroundColor: Colors.white,
-              handleColor: Colors.grey,
-              sheetPadding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 10.0,
-              ),
-              body:
-                  ({scrollController}) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Enter Details',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      const TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Name',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      CustomActionButton.flat(
-                        onPressed: () => Navigator.pop(context, true),
-                        backgroundColor: Colors.green,
-                        margin: EdgeInsets.zero,
-                        child: const Text(
-                          'Submit',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-            ).show(context);
-          },
-          child: const Text('Open Custom Form Sheet'),
-        ),
-        CustomActionButton(
-          margin: const EdgeInsets.symmetric(vertical: 8),
+  State<CustomSheetPage> createState() => _CustomSheetPageState();
+}
 
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => Scaffold(
-                      appBar: AppBar(title: Text("Test safe area")),
-                      body: PaddedChildrenList(
-                        children: [
-                          CustomActionButton(
-                            child: Text("Test confirm sheet"),
-                            onPressed: () {
-                              OpenCustomSheet.openConfirmSheet(
-                                context,
-                                body: const Text(
-                                  'Are you sure you want to proceed?',
+class _CustomSheetPageState extends State<CustomSheetPage> {
+  bool _isOverlayVisible = false;
+  final ExpandableController _expandCtrl = ExpandableController(
+    initialExpanded: false,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Custom Sheet Examples')),
+      body: Stack(
+        children: [
+          ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              // Confirm sheet
+              CustomActionButton(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: () {
+                  OpenCustomSheet.openConfirmSheet(
+                    context,
+                    body: const Text('Are you sure you want to proceed?'),
+                  ).show(context);
+                },
+                child: const Text('Open Confirm Sheet'),
+              ),
+
+              // Scrollable sheet
+              CustomActionButton(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: () {
+                  OpenCustomSheet.scrollableSheet(
+                    context,
+                    body:
+                        ({scrollController}) => ListView.builder(
+                          controller: scrollController,
+                          itemCount: 30,
+                          itemBuilder:
+                              (context, i) => ListTile(title: Text('Item $i')),
+                        ),
+                  ).show(context);
+                },
+                child: const Text('Open Scrollable Sheet'),
+              ),
+
+              // Standard (direct constructor) custom form sheet
+              CustomActionButton(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: () {
+                  OpenCustomSheet(
+                    body:
+                        ({scrollController}) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Enter Details',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 16),
+                            const TextField(
+                              decoration: InputDecoration(
+                                labelText: 'Name',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const TextField(
+                              decoration: InputDecoration(
+                                labelText: 'Email',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
                                 ),
-                                onClose: (value) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        value == true
-                                            ? 'Action Confirmed'
-                                            : 'Action Cancelled',
+                                child: const Text(
+                                  'Submit',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                  ).show(context);
+                },
+                child: const Text('Open Custom Form Sheet'),
+              ),
+
+              // Expandable overlay trigger
+              CustomActionButton(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: () {
+                  setState(() => _isOverlayVisible = true);
+                },
+                child: const Text('Show Expandable Stack'),
+              ),
+              CustomActionButton(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: () {
+                  OpenCustomSheet.expandable(
+                    context,
+                    header: Center(child: Text("Test Header")),
+                    body:
+                        ({scrollController}) =>
+                            Container(height: 200, color: Colors.red),
+                    footer: Center(child: Text("Test Footer")),
+                  ).show(context);
+                },
+                child: const Text('Show Expandable Overlay'),
+              ),
+            ],
+          ),
+
+          // Expandable overlay rendered in the same route using the new factory
+          if (_isOverlayVisible)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: OpenCustomSheet.expandable(
+                context,
+                controller: _expandCtrl,
+                presentAsRoute: false,
+                initialChildSize: 0.25,
+                minChildSize: 0.25,
+                maxChildSize: 0.8,
+                backgroundColor: const Color(0xFF0A4F70),
+                header: const Padding(
+                  padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+                  child: Text(
+                    'Riepilogo',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                body:
+                    ({scrollController}) => ListView.builder(
+                      controller: scrollController,
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      itemCount: 10,
+                      itemBuilder:
+                          (context, index) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Column(
+                              children: [
+                                const Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Retta mensile trasporto',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
                                       ),
                                     ),
-                                  );
-                                },
-                                backgroundColor: Colors.white,
-                                handleColor: Colors.grey,
-                                firstButtonColor: Colors.red,
-                                secondButtonColor: Colors.green,
-                                firstButtonTextColor: Colors.white,
-                                secondButtonTextColor: Colors.white,
-                                buttonSpacing: 8.0,
-                                confirmButtonText: "Confirm",
-                                cancelButtonText: "Cancel",
-                              ).show(context);
-                            },
+                                    Text(
+                                      '30,00€',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                const Divider(
+                                  color: Color(0x33FFFFFF),
+                                  height: 1,
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
                     ),
-              ),
-            );
-          },
+                footer: _buildPersistentFooter(
+                  context,
+                  onClose: () {
+                    setState(() => _isOverlayVisible = false);
+                  },
+                ),
+              ).buildExpandable(context),
+            ),
+        ],
+      ),
+    );
+  }
 
-          child: Text("Safe area test"),
-        ),
-      ],
+  Widget _buildPersistentFooter(BuildContext context, {VoidCallback? onClose}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Totale importo:', style: TextStyle(color: Colors.white70)),
+              SizedBox(height: 4),
+              Text(
+                '30,00€',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              TextButton(
+                onPressed: onClose,
+                child: const Text(
+                  'Chiudi',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF0A4F70),
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 16,
+                  ),
+                ),
+                child: const Text(
+                  'Avanti',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
