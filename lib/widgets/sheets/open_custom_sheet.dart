@@ -70,6 +70,11 @@ class OpenCustomSheet {
     this.sheetPadding,
     this.enableDrag = true,
     this.showDragHandle = true,
+
+    // NEW: exposed for default sheet (used only when enableDrag == true)
+    this.initialChildSize = 0.5,
+    this.minChildSize = 0.25,
+    this.maxChildSize = 1.0,
   })  : _type = _SheetType.standard,
         _standardBody = body,
         _confirmBody = null,
@@ -78,13 +83,11 @@ class OpenCustomSheet {
         _expandableBody = null,
         _expandableController = null,
         _presentAsRoute = true,
-        // default-sheet sizing flags
+        // flags for default sheet
         scrollable = false,
-        expand = false,
-        initialChildSize = 0.5,
-        minChildSize = 0.25,
-        maxChildSize = 1.0,
-        // force all confirm-specific options OFF/NULL for the public constructor
+        // let DS occupy available height
+        expand = true,
+        // force confirm-only options off in the public ctor
         showDefaultButtons = false,
         firstButtonColor = null,
         secondButtonColor = null,
@@ -282,7 +285,6 @@ class OpenCustomSheet {
           'Use buildExpandable(context) when presentAsRoute is false.');
     }
 
-    // --- For all standard modal sheets ---
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
       isDismissible: barrierDismissible,
@@ -290,15 +292,110 @@ class OpenCustomSheet {
       isScrollControlled: true,
       useSafeArea: false,
       enableDrag: enableDrag,
+      // modal-level drag (close by swipe from top edge)
       context: context,
       builder: (context) {
         switch (_type) {
           case _SheetType.standard:
+            if (!enableDrag) {
+              // ---- STATIC default sheet (sizes ignored; intrinsic up to a cap) ----
+              final init = initialChildSize.clamp(minChildSize, maxChildSize);
+              return SafeArea(
+                top: false,
+                child: LayoutBuilder(
+                  builder: (context, viewport) {
+                    final cap = viewport.maxHeight * init;
+
+                    return Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(10)),
+                        color: backgroundColor ?? Theme.of(context).cardColor,
+                      ),
+                      child: SizedBox(
+                        height: cap, // <- give a tight, finite height
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            if (showDragHandle &&
+                                handleColor != Colors.transparent)
+                              _buildHandle(handleColor),
+                            // Body gets the remaining space; it may contain its own Expanded safely.
+                            Expanded(
+                              child: Padding(
+                                padding: sheetPadding ??
+                                    const EdgeInsets.symmetric(
+                                        horizontal: 30, vertical: 20),
+                                child: _standardBody!(scrollController: null),
+                              ),
+                            ),
+                            if (showDefaultButtons)
+                              _buildButtons(
+                                context,
+                                firstButtonColor,
+                                secondButtonColor,
+                                firstButtonTextColor,
+                                secondButtonTextColor,
+                                buttonSpacing,
+                                confirmButtonText,
+                                cancelButtonText,
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            } else {
+              // ---- DRAGGABLE default sheet (uses exposed sizes) ----
+              final init = initialChildSize.clamp(minChildSize, maxChildSize);
+              return DraggableScrollableSheet(
+                expand: true,
+                initialChildSize: init,
+                minChildSize: minChildSize,
+                maxChildSize: maxChildSize,
+                builder: (context, scrollController) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(10)),
+                      color: backgroundColor ?? Theme.of(context).cardColor,
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: Column(
+                        children: [
+                          if (showDragHandle &&
+                              handleColor != Colors.transparent)
+                            _buildHandle(handleColor),
+                          // Exactly one scrollable using the provided controller.
+                          Expanded(
+                            child: SingleChildScrollView(
+                              controller: scrollController,
+                              padding: sheetPadding ??
+                                  const EdgeInsets.symmetric(
+                                      horizontal: 30, vertical: 20),
+                              child: _standardBody!(
+                                  scrollController: scrollController),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+
           case _SheetType.confirm:
+            // (unchanged) always static; confirm-layout buttons live here
             return SafeArea(
               child: Container(
                 constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.9),
+                  maxHeight: MediaQuery.of(context).size.height * 0.9,
+                ),
                 decoration: BoxDecoration(
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(10)),
@@ -314,27 +411,28 @@ class OpenCustomSheet {
                       child: SingleChildScrollView(
                         padding: sheetPadding ??
                             const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 20),
-                        child: _type == _SheetType.confirm
-                            ? _confirmBody!
-                            : _standardBody!(scrollController: null),
+                              horizontal: 30,
+                              vertical: 20,
+                            ),
+                        child: _confirmBody!,
                       ),
                     ),
                     if (showDefaultButtons)
                       _buildButtons(
-                          context,
-                          firstButtonColor,
-                          secondButtonColor,
-                          firstButtonTextColor,
-                          secondButtonTextColor,
-                          buttonSpacing,
-                          confirmButtonText,
-                          cancelButtonText),
+                        context,
+                        firstButtonColor,
+                        secondButtonColor,
+                        firstButtonTextColor,
+                        secondButtonTextColor,
+                        buttonSpacing,
+                        confirmButtonText,
+                        cancelButtonText,
+                      ),
                   ],
                 ),
               ),
             );
-
+          // ------------------------ DRAGGABLE SCROLLABLE ------------------------
           case _SheetType.scrollable:
             return DraggableScrollableSheet(
               expand: expand,
@@ -349,23 +447,26 @@ class OpenCustomSheet {
                     color: backgroundColor ?? Theme.of(context).cardColor,
                   ),
                   child: SafeArea(
-                      top: false,
-                      child: Column(
-                        children: [
-                          if (handleColor != Colors.transparent)
-                            _buildHandle(handleColor),
-                          Expanded(
-                            child: Padding(
-                              padding: sheetPadding ?? EdgeInsets.zero,
-                              child: _standardBody!(
-                                  scrollController: scrollController),
-                            ),
+                    top: false,
+                    child: Column(
+                      children: [
+                        if (handleColor != Colors.transparent)
+                          _buildHandle(handleColor),
+                        Expanded(
+                          child: Padding(
+                            padding: sheetPadding ?? EdgeInsets.zero,
+                            child: _standardBody!(
+                                scrollController: scrollController),
                           ),
-                        ],
-                      )),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             );
+
+          // ------------------------ EXPANDABLE OVERLAY ------------------------
           case _SheetType.expandable:
             return _ExpandableSheet(
               backgroundColor: backgroundColor,
@@ -383,11 +484,7 @@ class OpenCustomSheet {
             );
         }
       },
-    ).then((value) {
-      if (onClose != null) {
-        onClose!(value);
-      }
-    });
+    ).then((value) => onClose?.call(value));
   }
 
   /// Builds the expandable widget for in-route usage (inside a Stack).
