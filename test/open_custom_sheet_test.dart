@@ -123,7 +123,6 @@ void main() {
                 handleColor: Colors.grey,
                 sheetPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                showDefaultButtons: false,
                 body: ({scrollController}) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -228,7 +227,6 @@ void main() {
                 handleColor: Colors.grey,
                 sheetPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                showDefaultButtons: false,
                 body: ({scrollController}) => const Text('Dismissable Sheet'),
               ).show(context);
             },
@@ -261,7 +259,6 @@ void main() {
                 handleColor: Colors.grey,
                 sheetPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                showDefaultButtons: false,
                 body: ({scrollController}) =>
                     const Text('Non-dismissible Sheet'),
               ).show(context);
@@ -303,7 +300,6 @@ void main() {
                 handleColor: Colors.grey,
                 sheetPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                showDefaultButtons: false,
                 body: ({scrollController}) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

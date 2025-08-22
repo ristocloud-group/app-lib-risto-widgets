@@ -123,6 +123,178 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                 },
                 child: const Text('Show Expandable Overlay'),
               ),
+
+              // Inside your page:
+              CustomActionButton(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: () {
+                  OpenCustomSheet(
+                    enableDrag: false, // <- cannot drag the sheet
+                    showDragHandle: false, // <- no handle
+                    sheetPadding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    body: ({scrollController}) {
+                      // Local state for the amount (in cents)
+                      final value = ValueNotifier<int>(5500);
+
+                      String formatEuro(int cents) {
+                        final euros = cents ~/ 100;
+                        final dec = (cents % 100).toString().padLeft(2, '0');
+                        final eurosStr = euros.toString().replaceAllMapped(
+                          RegExp(r'\B(?=(\d{3})+(?!\d))'),
+                          (m) => '.',
+                        );
+                        return '$eurosStr,$dec €';
+                      }
+
+                      Widget keyButton(String label, VoidCallback onTap) {
+                        return SizedBox(
+                          height: 56,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: onTap,
+                            child: Center(
+                              child: Text(
+                                label,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      void onDigit(String d) {
+                        final old = value.value;
+                        // Cap at ~9 digits to avoid silly values
+                        if (old > 999999999) return;
+                        final next = old * 10 + int.parse(d);
+                        value.value = next;
+                      }
+
+                      void onBackspace() {
+                        final old = value.value;
+                        value.value = old ~/ 10;
+                      }
+
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            // important: let content size itself
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Header
+                              Row(
+                                children: [
+                                  const Expanded(
+                                    child: Text(
+                                      'Ricarica saldo',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+
+                              // Amount
+                              ValueListenableBuilder<int>(
+                                valueListenable: value,
+                                builder: (context, cents, _) {
+                                  return Text(
+                                    formatEuro(cents),
+                                    style: const TextStyle(
+                                      fontSize: 44,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  );
+                                },
+                              ),
+
+                              const SizedBox(height: 12),
+                              const Divider(height: 1),
+
+                              const SizedBox(height: 8),
+
+                              // Keypad (3 x 4)
+                              GridView.count(
+                                crossAxisCount: 3,
+                                mainAxisSpacing: 8,
+                                crossAxisSpacing: 8,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                childAspectRatio: 1.8,
+                                children: [
+                                  for (final d in [
+                                    '1',
+                                    '2',
+                                    '3',
+                                    '4',
+                                    '5',
+                                    '6',
+                                    '7',
+                                    '8',
+                                    '9',
+                                  ])
+                                    keyButton(d, () {
+                                      onDigit(d);
+                                      setState(() {}); // repaint local part
+                                    }),
+                                  keyButton('⌫', () {
+                                    onBackspace();
+                                    setState(() {});
+                                  }),
+                                  keyButton('0', () {
+                                    onDigit('0');
+                                    setState(() {});
+                                  }),
+                                  // Spacer: keep grid balanced
+                                  const SizedBox.shrink(),
+                                ],
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              // CTA pinned with SafeArea so it never collides with the home indicator
+                              SafeArea(
+                                top: false,
+                                left: false,
+                                right: false,
+                                minimum: const EdgeInsets.only(
+                                  top: 4,
+                                  bottom: 8,
+                                ),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: 52,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      shape: const StadiumBorder(),
+                                    ),
+                                    onPressed:
+                                        () =>
+                                            Navigator.pop(context, value.value),
+                                    child: const Text(
+                                      'Invia',
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ).show(context);
+                },
+                child: const Text('Open Custom Sheet'),
+              ),
             ],
           ),
 

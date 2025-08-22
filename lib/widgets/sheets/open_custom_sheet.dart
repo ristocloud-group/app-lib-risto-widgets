@@ -25,6 +25,7 @@ class OpenCustomSheet {
   final ShapeBorder? sheetShape;
   final EdgeInsetsGeometry? sheetPadding;
   final bool enableDrag;
+  final bool showDragHandle;
 
   // --- PROPERTIES FOR SCROLLABLE/EXPANDABLE SHEETS ---
   final bool scrollable;
@@ -33,7 +34,7 @@ class OpenCustomSheet {
   final double minChildSize;
   final double maxChildSize;
 
-  // --- PROPERTIES FOR CONFIRMATION BUTTONS ---
+  // --- PROPERTIES FOR CONFIRMATION BUTTONS (used only by openConfirmSheet) ---
   final bool showDefaultButtons;
   final Color? firstButtonColor;
   final Color? secondButtonColor;
@@ -41,7 +42,7 @@ class OpenCustomSheet {
   final Color? secondButtonTextColor;
   final String? confirmButtonText;
   final String? cancelButtonText;
-  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? padding; // container padding for confirm layout
   final double? buttonSpacing;
 
   // --- INTERNAL MANAGEMENT OF TYPE AND BODY ---
@@ -49,14 +50,15 @@ class OpenCustomSheet {
   final Widget Function({ScrollController? scrollController})? _standardBody;
   final Widget? _confirmBody;
 
-  // --- PROPERTIES FOR EXPANDABLE SHEET (rimangono qui per compatibilità) ---
+  // --- PROPERTIES FOR EXPANDABLE SHEET ---
   final Widget? _expandableHeader;
   final Widget? _expandableFooter;
   final Widget Function({ScrollController? scrollController})? _expandableBody;
   final ExpandableController? _expandableController;
   final bool _presentAsRoute;
 
-  /// Creates a customizable, non-scrollable bottom sheet.
+  /// PUBLIC: Standard (non-scrollable) sheet constructor.
+  /// For confirm/scrollable/expandable use the dedicated factories.
   const OpenCustomSheet({
     required Widget Function({ScrollController? scrollController}) body,
     this.onClose,
@@ -66,16 +68,8 @@ class OpenCustomSheet {
     this.handleColor,
     this.sheetShape,
     this.sheetPadding,
-    this.padding,
-    this.showDefaultButtons = false,
-    this.firstButtonColor,
-    this.secondButtonColor,
-    this.firstButtonTextColor,
-    this.secondButtonTextColor,
-    this.confirmButtonText,
-    this.cancelButtonText,
-    this.buttonSpacing,
     this.enableDrag = true,
+    this.showDragHandle = true,
   })  : _type = _SheetType.standard,
         _standardBody = body,
         _confirmBody = null,
@@ -84,13 +78,24 @@ class OpenCustomSheet {
         _expandableBody = null,
         _expandableController = null,
         _presentAsRoute = true,
+        // default-sheet sizing flags
         scrollable = false,
         expand = false,
         initialChildSize = 0.5,
         minChildSize = 0.25,
-        maxChildSize = 1.0;
+        maxChildSize = 1.0,
+        // force all confirm-specific options OFF/NULL for the public constructor
+        showDefaultButtons = false,
+        firstButtonColor = null,
+        secondButtonColor = null,
+        firstButtonTextColor = null,
+        secondButtonTextColor = null,
+        confirmButtonText = null,
+        cancelButtonText = null,
+        padding = null,
+        buttonSpacing = null;
 
-  /// Internal constructor for use by factories only.
+  /// PRIVATE: universal constructor used by factories.
   const OpenCustomSheet._internal({
     // Type
     required _SheetType type,
@@ -104,6 +109,7 @@ class OpenCustomSheet {
     this.handleColor,
     this.sheetShape,
     this.sheetPadding,
+    this.showDragHandle = true,
 
     // Scrollable/expandable sizes
     this.scrollable = false,
@@ -127,7 +133,7 @@ class OpenCustomSheet {
     Widget Function({ScrollController? scrollController})? standardBody,
     Widget? confirmBody,
 
-    // Expandable bits (restano per compatibilità; la factory è omessa)
+    // Expandable bits
     Widget? expandableHeader,
     Widget? expandableFooter,
     Widget Function({ScrollController? scrollController})? expandableBody,
@@ -152,6 +158,7 @@ class OpenCustomSheet {
     Color? handleColor,
     bool barrierDismissible = true,
     bool enableDrag = true,
+    bool showDragHandle = true,
     Color? firstButtonColor,
     Color? secondButtonColor,
     Color? firstButtonTextColor,
@@ -164,13 +171,13 @@ class OpenCustomSheet {
     return OpenCustomSheet._internal(
       type: _SheetType.confirm,
       // common
-      onClose: onClose,
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
       enableDrag: enableDrag,
+      onClose: onClose,
       backgroundColor: backgroundColor,
       handleColor: handleColor,
-      // sizes (not used in confirm, keep defaults)
+      showDragHandle: showDragHandle,
       // confirm props
       showDefaultButtons: true,
       firstButtonColor: firstButtonColor,
@@ -200,20 +207,22 @@ class OpenCustomSheet {
     Color? handleColor,
     bool barrierDismissible = true,
     bool enableDrag = true,
+    bool showDragHandle = true,
     ShapeBorder? sheetShape,
     EdgeInsetsGeometry? sheetPadding,
   }) {
     return OpenCustomSheet._internal(
       type: _SheetType.scrollable,
       // common
-      onClose: onClose,
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
       enableDrag: enableDrag,
+      onClose: onClose,
       backgroundColor: backgroundColor,
       handleColor: handleColor,
       sheetShape: sheetShape,
       sheetPadding: sheetPadding,
+      showDragHandle: showDragHandle,
       // sizes
       scrollable: true,
       expand: expand,
@@ -242,6 +251,7 @@ class OpenCustomSheet {
     EdgeInsetsGeometry? sheetPadding,
     bool barrierDismissible = true,
     bool enableDrag = true,
+    bool showDragHandle = true,
   }) {
     return OpenCustomSheet._internal(
       type: _SheetType.expandable,
@@ -255,6 +265,7 @@ class OpenCustomSheet {
       backgroundColor: backgroundColor,
       handleColor: handleColor,
       sheetPadding: sheetPadding,
+      showDragHandle: showDragHandle,
       expandableHeader: header,
       expandableFooter: footer,
       expandableBody: body,
@@ -297,7 +308,7 @@ class OpenCustomSheet {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (handleColor != Colors.transparent)
+                    if (showDragHandle && handleColor != Colors.transparent)
                       _buildHandle(handleColor),
                     Flexible(
                       child: SingleChildScrollView(
@@ -360,6 +371,7 @@ class OpenCustomSheet {
               backgroundColor: backgroundColor,
               handleColor: handleColor,
               sheetPadding: sheetPadding,
+              showDragHandle: showDragHandle,
               header: _expandableHeader!,
               bodyBuilder: _expandableBody!,
               footer: _expandableFooter!,
@@ -467,6 +479,7 @@ class _ExpandableSheet extends StatefulWidget {
   final Color? backgroundColor;
   final Color? handleColor;
   final EdgeInsetsGeometry? sheetPadding;
+  final bool showDragHandle;
   final Widget header;
   final Widget footer;
   final Widget Function({ScrollController? scrollController}) bodyBuilder;
@@ -480,6 +493,7 @@ class _ExpandableSheet extends StatefulWidget {
     this.backgroundColor,
     this.handleColor,
     this.sheetPadding,
+    this.showDragHandle = true,
     required this.header,
     required this.bodyBuilder,
     required this.footer,
@@ -518,7 +532,9 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
   double get _expandedSize => widget.maxChildSize;
 
   double get _handleHeight =>
-      (widget.handleColor != Colors.transparent) ? (4.0 + 16.0) : 0.0;
+      (widget.showDragHandle && widget.handleColor != Colors.transparent)
+          ? (4.0 + 16.0)
+          : 0.0;
 
   double get _verticalSheetPadding {
     final p = widget.sheetPadding;
@@ -767,7 +783,8 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            if (widget.handleColor != Colors.transparent)
+                            if (widget.showDragHandle &&
+                                widget.handleColor != Colors.transparent)
                               Center(
                                 child: Container(
                                   width: 40,
