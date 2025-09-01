@@ -112,6 +112,15 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           child: Text('Rounded Button ($counter)'),
         ),
+        CustomActionButton.rounded(
+          onPressed: null,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          backgroundColor: Colors.orange,
+          foregroundColor: Colors.white,
+          splashColor: Colors.deepOrangeAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          child: Text('Disabled Rounded Button ($counter)'),
+        ),
 
         // Disabled Press Button Example
         CustomActionButton(
@@ -127,6 +136,50 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           ),
         ),
 
+        // Big rounded “Invia” with a blue sweep
+        CustomActionButton.rounded(
+          onPressed: () {},
+          height: 64,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          backgroundGradient: const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [Color(0xFF0E5480), Color(0xFF0C6DA0)],
+          ),
+          foregroundColor: Colors.white,
+          child: const Text('Invia'),
+        ),
+
+        // Compact “Pianifica assenza” tile with icon, same gradient
+        CustomActionButton.flat(
+          onPressed: () {},
+          borderRadius: 16,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          shadowColor: Colors.black.withCustomOpacity(0.2),
+          backgroundGradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0E5480), Color(0xFF108ED0)],
+          ),
+          foregroundColor: Colors.white,
+          child: Text('Pianifica assenza'),
+        ),
+        CustomActionButton.flat(
+          onPressed: null,
+          borderRadius: 16,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          shadowColor: Colors.black.withCustomOpacity(0.2),
+          backgroundGradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0E5480), Color(0xFF108ED0)],
+          ),
+          foregroundColor: Colors.white,
+          child: Text('Pianifica assenza'),
+        ),
+
         const SizedBox(height: 16),
 
         Text(
@@ -140,6 +193,22 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           margin: const EdgeInsets.symmetric(vertical: 8),
           backgroundColor: Colors.purple,
           foregroundColor: Colors.white,
+          borderRadius: 8.0,
+          elevation: 4.0,
+          showLoadingIndicator: true,
+          loadingIndicatorColor: Colors.black,
+          child: Text('Single Press Button ($counter)'),
+        ),
+
+        SinglePressButton(
+          onPressed: _incrementCounterAsync,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          foregroundColor: Colors.white,
+          backgroundGradient: const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [Color(0xFF410E80), Color(0xFF5F17B7)],
+          ),
           borderRadius: 8.0,
           elevation: 4.0,
           showLoadingIndicator: true,
