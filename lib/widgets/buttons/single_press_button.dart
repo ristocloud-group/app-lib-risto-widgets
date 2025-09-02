@@ -181,7 +181,7 @@ class SinglePressButton extends StatefulWidget {
     Color? disabledForegroundColor,
     Color? borderColor,
     Color? disabledBorderColor,
-    double borderRadius = 8.0, // don’t override, let user pick
+    double borderRadius = 8.0,
     TextStyle? textStyle,
     double? elevation,
     Color? shadowColor,
