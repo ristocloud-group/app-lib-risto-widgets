@@ -132,6 +132,63 @@ class ListTileButtonPage extends StatelessWidget {
             minHeight: 70,
           ),
           const SizedBox(height: 20),
+
+          // --- Gradient tests ---
+          Text(
+            'Gradient List Tile Buttons',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          ListTileButton(
+            body: const Text('List Tile Button with Gradient'),
+            subtitle: const Text('Enabled — uses backgroundGradient'),
+            onPressed: () {},
+            // Solid color is ignored when gradient is provided
+            backgroundColor: Colors.white,
+            backgroundGradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF7F7FFF), Color(0xFFB76DFF)],
+            ),
+            borderColor: Colors.transparent,
+            elevation: 3,
+            trailing: const Icon(Icons.chevron_right),
+            minHeight: 80,
+          ),
+
+          const SizedBox(height: 16),
+          IconListTileButton(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            title: const Text('Icon List Tile with Disabled Gradient'),
+            subtitle: const Text('Disabled — uses disabledBackgroundGradient'),
+            icon: Icons.lock,
+            onPressed: () {},
+            // will be ignored because disabled = true
+            disabled: true,
+            // Optional solid color to show fallback (will be under gradient if any)
+            backgroundColor: Colors.white,
+            backgroundGradient: const LinearGradient(
+              // This would be used when enabled
+              colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+            ),
+            disabledBackgroundGradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFBBBBBB), Color(0xFF888888)],
+            ),
+            borderColor: Colors.grey.shade300,
+            iconColor: Colors.white,
+            elevation: 2.0,
+            shadowColor: Colors.black26,
+            trailing: const Icon(Icons.block, color: Colors.white),
+            leadingSizeFactor: 1.4,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            bodyPadding: const EdgeInsets.symmetric(horizontal: 8),
+            contentAlignment: Alignment.centerLeft,
+            minHeight: 70,
+          ),
+
+          const SizedBox(height: 20),
           Text(
             'Double List Tile Buttons',
             style: Theme.of(context).textTheme.titleLarge,

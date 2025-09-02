@@ -52,6 +52,12 @@ class ListTileButton extends StatelessWidget {
   /// Background color of the tile.
   final Color? backgroundColor;
 
+  /// Gradient background color of the tile.
+  final Gradient? backgroundGradient;
+
+  /// Disabled background color of the tile.
+  final Gradient? disabledBackgroundGradient;
+
   /// Border color of the tile.
   final Color? borderColor;
 
@@ -87,6 +93,8 @@ class ListTileButton extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.backgroundColor,
+    this.backgroundGradient,
+    this.disabledBackgroundGradient,
     this.borderColor,
     this.shadowColor,
     this.borderRadius = 10,
@@ -148,11 +156,17 @@ class ListTileButton extends StatelessWidget {
       ],
     );
 
+    // Pick active/disabled gradient if present
+    final Gradient? effectiveGradient = disabled
+        ? disabledBackgroundGradient ?? backgroundGradient
+        : backgroundGradient;
+
     return Opacity(
       opacity: disabled ? 0.5 : 1.0,
       child: RoundedContainer(
         margin: margin,
-        backgroundColor: backgroundColor,
+        backgroundColor:
+            effectiveGradient != null ? Colors.transparent : backgroundColor,
         borderColor: borderColor,
         shadowColor: shadowColor,
         borderRadius: borderRadius,
@@ -162,15 +176,22 @@ class ListTileButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(borderRadius),
-            onTap: disabled ? null : onPressed,
-            onLongPress: disabled ? null : onLongPress,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: minHeight),
-              child: Padding(
-                padding: padding ?? EdgeInsets.zero,
-                child: row,
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: effectiveGradient,
+              color: effectiveGradient == null ? backgroundColor : null,
+              borderRadius: BorderRadius.circular(borderRadius),
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(borderRadius),
+              onTap: disabled ? null : onPressed,
+              onLongPress: disabled ? null : onLongPress,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: minHeight),
+                child: Padding(
+                  padding: padding ?? EdgeInsets.zero,
+                  child: row,
+                ),
               ),
             ),
           ),
@@ -181,7 +202,8 @@ class ListTileButton extends StatelessWidget {
 }
 
 /// A convenience widget that combines an icon with a [ListTileButton].
-/// Supports a disabled state, shadow color, and minimum height constraint.
+/// Supports a disabled state, shadow color, gradient backgrounds,
+/// and minimum height constraint.
 ///
 /// Example usage:
 /// ```dart
@@ -191,6 +213,7 @@ class ListTileButton extends StatelessWidget {
 ///   onPressed: () {},
 ///   disabled: true,
 ///   shadowColor: Colors.grey,
+///   backgroundGradient: LinearGradient(colors: [Colors.blue, Colors.purple]),
 ///   minHeight: 70,
 /// );
 /// ```
@@ -215,6 +238,12 @@ class IconListTileButton extends StatelessWidget {
 
   /// Background color of the tile.
   final Color? backgroundColor;
+
+  /// Gradient background of the tile when enabled.
+  final Gradient? backgroundGradient;
+
+  /// Gradient background of the tile when disabled.
+  final Gradient? disabledBackgroundGradient;
 
   /// Border color of the tile.
   final Color? borderColor;
@@ -264,6 +293,8 @@ class IconListTileButton extends StatelessWidget {
     this.onPressed,
     this.disabled = false,
     this.backgroundColor,
+    this.backgroundGradient,
+    this.disabledBackgroundGradient,
     this.borderColor,
     this.iconColor,
     this.shadowColor,
@@ -285,6 +316,8 @@ class IconListTileButton extends StatelessWidget {
       onPressed: onPressed,
       disabled: disabled,
       backgroundColor: backgroundColor,
+      backgroundGradient: backgroundGradient,
+      disabledBackgroundGradient: disabledBackgroundGradient,
       borderColor: borderColor,
       shadowColor: shadowColor,
       elevation: elevation,
@@ -310,6 +343,7 @@ class IconListTileButton extends StatelessWidget {
 }
 
 /// A container with rounded corners, optional border, and elevation with custom shadow color.
+/// Supports both solid background colors and gradient backgrounds.
 class RoundedContainer extends StatelessWidget {
   /// Outer margin around the container.
   final EdgeInsetsGeometry? margin;
@@ -322,6 +356,9 @@ class RoundedContainer extends StatelessWidget {
 
   /// Background color of the container.
   final Color? backgroundColor;
+
+  /// Gradient background of the container.
+  final Gradient? backgroundGradient;
 
   /// Color of the border around the container.
   final Color? borderColor;
@@ -344,6 +381,7 @@ class RoundedContainer extends StatelessWidget {
     this.padding,
     required this.child,
     this.backgroundColor,
+    this.backgroundGradient,
     this.borderColor,
     this.borderRadius = 10,
     this.borderWidth = 1,
@@ -353,17 +391,22 @@ class RoundedContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool useGradient = backgroundGradient != null;
+
     return Padding(
       padding: margin ?? EdgeInsets.zero,
       child: Material(
         elevation: elevation ?? 0,
         shadowColor: shadowColor,
         borderRadius: BorderRadius.circular(borderRadius),
-        color: backgroundColor ?? Theme.of(context).cardColor,
+        color: useGradient
+            ? Colors.transparent
+            : (backgroundColor ?? Theme.of(context).cardColor),
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadius),
+            gradient: backgroundGradient,
             border: borderColor != null
                 ? Border.all(color: borderColor!, width: borderWidth)
                 : null,
