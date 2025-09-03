@@ -376,23 +376,33 @@ class CustomActionButton extends StatefulWidget {
 
   /// Creates a button that displays only an [Icon].
   ///
-  /// Use [baseType] to choose the visual foundation:
-  /// - [ButtonType.elevated] (default): filled background, elevation support
-  /// - [ButtonType.flat]: filled background, no elevation
-  /// - [ButtonType.minimal]: transparent by default (or gradient if provided)
+  /// - [baseType] controls the style: elevated (default), flat, or minimal.
+  /// - [size] sets a square dimension for width/height.
+  /// - [iconColor] directly controls the icon's color, falling back to
+  ///   [foregroundColor] if not provided.
   ///
-  /// If [size] is provided, it sets a square button (width == height == size)
-  /// and uses zero padding unless you pass a custom [padding].
+  /// Example:
+  /// ```dart
+  /// CustomActionButton.icon(
+  ///   onPressed: () {},
+  ///   icon: Icons.add,
+  ///   size: 48,
+  ///   backgroundColor: Colors.blue,
+  ///   iconColor: Colors.white,
+  ///   baseType: ButtonType.rounded,
+  /// );
+  /// ```
   factory CustomActionButton.icon({
     required VoidCallback? onPressed,
     required IconData icon,
 
-    // Visual base (which path in the build switch we leverage)
+    // Visual style
     ButtonType baseType = ButtonType.elevated,
 
     // Colors & gradients
     Color? backgroundColor,
     Color? foregroundColor,
+    Color? iconColor,
     Color? shadowColor,
     Color? splashColor,
     Color? disabledBackgroundColor,
@@ -404,9 +414,6 @@ class CustomActionButton extends StatefulWidget {
 
     // Sizing & layout
     double? size, // square size convenience
-    double? width,
-    double? height,
-    double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
 
@@ -419,9 +426,8 @@ class CustomActionButton extends StatefulWidget {
     // Icon specifics
     double iconSize = 20.0,
   }) {
-    // If 'size' is given, prefer it over width/height and default to no padding
-    final resolvedWidth = size ?? width;
-    final resolvedHeight = size ?? height;
+    final resolvedWidth = size;
+    final resolvedHeight = size;
     final resolvedPadding = padding ?? (size != null ? EdgeInsets.zero : null);
 
     return CustomActionButton(
@@ -443,7 +449,8 @@ class CustomActionButton extends StatefulWidget {
       // Layout
       width: resolvedWidth,
       height: resolvedHeight,
-      minHeight: minHeight,
+      minHeight: 0.0,
+      // let size drive the dimensions
       padding: resolvedPadding,
       margin: margin,
 
@@ -454,7 +461,11 @@ class CustomActionButton extends StatefulWidget {
       splashFactory: splashFactory,
 
       // Child is built here so the button body is the icon
-      child: Icon(icon, size: iconSize),
+      child: Icon(
+        icon,
+        size: iconSize,
+        color: iconColor ?? foregroundColor,
+      ),
     );
   }
 

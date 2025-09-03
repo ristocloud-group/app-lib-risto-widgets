@@ -196,25 +196,31 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
           elevation: 2,
+          iconColor: Colors.black,
         ),
 
         // Flat square icon button with gradient
         CustomActionButton.icon(
           onPressed: () {},
           icon: Icons.favorite,
+          iconColor: Colors.white,
           baseType: ButtonType.flat,
+          splashColor: Colors.black,
           size: 44,
-          backgroundGradient: LinearGradient(colors: [Colors.pink, Colors.red]),
-          foregroundColor: Colors.white,
+          backgroundGradient: LinearGradient(
+            colors: [Colors.pinkAccent, Colors.red],
+          ),
         ),
 
         // Minimal (transparent) icon button
         CustomActionButton.icon(
           onPressed: () {},
           icon: Icons.more_vert,
-          baseType: ButtonType.minimal,
-          padding: const EdgeInsets.all(8),
-          foregroundColor: Colors.black54,
+          baseType: ButtonType.rounded,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black38,
+          iconColor: Colors.black,
+          size: 40,
         ),
 
         const SizedBox(height: 16),
