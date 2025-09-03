@@ -374,6 +374,90 @@ class CustomActionButton extends StatefulWidget {
     );
   }
 
+  /// Creates a button that displays only an [Icon].
+  ///
+  /// Use [baseType] to choose the visual foundation:
+  /// - [ButtonType.elevated] (default): filled background, elevation support
+  /// - [ButtonType.flat]: filled background, no elevation
+  /// - [ButtonType.minimal]: transparent by default (or gradient if provided)
+  ///
+  /// If [size] is provided, it sets a square button (width == height == size)
+  /// and uses zero padding unless you pass a custom [padding].
+  factory CustomActionButton.icon({
+    required VoidCallback? onPressed,
+    required IconData icon,
+
+    // Visual base (which path in the build switch we leverage)
+    ButtonType baseType = ButtonType.elevated,
+
+    // Colors & gradients
+    Color? backgroundColor,
+    Color? foregroundColor,
+    Color? shadowColor,
+    Color? splashColor,
+    Color? disabledBackgroundColor,
+    Color? disabledBorderColor,
+    Color? disabledForegroundColor,
+    Color? borderColor,
+    Gradient? backgroundGradient,
+    Gradient? disabledBackgroundGradient,
+
+    // Sizing & layout
+    double? size, // square size convenience
+    double? width,
+    double? height,
+    double minHeight = 60.0,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+
+    // Shape & elevation
+    double borderRadius = 8.0,
+    OutlinedBorder? shape,
+    double? elevation,
+    InteractiveInkFeatureFactory? splashFactory,
+
+    // Icon specifics
+    double iconSize = 20.0,
+  }) {
+    // If 'size' is given, prefer it over width/height and default to no padding
+    final resolvedWidth = size ?? width;
+    final resolvedHeight = size ?? height;
+    final resolvedPadding = padding ?? (size != null ? EdgeInsets.zero : null);
+
+    return CustomActionButton(
+      buttonType: baseType,
+      onPressed: onPressed,
+
+      // Forward styling/customization
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      shadowColor: shadowColor,
+      splashColor: splashColor,
+      disabledBackgroundColor: disabledBackgroundColor,
+      disabledBorderColor: disabledBorderColor,
+      disabledForegroundColor: disabledForegroundColor,
+      borderColor: borderColor,
+      backgroundGradient: backgroundGradient,
+      disabledBackgroundGradient: disabledBackgroundGradient,
+
+      // Layout
+      width: resolvedWidth,
+      height: resolvedHeight,
+      minHeight: minHeight,
+      padding: resolvedPadding,
+      margin: margin,
+
+      // Shape/elevation
+      borderRadius: borderRadius,
+      shape: shape,
+      elevation: elevation,
+      splashFactory: splashFactory,
+
+      // Child is built here so the button body is the icon
+      child: Icon(icon, size: iconSize),
+    );
+  }
+
   @override
   State<CustomActionButton> createState() => _CustomActionButtonState();
 }

@@ -183,6 +183,42 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
         const SizedBox(height: 16),
 
         Text(
+          'Icon Action Button',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+
+        // Filled & elevated circular icon button
+        CustomActionButton.icon(
+          onPressed: () {},
+          icon: Icons.add,
+          baseType: ButtonType.rounded,
+          size: 48,
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          elevation: 2,
+        ),
+
+        // Flat square icon button with gradient
+        CustomActionButton.icon(
+          onPressed: () {},
+          icon: Icons.favorite,
+          baseType: ButtonType.flat,
+          size: 44,
+          backgroundGradient: LinearGradient(colors: [Colors.pink, Colors.red]),
+          foregroundColor: Colors.white,
+        ),
+
+        // Minimal (transparent) icon button
+        CustomActionButton.icon(
+          onPressed: () {},
+          icon: Icons.more_vert,
+          baseType: ButtonType.minimal,
+          padding: const EdgeInsets.all(8),
+          foregroundColor: Colors.black54,
+        ),
+
+        const SizedBox(height: 16),
+        Text(
           'Single Press Button',
           style: Theme.of(context).textTheme.titleLarge,
         ),
