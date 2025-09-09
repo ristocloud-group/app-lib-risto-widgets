@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart'; // Ensure correct path
 
@@ -221,6 +222,14 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           foregroundColor: Colors.black38,
           iconColor: Colors.black,
           size: 40,
+        ),
+
+        CustomActionButton.icon(
+          onPressed: () {},
+          baseType: ButtonType.flat,
+          iconColor: Colors.white,
+          icon: CupertinoIcons.trash,
+          size: 25,
         ),
 
         const SizedBox(height: 16),

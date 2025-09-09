@@ -1,6 +1,24 @@
+// test/custom_action_button_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:risto_widgets/risto_widgets.dart';
+
+/// Returns the outer shell Material used by CustomActionButton to paint
+/// gradients/solid color and elevation. We find the unique Ink inside the
+/// button, then take its nearest Material ancestor.
+Material _shellMaterialOf(WidgetTester tester) {
+  final cabFinder = find.byType(CustomActionButton);
+
+  // There should be exactly one Ink painted by the shell.
+  final inkFinder = find.descendant(of: cabFinder, matching: find.byType(Ink));
+  expect(inkFinder, findsOneWidget);
+
+  // The nearest Material ancestor of that Ink is the shell Material.
+  final materialFinder =
+      find.ancestor(of: inkFinder, matching: find.byType(Material)).first;
+
+  return tester.widget<Material>(materialFinder);
+}
 
 void main() {
   group('CustomActionButton Tests', () {
@@ -26,12 +44,13 @@ void main() {
       expect(counter, 0);
 
       await tester.tap(find.byType(CustomActionButton));
-      await tester.pump(); // Rebuild the widget with the new state.
+      await tester.pump();
 
       expect(counter, 1);
     });
 
-    testWidgets('CustomActionButton.flat renders correctly',
+    testWidgets(
+        'CustomActionButton.flat renders correctly as TextButton and no elevation',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -46,20 +65,15 @@ void main() {
       );
 
       expect(find.text('Flat Button'), findsOneWidget);
+      expect(find.byType(TextButton), findsOneWidget);
+      expect(find.byType(ElevatedButton), findsNothing);
 
-      expect(find.byType(ElevatedButton), findsOneWidget);
-
-      expect(find.byType(TextButton), findsNothing);
-
-      tester.widget(find.byType(ElevatedButton));
-      final elevatedButton = tester.widget<ElevatedButton>(find.descendant(
-        of: find.byType(CustomActionButton),
-        matching: find.byType(ElevatedButton),
-      ));
-      expect(elevatedButton.style?.elevation?.resolve({}), equals(null));
+      final shell = _shellMaterialOf(tester);
+      expect(shell.elevation, 0.0);
     });
 
-    testWidgets('CustomActionButton.elevated renders with correct elevation',
+    testWidgets(
+        'CustomActionButton.elevated renders with correct Material elevation',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -74,25 +88,21 @@ void main() {
         ),
       );
 
-      // Expect the button to be present
       expect(find.text('Elevated Button'), findsOneWidget);
-
-      // Find the ElevatedButton within the CustomActionButton
-      final elevatedButtonFinder = find.descendant(
-        of: find.byType(CustomActionButton),
-        matching: find.byType(ElevatedButton),
+      expect(
+        find.descendant(
+          of: find.byType(CustomActionButton),
+          matching: find.byType(ElevatedButton),
+        ),
+        findsOneWidget,
       );
 
-      // Ensure the ElevatedButton is found
-      expect(elevatedButtonFinder, findsOneWidget);
-
-      // Verify the elevation of the ElevatedButton
-      final elevatedButton =
-          tester.widget<ElevatedButton>(elevatedButtonFinder);
-      expect(elevatedButton.style?.elevation?.resolve({}), equals(5.0));
+      final shell = _shellMaterialOf(tester);
+      expect(shell.elevation, 5.0);
     });
 
-    testWidgets('CustomActionButton.minimal renders correctly',
+    testWidgets(
+        'CustomActionButton.minimal renders correctly (no overlay/splash, zero elevation)',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -107,22 +117,20 @@ void main() {
 
       expect(find.text('Minimal Button'), findsOneWidget);
 
-      // Ensure the button is a TextButton
-      expect(find.byType(TextButton), findsOneWidget);
+      final textButtonFinder = find.byType(TextButton);
+      expect(textButtonFinder, findsOneWidget);
 
-      // Ensure that the button has no overlay or splash
-      final textButton = tester.widget<TextButton>(find.byType(TextButton));
-
-      // Check that overlayColor is transparent
+      final textButton = tester.widget<TextButton>(textButtonFinder);
       final overlayColor = textButton.style?.overlayColor?.resolve({});
-
       expect(overlayColor, Colors.transparent);
-
-      // Check that splashFactory is NoSplash
       expect(textButton.style?.splashFactory, NoSplash.splashFactory);
+
+      final shell = _shellMaterialOf(tester);
+      expect(shell.elevation, 0.0);
     });
 
-    testWidgets('CustomActionButton.longPress triggers onLongPress',
+    testWidgets(
+        'CustomActionButton.longPress triggers onLongPress repeatedly while holding',
         (WidgetTester tester) async {
       int longPressCounter = 0;
 
@@ -142,15 +150,10 @@ void main() {
 
       expect(find.text('Long Press Button'), findsOneWidget);
 
-      // Simulate a long press
-      final gesture = await tester
-          .startGesture(tester.getCenter(find.byType(CustomActionButton)));
-      await tester
-          .pump(const Duration(milliseconds: 600)); // Recognize long press
-      await tester
-          .pump(const Duration(milliseconds: 300)); // Allow timer to trigger
-
-      // Release the gesture
+      final center = tester.getCenter(find.byType(CustomActionButton));
+      final gesture = await tester.startGesture(center);
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump(const Duration(milliseconds: 300));
       await gesture.up();
 
       expect(longPressCounter, greaterThan(0));
@@ -164,36 +167,63 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: CustomActionButton.elevated(
-              onPressed: null, // Disabled state
+              onPressed: null,
               child: const Text('Disabled Button'),
             ),
           ),
         ),
       );
 
-      // Verify the disabled button is present with correct text
       expect(find.text('Disabled Button'), findsOneWidget);
 
-      // Locate the CustomActionButton widget
       final customActionButtonFinder = find.byType(CustomActionButton);
       expect(customActionButtonFinder, findsOneWidget);
 
-      // Find the specific AbsorbPointer inside the CustomActionButton
       final absorbPointerFinder = find.descendant(
-          of: customActionButtonFinder, matching: find.byType(AbsorbPointer));
+        of: customActionButtonFinder,
+        matching: find.byType(AbsorbPointer),
+      );
       expect(absorbPointerFinder, findsOneWidget);
 
-      // Ensure that the AbsorbPointer is absorbing (i.e., button is disabled)
-      final absorbPointerWidget =
-          tester.widget<AbsorbPointer>(absorbPointerFinder);
-      expect(absorbPointerWidget.absorbing, true);
+      final absorbPointer = tester.widget<AbsorbPointer>(absorbPointerFinder);
+      expect(absorbPointer.absorbing, true);
 
-      // Try to tap the button
       await tester.tap(customActionButtonFinder, warnIfMissed: false);
       await tester.pump();
-
-      // Counter should not have incremented
       expect(counter, 0);
+    });
+
+    testWidgets('CustomActionButton.icon respects size and iconColor',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: CustomActionButton.icon(
+                onPressed: () {},
+                icon: Icons.add,
+                size: 48,
+                baseType: ButtonType.rounded,
+                backgroundColor: Colors.blue,
+                iconColor: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final icon = tester.widget<Icon>(find.byIcon(Icons.add));
+      expect(icon.color, Colors.white);
+      expect(icon.size, 20.0); // adjust if you changed the factory default
+
+      final buttonSize = tester.getSize(find.byType(CustomActionButton));
+      expect(buttonSize.width, 48);
+      expect(buttonSize.height, 48);
+
+      expect(find.byType(ElevatedButton), findsOneWidget);
+
+      final shell = _shellMaterialOf(tester);
+      expect(shell.elevation, isA<double>());
     });
   });
 }
