@@ -50,7 +50,7 @@ class _PercentIndicatorsPageState extends State<PercentIndicatorsPage> {
               lineHeight: 10,
               animation: _animateLinear,
               animationDuration: 600,
-              backgroundColor: theme.colorScheme.surfaceVariant,
+              backgroundColor: theme.colorScheme.surfaceContainerHighest,
               progressColor: theme.colorScheme.primary,
               padding: const EdgeInsets.symmetric(vertical: 8),
             ),
