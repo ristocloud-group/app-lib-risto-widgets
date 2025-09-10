@@ -279,6 +279,7 @@ class ExpandablePage extends StatelessWidget {
           maxHeightFraction: 0.60,
           // or: maxHeight: 480,
           dragDismissThresholdFraction: 0.20,
+          overlayBackgroundColor: Colors.blue.withCustomOpacity(0.8),
           // 20% of final clamped height
           dragToClose: true,
           collapsedBuilder:
