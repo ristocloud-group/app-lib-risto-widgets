@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart'; // Ensure correct path
 
@@ -112,6 +113,15 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           child: Text('Rounded Button ($counter)'),
         ),
+        CustomActionButton.rounded(
+          onPressed: null,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          backgroundColor: Colors.orange,
+          foregroundColor: Colors.white,
+          splashColor: Colors.deepOrangeAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          child: Text('Disabled Rounded Button ($counter)'),
+        ),
 
         // Disabled Press Button Example
         CustomActionButton(
@@ -127,8 +137,102 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           ),
         ),
 
+        // Big rounded “Invia” with a blue sweep
+        CustomActionButton.rounded(
+          onPressed: () {},
+          height: 64,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          backgroundGradient: const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [Color(0xFF0E5480), Color(0xFF0C6DA0)],
+          ),
+          foregroundColor: Colors.white,
+          child: const Text('Invia'),
+        ),
+
+        // Compact “Pianifica assenza” tile with icon, same gradient
+        CustomActionButton.flat(
+          onPressed: () {},
+          borderRadius: 16,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          shadowColor: Colors.black.withCustomOpacity(0.2),
+          backgroundGradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0E5480), Color(0xFF108ED0)],
+          ),
+          foregroundColor: Colors.white,
+          child: Text('Pianifica assenza'),
+        ),
+        CustomActionButton.flat(
+          onPressed: null,
+          borderRadius: 16,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          shadowColor: Colors.black.withCustomOpacity(0.2),
+          backgroundGradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0E5480), Color(0xFF108ED0)],
+          ),
+          foregroundColor: Colors.white,
+          child: Text('Pianifica assenza'),
+        ),
+
         const SizedBox(height: 16),
 
+        Text(
+          'Icon Action Button',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+
+        // Filled & elevated circular icon button
+        CustomActionButton.icon(
+          onPressed: () {},
+          icon: Icons.add,
+          baseType: ButtonType.rounded,
+          size: 48,
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          elevation: 2,
+          iconColor: Colors.black,
+        ),
+
+        // Flat square icon button with gradient
+        CustomActionButton.icon(
+          onPressed: () {},
+          icon: Icons.favorite,
+          iconColor: Colors.white,
+          baseType: ButtonType.flat,
+          splashColor: Colors.black,
+          size: 44,
+          backgroundGradient: LinearGradient(
+            colors: [Colors.pinkAccent, Colors.red],
+          ),
+        ),
+
+        // Minimal (transparent) icon button
+        CustomActionButton.icon(
+          onPressed: () {},
+          icon: Icons.more_vert,
+          baseType: ButtonType.rounded,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black38,
+          iconColor: Colors.black,
+          size: 40,
+        ),
+
+        CustomActionButton.icon(
+          onPressed: () {},
+          baseType: ButtonType.flat,
+          iconColor: Colors.white,
+          icon: CupertinoIcons.trash,
+          size: 25,
+        ),
+
+        const SizedBox(height: 16),
         Text(
           'Single Press Button',
           style: Theme.of(context).textTheme.titleLarge,
@@ -140,6 +244,22 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           margin: const EdgeInsets.symmetric(vertical: 8),
           backgroundColor: Colors.purple,
           foregroundColor: Colors.white,
+          borderRadius: 8.0,
+          elevation: 4.0,
+          showLoadingIndicator: true,
+          loadingIndicatorColor: Colors.black,
+          child: Text('Single Press Button ($counter)'),
+        ),
+
+        SinglePressButton(
+          onPressed: _incrementCounterAsync,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          foregroundColor: Colors.white,
+          backgroundGradient: const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [Color(0xFF410E80), Color(0xFF5F17B7)],
+          ),
           borderRadius: 8.0,
           elevation: 4.0,
           showLoadingIndicator: true,

@@ -34,6 +34,17 @@ class CustomActionButton extends StatefulWidget {
   /// The type of button to display.
   final ButtonType? buttonType;
 
+  /// Background gradients for the button.
+  ///
+  /// - [backgroundGradient]: The active gradient when the button is enabled.
+  ///   Overrides [backgroundColor] if provided.
+  /// - [disabledBackgroundGradient]: The gradient when the button is disabled.
+  ///   If null, a lighter/faded version of [backgroundGradient] is generated
+  ///   automatically. If both are null, falls back to
+  ///   [disabledBackgroundColor] or a lightened [backgroundColor].
+  final Gradient? backgroundGradient;
+  final Gradient? disabledBackgroundGradient;
+
   /// The background color of the button.
   final Color? backgroundColor;
 
@@ -110,6 +121,8 @@ class CustomActionButton extends StatefulWidget {
     this.shape,
     this.padding,
     this.margin,
+    this.backgroundGradient,
+    this.disabledBackgroundGradient,
     this.splashFactory,
   });
 
@@ -136,6 +149,8 @@ class CustomActionButton extends StatefulWidget {
     double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
+    Gradient? backgroundGradient,
+    Gradient? disabledBackgroundGradient,
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
@@ -158,6 +173,8 @@ class CustomActionButton extends StatefulWidget {
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
+      backgroundGradient: backgroundGradient,
+      disabledBackgroundGradient: disabledBackgroundGradient,
       child: child,
     );
   }
@@ -184,6 +201,8 @@ class CustomActionButton extends StatefulWidget {
     double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
+    Gradient? backgroundGradient,
+    Gradient? disabledBackgroundGradient,
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
@@ -205,6 +224,8 @@ class CustomActionButton extends StatefulWidget {
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
+      backgroundGradient: backgroundGradient,
+      disabledBackgroundGradient: disabledBackgroundGradient,
       child: child,
     );
   }
@@ -225,6 +246,8 @@ class CustomActionButton extends StatefulWidget {
     double minHeight = 60.0,
     OutlinedBorder? shape,
     EdgeInsetsGeometry? padding,
+    Gradient? backgroundGradient,
+    Gradient? disabledBackgroundGradient,
     EdgeInsetsGeometry? margin,
   }) {
     return CustomActionButton(
@@ -241,6 +264,8 @@ class CustomActionButton extends StatefulWidget {
       shape: shape,
       padding: padding,
       margin: margin,
+      backgroundGradient: backgroundGradient,
+      disabledBackgroundGradient: disabledBackgroundGradient,
       child: child,
     );
   }
@@ -269,6 +294,8 @@ class CustomActionButton extends StatefulWidget {
     double minHeight = 60.0,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
+    Gradient? backgroundGradient,
+    Gradient? disabledBackgroundGradient,
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
@@ -292,6 +319,8 @@ class CustomActionButton extends StatefulWidget {
       padding: padding,
       margin: margin,
       splashFactory: splashFactory,
+      backgroundGradient: backgroundGradient,
+      disabledBackgroundGradient: disabledBackgroundGradient,
       child: child,
     );
   }
@@ -317,6 +346,8 @@ class CustomActionButton extends StatefulWidget {
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     double elevation = 2.0,
+    Gradient? backgroundGradient,
+    Gradient? disabledBackgroundGradient,
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
@@ -336,8 +367,105 @@ class CustomActionButton extends StatefulWidget {
       minHeight: minHeight,
       padding: padding,
       margin: margin,
+      backgroundGradient: backgroundGradient,
+      disabledBackgroundGradient: disabledBackgroundGradient,
       splashFactory: splashFactory,
       child: child,
+    );
+  }
+
+  /// Creates a button that displays only an [Icon].
+  ///
+  /// - [baseType] controls the style: elevated (default), flat, or minimal.
+  /// - [size] sets a square dimension for width/height.
+  /// - [iconColor] directly controls the icon's color, falling back to
+  ///   [foregroundColor] if not provided.
+  ///
+  /// Example:
+  /// ```dart
+  /// CustomActionButton.icon(
+  ///   onPressed: () {},
+  ///   icon: Icons.add,
+  ///   size: 48,
+  ///   backgroundColor: Colors.blue,
+  ///   iconColor: Colors.white,
+  ///   baseType: ButtonType.rounded,
+  /// );
+  /// ```
+  factory CustomActionButton.icon({
+    required VoidCallback? onPressed,
+    required IconData icon,
+
+    // Visual style
+    ButtonType baseType = ButtonType.elevated,
+
+    // Colors & gradients
+    Color? backgroundColor,
+    Color? foregroundColor,
+    Color? iconColor,
+    Color? shadowColor,
+    Color? splashColor,
+    Color? disabledBackgroundColor,
+    Color? disabledBorderColor,
+    Color? disabledForegroundColor,
+    Color? borderColor,
+    Gradient? backgroundGradient,
+    Gradient? disabledBackgroundGradient,
+
+    // Sizing & layout
+    double? size, // square size convenience
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+
+    // Shape & elevation
+    double borderRadius = 8.0,
+    OutlinedBorder? shape,
+    double? elevation,
+    InteractiveInkFeatureFactory? splashFactory,
+
+    // Icon specifics
+    double iconSize = 20.0,
+  }) {
+    final resolvedWidth = size;
+    final resolvedHeight = size;
+    final resolvedPadding = padding ?? (size != null ? EdgeInsets.zero : null);
+
+    return CustomActionButton(
+      buttonType: baseType,
+      onPressed: onPressed,
+
+      // Forward styling/customization
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      shadowColor: shadowColor,
+      splashColor: splashColor,
+      disabledBackgroundColor: disabledBackgroundColor,
+      disabledBorderColor: disabledBorderColor,
+      disabledForegroundColor: disabledForegroundColor,
+      borderColor: borderColor,
+      backgroundGradient: backgroundGradient,
+      disabledBackgroundGradient: disabledBackgroundGradient,
+
+      // Layout
+      width: resolvedWidth,
+      height: resolvedHeight,
+      minHeight: 0.0,
+      // let size drive the dimensions
+      padding: resolvedPadding,
+      margin: margin,
+
+      // Shape/elevation
+      borderRadius: borderRadius,
+      shape: shape,
+      elevation: elevation,
+      splashFactory: splashFactory,
+
+      // Child is built here so the button body is the icon
+      child: Icon(
+        icon,
+        size: iconSize,
+        color: iconColor ?? foregroundColor,
+      ),
     );
   }
 
@@ -353,14 +481,124 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     return Color.lerp(color, Colors.white, amount)!;
   }
 
-  /// Returns the color to use when disabled.
-  ///
-  /// If [disabled] is provided, it is used; otherwise, if [normal] is provided,
-  /// returns a lighter version of it; if neither is provided, returns [fallback].
+  OutlinedBorder _resolveShapeFor({
+    required ButtonType? type,
+    required BuildContext context,
+  }) {
+    if (widget.shape != null) return widget.shape!;
+    if (type == ButtonType.rounded) {
+      return StadiumBorder(
+        side: widget.borderColor != null
+            ? BorderSide(color: widget.borderColor!, width: 1)
+            : BorderSide.none,
+      );
+    }
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(widget.borderRadius ?? 8.0),
+      side: widget.borderColor != null
+          ? BorderSide(color: widget.borderColor!, width: 1)
+          : BorderSide.none,
+    );
+  }
+
+  /// Wraps [child] with a Material that renders either a gradient or a solid color
+  /// using the given [shape]. Elevation and shadows are applied here so the
+  /// gradient can still cast a shadow.
+  Widget _decoratedShell({
+    required BuildContext context,
+    required OutlinedBorder shape,
+    required Widget child,
+    required Color? solidColor,
+    required Gradient? gradient,
+    required double? elevation,
+    required Color? shadowColor,
+    required EdgeInsetsGeometry? margin,
+    required double? width,
+    required double? height,
+  }) {
+    return Container(
+      margin: margin,
+      width: width,
+      height: height,
+      child: Material(
+        shape: shape,
+        clipBehavior: Clip.antiAlias,
+        elevation: elevation ?? 0,
+        shadowColor: shadowColor,
+        child: Ink(
+          decoration: ShapeDecoration(
+            shape: shape,
+            color: gradient == null ? solidColor : null,
+            gradient: gradient,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  /// When a gradient is present we make the inner button background transparent
+  /// and let the shell paint the visuals; otherwise we pass the solid color.
+  ButtonStyle _transparentifyBackground(ButtonStyle style) {
+    return style.copyWith(
+      backgroundColor: WidgetStateProperty.all(Colors.transparent),
+      elevation: WidgetStateProperty.all(0), // elevation handled by shell
+      shadowColor: WidgetStateProperty.all(Colors.transparent),
+      surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
+    );
+  }
+
+  /// Create a disabled version of a color if needed.
   Color _disabledColor(Color? disabled, Color? normal, Color fallback) {
     if (disabled != null) return disabled;
     if (normal != null) return _lighter(normal, 0.5);
     return fallback;
+  }
+
+  /// Returns a disabled gradient:
+  /// - If [disabled] provided, use it.
+  /// - Else if [normal] provided, lighten & add slight transparency to all stops,
+  ///   preserving gradient type (linear/radial/sweep), begin/end/center/radius/stops/tileMode.
+  /// - Else return null.
+  Gradient? _disabledGradient(Gradient? disabled, Gradient? normal) {
+    if (disabled != null) return disabled;
+    if (normal == null) return null;
+
+    List<Color> transform(List<Color> colors) =>
+        colors.map((c) => _lighter(c, 0.5).withCustomOpacity(0.6)).toList();
+
+    if (normal is LinearGradient) {
+      return LinearGradient(
+        begin: normal.begin,
+        end: normal.end,
+        colors: transform(normal.colors),
+        stops: normal.stops,
+        tileMode: normal.tileMode,
+        transform: normal.transform,
+      );
+    } else if (normal is RadialGradient) {
+      return RadialGradient(
+        center: normal.center,
+        radius: normal.radius,
+        colors: transform(normal.colors),
+        stops: normal.stops,
+        tileMode: normal.tileMode,
+        focal: normal.focal,
+        focalRadius: normal.focalRadius,
+        transform: normal.transform,
+      );
+    } else if (normal is SweepGradient) {
+      return SweepGradient(
+        center: normal.center,
+        startAngle: normal.startAngle,
+        endAngle: normal.endAngle,
+        colors: transform(normal.colors),
+        stops: normal.stops,
+        tileMode: normal.tileMode,
+        transform: normal.transform,
+      );
+    }
+    return LinearGradient(colors: transform((normal as dynamic).colors));
   }
 
   /// Computes the effective text style based on the disabled state.
@@ -444,172 +682,174 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     }
   }
 
-  /// Builds the disabled button.
   Widget _buildDisabledButton(BuildContext context) {
-    final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
+    final shape = _resolveShapeFor(type: widget.buttonType, context: context);
+
+    // Solid fallback
+    final disabledSolid = _disabledColor(
+      widget.disabledBackgroundColor,
+      widget.backgroundColor,
+      widget.buttonType == ButtonType.minimal
+          ? Colors.transparent
+          : Theme.of(context).disabledColor,
+    );
+
+    // NEW: compute a disabled gradient if a base gradient exists
+    final disabledGrad = _disabledGradient(
+      widget.disabledBackgroundGradient,
+      widget.backgroundGradient,
+    );
+
+    final style = ElevatedButton.styleFrom(
       overlayColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      foregroundColor: _disabledColor(widget.disabledForegroundColor,
-          widget.foregroundColor, Theme.of(context).disabledColor),
-      backgroundColor: _disabledColor(
-          widget.disabledBackgroundColor,
-          widget.backgroundColor,
-          widget.buttonType == ButtonType.minimal
-              ? Colors.transparent
-              : Theme.of(context).disabledColor),
-      shadowColor: widget.shadowColor ?? Colors.black,
+      foregroundColor: _disabledColor(
+        widget.disabledForegroundColor,
+        widget.foregroundColor,
+        Theme.of(context).disabledColor,
+      ),
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      shape: widget.shape ??
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(widget.borderRadius ?? 8.0),
-            // For the border, apply the disabled logic only if a base border color is provided.
-            side: (widget.borderColor != null ||
-                    widget.disabledBorderColor != null)
-                ? BorderSide(
-                    color: _disabledColor(widget.disabledBorderColor,
-                        widget.borderColor, Theme.of(context).disabledColor),
-                    width: 1,
-                  )
-                : BorderSide.none,
-          ),
-      elevation: widget.elevation,
-      // Apply minimum size based on width and minHeight/height
+      shape: shape,
       minimumSize: _getEffectiveMinimumSize(),
     );
 
-    return Container(
-      margin: widget.margin,
-      width: widget.width,
-      height: widget.height, // Container height still respects explicit height
+    return _decoratedShell(
+      context: context,
+      shape: shape,
       child: AbsorbPointer(
         absorbing: true,
         child: ElevatedButton(
-          style: buttonStyle,
+          style: _transparentifyBackground(style),
           onPressed: () {},
           child: _wrapChild(context, disabled: true),
         ),
       ),
+      // If we have a disabled gradient, paint it; else use solid fallback.
+      solidColor: disabledGrad == null ? disabledSolid : null,
+      gradient: disabledGrad,
+      elevation: widget.elevation,
+      shadowColor: widget.shadowColor ?? Colors.black,
+      margin: widget.margin,
+      width: widget.width,
+      height: widget.height,
     );
   }
 
   /// Builds the elevated button style.
   Widget _buildElevatedButton(BuildContext context) {
-    final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
-      // The foregroundColor is used for icons; text is wrapped with DefaultTextStyle.
+    final shape = _resolveShapeFor(type: ButtonType.elevated, context: context);
+    final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
+
+    final style = ElevatedButton.styleFrom(
+      // text/icon color (text is also wrapped)
       foregroundColor: widget.foregroundColor ?? Colors.white,
-      backgroundColor: widget.backgroundColor ?? Theme.of(context).primaryColor,
-      shadowColor: widget.shadowColor,
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      shape: widget.shape ??
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(widget.borderRadius ?? 8.0),
-            side: widget.borderColor != null
-                ? BorderSide(color: widget.borderColor!, width: 1)
-                : BorderSide.none,
-          ),
-      elevation: widget.elevation ?? 2.0,
+      shape: shape,
       overlayColor: widget.splashColor ?? Colors.transparent,
       splashFactory: widget.splashFactory,
-      // Apply minimum size based on width and minHeight/height
       minimumSize: _getEffectiveMinimumSize(),
     );
 
-    return Container(
-      margin: widget.margin,
-      width: widget.width,
-      height: widget.height, // Container height still respects explicit height
+    return _decoratedShell(
+      context: context,
+      shape: shape,
       child: ElevatedButton(
-        style: buttonStyle,
+        style: _transparentifyBackground(style),
         onPressed: widget.onPressed,
         child: _wrapChild(context, disabled: false),
       ),
+      solidColor: solid,
+      gradient: widget.backgroundGradient,
+      elevation: widget.elevation ?? 2.0,
+      shadowColor: widget.shadowColor,
+      margin: widget.margin,
+      width: widget.width,
+      height: widget.height,
     );
   }
 
   /// Builds the flat button style.
   Widget _buildFlatButton(BuildContext context) {
-    final ButtonStyle buttonStyle = TextButton.styleFrom(
+    final shape = _resolveShapeFor(type: ButtonType.flat, context: context);
+    final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
+
+    final style = TextButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.white,
-      backgroundColor: widget.backgroundColor ?? Theme.of(context).primaryColor,
       overlayColor: widget.splashColor ?? Colors.grey.withCustomOpacity(0.2),
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      shape: widget.shape ??
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(widget.borderRadius ?? 8.0),
-            side: widget.borderColor != null
-                ? BorderSide(color: widget.borderColor!, width: 1)
-                : BorderSide.none,
-          ),
-      elevation: widget.elevation,
-      shadowColor: widget.shadowColor ?? Colors.transparent,
+      shape: shape,
       splashFactory: widget.splashFactory ?? InkRipple.splashFactory,
-      // Apply minimum size based on width and minHeight/height
       minimumSize: _getEffectiveMinimumSize(),
     );
 
-    return Container(
-      margin: widget.margin,
-      width: widget.width,
-      height: widget.height, // Container height still respects explicit height
-      child: ElevatedButton(
-        style: buttonStyle,
+    return _decoratedShell(
+      context: context,
+      shape: shape,
+      child: TextButton(
+        style: _transparentifyBackground(style),
         onPressed: widget.onPressed,
         child: _wrapChild(context, disabled: false),
       ),
+      solidColor: solid,
+      gradient: widget.backgroundGradient,
+      elevation: widget.elevation,
+      shadowColor: widget.shadowColor ?? Colors.transparent,
+      margin: widget.margin,
+      width: widget.width,
+      height: widget.height,
     );
   }
 
   /// Builds the minimal button style.
   Widget _buildMinimalButton(BuildContext context) {
-    final ButtonStyle buttonStyle = TextButton.styleFrom(
+    final shape = _resolveShapeFor(type: ButtonType.minimal, context: context);
+
+    final style = TextButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.black,
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      shape: widget.shape ?? const RoundedRectangleBorder(),
-      shadowColor: widget.shadowColor ?? Colors.transparent,
-      backgroundColor: Colors.transparent,
-      side: widget.borderColor != null
-          ? BorderSide(color: widget.borderColor!, width: 1)
-          : BorderSide.none,
-      // Apply minimum size based on width and minHeight/height
+      shape: shape,
       minimumSize: _getEffectiveMinimumSize(),
     ).copyWith(
       overlayColor: WidgetStateProperty.all(Colors.transparent),
       splashFactory: NoSplash.splashFactory,
     );
 
-    return Container(
-      margin: widget.margin,
-      width: widget.width,
-      height: widget.height, // Container height still respects explicit height
+    // Default minimal is transparent; if a gradient is supplied, we paint it.
+    final solid = widget.backgroundColor; // may be null => transparent shell
+
+    return _decoratedShell(
+      context: context,
+      shape: shape,
       child: TextButton(
-        style: buttonStyle,
+        style: _transparentifyBackground(style),
         onPressed: widget.onPressed,
         child: _wrapChild(context, disabled: false),
       ),
+      solidColor: widget.backgroundGradient == null ? solid : null,
+      gradient: widget.backgroundGradient,
+      elevation: widget.elevation ?? 0,
+      shadowColor: widget.shadowColor ?? Colors.transparent,
+      margin: widget.margin,
+      width: widget.width,
+      height: widget.height,
     );
   }
 
   /// Builds the long-press button style.
   Widget _buildLongPressButton(BuildContext context) {
-    final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
+    final shape =
+        _resolveShapeFor(type: ButtonType.longPress, context: context);
+    final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
+
+    final style = ElevatedButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.white,
-      backgroundColor: widget.backgroundColor ?? Theme.of(context).primaryColor,
-      shadowColor: widget.shadowColor,
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      shape: widget.shape ??
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(widget.borderRadius ?? 8.0),
-            side: widget.borderColor != null
-                ? BorderSide(color: widget.borderColor!, width: 1)
-                : BorderSide.none,
-          ),
-      elevation: widget.elevation ?? 2.0,
-      // Apply minimum size based on width and minHeight/height
+      shape: shape,
       minimumSize: _getEffectiveMinimumSize(),
     ).copyWith(
       overlayColor: widget.splashColor != null
@@ -618,43 +858,41 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       splashFactory: widget.splashFactory,
     );
 
-    return Container(
+    final btn = GestureDetector(
+      onTap: widget.onPressed,
+      onLongPressStart: (_) => _handleLongPress(),
+      onLongPressEnd: (_) => _cancelLongPress(),
+      child: ElevatedButton(
+        style: _transparentifyBackground(style),
+        onPressed: widget.onPressed,
+        child: _wrapChild(context, disabled: false),
+      ),
+    );
+
+    return _decoratedShell(
+      context: context,
+      shape: shape,
+      child: btn,
+      solidColor: solid,
+      gradient: widget.backgroundGradient,
+      elevation: widget.elevation ?? 2.0,
+      shadowColor: widget.shadowColor,
       margin: widget.margin,
       width: widget.width,
-      height: widget.height, // Container height still respects explicit height
-      child: GestureDetector(
-        onTap: widget.onPressed,
-        onLongPressStart: (_) => _handleLongPress(),
-        onLongPressEnd: (_) => _cancelLongPress(),
-        child: ElevatedButton(
-          style: buttonStyle,
-          onPressed: widget.onPressed,
-          child: _wrapChild(context, disabled: false),
-        ),
-      ),
+      height: widget.height,
     );
   }
 
   Widget _buildRoundedButton(BuildContext context) {
-    final bool disabled = widget.onPressed == null;
+    final disabled = widget.onPressed == null;
+    final shape = _resolveShapeFor(type: ButtonType.rounded, context: context);
+    final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
 
-    // Usa StadiumBorder al posto di RoundedRectangleBorder:
-    final OutlinedBorder shape = widget.shape ??
-        StadiumBorder(
-          side: widget.borderColor != null
-              ? BorderSide(color: widget.borderColor!, width: 1)
-              : BorderSide.none,
-        );
-
-    final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
+    final style = ElevatedButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.white,
-      backgroundColor: widget.backgroundColor ?? Theme.of(context).primaryColor,
-      shadowColor: widget.shadowColor,
-      elevation: widget.elevation,
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
-      // Apply minimum size based on width and minHeight/height
       minimumSize: _getEffectiveMinimumSize(),
     ).copyWith(
       overlayColor: widget.splashColor != null
@@ -663,15 +901,24 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       splashFactory: widget.splashFactory,
     );
 
-    return Container(
-      margin: widget.margin,
-      width: widget.width,
-      height: widget.height, // Container height still respects explicit height
+    return _decoratedShell(
+      context: context,
+      shape: shape,
       child: ElevatedButton(
-        style: buttonStyle,
+        style: _transparentifyBackground(style),
         onPressed: widget.onPressed,
         child: _wrapChild(context, disabled: disabled),
       ),
+      solidColor: disabled
+          ? _disabledColor(widget.disabledBackgroundColor, solid,
+              Theme.of(context).disabledColor)
+          : solid,
+      gradient: disabled ? null : widget.backgroundGradient,
+      elevation: widget.elevation,
+      shadowColor: widget.shadowColor,
+      margin: widget.margin,
+      width: widget.width,
+      height: widget.height,
     );
   }
 

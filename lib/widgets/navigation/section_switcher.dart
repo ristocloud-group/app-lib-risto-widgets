@@ -1,43 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/risto_widgets.dart';
 
-import 'custom_bottom_navbar.dart';
+// -----------------------------------------------------------------------------
+// Style Class
+// -----------------------------------------------------------------------------
 
-/// A reusable segmented control for toggling between options.
-/// Supports custom segments, animations, styling, and elevation.
-class SegmentedControl extends StatefulWidget {
-  final List<Widget> segments;
-  final int initialIndex;
-  final ValueChanged<int>? onSegmentSelected;
-
-  // Animation
-  final Duration duration;
-  final Curve curve;
-
-  // Track styling
+/// Defines the visual configuration for a [SegmentedControl] widget.
+///
+/// This class encapsulates all styling properties, allowing for a clean separation
+/// between the widget's logic and its appearance. An instance of this class
+/// can be passed to the [SegmentedControl.style] property.
+///
+/// For a convenient way to create a style, use the [SegmentedControl.styleFrom]
+/// static method.
+class SegmentedControlStyle {
+  /// The border radius for the outer track and the inner sliding indicator.
+  ///
+  /// If null, defaults to a circular shape.
   final BorderRadius? borderRadius;
+
+  /// The color of the border around the track.
+  ///
+  /// If null, no border is drawn.
   final Color? borderColor;
+
+  /// The width of the border around the track.
+  ///
+  /// Defaults to `1.0`.
   final double borderWidth;
+
+  /// The background color of the main track.
+  ///
+  /// Defaults to `Theme.of(context).colorScheme.surfaceContainerHighest`.
   final Color? backgroundColor;
+
+  /// The inner padding of the track, creating space between the border
+  /// and the segments area.
+  ///
+  /// Defaults to `EdgeInsets.symmetric(horizontal: 4, vertical: 2)`.
   final EdgeInsets padding;
+
+  /// The elevation of the main track, used to cast a shadow.
+  ///
+  /// Defaults to `0.0`.
   final double elevation;
 
-  // Indicator styling
+  /// The background color of the sliding indicator.
+  ///
+  /// Defaults to `Colors.white`.
   final Color? indicatorColor;
-  final List<BoxShadow>? indicatorShadow;
+
+  /// The margin around the sliding indicator, creating a gap between it and
+  /// the track.
+  ///
+  /// Defaults to `EdgeInsets.zero`.
   final EdgeInsets? indicatorMargin;
+
+  /// The elevation of the sliding indicator, used to cast a shadow.
+  ///
+  /// Defaults to `0.0`.
   final double indicatorElevation;
 
-  // Text styling
+  /// The text style for the segments that are not currently selected.
+  ///
+  /// Defaults to a style derived from the theme's `labelMedium`.
   final TextStyle? unselectedTextStyle;
+
+  /// The text style for the currently selected segment.
+  ///
+  /// Defaults to a bold style derived from the theme's `labelMedium`.
   final TextStyle? selectedTextStyle;
 
-  const SegmentedControl({
-    super.key,
-    required this.segments,
-    this.initialIndex = 0,
-    this.onSegmentSelected,
-    this.duration = const Duration(milliseconds: 300),
-    this.curve = Curves.easeInOut,
+  /// Creates a style object for the [SegmentedControl].
+  const SegmentedControlStyle({
     this.borderRadius,
     this.borderColor,
     this.borderWidth = 1.0,
@@ -45,12 +80,115 @@ class SegmentedControl extends StatefulWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
     this.elevation = 0.0,
     this.indicatorColor,
-    this.indicatorShadow,
     this.indicatorMargin,
     this.indicatorElevation = 0.0,
     this.unselectedTextStyle,
     this.selectedTextStyle,
-  }) : assert(segments.length > 1, 'At least two segments required');
+  });
+}
+
+// -----------------------------------------------------------------------------
+// Segmented Control Widget
+// -----------------------------------------------------------------------------
+
+/// A highly customizable animated segmented control widget.
+///
+/// This widget displays a horizontal row of segments and animates a selection
+/// indicator between them. It is fully configurable through the [style]
+/// property, which takes a [SegmentedControlStyle] object.
+///
+/// {@tool snippet}
+/// Basic usage:
+///
+/// ```dart
+/// SegmentedControl(
+///   segments: const [
+///     Text('First'),
+///     Text('Second'),
+///   ],
+///   onSegmentSelected: (index) {
+///     // Handle selection change
+///   },
+///   style: SegmentedControl.styleFrom(
+///     backgroundColor: Colors.grey.shade300,
+///     indicatorColor: Colors.orange,
+///     indicatorElevation: 2,
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+class SegmentedControl extends StatefulWidget {
+  /// The list of widgets to display as the segments.
+  ///
+  /// Typically a list of [Text], [Icon], or [Row] widgets.
+  final List<Widget> segments;
+
+  /// The index of the segment that is selected by default.
+  ///
+  /// Defaults to `0`.
+  final int initialIndex;
+
+  /// A callback that is invoked when a new segment is tapped and selected.
+  ///
+  /// The callback receives the index of the newly selected segment.
+  final ValueChanged<int>? onSegmentSelected;
+
+  /// The duration of the animation when sliding the indicator between segments.
+  ///
+  /// Defaults to `300 milliseconds`.
+  final Duration duration;
+
+  /// The curve to use for the indicator's sliding animation.
+  ///
+  /// Defaults to [Curves.easeInOut].
+  final Curve curve;
+
+  /// The visual style configuration for the control.
+  ///
+  /// Use [SegmentedControlStyle] to define the appearance. For convenience,
+  /// create a style using the [SegmentedControl.styleFrom] static method.
+  final SegmentedControlStyle style;
+
+  /// Creates a customizable animated segmented control.
+  const SegmentedControl({
+    super.key,
+    required this.segments,
+    this.initialIndex = 0,
+    this.onSegmentSelected,
+    this.duration = const Duration(milliseconds: 300),
+    this.curve = Curves.easeInOut,
+    this.style = const SegmentedControlStyle(),
+  }) : assert(segments.length > 0, 'At least one segment is required.');
+
+  /// A helper method to create a [SegmentedControlStyle].
+  static SegmentedControlStyle styleFrom({
+    BorderRadius? borderRadius,
+    Color? borderColor,
+    double? borderWidth,
+    Color? backgroundColor,
+    EdgeInsets? padding,
+    double? elevation,
+    Color? indicatorColor,
+    EdgeInsets? indicatorMargin,
+    double? indicatorElevation,
+    TextStyle? unselectedTextStyle,
+    TextStyle? selectedTextStyle,
+  }) {
+    return SegmentedControlStyle(
+      borderRadius: borderRadius,
+      borderColor: borderColor,
+      borderWidth: borderWidth ?? 1.0,
+      backgroundColor: backgroundColor,
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      elevation: elevation ?? 0.0,
+      indicatorColor: indicatorColor,
+      indicatorMargin: indicatorMargin,
+      indicatorElevation: indicatorElevation ?? 0.0,
+      unselectedTextStyle: unselectedTextStyle,
+      selectedTextStyle: selectedTextStyle,
+    );
+  }
 
   @override
   State<SegmentedControl> createState() => _SegmentedControlState();
@@ -74,6 +212,8 @@ class _SegmentedControlState extends State<SegmentedControl> {
   }
 
   void _onTap(int index) {
+    // This logic correctly handles the single-item case by doing nothing,
+    // as _currentIndex will always equal the tapped index (0).
     if (_currentIndex != index) {
       setState(() => _currentIndex = index);
       widget.onSegmentSelected?.call(index);
@@ -82,14 +222,15 @@ class _SegmentedControlState extends State<SegmentedControl> {
 
   @override
   Widget build(BuildContext context) {
+    final style = widget.style;
     final primary =
-        widget.indicatorColor ?? Theme.of(context).colorScheme.primary;
-    final backCol = widget.backgroundColor ??
+        style.indicatorColor ?? Theme.of(context).colorScheme.primary;
+    final backCol = style.backgroundColor ??
         Theme.of(context).colorScheme.surfaceContainerHighest;
-    final radius = widget.borderRadius ?? BorderRadius.circular(999);
-    final unselectedStyle = widget.unselectedTextStyle ??
+    final radius = style.borderRadius ?? BorderRadius.circular(999);
+    final unselectedStyle = style.unselectedTextStyle ??
         Theme.of(context).textTheme.labelMedium!.copyWith(color: primary);
-    final selectedStyle = widget.selectedTextStyle ??
+    final selectedStyle = style.selectedTextStyle ??
         Theme.of(context).textTheme.labelMedium!.copyWith(
               color: primary,
               fontWeight: FontWeight.w600,
@@ -101,44 +242,43 @@ class _SegmentedControlState extends State<SegmentedControl> {
             constraints.maxHeight.isFinite ? constraints.maxHeight : 40.0;
         final totalWidth = constraints.maxWidth;
         final count = widget.segments.length;
-        final indicatorWidth = (totalWidth - widget.padding.horizontal) / count;
-        final innerHeight = height - widget.padding.vertical;
-        final margin = widget.indicatorMargin ?? EdgeInsets.zero;
+        // This calculation is safe, as the assert ensures count is at least 1.
+        final indicatorWidth = (totalWidth - style.padding.horizontal) / count;
+        final innerHeight = height - style.padding.vertical;
+        final margin = style.indicatorMargin ?? EdgeInsets.zero;
 
-        return Material(
-          elevation: widget.elevation,
-          borderRadius: radius,
+        return Card(
+          margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          elevation: style.elevation,
           color: backCol,
-          child: Container(
+          shape: RoundedRectangleBorder(
+            borderRadius: radius,
+            side: style.borderColor != null
+                ? BorderSide(
+                    color: style.borderColor!, width: style.borderWidth)
+                : BorderSide.none,
+          ),
+          child: SizedBox(
             height: height,
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              border: widget.borderColor != null
-                  ? Border.all(
-                      color: widget.borderColor!, width: widget.borderWidth)
-                  : null,
-            ),
             child: Padding(
-              padding: widget.padding,
+              padding: style.padding,
               child: Stack(
                 children: [
+                  // The indicator is still built, which is correct. It will just fill the entire space.
                   AnimatedPositioned(
                     left: _currentIndex * indicatorWidth + margin.left,
                     top: margin.top,
                     duration: widget.duration,
                     curve: widget.curve,
-                    child: Material(
-                      elevation: widget.indicatorElevation,
-                      borderRadius: radius,
-                      color: widget.indicatorColor ?? Colors.white,
-                      shadowColor: Colors.black,
-                      child: Container(
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      elevation: style.indicatorElevation,
+                      color: style.indicatorColor ?? Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: radius),
+                      child: SizedBox(
                         width: indicatorWidth - margin.horizontal,
                         height: innerHeight - margin.vertical,
-                        decoration: BoxDecoration(
-                          borderRadius: radius,
-                          boxShadow: widget.indicatorShadow,
-                        ),
                       ),
                     ),
                   ),
@@ -171,74 +311,60 @@ class _SegmentedControlState extends State<SegmentedControl> {
   }
 }
 
-/// A section switcher that displays a [SegmentedControl] and
-/// animates between pages. Fully style‐ and size‐configurable.
+// -----------------------------------------------------------------------------
+// Section Switcher Widget
+// -----------------------------------------------------------------------------
+
+/// A composite widget that combines a [SegmentedControl] with an [AnimatedSwitcher].
 class SectionSwitcher extends StatefulWidget {
+  /// A list of [NavigationItem] objects, each defining a page and its
+  /// corresponding segment appearance (icon and label).
   final List<NavigationItem> items;
+
+  /// The index of the item and page to display initially. Defaults to `0`.
   final int initialIndex;
 
-  // ── SIZING & SPACING ───────────────────────────────────────────
-  /// height of the segmented control bar
+  /// The height of the [SegmentedControl] bar. Defaults to `40.0`.
   final double segmentedHeight;
 
-  /// inner padding _inside_ the segmented track
-  final EdgeInsets segmentedPadding;
-
-  /// gap between icon & label in each segment
+  /// The horizontal spacing between the icon and label within each segment.
+  /// Defaults to `4.0`.
   final double segmentedItemSpacing;
 
-  /// padding around the content area (below the segments)
+  /// The padding applied around the page content area, below the control bar.
+  /// Defaults to `EdgeInsets.zero`.
   final EdgeInsets contentPadding;
 
-  /// outer margin _around_ the segmented control (doesn’t affect pages)
+  /// The outer margin surrounding the [SegmentedControl] bar. Defaults to
+  /// `EdgeInsets.zero`.
   final EdgeInsets segmentedMargin;
 
-  // ── SEGMENTED CONTROL CUSTOMIZATION ───────────────────────────
-  final Color? segmentedBackgroundColor;
-  final Color? segmentedIndicatorColor;
-  final List<BoxShadow>? segmentedIndicatorShadow;
-  final EdgeInsets? segmentedIndicatorMargin;
-  final double segmentedElevation;
-  final double segmentedIndicatorElevation;
-  final TextStyle? segmentedUnselectedTextStyle;
-  final TextStyle? segmentedSelectedTextStyle;
-  final BorderRadius? segmentedBorderRadius;
-  final Color? segmentedBorderColor;
-  final double segmentedBorderWidth;
+  /// The style to apply to the [SegmentedControl].
+  ///
+  /// Use [SegmentedControl.styleFrom] for convenient customization. If null,
+  /// the default style of [SegmentedControl] is used.
+  final SegmentedControlStyle? segmentedControlStyle;
 
-  // ── ANIMATION ────────────────────────────────────────────────
+  /// The duration for all animations, including the indicator slide and the
+  /// page cross-fade. Defaults to `300 milliseconds`.
   final Duration duration;
+
+  /// The animation curve used for all transitions. Defaults to [Curves.easeInOut].
   final Curve curve;
 
+  /// Creates a section switcher widget.
   const SectionSwitcher({
     super.key,
     required this.items,
     this.initialIndex = 0,
-
-    // sizing & padding
     this.segmentedHeight = 40.0,
-    this.segmentedPadding = EdgeInsets.zero,
     this.segmentedItemSpacing = 4.0,
     this.contentPadding = EdgeInsets.zero,
     this.segmentedMargin = EdgeInsets.zero,
-
-    // segmented control
-    this.segmentedBackgroundColor,
-    this.segmentedIndicatorColor,
-    this.segmentedIndicatorShadow,
-    this.segmentedIndicatorMargin,
-    this.segmentedElevation = 0.0,
-    this.segmentedIndicatorElevation = 0.0,
-    this.segmentedUnselectedTextStyle,
-    this.segmentedSelectedTextStyle,
-    this.segmentedBorderRadius,
-    this.segmentedBorderColor,
-    this.segmentedBorderWidth = 1.0,
-
-    // animation
+    this.segmentedControlStyle,
     this.duration = const Duration(milliseconds: 300),
     this.curve = Curves.easeInOut,
-  }) : assert(items.length > 1, 'At least two items required');
+  }) : assert(items.length > 0, 'At least one item is required.');
 
   @override
   State<SectionSwitcher> createState() => _SectionSwitcherState();
@@ -266,8 +392,7 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
 
   @override
   Widget build(BuildContext context) {
-    // build each segment as icon + label with your custom spacing
-    final segments = widget.items.map((nav) {
+    final segments = widget.items.map((NavigationItem nav) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -282,7 +407,6 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // segmented control
         Container(
           margin: widget.segmentedMargin,
           height: widget.segmentedHeight,
@@ -292,25 +416,13 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
             onSegmentSelected: _onSegmentSelected,
             duration: widget.duration,
             curve: widget.curve,
-            // pass through your new style props:
-            padding: widget.segmentedPadding,
-            backgroundColor: widget.segmentedBackgroundColor,
-            indicatorColor: widget.segmentedIndicatorColor,
-            indicatorShadow: widget.segmentedIndicatorShadow,
-            indicatorMargin: widget.segmentedIndicatorMargin,
-            elevation: widget.segmentedElevation,
-            indicatorElevation: widget.segmentedIndicatorElevation,
-            unselectedTextStyle: widget.segmentedUnselectedTextStyle,
-            selectedTextStyle: widget.segmentedSelectedTextStyle,
-            borderRadius: widget.segmentedBorderRadius,
-            borderColor: widget.segmentedBorderColor,
-            borderWidth: widget.segmentedBorderWidth,
+            style:
+                widget.segmentedControlStyle ?? const SegmentedControlStyle(),
           ),
         ),
-
-        // content area with its own padding
         Padding(
           padding: widget.contentPadding,
+          // The AnimatedSwitcher correctly handles a single child by simply displaying it.
           child: AnimatedSwitcher(
             duration: widget.duration,
             switchInCurve: widget.curve,

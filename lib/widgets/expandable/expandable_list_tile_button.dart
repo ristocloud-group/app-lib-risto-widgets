@@ -586,62 +586,67 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       final effectiveExpandedBodyColor = widget._finalExpandedBodyColor ??
           theme.colorScheme.secondary.withCustomOpacity(0.1);
 
-      return CompositedTransformFollower(
-        link: _layerLink,
-        showWhenUnlinked: false,
-        offset: Offset(0.0, 0.0),
-        targetAnchor: Alignment.topLeft,
-        followerAnchor: Alignment.topLeft,
-        child: Stack(
-          children: [
-            Positioned(
-              top: _headerHeight - widget.borderRadius.bottomLeft.y,
-              left: 0,
-              width: _headerWidth,
-              child: Material(
-                elevation: widget.elevation,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: widget.borderRadius.bottomLeft,
-                  bottomRight: widget.borderRadius.bottomRight,
-                ),
-                color: effectiveExpandedBodyColor,
-                clipBehavior: Clip.antiAlias,
-                child: SizeTransition(
-                  sizeFactor: _animation,
-                  axis: Axis.vertical,
-                  axisAlignment: -1.0,
-                  child: IntrinsicHeight(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          top: widget.borderRadius.bottomLeft.y),
-                      child: Align(
-                        alignment: widget.bodyAlignment,
-                        child: widget.expanded,
+      return TapRegion(
+        onTapOutside: (event) {
+          if (_isExpanded) {
+            _toggleExpansion();
+          }
+        },
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: Offset(0.0, 0.0),
+          targetAnchor: Alignment.topLeft,
+          followerAnchor: Alignment.topLeft,
+          child: Stack(
+            children: [
+              Positioned(
+                top: _headerHeight - widget.borderRadius.bottomLeft.y,
+                left: 0,
+                width: _headerWidth,
+                child: Material(
+                  elevation: widget.elevation,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: widget.borderRadius.bottomLeft,
+                    bottomRight: widget.borderRadius.bottomRight,
+                  ),
+                  color: effectiveExpandedBodyColor,
+                  clipBehavior: Clip.antiAlias,
+                  child: SizeTransition(
+                    sizeFactor: _animation,
+                    axis: Axis.vertical,
+                    axisAlignment: -1.0,
+                    child: IntrinsicHeight(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            top: widget.borderRadius.bottomLeft.y),
+                        child: Align(
+                          alignment: widget.bodyAlignment,
+                          child: widget.expanded,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            // This is the header copy that will be visible in the overlay
-            Material(
-              elevation: widget.elevation,
-              color: (widget._finalHeaderBackgroundColor ?? theme.cardColor),
-              shape: RemainsRoundedBorder(
-                topRadius: widget.borderRadius.topLeft.x,
-                bottomRadius: widget.borderRadius.bottomLeft.x,
-                borderColor: widget.borderColor,
-                borderWidth: widget.borderColor != null ? 1.0 : 0.0,
+              Material(
+                elevation: widget.elevation,
+                color: (widget._finalHeaderBackgroundColor ?? theme.cardColor),
+                shape: RemainsRoundedBorder(
+                  topRadius: widget.borderRadius.topLeft.x,
+                  bottomRadius: widget.borderRadius.bottomLeft.x,
+                  borderColor: widget.borderColor,
+                  borderWidth: widget.borderColor != null ? 1.0 : 0.0,
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: SizedBox(
+                  height: _headerHeight,
+                  width: _headerWidth,
+                  child: actualHeaderContentForOverlay,
+                ),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: SizedBox(
-                height: _headerHeight,
-                width: _headerWidth,
-                child:
-                    actualHeaderContentForOverlay, // Use the prepared content for overlay
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     });
@@ -831,7 +836,7 @@ class RemainsRoundedBorder extends RoundedRectangleBorder {
         ..strokeWidth = borderWidth;
       canvas.drawRRect(
         RRect.fromRectAndCorners(
-          rect.inflate(-borderWidth / 2), // Adjust rect for half-stroke width
+          rect.inflate(-borderWidth / 2),
           topLeft: Radius.circular(topRadius),
           topRight: Radius.circular(topRadius),
           bottomLeft: Radius.circular(bottomRadius),
