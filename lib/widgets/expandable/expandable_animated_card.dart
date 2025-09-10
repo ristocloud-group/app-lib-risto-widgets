@@ -183,8 +183,10 @@ class ExpandableAnimatedCard extends StatefulWidget {
   }
 
   /// Factory: fullscreen
-  /// - Full-bleed, no header, no drag-to-dismiss (avoids accidental closes).
-  /// - Safe defaults, very limited knobs to prevent config mistakes.
+  /// - Full-bleed target rect (no outer margin).
+  /// - No header, no drag-to-dismiss.
+  /// - IMPORTANT: No background color on the expanded card, so any margin
+  ///   you add INSIDE the expandedBuilder will reveal the barrier behind it.
   factory ExpandableAnimatedCard.fullscreen({
     Key? key,
     required WidgetBuilder collapsedBuilder,
@@ -197,7 +199,7 @@ class ExpandableAnimatedCard extends StatefulWidget {
     Color barrierColor = Colors.transparent,
     bool barrierDismissible = true,
 
-    // Nav
+    // Navigation
     bool useRootNavigator = false,
     RouteSettings? routeSettings,
     String? barrierLabel,
@@ -206,50 +208,53 @@ class ExpandableAnimatedCard extends StatefulWidget {
       key: key,
       collapsedBuilder: collapsedBuilder,
       expandedBuilder: expandedBuilder,
-      // animations (limited)
+
+      // Animations
       animationDuration: animationDuration,
       animationCurve: animationCurve,
       fadeInterval: const Interval(0.35, 1.0, curve: Cubic(0.5, 0.0, 0.3, 1.0)),
-      // layout
+
+      // Layout: fullscreen rect, no safe area
       expandedMargin: EdgeInsets.zero,
       expandedPadding: EdgeInsets.zero,
       maxWidth: null,
       useSafeArea: false,
-      // decoration
-      expandedDecoration: const BoxDecoration(
-        color: Color(0xFF121212),
-        borderRadius: BorderRadius.zero,
-      ),
-      // header & scrim
+
+      // IMPORTANT: do NOT paint a background here.
+      // Leave it transparent so the route barrier shows through wherever
+      // the child (expandedBuilder) leaves gaps (e.g., via its own margin).
+      expandedDecoration: const BoxDecoration(),
+      // <- transparent
+
+      // No header & default scrim
       headerMode: HeaderMode.none,
       headerHeight: 0,
       overlayBackgroundColor: overlayBackgroundColor,
       scrimBuilder: null,
       headerBuilder: null,
 
-      // barrier
+      // Route barrier (outside the overlay widget)
       barrierColor: barrierColor,
+      barrierDismissible: barrierDismissible,
 
       // UX
-      barrierDismissible: barrierDismissible,
       enableDragToDismiss: false,
-      // locked
       dragDismissThreshold: 9999,
-      // irrelevant
 
-      // hooks
+      // Hooks (locked off by default)
       onClose: null,
       onOpened: null,
       onClosed: null,
       onStateChanged: null,
 
-      // nav
+      // Nav
       useRootNavigator: useRootNavigator,
       routeSettings: routeSettings,
       barrierLabel: barrierLabel,
 
-      // visual
-      clipBehavior: Clip.hardEdge,
+      // Visual
+      clipBehavior: Clip.none,
+      // allow child margins to create visible gaps
       controller: null,
       autoOpenOnTap: true,
       type: CardType.fullscreen,
@@ -575,10 +580,8 @@ class _ExpandableAnimatedCardState extends State<ExpandableAnimatedCard> {
     final route = PageRouteBuilder(
       settings: widget.routeSettings,
       opaque: false,
-      barrierDismissible: false,
-      // scrim handles taps
+      barrierDismissible: widget.barrierDismissible,
       barrierColor: widget.barrierColor,
-      // <-- customizable
       barrierLabel: widget.barrierLabel,
       transitionDuration: widget.animationDuration,
       reverseTransitionDuration: widget.animationDuration,
