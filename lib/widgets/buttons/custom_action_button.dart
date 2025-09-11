@@ -246,7 +246,6 @@ class CustomActionButton extends StatefulWidget {
     double minHeight = 60.0,
     OutlinedBorder? shape,
     EdgeInsetsGeometry? padding,
-    Gradient? backgroundGradient,
     Gradient? disabledBackgroundGradient,
     EdgeInsetsGeometry? margin,
   }) {
@@ -264,7 +263,6 @@ class CustomActionButton extends StatefulWidget {
       shape: shape,
       padding: padding,
       margin: margin,
-      backgroundGradient: backgroundGradient,
       disabledBackgroundGradient: disabledBackgroundGradient,
       child: child,
     );
@@ -476,11 +474,6 @@ class CustomActionButton extends StatefulWidget {
 class _CustomActionButtonState extends State<CustomActionButton> {
   Timer? _longPressTimer;
 
-  /// Returns a lighter version of the given [color] by interpolating towards white.
-  Color _lighter(Color color, [double amount = 0.5]) {
-    return Color.lerp(color, Colors.white, amount)!;
-  }
-
   OutlinedBorder _resolveShapeFor({
     required ButtonType? type,
     required BuildContext context,
@@ -525,6 +518,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
         clipBehavior: Clip.antiAlias,
         elevation: elevation ?? 0,
         shadowColor: shadowColor,
+        color: Colors.transparent,
         child: Ink(
           decoration: ShapeDecoration(
             shape: shape,
@@ -551,7 +545,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   /// Create a disabled version of a color if needed.
   Color _disabledColor(Color? disabled, Color? normal, Color fallback) {
     if (disabled != null) return disabled;
-    if (normal != null) return _lighter(normal, 0.5);
+    if (normal != null) return normal.lighter(0.5);
     return fallback;
   }
 
@@ -565,7 +559,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     if (normal == null) return null;
 
     List<Color> transform(List<Color> colors) =>
-        colors.map((c) => _lighter(c, 0.5).withCustomOpacity(0.6)).toList();
+        colors.map((c) => c.lighter(0.5).withCustomOpacity(0.6)).toList();
 
     if (normal is LinearGradient) {
       return LinearGradient(
@@ -819,7 +813,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     );
 
     // Default minimal is transparent; if a gradient is supplied, we paint it.
-    final solid = widget.backgroundColor; // may be null => transparent shell
+    final solid = widget.backgroundColor ?? Colors.transparent;
 
     return _decoratedShell(
       context: context,

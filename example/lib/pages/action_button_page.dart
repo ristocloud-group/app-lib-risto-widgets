@@ -183,53 +183,62 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
 
         const SizedBox(height: 16),
 
-        Text(
-          'Icon Action Button',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        RoundedContainer(
+          backgroundColor: Colors.blueGrey,
+          padding: EdgeInsets.all(20),
+          child: Column(
+            spacing: 10,
+            children: [
+              Text(
+                'Icon Action Button',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
 
-        // Filled & elevated circular icon button
-        CustomActionButton.icon(
-          onPressed: () {},
-          icon: Icons.add,
-          baseType: ButtonType.rounded,
-          size: 48,
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-          elevation: 2,
-          iconColor: Colors.black,
-        ),
+              // Filled & elevated circular icon button
+              CustomActionButton.icon(
+                onPressed: () {},
+                icon: Icons.add,
+                baseType: ButtonType.rounded,
+                size: 48,
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                elevation: 2,
+                iconColor: Colors.black,
+              ),
 
-        // Flat square icon button with gradient
-        CustomActionButton.icon(
-          onPressed: () {},
-          icon: Icons.favorite,
-          iconColor: Colors.white,
-          baseType: ButtonType.flat,
-          splashColor: Colors.black,
-          size: 44,
-          backgroundGradient: LinearGradient(
-            colors: [Colors.pinkAccent, Colors.red],
+              // Flat square icon button with gradient
+              CustomActionButton.icon(
+                onPressed: () {},
+                icon: Icons.favorite,
+                iconColor: Colors.white,
+                baseType: ButtonType.flat,
+                splashColor: Colors.black,
+                size: 44,
+                backgroundGradient: LinearGradient(
+                  colors: [Colors.pinkAccent, Colors.red],
+                ),
+              ),
+
+              // Minimal (transparent) icon button
+              CustomActionButton.icon(
+                onPressed: () {},
+                icon: Icons.more_vert,
+                baseType: ButtonType.rounded,
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.black38,
+                iconColor: Colors.black,
+                size: 40,
+              ),
+
+              CustomActionButton.icon(
+                onPressed: () {},
+                baseType: ButtonType.flat,
+                iconColor: Colors.white,
+                icon: CupertinoIcons.trash,
+                size: 25,
+              ),
+            ],
           ),
-        ),
-
-        // Minimal (transparent) icon button
-        CustomActionButton.icon(
-          onPressed: () {},
-          icon: Icons.more_vert,
-          baseType: ButtonType.rounded,
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.black38,
-          iconColor: Colors.black,
-          size: 40,
-        ),
-
-        CustomActionButton.icon(
-          onPressed: () {},
-          baseType: ButtonType.flat,
-          iconColor: Colors.white,
-          icon: CupertinoIcons.trash,
-          size: 25,
         ),
 
         const SizedBox(height: 16),

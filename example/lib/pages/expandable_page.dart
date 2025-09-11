@@ -255,6 +255,8 @@ class ExpandablePage extends StatelessWidget {
 
         // 2) Fullscreen factory (header OFF, no drag-to-dismiss)
         ExpandableAnimatedCard.fullscreen(
+          barrierColor: Colors.blue.withCustomOpacity(0.5), // shows in the gaps
+          overlayBackgroundColor: Colors.black54, // scrim fade under the card
           collapsedBuilder:
               (_) => _DemoTile(
                 color: Colors.indigo.shade700,
@@ -262,8 +264,9 @@ class ExpandablePage extends StatelessWidget {
               ),
           expandedBuilder:
               (_) => Container(
+                margin: const EdgeInsets.all(20),
                 color: const Color(0xFF121212),
-                padding: const EdgeInsets.fromLTRB(16, 56, 16, 16),
+                alignment: Alignment.center,
                 child: const Text(
                   'Fullscreen content...',
                   style: TextStyle(color: Colors.white),
@@ -279,6 +282,7 @@ class ExpandablePage extends StatelessWidget {
           maxHeightFraction: 0.60,
           // or: maxHeight: 480,
           dragDismissThresholdFraction: 0.20,
+          overlayBackgroundColor: Colors.blue.withCustomOpacity(0.8),
           // 20% of final clamped height
           dragToClose: true,
           collapsedBuilder:
