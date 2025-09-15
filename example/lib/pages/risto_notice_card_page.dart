@@ -73,6 +73,7 @@ class RistoNoticeCardPage extends StatelessWidget {
             secondaryVariant: RistoButtonVariant.flat,
             secondaryIcon: Icons.info_outline,
             showClose: true,
+            minHeight: 200,
             onClose: () => _snack(context, 'Error closed'),
           ),
           const SizedBox(height: 12),

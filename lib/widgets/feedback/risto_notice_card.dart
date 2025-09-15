@@ -297,7 +297,8 @@ class RistoNoticeCard extends StatelessWidget {
                 topLeft: r.topLeft,
                 bottomLeft: r.bottomLeft,
               ),
-              child: Container(width: 8, color: stripeColor),
+              child: Container(
+                  width: 8, height: resolvedMinHeight, color: stripeColor),
             ),
             const SizedBox(width: gapX),
             Expanded(
