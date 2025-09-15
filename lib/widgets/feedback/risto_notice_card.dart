@@ -53,7 +53,7 @@ class RistoNoticeCard extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.footerBuilder,
-    this.footerAlignment = Alignment.bottomRight, // New field with default
+    this.footerAlignment = Alignment.bottomRight,
     this.showClose = false,
     this.onClose,
     this.icon,
@@ -229,38 +229,45 @@ class RistoNoticeCard extends StatelessWidget {
             child: Padding(
               padding: resolvedPadding,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(leadingIcon, color: stripeColor, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(leadingIcon, color: stripeColor, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: theme.textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
                       ),
+                      if ((subtitle ?? '').isNotEmpty)
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(top: gapTitleToSubtitle),
+                          child: Text(
+                            subtitle!,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withCustomOpacity(0.8),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
-                  if ((subtitle ?? '').isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: gapTitleToSubtitle),
-                      child: Text(
-                        subtitle!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withCustomOpacity(0.8),
-                        ),
-                      ),
-                    ),
                   if (footerBuilder != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Align(
-                        alignment: footerAlignment,
+                    Align(
+                      alignment: footerAlignment,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12),
                         child: footerBuilder!(context, stripeColor),
                       ),
                     ),

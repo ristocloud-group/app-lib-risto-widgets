@@ -135,25 +135,23 @@ class RistoNoticeCardPage extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Empty card with a custom button
-          RistoNoticeCard.empty(
+          RistoNoticeCard(
+            kind: RistoNoticeKind.empty,
             title: 'No items found',
             subtitle: 'Try adjusting your filters or adding a new item.',
+            minHeight: 200,
+            footerAlignment: AlignmentGeometry.bottomRight,
             footerBuilder:
-                (context, accentColor) => Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomActionButton.elevated(
-                      minHeight: 0,
-                      onPressed: () => _snack(context, 'Add item tapped'),
-                      backgroundColor: accentColor,
-                      child: const CustomIconText(
-                        icon: Icons.add,
-                        iconSize: 18,
-                        text: 'Add item',
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+                (context, accentColor) => CustomActionButton.elevated(
+                  minHeight: 0,
+                  onPressed: () => _snack(context, 'Add item tapped'),
+                  backgroundColor: accentColor,
+                  child: const CustomIconText(
+                    icon: Icons.add,
+                    iconSize: 18,
+                    text: 'Add item',
+                    color: Colors.white,
+                  ),
                 ),
           ),
         ],
