@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:risto_widgets/widgets/overlays/risto_toast.dart';
+import 'package:risto_widgets/widgets/feedback/risto_toast.dart';
 
 final _hostKey = GlobalKey();
 
