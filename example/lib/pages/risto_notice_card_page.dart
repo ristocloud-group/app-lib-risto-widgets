@@ -13,72 +13,120 @@ class RistoNoticeCardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('RistoNoticeCard')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // ---- Info card with close button ----
-          RistoNoticeCard(
-            kind: RistoNoticeKind.info,
+          // Info card with close button
+          RistoNoticeCard.info(
             title: 'Information',
             subtitle: 'Some useful contextual information.',
-            primaryActionLabel: 'Learn more',
-            onPrimaryAction: () => _snack(context, 'Learn more tapped'),
-            primaryVariant: RistoButtonVariant.flat,
+            footerBuilder:
+                (context, accentColor) => Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CustomActionButton.rounded(
+                      minHeight: 0,
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      foregroundColor: Colors.black,
+                      onPressed: () => _snack(context, 'Learn more tapped'),
+                      child: Text(
+                        'Learn more',
+                        style: TextStyle(color: accentColor),
+                      ),
+                    ),
+                  ],
+                ),
             showClose: true,
             onClose: () => _snack(context, 'Info closed'),
           ),
           const SizedBox(height: 12),
 
-          // ---- Success card with filled style ----
-          RistoNoticeCard(
-            kind: RistoNoticeKind.success,
+          // Success card with a filled style
+          RistoNoticeCard.success(
             title: 'Success',
             subtitle: 'Your operation completed successfully.',
-            primaryActionLabel: 'View',
-            onPrimaryAction: () => _snack(context, 'View tapped'),
-            primaryVariant: RistoButtonVariant.elevated,
+            footerBuilder:
+                (context, accentColor) => Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CustomActionButton.rounded(
+                      minHeight: 0,
+                      onPressed: () => _snack(context, 'View tapped'),
+                      backgroundColor: accentColor,
+                      child: const Text('View'),
+                    ),
+                  ],
+                ),
             showClose: true,
             onClose: () => _snack(context, 'Success closed'),
           ),
           const SizedBox(height: 12),
 
-          // ---- Warning with 2 actions ----
-          RistoNoticeCard(
-            kind: RistoNoticeKind.warning,
+          // Warning with 2 actions
+          RistoNoticeCard.warning(
             title: 'Warning',
             subtitle: 'This may have unintended consequences.',
-            primaryActionLabel: 'Fix',
-            onPrimaryAction: () => _snack(context, 'Fix tapped'),
-            secondaryActionLabel: 'Ignore',
-            onSecondaryAction: () => _snack(context, 'Ignore tapped'),
-            primaryVariant: RistoButtonVariant.rounded,
-            secondaryVariant: RistoButtonVariant.flat,
+            footerBuilder:
+                (context, accentColor) => Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CustomActionButton.minimal(
+                      minHeight: 0,
+                      onPressed: () => _snack(context, 'Ignore tapped'),
+                      child: const Text('Ignore'),
+                    ),
+                    const SizedBox(width: 8),
+                    CustomActionButton.elevated(
+                      minHeight: 0,
+                      onPressed: () => _snack(context, 'Fix tapped'),
+                      backgroundColor: accentColor,
+                      child: const Text('Fix'),
+                    ),
+                  ],
+                ),
             showClose: true,
             onClose: () => _snack(context, 'Warning closed'),
           ),
           const SizedBox(height: 12),
 
-          // ---- Error card with icons on actions ----
-          RistoNoticeCard(
-            kind: RistoNoticeKind.error,
+          // Error card with icons on actions
+          RistoNoticeCard.error(
             title: 'Error',
             subtitle: 'Something went wrong, please retry.',
-            primaryActionLabel: 'Retry',
-            onPrimaryAction: () => _snack(context, 'Retry tapped'),
-            secondaryActionLabel: 'Details',
-            onSecondaryAction: () => _snack(context, 'Show details'),
-            primaryVariant: RistoButtonVariant.elevated,
-            primaryIcon: Icons.refresh,
-            secondaryVariant: RistoButtonVariant.flat,
-            secondaryIcon: Icons.info_outline,
+            footerBuilder:
+                (context, accentColor) => Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CustomActionButton.minimal(
+                      minHeight: 0,
+                      onPressed: () => _snack(context, 'Show details'),
+                      child: const CustomIconText(
+                        icon: Icons.info_outline,
+                        iconSize: 18,
+                        text: 'Details',
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    CustomActionButton.elevated(
+                      minHeight: 0,
+                      onPressed: () => _snack(context, 'Retry tapped'),
+                      backgroundColor: accentColor,
+                      child: const CustomIconText(
+                        icon: Icons.refresh,
+                        iconSize: 18,
+                        text: 'Retry',
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
             showClose: true,
-            minHeight: 200,
             onClose: () => _snack(context, 'Error closed'),
           ),
           const SizedBox(height: 12),
 
-          // ---- Neutral card (no actions) ----
+          // Neutral card (no actions)
           const RistoNoticeCard(
             kind: RistoNoticeKind.neutral,
             title: 'Heads up',
@@ -86,38 +134,27 @@ class RistoNoticeCardPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // ---- Empty card with custom builder ----
-          RistoNoticeCard(
-            kind: RistoNoticeKind.empty,
+          // Empty card with a custom button
+          RistoNoticeCard.empty(
             title: 'No items found',
             subtitle: 'Try adjusting your filters or adding a new item.',
-            primaryActionLabel: 'Add item',
-            onPrimaryAction: () => _snack(context, 'Add item tapped'),
-            primaryVariant: RistoButtonVariant.custom,
-            primaryBuilder: (
-              context, {
-              required onPressed,
-              required label,
-              IconData? icon,
-              required kind,
-              required inline,
-            }) {
-              return CustomActionButton.elevated(
-                onPressed: onPressed,
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
-                elevation: 2,
-                minHeight: 40,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+            footerBuilder:
+                (context, accentColor) => Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Icon(icon ?? Icons.add, size: 18),
-                    const SizedBox(width: 6),
-                    Text(label),
+                    CustomActionButton.elevated(
+                      minHeight: 0,
+                      onPressed: () => _snack(context, 'Add item tapped'),
+                      backgroundColor: accentColor,
+                      child: const CustomIconText(
+                        icon: Icons.add,
+                        iconSize: 18,
+                        text: 'Add item',
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
                 ),
-              );
-            },
           ),
         ],
       ),

@@ -1,25 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/risto_widgets.dart';
+import 'package:risto_widgets/extensions.dart';
+
+import '../buttons/custom_action_button.dart';
+import '../buttons/list_tile_button.dart';
 
 enum RistoNoticeKind { info, success, warning, error, neutral, empty }
 
-// ---- Action customization API ----
-enum RistoButtonVariant {
-  flat,
-  elevated,
-  minimal,
-  rounded,
-  custom,
-}
-
-typedef RistoActionBuilder = Widget Function(
-  BuildContext context, {
-  required VoidCallback? onPressed,
-  required String label,
-  IconData? icon,
-  required RistoNoticeKind kind,
-  required bool inline,
-});
+// Footer builder type, providing the card's accent color
+typedef RistoFooterBuilder = Widget Function(
+    BuildContext context, Color accentColor);
 
 class RistoNoticeCard extends StatelessWidget {
   // Content
@@ -27,36 +16,21 @@ class RistoNoticeCard extends StatelessWidget {
   final String title;
   final String? subtitle;
 
-  // Actions
-  final String? primaryActionLabel;
-  final VoidCallback? onPrimaryAction;
-  final String? secondaryActionLabel;
-  final VoidCallback? onSecondaryAction;
-
-  // Action customization
-  final RistoButtonVariant primaryVariant;
-  final RistoButtonVariant secondaryVariant;
-  final IconData? primaryIcon;
-  final IconData? secondaryIcon;
-  final RistoActionBuilder? primaryBuilder;
-  final RistoActionBuilder? secondaryBuilder;
-  final double actionsSpacing;
-  final double actionsRunSpacing;
-  final EdgeInsetsGeometry? actionsInset;
-
-  // Close
-  final bool showClose;
-  final VoidCallback? onClose;
+  // Footer customization
+  final RistoFooterBuilder? footerBuilder;
 
   // Visual overrides
   final IconData? icon;
   final Color? accentColor;
 
+  // Close
+  final bool showClose;
+  final VoidCallback? onClose;
+
   // Layout
   final double? minHeight;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
-  final double actionsInlineBreakpoint;
   final bool dense;
   final BorderRadius? borderRadius;
 
@@ -77,59 +51,139 @@ class RistoNoticeCard extends StatelessWidget {
     required this.kind,
     required this.title,
     this.subtitle,
-
-    // Actions
-    this.primaryActionLabel,
-    this.onPrimaryAction,
-    this.secondaryActionLabel,
-    this.onSecondaryAction,
-
-    // Customization
-    this.primaryVariant = RistoButtonVariant.flat,
-    this.secondaryVariant = RistoButtonVariant.flat,
-    this.primaryIcon,
-    this.secondaryIcon,
-    this.primaryBuilder,
-    this.secondaryBuilder,
-    this.actionsSpacing = 8,
-    this.actionsRunSpacing = 8,
-    this.actionsInset,
-
-    // Close
+    this.footerBuilder,
     this.showClose = false,
     this.onClose,
-
-    // Visuals
     this.icon,
     this.accentColor,
-
-    // Layout
     this.minHeight,
     this.padding,
     this.margin,
-    this.actionsInlineBreakpoint = 520,
     this.dense = true,
     this.borderRadius,
-
-    // Card styling
     this.backgroundColor,
     this.backgroundGradient,
     this.borderColor,
     this.borderWidth = 1.0,
     this.elevation,
     this.shadowColor,
-
-    // Anim
     this.layoutAnimDuration = const Duration(milliseconds: 180),
     this.layoutAnimCurve = Curves.easeInOut,
   });
 
-  bool get _hasPrimary => primaryActionLabel != null && onPrimaryAction != null;
+  factory RistoNoticeCard.info({
+    Key? key,
+    required String title,
+    String? subtitle,
+    RistoFooterBuilder? footerBuilder,
+    bool showClose = false,
+    VoidCallback? onClose,
+  }) {
+    return RistoNoticeCard(
+      key: key,
+      kind: RistoNoticeKind.info,
+      title: title,
+      subtitle: subtitle,
+      footerBuilder: footerBuilder,
+      showClose: showClose,
+      onClose: onClose,
+    );
+  }
 
-  bool get _hasSecondary =>
-      secondaryActionLabel != null && onSecondaryAction != null;
+  factory RistoNoticeCard.success({
+    Key? key,
+    required String title,
+    String? subtitle,
+    RistoFooterBuilder? footerBuilder,
+    bool showClose = false,
+    VoidCallback? onClose,
+  }) {
+    return RistoNoticeCard(
+      key: key,
+      kind: RistoNoticeKind.success,
+      title: title,
+      subtitle: subtitle,
+      footerBuilder: footerBuilder,
+      showClose: showClose,
+      onClose: onClose,
+    );
+  }
 
-  bool get _hasButtons => _hasPrimary || _hasSecondary;
+  factory RistoNoticeCard.warning({
+    Key? key,
+    required String title,
+    String? subtitle,
+    RistoFooterBuilder? footerBuilder,
+    bool showClose = false,
+    VoidCallback? onClose,
+  }) {
+    return RistoNoticeCard(
+      key: key,
+      kind: RistoNoticeKind.warning,
+      title: title,
+      subtitle: subtitle,
+      footerBuilder: footerBuilder,
+      showClose: showClose,
+      onClose: onClose,
+    );
+  }
+
+  factory RistoNoticeCard.error({
+    Key? key,
+    required String title,
+    String? subtitle,
+    RistoFooterBuilder? footerBuilder,
+    bool showClose = false,
+    VoidCallback? onClose,
+  }) {
+    return RistoNoticeCard(
+      key: key,
+      kind: RistoNoticeKind.error,
+      title: title,
+      subtitle: subtitle,
+      footerBuilder: footerBuilder,
+      showClose: showClose,
+      onClose: onClose,
+    );
+  }
+
+  factory RistoNoticeCard.neutral({
+    Key? key,
+    required String title,
+    String? subtitle,
+    RistoFooterBuilder? footerBuilder,
+    bool showClose = false,
+    VoidCallback? onClose,
+  }) {
+    return RistoNoticeCard(
+      key: key,
+      kind: RistoNoticeKind.neutral,
+      title: title,
+      subtitle: subtitle,
+      footerBuilder: footerBuilder,
+      showClose: showClose,
+      onClose: onClose,
+    );
+  }
+
+  factory RistoNoticeCard.empty({
+    Key? key,
+    required String title,
+    String? subtitle,
+    RistoFooterBuilder? footerBuilder,
+    bool showClose = false,
+    VoidCallback? onClose,
+  }) {
+    return RistoNoticeCard(
+      key: key,
+      kind: RistoNoticeKind.empty,
+      title: title,
+      subtitle: subtitle,
+      footerBuilder: footerBuilder,
+      showClose: showClose,
+      onClose: onClose,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,246 +191,115 @@ class RistoNoticeCard extends StatelessWidget {
     final d = _defaultsForKind(theme, kind);
     final stripeColor = accentColor ?? d.accent;
     final leadingIcon = icon ?? d.icon;
-
     final r = borderRadius ?? BorderRadius.circular(12);
     final resolvedMinHeight = minHeight ?? 64.0;
     final resolvedPadding = padding ??
         EdgeInsets.symmetric(horizontal: 12, vertical: dense ? 10 : 14);
-    final resolvedMargin = margin ?? EdgeInsets.zero;
-    final radiusAsDouble = r.topLeft.x;
-
-    // gaps
     const gapX = 12.0;
     const gapTitleToSubtitle = 6.0;
 
-    Widget buildButton({
-      required bool isPrimary,
-      required bool inline,
-    }) {
-      final label = isPrimary ? primaryActionLabel : secondaryActionLabel;
-      final onPressed = isPrimary ? onPrimaryAction : onSecondaryAction;
-      final variant = isPrimary ? primaryVariant : secondaryVariant;
-      final icon = isPrimary ? primaryIcon : secondaryIcon;
-      final builder = isPrimary ? primaryBuilder : secondaryBuilder;
-
-      if (label == null) return const SizedBox.shrink();
-
-      // builder full control
-      if (variant == RistoButtonVariant.custom && builder != null) {
-        return builder(
-          context,
-          onPressed: onPressed,
-          label: label,
-          icon: icon,
-          kind: kind,
-          inline: inline,
-        );
-      }
-
-      final child = Row(
-        mainAxisSize: MainAxisSize.min,
+    final body = IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 18),
-            const SizedBox(width: 6),
-          ],
-          Text(label),
-        ],
-      );
-
-      switch (variant) {
-        case RistoButtonVariant.flat:
-          return CustomActionButton.flat(
-            onPressed: onPressed,
-            minHeight: 0,
-            child: child,
-          );
-        case RistoButtonVariant.elevated:
-          return CustomActionButton.elevated(
-            onPressed: onPressed,
-            elevation: 2,
-            minHeight: 0,
-            child: child,
-          );
-        case RistoButtonVariant.minimal:
-          return CustomActionButton.minimal(
-            onPressed: onPressed,
-            minHeight: 0,
-            child: child,
-          );
-        case RistoButtonVariant.rounded:
-          return CustomActionButton.rounded(
-            onPressed: onPressed,
-            height: 36,
-            child: child,
-          );
-        case RistoButtonVariant.custom:
-          return CustomActionButton.flat(
-            onPressed: onPressed,
-            minHeight: 0,
-            child: child,
-          );
-      }
-    }
-
-    Widget inlineButtons() {
-      if (!_hasButtons) return const SizedBox.shrink();
-      final items = <Widget>[
-        if (_hasPrimary) buildButton(isPrimary: true, inline: true),
-        if (_hasSecondary) buildButton(isPrimary: false, inline: true),
-      ];
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: _spaced(items, SizedBox(width: actionsSpacing)),
-      );
-    }
-
-    Widget stackedButtons() {
-      if (!_hasButtons) return const SizedBox.shrink();
-      return Padding(
-        padding: actionsInset ?? const EdgeInsets.only(top: 12),
-        child: Wrap(
-          spacing: actionsSpacing,
-          runSpacing: actionsRunSpacing,
-          children: [
-            if (_hasPrimary) buildButton(isPrimary: true, inline: false),
-            if (_hasSecondary) buildButton(isPrimary: false, inline: false),
-          ],
-        ),
-      );
-    }
-
-    Widget getContent(bool inlineActions) {
-      final titleRow = Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(leadingIcon, color: stripeColor, size: 20),
-          const SizedBox(width: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: r.topLeft,
+              bottomLeft: r.bottomLeft,
+            ),
+            child: Container(
+                width: 8, height: resolvedMinHeight, color: stripeColor),
+          ),
+          const SizedBox(width: gapX),
           Expanded(
-            child: Text(
-              title,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-          AnimatedCrossFade(
-            duration: layoutAnimDuration,
-            firstCurve: layoutAnimCurve,
-            secondCurve: layoutAnimCurve,
-            sizeCurve: layoutAnimCurve,
-            crossFadeState: (inlineActions && _hasButtons)
-                ? CrossFadeState.showFirst
-                : CrossFadeState.showSecond,
-            firstChild: inlineButtons(),
-            secondChild: const SizedBox.shrink(),
-          ),
-        ],
-      );
-
-      final subtitleWidget = (subtitle ?? '').isNotEmpty
-          ? Padding(
-              padding: const EdgeInsets.only(top: gapTitleToSubtitle),
-              child: Text(
-                subtitle!,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withCustomOpacity(.8),
-                ),
+            child: Padding(
+              padding: resolvedPadding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(leadingIcon, color: stripeColor, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: theme.textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if ((subtitle ?? '').isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: gapTitleToSubtitle),
+                      child: Text(
+                        subtitle!,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface
+                              .withCustomOpacity(0.8),
+                        ),
+                      ),
+                    ),
+                  if (footerBuilder != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: footerBuilder!(context, stripeColor),
+                    ),
+                ],
               ),
-            )
-          : const SizedBox.shrink();
-
-      final belowActions =
-          (!inlineActions) ? stackedButtons() : const SizedBox.shrink();
-
-      final body = IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: r.topLeft,
-                bottomLeft: r.bottomLeft,
-              ),
-              child: Container(
-                  width: 8, height: resolvedMinHeight, color: stripeColor),
-            ),
-            const SizedBox(width: gapX),
-            Expanded(
-              child: Padding(
-                padding: resolvedPadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [titleRow, subtitleWidget, belowActions],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-
-      if (!showClose) return body;
-
-      return Stack(
-        clipBehavior: Clip.none,
-        children: [
-          body,
-          Positioned(
-            top: 0,
-            right: 0,
-            child: CustomActionButton.icon(
-              icon: Icons.close_rounded,
-              onPressed: onClose,
-              baseType: ButtonType.rounded,
-              size: 40,
-              backgroundColor: Colors.transparent,
-              foregroundColor: Colors.black,
-              elevation: 0,
-              iconColor: Colors.black,
             ),
           ),
         ],
+      ),
+    );
+
+    final resolvedBorderRadius = borderRadius ?? BorderRadius.circular(12);
+
+    if (!showClose) {
+      return RoundedContainer(
+        margin: margin,
+        borderRadius: resolvedBorderRadius.topLeft.x,
+        backgroundColor: backgroundColor ?? theme.colorScheme.surface,
+        backgroundGradient: backgroundGradient,
+        borderColor: borderColor ?? theme.colorScheme.outlineVariant,
+        borderWidth: borderWidth,
+        elevation: elevation ?? (kind == RistoNoticeKind.error ? 1.5 : 0),
+        shadowColor: shadowColor ?? theme.colorScheme.shadow,
+        child: body,
       );
     }
 
-    return Semantics(
-      container: true,
-      label: 'notice-card',
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: resolvedMinHeight),
-        child: RoundedContainer(
-          margin: resolvedMargin,
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        RoundedContainer(
+          margin: margin,
+          borderRadius: resolvedBorderRadius.topLeft.x,
           backgroundColor: backgroundColor ?? theme.colorScheme.surface,
           backgroundGradient: backgroundGradient,
           borderColor: borderColor ?? theme.colorScheme.outlineVariant,
           borderWidth: borderWidth,
-          borderRadius: radiusAsDouble,
           elevation: elevation ?? (kind == RistoNoticeKind.error ? 1.5 : 0),
           shadowColor: shadowColor ?? theme.colorScheme.shadow,
-          child: LayoutBuilder(
-            builder: (context, c) {
-              final inline = c.maxWidth >= actionsInlineBreakpoint;
-              return AnimatedCrossFade(
-                duration: const Duration(milliseconds: 180),
-                reverseDuration: const Duration(milliseconds: 140),
-                firstCurve: Curves.easeOut,
-                secondCurve: Curves.easeOut,
-                sizeCurve: Curves.easeInOut,
-                crossFadeState: inline
-                    ? CrossFadeState.showFirst
-                    : CrossFadeState.showSecond,
-                firstChild: KeyedSubtree(
-                  key: ValueKey('inline=true|$title'),
-                  child: getContent(true),
-                ),
-                secondChild: KeyedSubtree(
-                  key: ValueKey('inline=false|$title'),
-                  child: getContent(false),
-                ),
-              );
-            },
+          child: body,
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: CustomActionButton.icon(
+            icon: Icons.close_rounded,
+            onPressed: onClose,
+            baseType: ButtonType.rounded,
+            size: 40,
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.black,
+            elevation: 0,
+            iconColor: theme.colorScheme.onSurface.withCustomOpacity(0.6),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -414,16 +337,6 @@ class RistoNoticeCard extends StatelessWidget {
           icon: Icons.inbox_outlined,
         );
     }
-  }
-
-  static List<Widget> _spaced(List<Widget> items, Widget gap) {
-    if (items.length < 2) return items;
-    final out = <Widget>[];
-    for (var i = 0; i < items.length; i++) {
-      out.add(items[i]);
-      if (i != items.length - 1) out.add(gap);
-    }
-    return out;
   }
 }
 
