@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:risto_widgets/widgets/buttons/custom_action_button.dart';
 import 'package:risto_widgets/widgets/feedback/risto_notice_card.dart';
 
 Widget _wrap(Widget child, {ThemeData? theme}) => MaterialApp(
@@ -17,8 +18,11 @@ void main() {
         kind: RistoNoticeKind.info,
         title: 'Hello',
         subtitle: 'World',
-        actionLabel: 'Action',
-        onAction: () => tapped = true,
+        footerBuilder: (context, accentColor) => CustomActionButton.flat(
+          onPressed: () => tapped = true,
+          key: const ValueKey('risto_notice_action_inline'),
+          child: const Text('Action'),
+        ),
       ),
     ));
 
@@ -42,8 +46,11 @@ void main() {
               kind: RistoNoticeKind.warning,
               title: 'Watch out',
               subtitle: 'Careful here',
-              actionLabel: 'Fix',
-              onAction: () {},
+              footerBuilder: (context, accentColor) => CustomActionButton.flat(
+                onPressed: () {},
+                key: const ValueKey('risto_notice_action_below'),
+                child: const Text('Fix'),
+              ),
             ),
           ),
         ),
@@ -73,7 +80,7 @@ void main() {
     final stripe = tester.widget<Container>(
       find.byKey(const ValueKey('risto_notice_stripe')),
     );
-    final deco = stripe.decoration as BoxDecoration;
-    expect(deco.color, kErr);
+    // Corrected line: Access the color property directly
+    expect(stripe.color, kErr);
   });
 }

@@ -130,6 +130,7 @@ class CustomActionButton extends StatefulWidget {
   ///
   /// The [onPressed] and [child] parameters are required.
   factory CustomActionButton.elevated({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required Widget child,
     Color? backgroundColor,
@@ -154,6 +155,8 @@ class CustomActionButton extends StatefulWidget {
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.elevated,
       onPressed: onPressed,
       foregroundColor: foregroundColor,
@@ -183,6 +186,7 @@ class CustomActionButton extends StatefulWidget {
   ///
   /// The [onPressed] and [child] parameters are required.
   factory CustomActionButton.flat({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required Widget child,
     Color? backgroundColor,
@@ -206,6 +210,8 @@ class CustomActionButton extends StatefulWidget {
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.flat,
       onPressed: onPressed,
       foregroundColor: foregroundColor,
@@ -234,6 +240,7 @@ class CustomActionButton extends StatefulWidget {
   ///
   /// The [onPressed] and [child] parameters are required.
   factory CustomActionButton.minimal({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required Widget child,
     Color? borderColor,
@@ -250,6 +257,8 @@ class CustomActionButton extends StatefulWidget {
     EdgeInsetsGeometry? margin,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.minimal,
       onPressed: onPressed,
       foregroundColor: foregroundColor,
@@ -272,6 +281,7 @@ class CustomActionButton extends StatefulWidget {
   ///
   /// The [onPressed], [onLongPress], and [child] parameters are required.
   factory CustomActionButton.longPress({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required VoidCallback? onLongPress,
     required Widget child,
@@ -297,6 +307,8 @@ class CustomActionButton extends StatefulWidget {
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.longPress,
       onPressed: onPressed,
       onLongPress: onLongPress,
@@ -328,6 +340,7 @@ class CustomActionButton extends StatefulWidget {
   /// The [onPressed], [height] e [child] sono obbligatori.
   /// [height] viene usata per calcolare il raggio = height / 2.
   factory CustomActionButton.rounded({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required Widget child,
     Color? backgroundColor,
@@ -349,6 +362,8 @@ class CustomActionButton extends StatefulWidget {
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.rounded,
       onPressed: onPressed,
       backgroundColor: backgroundColor,
@@ -391,6 +406,7 @@ class CustomActionButton extends StatefulWidget {
   /// );
   /// ```
   factory CustomActionButton.icon({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required IconData icon,
 
@@ -429,6 +445,8 @@ class CustomActionButton extends StatefulWidget {
     final resolvedPadding = padding ?? (size != null ? EdgeInsets.zero : null);
 
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: baseType,
       onPressed: onPressed,
 

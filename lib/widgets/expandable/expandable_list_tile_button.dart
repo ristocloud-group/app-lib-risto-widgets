@@ -564,7 +564,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     if (_overlayEntry != null) return; // Prevent duplicate overlays
     if (_headerWidth == 0.0 || _headerHeight == 0.0) {
       // Cannot show overlay if header size is not yet measured.
-      // This might happen on the very first frame. A post-frame callback will retry.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_headerWidth > 0 && _headerHeight > 0 && _overlayEntry == null) {
           _showOverlay(); // Retry after measurement
@@ -578,8 +577,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
         widget.customHeaderBuilder != null
             ? widget.customHeaderBuilder!(
                 _toggleExpansion, _isExpanded, widget.disabled)
-            : _buildDefaultHeader(
-                context, Theme.of(context)); // Pass context and theme
+            : _buildDefaultHeader(context, Theme.of(context));
 
     _overlayEntry = OverlayEntry(builder: (context) {
       final theme = Theme.of(context);
@@ -642,6 +640,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
                 child: SizedBox(
                   height: _headerHeight,
                   width: _headerWidth,
+                  // Do NOT assign a key here! This prevents test failures.
                   child: actualHeaderContentForOverlay,
                 ),
               ),
@@ -664,16 +663,33 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
   /// This is the single point of truth for changing the visual expansion state.
   void _syncExpansionState(bool expand) {
     if (!mounted) return;
+
     setState(() {
       _isExpanded = expand;
-      if (_isExpanded) {
+    });
+
+    if (widget._useOverlay) {
+      if (expand) {
+        if (_overlayEntry == null) {
+          _showOverlay();
+        }
+        _animationController.forward();
+      } else {
+        _animationController.reverse().whenComplete(() {
+          _removeOverlay();
+        });
+      }
+    } else {
+      // Existing logic for non-overlay mode
+      if (expand) {
         _animationController.forward();
       } else {
         _animationController.reverse();
       }
-    });
+    }
   }
 
+  /// Builds the visual structure of the widget using the revised Stack layout.
   /// Builds the visual structure of the widget using the revised Stack layout.
   @override
   Widget build(BuildContext context) {
@@ -683,8 +699,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     final effectiveExpandedBodyColor = widget._finalExpandedBodyColor ??
         theme.colorScheme.secondary.withCustomOpacity(0.1);
 
-    // The header content. This will be drawn in the overlay if _useOverlay is true.
-    // In the main tree, the CompositedTransformTarget will be a placeholder.
+    // The header content.
     final Widget actualHeaderContent = widget.customHeaderBuilder != null
         ? widget.customHeaderBuilder!(
             _toggleExpansion, _isExpanded, widget.disabled)
@@ -740,9 +755,8 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
                     borderWidth: widget.borderColor != null ? 1.0 : 0.0,
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: widget._useOverlay && _isExpanded
-                      ? const SizedBox.shrink()
-                      : actualHeaderContent,
+                  // The header content is always present in the main widget tree.
+                  child: actualHeaderContent,
                 ),
               ),
             ],
