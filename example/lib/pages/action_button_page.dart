@@ -113,6 +113,25 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           child: Text('Rounded Button ($counter)'),
         ),
+
+        CustomActionButton.rounded(
+          onPressed: () {
+            setState(() {
+              counter++;
+            });
+          },
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          borderColor: Colors.orange,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black87,
+          shadowColor: Colors.transparent,
+          minHeight: 50,
+          elevation: 0,
+          splashColor: Colors.deepOrangeAccent.withCustomOpacity(0.1),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          child: Text('Rounded Button ($counter)'),
+        ),
+
         CustomActionButton.rounded(
           onPressed: null,
           margin: const EdgeInsets.symmetric(vertical: 8),

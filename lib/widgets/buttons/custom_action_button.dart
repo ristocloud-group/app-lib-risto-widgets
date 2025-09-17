@@ -532,14 +532,14 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       width: width,
       height: height,
       child: Material(
-        shape: shape,
+        shape: shape.copyWith(side: BorderSide.none),
         clipBehavior: Clip.antiAlias,
         elevation: elevation ?? 0,
         shadowColor: shadowColor,
         color: Colors.transparent,
         child: Ink(
           decoration: ShapeDecoration(
-            shape: shape,
+            shape: shape.copyWith(side: BorderSide.none),
             color: gradient == null ? solidColor : null,
             gradient: gradient,
           ),

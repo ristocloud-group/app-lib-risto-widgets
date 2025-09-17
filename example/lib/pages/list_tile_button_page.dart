@@ -1,5 +1,8 @@
 // list_tile_button_page.dart
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extensions.dart';
+import 'package:risto_widgets/widgets/buttons/custom_action_button.dart';
+import 'package:risto_widgets/widgets/buttons/custom_icon_text.dart';
 import 'package:risto_widgets/widgets/buttons/list_tile_button.dart';
 
 class ListTileButtonPage extends StatelessWidget {
@@ -307,6 +310,35 @@ class ListTileButtonPage extends StatelessWidget {
                 bodyPadding: EdgeInsets.zero,
                 contentAlignment: Alignment.center,
               ),
+            ),
+          ),
+          DoubleListTileButtons(
+            padding: EdgeInsetsGeometry.symmetric(vertical: 20, horizontal: 10),
+            space: 10,
+            firstButton: CustomActionButton.rounded(
+              elevation: 0,
+              minHeight: 60,
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.black,
+              borderColor: Colors.orange,
+              onPressed: () {},
+              child: CustomIconText(
+                icon: Icons.download,
+                text: "Bollettino",
+                color: Colors.black,
+              ),
+            ),
+            secondButton: CustomActionButton.rounded(
+              onPressed: () {},
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.black87,
+              shadowColor: Colors.transparent,
+              minHeight: 50,
+              elevation: 0,
+              splashColor: Colors.deepOrangeAccent.withCustomOpacity(0.1),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              child: Text('Rounded Button'),
             ),
           ),
         ],
