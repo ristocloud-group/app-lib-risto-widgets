@@ -19,6 +19,7 @@ class RistoNoticeCard extends StatelessWidget {
   // Footer customization
   final RistoFooterBuilder? footerBuilder;
   final AlignmentGeometry footerAlignment;
+  final EdgeInsetsGeometry footerPadding;
 
   // Visual overrides
   final IconData? icon;
@@ -54,6 +55,7 @@ class RistoNoticeCard extends StatelessWidget {
     this.subtitle,
     this.footerBuilder,
     this.footerAlignment = Alignment.bottomRight,
+    this.footerPadding = const EdgeInsets.only(top: 12),
     this.showClose = false,
     this.onClose,
     this.icon,
@@ -81,6 +83,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     AlignmentGeometry footerAlignment = Alignment.bottomRight,
+    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
   }) {
     return RistoNoticeCard(
       key: key,
@@ -89,6 +92,7 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
+      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
     );
@@ -102,6 +106,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     AlignmentGeometry footerAlignment = Alignment.bottomRight,
+    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
   }) {
     return RistoNoticeCard(
       key: key,
@@ -110,6 +115,7 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
+      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
     );
@@ -123,6 +129,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     AlignmentGeometry footerAlignment = Alignment.bottomRight,
+    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
   }) {
     return RistoNoticeCard(
       key: key,
@@ -131,6 +138,7 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
+      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
     );
@@ -144,6 +152,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     AlignmentGeometry footerAlignment = Alignment.bottomRight,
+    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
   }) {
     return RistoNoticeCard(
       key: key,
@@ -152,6 +161,7 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
+      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
     );
@@ -165,6 +175,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     AlignmentGeometry footerAlignment = Alignment.bottomRight,
+    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
   }) {
     return RistoNoticeCard(
       key: key,
@@ -173,6 +184,7 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
+      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
     );
@@ -186,6 +198,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     AlignmentGeometry footerAlignment = Alignment.bottomRight,
+    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
   }) {
     return RistoNoticeCard(
       key: key,
@@ -194,6 +207,7 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
+      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
     );
@@ -270,7 +284,7 @@ class RistoNoticeCard extends StatelessWidget {
                     Align(
                       alignment: footerAlignment,
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 12),
+                        padding: footerPadding,
                         child: footerBuilder!(context, stripeColor),
                       ),
                     ),

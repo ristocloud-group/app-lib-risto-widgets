@@ -124,6 +124,37 @@ class RistoNoticeCardPage extends StatelessWidget {
             showClose: true,
             onClose: () => _snack(context, 'Error closed'),
           ),
+          const SizedBox(height: 12), // Error card with icons on actions
+          SizedBox(
+            height: 150,
+            child: RistoNoticeCard(
+              kind: RistoNoticeKind.empty,
+              title: 'Nessun piatto disponibile',
+              subtitle:
+                  'Non sono presenti piatti per la data selezionata. Riprova!',
+              icon: Icons.fastfood_outlined,
+              footerBuilder:
+                  (context, accentColor) => CustomActionButton.rounded(
+                    minHeight: 0,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 6,
+                      horizontal: 12,
+                    ),
+                    onPressed: () {},
+                    backgroundColor: accentColor,
+                    child: CustomIconText(
+                      icon: Icons.refresh_rounded,
+                      iconSize: 20,
+                      text: 'Ricarica',
+                      color: Colors.white,
+                      spacing: 3,
+                    ),
+                  ),
+              footerPadding: EdgeInsetsGeometry.zero,
+              minHeight: 150,
+              dense: true,
+            ),
+          ),
           const SizedBox(height: 12),
 
           // Neutral card (no actions)

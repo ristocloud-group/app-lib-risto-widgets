@@ -527,25 +527,29 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     required double? width,
     required double? height,
   }) {
+    // The visual part of the button
+    final core = Material(
+      shape: shape.copyWith(side: BorderSide.none),
+      clipBehavior: Clip.antiAlias,
+      elevation: elevation ?? 0,
+      shadowColor: shadowColor,
+      color: Colors.transparent,
+      child: Ink(
+        decoration: ShapeDecoration(
+          shape: shape,
+          color: gradient == null ? solidColor : null,
+          gradient: gradient,
+        ),
+        child: child,
+      ),
+    );
+
+    // Apply width, height, and margin
     return Container(
       margin: margin,
       width: width,
       height: height,
-      child: Material(
-        shape: shape.copyWith(side: BorderSide.none),
-        clipBehavior: Clip.antiAlias,
-        elevation: elevation ?? 0,
-        shadowColor: shadowColor,
-        color: Colors.transparent,
-        child: Ink(
-          decoration: ShapeDecoration(
-            shape: shape.copyWith(side: BorderSide.none),
-            color: gradient == null ? solidColor : null,
-            gradient: gradient,
-          ),
-          child: child,
-        ),
-      ),
+      child: core,
     );
   }
 
@@ -899,39 +903,54 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     final disabled = widget.onPressed == null;
     final shape = _resolveShapeFor(type: ButtonType.rounded, context: context);
     final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
+    final padding = widget.padding ??
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
 
-    final style = ElevatedButton.styleFrom(
-      foregroundColor: widget.foregroundColor ?? Colors.white,
-      padding: widget.padding ??
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      shape: shape,
-      minimumSize: _getEffectiveMinimumSize(),
-    ).copyWith(
-      overlayColor: widget.splashColor != null
-          ? WidgetStateProperty.all(widget.splashColor)
-          : null,
+    final buttonContent = _wrapChild(context, disabled: disabled);
+
+    final interactiveChild = InkWell(
+      onTap: disabled ? null : widget.onPressed,
+      customBorder: shape,
+      splashColor: widget.splashColor,
       splashFactory: widget.splashFactory,
+      child: Container(
+        alignment: Alignment.center,
+        padding: padding,
+        constraints: BoxConstraints(
+            minHeight: widget.minHeight > 0 ? widget.minHeight : 0),
+        child: buttonContent,
+      ),
     );
 
-    return _decoratedShell(
+    final disabledGrad = _disabledGradient(
+      widget.disabledBackgroundGradient,
+      widget.backgroundGradient,
+    );
+
+    final buttonShell = _decoratedShell(
       context: context,
       shape: shape,
-      child: ElevatedButton(
-        style: _transparentifyBackground(style),
-        onPressed: widget.onPressed,
-        child: _wrapChild(context, disabled: disabled),
-      ),
+      child: interactiveChild,
       solidColor: disabled
           ? _disabledColor(widget.disabledBackgroundColor, solid,
               Theme.of(context).disabledColor)
           : solid,
-      gradient: disabled ? null : widget.backgroundGradient,
-      elevation: widget.elevation,
+      gradient: disabled ? disabledGrad : widget.backgroundGradient,
+      elevation: disabled ? 0 : widget.elevation ?? 2.0,
       shadowColor: widget.shadowColor,
       margin: widget.margin,
       width: widget.width,
       height: widget.height,
     );
+
+    if (widget.width == null) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [buttonShell],
+      );
+    }
+
+    return buttonShell;
   }
 
   @override

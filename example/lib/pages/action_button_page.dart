@@ -159,7 +159,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
         // Big rounded “Invia” with a blue sweep
         CustomActionButton.rounded(
           onPressed: () {},
-          height: 64,
+          minHeight: 64,
           margin: const EdgeInsets.symmetric(vertical: 8),
           backgroundGradient: const LinearGradient(
             begin: Alignment.centerLeft,
@@ -245,6 +245,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
                 baseType: ButtonType.rounded,
                 backgroundColor: Colors.transparent,
                 foregroundColor: Colors.black38,
+                elevation: 0,
                 iconColor: Colors.black,
                 size: 40,
               ),
