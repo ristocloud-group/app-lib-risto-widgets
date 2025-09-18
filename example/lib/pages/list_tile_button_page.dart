@@ -240,7 +240,11 @@ class ListTileButtonPage extends StatelessWidget {
             space: 16.0,
             firstButton: ListTileButton(
               margin: const EdgeInsets.only(right: 8.0),
-              body: const Center(child: Text('First Button without Elevation')),
+              body: CustomIconText(
+                icon: Icons.today_rounded,
+                text: "Pianifica assenza",
+                color: Colors.white,
+              ),
               onPressed: () {},
               backgroundColor: Colors.red,
             ),
