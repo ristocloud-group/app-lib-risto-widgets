@@ -49,6 +49,12 @@ class CustomIconText extends StatelessWidget {
   /// current theme. If not specified, it defaults to the theme's [TextTheme.bodyMedium].
   final TextStyle? textStyle;
 
+  /// The maximum number of lines to apply to the [text].
+  ///
+  /// If [maxLines] is provided, it limits the number of lines displayed in the text.
+  /// If not specified, the default value is 2.
+  final int? maxLines;
+
   /// The size of the icon.
   ///
   /// If [iconSize] is provided, it overrides the default icon size. If not
@@ -72,6 +78,7 @@ class CustomIconText extends StatelessWidget {
     this.color,
     this.mainAxisAlignment = MainAxisAlignment.center,
     this.textStyle,
+    this.maxLines = 2,
     this.iconSize,
     this.spacing = 8.0,
   });
@@ -113,6 +120,7 @@ class CustomIconText extends StatelessWidget {
             text,
             style: effectiveTextStyle,
             overflow: TextOverflow.ellipsis,
+            maxLines: maxLines,
           ),
         ),
       ],
