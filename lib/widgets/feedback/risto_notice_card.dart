@@ -293,6 +293,7 @@ class RistoNoticeCard extends StatelessWidget {
                               style: theme.textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                               maxLines: titleMaxLines,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -308,6 +309,7 @@ class RistoNoticeCard extends StatelessWidget {
                                   .withCustomOpacity(0.8),
                             ),
                             maxLines: subtitleMaxLines,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                     ],
