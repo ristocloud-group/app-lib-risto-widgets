@@ -16,6 +16,8 @@ class RistoNoticeCard extends StatelessWidget {
   final String title;
   final String? subtitle;
 
+  final int titleMaxLines;
+
   // Footer customization
   final RistoFooterBuilder? footerBuilder;
   final AlignmentGeometry footerAlignment;
@@ -53,6 +55,7 @@ class RistoNoticeCard extends StatelessWidget {
     required this.kind,
     required this.title,
     this.subtitle,
+    this.titleMaxLines = 2,
     this.footerBuilder,
     this.footerAlignment = Alignment.bottomRight,
     this.footerPadding = const EdgeInsets.only(top: 12),
@@ -79,6 +82,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     required String title,
     String? subtitle,
+    int titleMaxLines = 2,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -90,6 +94,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.info,
       title: title,
       subtitle: subtitle,
+      titleMaxLines: titleMaxLines,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
@@ -102,6 +107,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     required String title,
     String? subtitle,
+    int titleMaxLines = 2,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -113,6 +119,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.success,
       title: title,
       subtitle: subtitle,
+      titleMaxLines: titleMaxLines,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
@@ -125,6 +132,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     required String title,
     String? subtitle,
+    int titleMaxLines = 2,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -136,6 +144,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.warning,
       title: title,
       subtitle: subtitle,
+      titleMaxLines: titleMaxLines,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
@@ -148,6 +157,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     required String title,
     String? subtitle,
+    int titleMaxLines = 2,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -159,6 +169,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.error,
       title: title,
       subtitle: subtitle,
+      titleMaxLines: titleMaxLines,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
@@ -171,6 +182,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     required String title,
     String? subtitle,
+    int titleMaxLines = 2,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -182,6 +194,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.neutral,
       title: title,
       subtitle: subtitle,
+      titleMaxLines: titleMaxLines,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
@@ -194,6 +207,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     required String title,
     String? subtitle,
+    int titleMaxLines = 2,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -205,6 +219,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.empty,
       title: title,
       subtitle: subtitle,
+      titleMaxLines: titleMaxLines,
       footerBuilder: footerBuilder,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
@@ -236,10 +251,11 @@ class RistoNoticeCard extends StatelessWidget {
               bottomLeft: r.bottomLeft,
             ),
             child: Container(
-                key: const ValueKey('risto_notice_stripe'), // ADDED THIS KEY
-                width: 8,
-                height: resolvedMinHeight,
-                color: stripeColor),
+              key: const ValueKey('risto_notice_stripe'), // ADDED THIS KEY
+              width: 8,
+              height: resolvedMinHeight,
+              color: stripeColor,
+            ),
           ),
           const SizedBox(width: gapX),
           Expanded(
@@ -262,6 +278,7 @@ class RistoNoticeCard extends StatelessWidget {
                               title,
                               style: theme.textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
+                              maxLines: titleMaxLines,
                             ),
                           ),
                         ],
@@ -276,6 +293,7 @@ class RistoNoticeCard extends StatelessWidget {
                               color: theme.colorScheme.onSurface
                                   .withCustomOpacity(0.8),
                             ),
+                            maxLines: 2,
                           ),
                         ),
                     ],
