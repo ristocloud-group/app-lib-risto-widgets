@@ -694,12 +694,16 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                             : null,
                         child: SizedBox(
                           width: widget.scrollDirection == Axis.horizontal
-                              ? widget.itemWidth
-                              : null,
-                          height: widget.scrollDirection == Axis.vertical
+                              ? _currentStartEndPadding
+                              : widget.itemWidth,
+                          height: widget.scrollDirection == Axis.horizontal
                               ? widget.itemHeight
-                              : null,
-                          child: Center(
+                              : _currentStartEndPadding,
+                          child: SizedBox(
+                            width:
+                                min(widget.itemWidth, widget.itemHeight) * 0.5,
+                            height:
+                                min(widget.itemWidth, widget.itemHeight) * 0.5,
                             child:
                                 widget.loadingIndicatorBuilder?.call(context) ??
                                     _defaultLoadingIndicatorBuilder(context),
@@ -821,8 +825,9 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
   Widget _defaultLoadingIndicatorBuilder(BuildContext context) {
     final indicatorColor = widget.loadingIndicatorColor;
     final strokeWidth = widget.loadingIndicatorStrokeWidth ?? 2;
+
     return Center(
-      child: CircularProgressIndicator(
+      child: CircularProgressIndicator.adaptive(
         strokeWidth: strokeWidth,
         valueColor: indicatorColor != null
             ? AlwaysStoppedAnimation<Color>(indicatorColor)
