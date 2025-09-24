@@ -131,6 +131,23 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           child: Text('Rounded Button ($counter)'),
         ),
+        CustomActionButton.rounded(
+          onPressed: () {
+            setState(() {
+              counter++;
+            });
+          },
+          minHeight: 35,
+          elevation: 0,
+          borderColor: Colors.orange,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black87,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: CustomIconText(
+            icon: CupertinoIcons.arrow_down_doc,
+            text: "Bollettino",
+          ),
+        ),
 
         CustomActionButton.rounded(
           onPressed: null,
