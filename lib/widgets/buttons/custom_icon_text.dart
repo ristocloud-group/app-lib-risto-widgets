@@ -83,31 +83,51 @@ class CustomIconText extends StatelessWidget {
     this.spacing = 8.0,
   });
 
+  // In CustomIconText
+
   @override
   Widget build(BuildContext context) {
     final TextStyle effectiveTextStyle = textStyle ??
         Theme.of(context).textTheme.bodyMedium!.copyWith(
-              color: color ?? Theme.of(context).textTheme.bodyMedium!.color,
-            );
+          color: color ?? Theme.of(context).textTheme.bodyMedium!.color,
+        );
 
-    // No Align needed, the button handles centering.
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          size: iconSize ?? effectiveTextStyle.fontSize,
-          color: color ?? Theme.of(context).iconTheme.color,
-        ),
-        SizedBox(width: spacing),
-        Text(
-          text,
-          style: effectiveTextStyle,
-          overflow: TextOverflow.ellipsis,
-          maxLines: maxLines,
-        ),
-      ],
+    return Align(
+      alignment: contentAlignment,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          /// The icon widget.
+          ///
+          /// Uses the [iconSize] if provided; otherwise, defaults to the font size
+          /// of the [textStyle]. The color defaults to the theme's icon color
+          /// unless [color] is specified.
+          Flexible(
+            child: Icon(
+              icon,
+              size: iconSize ?? effectiveTextStyle.fontSize,
+              color: color ?? Theme.of(context).iconTheme.color,
+            ),
+          ),
+
+          /// Spacer between the icon and text.
+          SizedBox(width: spacing),
+
+          /// The text widget.
+          ///
+          /// Uses the [effectiveTextStyle] and ensures that long text is truncated
+          /// with an ellipsis if it overflows.
+          Flexible(
+            child: Text(
+              text,
+              style: effectiveTextStyle,
+              overflow: TextOverflow.ellipsis,
+              maxLines: maxLines,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
