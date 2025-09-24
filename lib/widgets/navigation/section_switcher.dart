@@ -212,8 +212,6 @@ class _SegmentedControlState extends State<SegmentedControl> {
   }
 
   void _onTap(int index) {
-    // This logic correctly handles the single-item case by doing nothing,
-    // as _currentIndex will always equal the tapped index (0).
     if (_currentIndex != index) {
       setState(() => _currentIndex = index);
       widget.onSegmentSelected?.call(index);
@@ -242,7 +240,6 @@ class _SegmentedControlState extends State<SegmentedControl> {
             constraints.maxHeight.isFinite ? constraints.maxHeight : 40.0;
         final totalWidth = constraints.maxWidth;
         final count = widget.segments.length;
-        // This calculation is safe, as the assert ensures count is at least 1.
         final indicatorWidth = (totalWidth - style.padding.horizontal) / count;
         final innerHeight = height - style.padding.vertical;
         final margin = style.indicatorMargin ?? EdgeInsets.zero;
@@ -265,7 +262,6 @@ class _SegmentedControlState extends State<SegmentedControl> {
               padding: style.padding,
               child: Stack(
                 children: [
-                  // The indicator is still built, which is correct. It will just fill the entire space.
                   AnimatedPositioned(
                     left: _currentIndex * indicatorWidth + margin.left,
                     top: margin.top,
@@ -352,7 +348,9 @@ class SectionSwitcher extends StatefulWidget {
   /// The animation curve used for all transitions. Defaults to [Curves.easeInOut].
   final Curve curve;
 
-  /// Creates a section switcher widget.
+  /// A callback that is invoked when the selected page changes.
+  final ValueChanged<int>? onPageChanged;
+
   const SectionSwitcher({
     super.key,
     required this.items,
@@ -364,6 +362,7 @@ class SectionSwitcher extends StatefulWidget {
     this.segmentedControlStyle,
     this.duration = const Duration(milliseconds: 300),
     this.curve = Curves.easeInOut,
+    this.onPageChanged,
   }) : assert(items.length > 0, 'At least one item is required.');
 
   @override
@@ -387,6 +386,7 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
         _previousIndex = _selectedIndex;
         _selectedIndex = index;
       });
+      widget.onPageChanged?.call(index);
     }
   }
 
@@ -422,7 +422,6 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
         ),
         Padding(
           padding: widget.contentPadding,
-          // The AnimatedSwitcher correctly handles a single child by simply displaying it.
           child: AnimatedSwitcher(
             duration: widget.duration,
             switchInCurve: widget.curve,
