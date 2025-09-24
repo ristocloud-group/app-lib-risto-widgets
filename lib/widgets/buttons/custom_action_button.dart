@@ -900,57 +900,42 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _buildRoundedButton(BuildContext context) {
-    final disabled = widget.onPressed == null;
+    // Resolve the shape to a StadiumBorder for the fully rounded look.
     final shape = _resolveShapeFor(type: ButtonType.rounded, context: context);
+
+    // Use the same logic as _buildElevatedButton.
     final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
-    final padding = widget.padding ??
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
 
-    final buttonContent = _wrapChild(context, disabled: disabled);
-
-    final interactiveChild = InkWell(
-      onTap: disabled ? null : widget.onPressed,
-      customBorder: shape,
-      splashColor: widget.splashColor,
+    final style = ElevatedButton.styleFrom(
+      // text/icon color (text is also wrapped)
+      foregroundColor: widget.foregroundColor ?? Colors.white,
+      padding: widget.padding ??
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: shape,
+      // Apply the stadium shape here.
+      overlayColor: widget.splashColor ?? Colors.transparent,
       splashFactory: widget.splashFactory,
-      child: Container(
-        alignment: Alignment.center,
-        padding: padding,
-        constraints: BoxConstraints(
-            minHeight: widget.minHeight > 0 ? widget.minHeight : 0),
-        child: buttonContent,
-      ),
+      minimumSize: _getEffectiveMinimumSize(),
     );
 
-    final disabledGrad = _disabledGradient(
-      widget.disabledBackgroundGradient,
-      widget.backgroundGradient,
-    );
-
-    final buttonShell = _decoratedShell(
+    // Reuse the existing _decoratedShell to handle gradients, size, and elevation.
+    return _decoratedShell(
       context: context,
       shape: shape,
-      child: interactiveChild,
-      solidColor: disabled
-          ? _disabledColor(widget.disabledBackgroundColor, solid,
-              Theme.of(context).disabledColor)
-          : solid,
-      gradient: disabled ? disabledGrad : widget.backgroundGradient,
-      elevation: disabled ? 0 : widget.elevation ?? 2.0,
+      child: ElevatedButton(
+        style: _transparentifyBackground(style),
+        onPressed: widget.onPressed,
+        child: _wrapChild(context, disabled: false),
+      ),
+      solidColor: solid,
+      gradient: widget.backgroundGradient,
+      elevation: widget.elevation ?? 2.0,
+      // Ensures it's elevated.
       shadowColor: widget.shadowColor,
       margin: widget.margin,
       width: widget.width,
       height: widget.height,
     );
-
-    if (widget.width == null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [buttonShell],
-      );
-    }
-
-    return buttonShell;
   }
 
   @override
