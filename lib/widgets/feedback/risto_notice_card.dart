@@ -279,40 +279,42 @@ class RistoNoticeCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(leadingIcon, color: stripeColor, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(leadingIcon, color: stripeColor, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: theme.textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                                maxLines: titleMaxLines,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if ((subtitle ?? '').isNotEmpty)
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(top: gapTitleToSubtitle),
                             child: Text(
-                              title,
-                              style: theme.textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                              maxLines: titleMaxLines,
+                              subtitle!,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withCustomOpacity(0.8),
+                              ),
+                              maxLines: subtitleMaxLines,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ],
-                      ),
-                      if ((subtitle ?? '').isNotEmpty)
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(top: gapTitleToSubtitle),
-                          child: Text(
-                            subtitle!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurface
-                                  .withCustomOpacity(0.8),
-                            ),
-                            maxLines: subtitleMaxLines,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                   if (footerBuilder != null)
                     Align(
