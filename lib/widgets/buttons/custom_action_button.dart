@@ -536,7 +536,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       color: Colors.transparent,
       child: Ink(
         decoration: ShapeDecoration(
-          shape: shape,
+          shape: shape.copyWith(side: BorderSide.none),
           color: gradient == null ? solidColor : null,
           gradient: gradient,
         ),
