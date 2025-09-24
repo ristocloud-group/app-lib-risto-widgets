@@ -900,26 +900,20 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _buildRoundedButton(BuildContext context) {
-    // Resolve the shape to a StadiumBorder for the fully rounded look.
     final shape = _resolveShapeFor(type: ButtonType.rounded, context: context);
-
-    // Use the same logic as _buildElevatedButton.
     final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
 
     final style = ElevatedButton.styleFrom(
-      // text/icon color (text is also wrapped)
       foregroundColor: widget.foregroundColor ?? Colors.white,
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
-      // Apply the stadium shape here.
       overlayColor: widget.splashColor ?? Colors.transparent,
       splashFactory: widget.splashFactory,
       minimumSize: _getEffectiveMinimumSize(),
     );
 
-    // Reuse the existing _decoratedShell to handle gradients, size, and elevation.
-    return _decoratedShell(
+    final buttonShell = _decoratedShell(
       context: context,
       shape: shape,
       child: ElevatedButton(
@@ -930,12 +924,21 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       solidColor: solid,
       gradient: widget.backgroundGradient,
       elevation: widget.elevation ?? 2.0,
-      // Ensures it's elevated.
       shadowColor: widget.shadowColor,
       margin: widget.margin,
       width: widget.width,
       height: widget.height,
     );
+
+    // If no specific width is set, this forces the button to shrink-wrap its content.
+    if (widget.width == null) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [buttonShell],
+      );
+    }
+
+    return buttonShell;
   }
 
   @override

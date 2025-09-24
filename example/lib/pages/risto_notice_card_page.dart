@@ -77,7 +77,7 @@ class RistoNoticeCardPage extends StatelessWidget {
                       child: const Text('Ignore'),
                     ),
                     const SizedBox(width: 8),
-                    CustomActionButton.elevated(
+                    CustomActionButton.rounded(
                       minHeight: 0,
                       onPressed: () => _snack(context, 'Fix tapped'),
                       backgroundColor: accentColor,
@@ -108,7 +108,7 @@ class RistoNoticeCardPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    CustomActionButton.elevated(
+                    CustomActionButton.rounded(
                       minHeight: 0,
                       onPressed: () => _snack(context, 'Retry tapped'),
                       backgroundColor: accentColor,
