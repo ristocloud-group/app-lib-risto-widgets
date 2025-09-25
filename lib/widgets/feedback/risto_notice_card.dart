@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:risto_widgets/extensions.dart';
 
 import '../buttons/custom_action_button.dart';
+import '../buttons/list_tile_button.dart';
 
 enum RistoNoticeKind { info, success, warning, error, neutral, empty }
 
@@ -268,7 +269,7 @@ class RistoNoticeCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(width: 8, color: stripeColor),
+          Container(width: r.topLeft.x, color: stripeColor),
           Expanded(
             child: Padding(
               padding: resolvedPadding,
