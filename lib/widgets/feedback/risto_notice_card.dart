@@ -47,6 +47,10 @@ class RistoNoticeCard extends StatelessWidget {
   final bool dense;
   final BorderRadius? borderRadius;
 
+  /// The width of the colored stripe on the left.
+  /// If null, it defaults to the corner radius.
+  final double? stripeWidth;
+
   // Card styling
   final Color? backgroundColor;
   final Gradient? backgroundGradient;
@@ -81,6 +85,7 @@ class RistoNoticeCard extends StatelessWidget {
     this.margin,
     this.dense = true,
     this.borderRadius,
+    this.stripeWidth,
     this.backgroundColor,
     this.backgroundGradient,
     this.borderColor,
@@ -103,6 +108,7 @@ class RistoNoticeCard extends StatelessWidget {
     VoidCallback? onClose,
     BorderRadius? borderRadius,
     double borderOpacity = 0.5,
+    double? stripeWidth,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -116,6 +122,7 @@ class RistoNoticeCard extends StatelessWidget {
       onClose: onClose,
       borderRadius: borderRadius,
       borderOpacity: borderOpacity,
+      stripeWidth: stripeWidth,
     );
   }
 
@@ -130,6 +137,7 @@ class RistoNoticeCard extends StatelessWidget {
     VoidCallback? onClose,
     BorderRadius? borderRadius,
     double borderOpacity = 0.5,
+    double? stripeWidth,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -143,6 +151,7 @@ class RistoNoticeCard extends StatelessWidget {
       onClose: onClose,
       borderRadius: borderRadius,
       borderOpacity: borderOpacity,
+      stripeWidth: stripeWidth,
     );
   }
 
@@ -157,6 +166,7 @@ class RistoNoticeCard extends StatelessWidget {
     VoidCallback? onClose,
     BorderRadius? borderRadius,
     double borderOpacity = 0.5,
+    double? stripeWidth,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -170,6 +180,7 @@ class RistoNoticeCard extends StatelessWidget {
       onClose: onClose,
       borderRadius: borderRadius,
       borderOpacity: borderOpacity,
+      stripeWidth: stripeWidth,
     );
   }
 
@@ -184,6 +195,7 @@ class RistoNoticeCard extends StatelessWidget {
     VoidCallback? onClose,
     BorderRadius? borderRadius,
     double borderOpacity = 0.5,
+    double? stripeWidth,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -197,6 +209,7 @@ class RistoNoticeCard extends StatelessWidget {
       onClose: onClose,
       borderRadius: borderRadius,
       borderOpacity: borderOpacity,
+      stripeWidth: stripeWidth,
     );
   }
 
@@ -211,6 +224,7 @@ class RistoNoticeCard extends StatelessWidget {
     VoidCallback? onClose,
     BorderRadius? borderRadius,
     double borderOpacity = 0.5,
+    double? stripeWidth,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -224,6 +238,7 @@ class RistoNoticeCard extends StatelessWidget {
       onClose: onClose,
       borderRadius: borderRadius,
       borderOpacity: borderOpacity,
+      stripeWidth: stripeWidth,
     );
   }
 
@@ -238,6 +253,7 @@ class RistoNoticeCard extends StatelessWidget {
     VoidCallback? onClose,
     BorderRadius? borderRadius,
     double borderOpacity = 0.5,
+    double? stripeWidth,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -251,6 +267,7 @@ class RistoNoticeCard extends StatelessWidget {
       onClose: onClose,
       borderRadius: borderRadius,
       borderOpacity: borderOpacity,
+      stripeWidth: stripeWidth,
     );
   }
 
@@ -269,7 +286,7 @@ class RistoNoticeCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(width: r.topLeft.x, color: stripeColor),
+          Container(width: stripeWidth ?? r.topLeft.x, color: stripeColor),
           Expanded(
             child: Padding(
               padding: resolvedPadding,
