@@ -3,15 +3,10 @@ import 'package:risto_widgets/risto_widgets.dart';
 
 /// A class responsible for displaying a customized modal dialog
 /// that acts as a container for a notice card.
-///
-/// This refactored class uses a `bodyBuilder` pattern. The factories
-/// construct a complete `RistoNoticeCard`, including its footer buttons,
-/// which is then displayed inside a basic dialog shell.
 class OpenCustomDialog {
   final WidgetBuilder _bodyBuilder;
   final Function(dynamic)? onClose;
 
-  /// PRIVATE constructor used by all factories.
   const OpenCustomDialog._internal({
     required WidgetBuilder bodyBuilder,
     this.onClose,
@@ -33,7 +28,6 @@ class OpenCustomDialog {
   }
 
   /// The base factory for a standard notice dialog.
-  /// Prefer using the semantic factories: `.success`, `.error`, `.info`.
   factory OpenCustomDialog.notice(
     BuildContext context, {
     required RistoNoticeKind kind,
@@ -41,12 +35,14 @@ class OpenCustomDialog {
     String? subtitle,
     String? confirmButtonText,
     Function(dynamic)? onClose,
-    // Card Customization
+
+    /// Card Customization
     BorderRadius? borderRadius,
+    double? borderOpacity,
     Color? backgroundColor,
     double? elevation,
-    EdgeInsetsGeometry? margin,
-    int subtitleMaxLines = 2,
+    int? titleMaxLines,
+    int? subtitleMaxLines,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) {
@@ -56,12 +52,12 @@ class OpenCustomDialog {
           subtitle: subtitle,
           showClose: true,
           onClose: () => Navigator.pop(ctx, null),
-          // Pass down customizations
           borderRadius: borderRadius,
+          borderOpacity: borderOpacity ?? 0.5,
           backgroundColor: backgroundColor,
           elevation: elevation,
-          margin: margin,
-          subtitleMaxLines: subtitleMaxLines,
+          titleMaxLines: titleMaxLines ?? 1,
+          subtitleMaxLines: subtitleMaxLines ?? 2,
           footerBuilder: (context, accentColor) {
             return CustomActionButton.rounded(
               height: 44,
@@ -76,18 +72,21 @@ class OpenCustomDialog {
     );
   }
 
-  // --- SEMANTIC FACTORIES ---
-
+  /// Displays a success dialog.
   factory OpenCustomDialog.success(
     BuildContext context, {
     required String title,
     String? subtitle,
     String? confirmButtonText,
     Function(dynamic)? onClose,
-    // Card Customization
+
+    /// Card Customization
     BorderRadius? borderRadius,
+    double? borderOpacity,
     Color? backgroundColor,
     double? elevation,
+    int? titleMaxLines,
+    int? subtitleMaxLines,
   }) {
     return OpenCustomDialog.notice(
       context,
@@ -96,23 +95,30 @@ class OpenCustomDialog {
       subtitle: subtitle,
       confirmButtonText: confirmButtonText ?? 'Great!',
       onClose: onClose,
-      // Pass down customizations
       borderRadius: borderRadius,
+      borderOpacity: borderOpacity,
       backgroundColor: backgroundColor,
       elevation: elevation,
+      titleMaxLines: titleMaxLines,
+      subtitleMaxLines: subtitleMaxLines,
     );
   }
 
+  /// Displays an error dialog.
   factory OpenCustomDialog.error(
     BuildContext context, {
     required String title,
     String? subtitle,
     String? confirmButtonText,
     Function(dynamic)? onClose,
-    // Card Customization
+
+    /// Card Customization
     BorderRadius? borderRadius,
+    double? borderOpacity,
     Color? backgroundColor,
     double? elevation,
+    int? titleMaxLines,
+    int? subtitleMaxLines,
   }) {
     return OpenCustomDialog.notice(
       context,
@@ -121,23 +127,30 @@ class OpenCustomDialog {
       subtitle: subtitle,
       confirmButtonText: confirmButtonText ?? 'Close',
       onClose: onClose,
-      // Pass down customizations
       borderRadius: borderRadius,
+      borderOpacity: borderOpacity,
       backgroundColor: backgroundColor,
       elevation: elevation,
+      titleMaxLines: titleMaxLines,
+      subtitleMaxLines: subtitleMaxLines,
     );
   }
 
+  /// Displays an informational dialog.
   factory OpenCustomDialog.info(
     BuildContext context, {
     required String title,
     String? subtitle,
     String? confirmButtonText,
     Function(dynamic)? onClose,
-    // Card Customization
+
+    /// Card Customization
     BorderRadius? borderRadius,
+    double? borderOpacity,
     Color? backgroundColor,
     double? elevation,
+    int? titleMaxLines,
+    int? subtitleMaxLines,
   }) {
     return OpenCustomDialog.notice(
       context,
@@ -146,13 +159,16 @@ class OpenCustomDialog {
       subtitle: subtitle,
       confirmButtonText: confirmButtonText ?? 'Got it',
       onClose: onClose,
-      // Pass down customizations
       borderRadius: borderRadius,
+      borderOpacity: borderOpacity,
       backgroundColor: backgroundColor,
       elevation: elevation,
+      titleMaxLines: titleMaxLines,
+      subtitleMaxLines: subtitleMaxLines,
     );
   }
 
+  /// Displays a warning dialog with "Continue" and "Cancel" buttons.
   factory OpenCustomDialog.warning(
     BuildContext context, {
     required String title,
@@ -160,10 +176,14 @@ class OpenCustomDialog {
     String? confirmButtonText,
     String? cancelButtonText,
     Function(dynamic)? onClose,
-    // Card Customization
+
+    /// Card Customization
     BorderRadius? borderRadius,
+    double? borderOpacity,
     Color? backgroundColor,
     double? elevation,
+    int? titleMaxLines,
+    int? subtitleMaxLines,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) {
@@ -173,15 +193,16 @@ class OpenCustomDialog {
           subtitle: subtitle,
           showClose: true,
           onClose: () => Navigator.pop(ctx, null),
-          // Pass down customizations
           borderRadius: borderRadius,
+          borderOpacity: borderOpacity ?? 0.5,
           backgroundColor: backgroundColor,
           elevation: elevation,
+          titleMaxLines: titleMaxLines ?? 1,
+          subtitleMaxLines: subtitleMaxLines ?? 2,
           footerBuilder: (context, accentColor) {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Secondary outlined button
                 CustomActionButton.rounded(
                   height: 44,
                   backgroundColor: Colors.transparent,
@@ -192,7 +213,6 @@ class OpenCustomDialog {
                   child: Text(cancelButtonText ?? 'Cancel'),
                 ),
                 const SizedBox(width: 8),
-                // Primary solid button
                 CustomActionButton.rounded(
                   height: 44,
                   backgroundColor: accentColor,
@@ -208,6 +228,7 @@ class OpenCustomDialog {
     );
   }
 
+  /// Factory for a confirmation dialog.
   factory OpenCustomDialog.confirm(
     BuildContext context, {
     required String title,
@@ -215,10 +236,14 @@ class OpenCustomDialog {
     String? confirmButtonText,
     String? cancelButtonText,
     Function(dynamic)? onClose,
-    // Card Customization
+
+    /// Card Customization
     BorderRadius? borderRadius,
+    double? borderOpacity,
     Color? backgroundColor,
     double? elevation,
+    int? titleMaxLines,
+    int? subtitleMaxLines,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) {
@@ -228,15 +253,16 @@ class OpenCustomDialog {
           subtitle: subtitle,
           showClose: true,
           onClose: () => Navigator.pop(ctx, null),
-          // Pass down customizations
           borderRadius: borderRadius,
+          borderOpacity: borderOpacity ?? 0.5,
           backgroundColor: backgroundColor,
           elevation: elevation,
+          titleMaxLines: titleMaxLines ?? 1,
+          subtitleMaxLines: subtitleMaxLines ?? 2,
           footerBuilder: (context, accentColor) {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Secondary outlined button
                 CustomActionButton.rounded(
                   height: 44,
                   backgroundColor: Colors.transparent,
@@ -247,7 +273,6 @@ class OpenCustomDialog {
                   child: Text(cancelButtonText ?? 'Cancel'),
                 ),
                 const SizedBox(width: 8),
-                // Primary solid button
                 CustomActionButton.rounded(
                   height: 44,
                   backgroundColor: Colors.green,
