@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:risto_widgets/extensions.dart';
 
 import '../buttons/custom_action_button.dart';
-import '../buttons/list_tile_button.dart';
 
 enum RistoNoticeKind { info, success, warning, error, neutral, empty }
 
@@ -23,6 +22,12 @@ class RistoNoticeCard extends StatelessWidget {
 
   final int titleMaxLines;
   final int subtitleMaxLines;
+
+  /// Custom [TextStyle] for the title. Merged with the default theme style.
+  final TextStyle? titleStyle;
+
+  /// Custom [TextStyle] for the subtitle. Merged with the default theme style.
+  final TextStyle? subtitleStyle;
 
   /// A builder function to create a custom footer widget, typically for buttons.
   final RistoFooterBuilder? footerBuilder;
@@ -73,6 +78,8 @@ class RistoNoticeCard extends StatelessWidget {
     this.subtitle,
     this.titleMaxLines = 1,
     this.subtitleMaxLines = 2,
+    this.titleStyle,
+    this.subtitleStyle,
     this.footerBuilder,
     this.footerAlignment = Alignment.bottomRight,
     this.footerPadding = const EdgeInsets.only(top: 12),
@@ -103,6 +110,8 @@ class RistoNoticeCard extends StatelessWidget {
     String? subtitle,
     int titleMaxLines = 1,
     int subtitleMaxLines = 2,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -117,6 +126,8 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       footerBuilder: footerBuilder,
       showClose: showClose,
       onClose: onClose,
@@ -132,6 +143,8 @@ class RistoNoticeCard extends StatelessWidget {
     String? subtitle,
     int titleMaxLines = 1,
     int subtitleMaxLines = 2,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -146,6 +159,8 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       footerBuilder: footerBuilder,
       showClose: showClose,
       onClose: onClose,
@@ -161,6 +176,8 @@ class RistoNoticeCard extends StatelessWidget {
     String? subtitle,
     int titleMaxLines = 1,
     int subtitleMaxLines = 2,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -175,6 +192,8 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       footerBuilder: footerBuilder,
       showClose: showClose,
       onClose: onClose,
@@ -190,6 +209,8 @@ class RistoNoticeCard extends StatelessWidget {
     String? subtitle,
     int titleMaxLines = 1,
     int subtitleMaxLines = 2,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -204,6 +225,8 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       footerBuilder: footerBuilder,
       showClose: showClose,
       onClose: onClose,
@@ -219,6 +242,8 @@ class RistoNoticeCard extends StatelessWidget {
     String? subtitle,
     int titleMaxLines = 1,
     int subtitleMaxLines = 2,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -233,6 +258,8 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       footerBuilder: footerBuilder,
       showClose: showClose,
       onClose: onClose,
@@ -248,6 +275,8 @@ class RistoNoticeCard extends StatelessWidget {
     String? subtitle,
     int titleMaxLines = 1,
     int subtitleMaxLines = 2,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
@@ -262,6 +291,8 @@ class RistoNoticeCard extends StatelessWidget {
       subtitle: subtitle,
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       footerBuilder: footerBuilder,
       showClose: showClose,
       onClose: onClose,
@@ -303,7 +334,8 @@ class RistoNoticeCard extends StatelessWidget {
                         child: Text(
                           title,
                           style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
+                              ?.copyWith(fontWeight: FontWeight.w600)
+                              .merge(titleStyle),
                           maxLines: titleMaxLines,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -315,10 +347,12 @@ class RistoNoticeCard extends StatelessWidget {
                       padding: const EdgeInsets.only(top: gapTitleToSubtitle),
                       child: Text(
                         subtitle!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withCustomOpacity(0.8),
-                        ),
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withCustomOpacity(0.8),
+                            )
+                            .merge(subtitleStyle),
                         maxLines: subtitleMaxLines,
                         overflow: TextOverflow.ellipsis,
                       ),
