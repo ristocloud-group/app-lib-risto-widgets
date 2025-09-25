@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 enum ToastKind { info, success, warning, error }
 
 /// Centralized toast/overlay notifier (never uses SnackBar).
-/// Works anywhere (pages, dialogs, sheets) because it uses Overlay.
+/// Works anywhere (pages, dialogs, popup) because it uses Overlay.
 class RistoToast {
   RistoToast._();
 

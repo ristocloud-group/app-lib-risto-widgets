@@ -106,7 +106,7 @@ class _RistoToastPageState extends State<RistoToastPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Tip: RistoToast uses the root Overlay, so it works in dialogs and sheets too.',
+            'Tip: RistoToast uses the root Overlay, so it works in dialogs and popup too.',
             style: theme.textTheme.bodySmall,
           ),
         ],

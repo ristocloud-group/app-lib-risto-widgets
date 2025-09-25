@@ -11,7 +11,7 @@ import '../buttons/list_tile_button.dart';
 /// Enum to internally identify the type of sheet to be built.
 enum _SheetType { standard, confirm, scrollable, expandable }
 
-/// A class responsible for displaying customized modal bottom sheets.
+/// A class responsible for displaying customized modal bottom popup.
 ///
 /// This refactored class uses specific factory constructors for each sheet type,
 /// ensuring that the build logic is clean, separated, and robust.
@@ -492,7 +492,7 @@ class OpenCustomSheet {
   Widget buildExpandable(BuildContext context) {
     if (_type != _SheetType.expandable) {
       throw Exception(
-          'buildExpandable() is only available for expandable sheets.');
+          'buildExpandable() is only available for expandable popup.');
     }
     return _ExpandableSheet(
       backgroundColor: backgroundColor,

@@ -2,37 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:risto_widgets/extensions.dart';
 
 import '../buttons/custom_action_button.dart';
-import '../buttons/list_tile_button.dart';
 
 enum RistoNoticeKind { info, success, warning, error, neutral, empty }
 
-// Footer builder type, providing the card's accent color
+/// Footer builder type, providing the card's accent color
 typedef RistoFooterBuilder = Widget Function(
     BuildContext context, Color accentColor);
 
 class RistoNoticeCard extends StatelessWidget {
-  // Content
+  /// The semantic type of the notice (success, warning, etc.).
+  /// This determines the default color and icon.
   final RistoNoticeKind kind;
+
+  /// The main title of the notice.
   final String title;
+
+  /// The secondary text displayed below the title.
   final String? subtitle;
 
   final int titleMaxLines;
   final int subtitleMaxLines;
 
-  // Footer customization
+  /// A builder function to create a custom footer widget, typically for buttons.
   final RistoFooterBuilder? footerBuilder;
   final AlignmentGeometry footerAlignment;
   final EdgeInsetsGeometry footerPadding;
 
-  // Visual overrides
+  /// An optional icon to override the default for the specified [kind].
   final IconData? icon;
+
+  /// A color to override the default accent color for the specified [kind].
   final Color? accentColor;
 
-  // Close
+  /// Whether to show the top-right close button.
   final bool showClose;
+
+  /// A callback triggered when the close button is tapped.
   final VoidCallback? onClose;
 
-  // Layout
   final double? minHeight;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
@@ -44,6 +51,9 @@ class RistoNoticeCard extends StatelessWidget {
   final Gradient? backgroundGradient;
   final Color? borderColor;
   final double borderWidth;
+
+  /// The opacity of the colored border. Defaults to `0.5`.
+  final double borderOpacity;
   final double? elevation;
   final Color? shadowColor;
 
@@ -74,6 +84,7 @@ class RistoNoticeCard extends StatelessWidget {
     this.backgroundGradient,
     this.borderColor,
     this.borderWidth = 1.0,
+    this.borderOpacity = 0.5,
     this.elevation,
     this.shadowColor,
     this.layoutAnimDuration = const Duration(milliseconds: 180),
@@ -89,8 +100,8 @@ class RistoNoticeCard extends StatelessWidget {
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
-    AlignmentGeometry footerAlignment = Alignment.bottomRight,
-    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
+    BorderRadius? borderRadius,
+    double borderOpacity = 0.5,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -100,10 +111,10 @@ class RistoNoticeCard extends StatelessWidget {
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
       footerBuilder: footerBuilder,
-      footerAlignment: footerAlignment,
-      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
+      borderRadius: borderRadius,
+      borderOpacity: borderOpacity,
     );
   }
 
@@ -116,8 +127,8 @@ class RistoNoticeCard extends StatelessWidget {
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
-    AlignmentGeometry footerAlignment = Alignment.bottomRight,
-    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
+    BorderRadius? borderRadius,
+    double borderOpacity = 0.5,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -127,10 +138,10 @@ class RistoNoticeCard extends StatelessWidget {
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
       footerBuilder: footerBuilder,
-      footerAlignment: footerAlignment,
-      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
+      borderRadius: borderRadius,
+      borderOpacity: borderOpacity,
     );
   }
 
@@ -143,8 +154,8 @@ class RistoNoticeCard extends StatelessWidget {
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
-    AlignmentGeometry footerAlignment = Alignment.bottomRight,
-    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
+    BorderRadius? borderRadius,
+    double borderOpacity = 0.5,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -154,10 +165,10 @@ class RistoNoticeCard extends StatelessWidget {
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
       footerBuilder: footerBuilder,
-      footerAlignment: footerAlignment,
-      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
+      borderRadius: borderRadius,
+      borderOpacity: borderOpacity,
     );
   }
 
@@ -170,8 +181,8 @@ class RistoNoticeCard extends StatelessWidget {
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
-    AlignmentGeometry footerAlignment = Alignment.bottomRight,
-    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
+    BorderRadius? borderRadius,
+    double borderOpacity = 0.5,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -181,10 +192,10 @@ class RistoNoticeCard extends StatelessWidget {
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
       footerBuilder: footerBuilder,
-      footerAlignment: footerAlignment,
-      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
+      borderRadius: borderRadius,
+      borderOpacity: borderOpacity,
     );
   }
 
@@ -197,8 +208,8 @@ class RistoNoticeCard extends StatelessWidget {
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
-    AlignmentGeometry footerAlignment = Alignment.bottomRight,
-    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
+    BorderRadius? borderRadius,
+    double borderOpacity = 0.5,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -208,10 +219,10 @@ class RistoNoticeCard extends StatelessWidget {
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
       footerBuilder: footerBuilder,
-      footerAlignment: footerAlignment,
-      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
+      borderRadius: borderRadius,
+      borderOpacity: borderOpacity,
     );
   }
 
@@ -224,8 +235,8 @@ class RistoNoticeCard extends StatelessWidget {
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
     VoidCallback? onClose,
-    AlignmentGeometry footerAlignment = Alignment.bottomRight,
-    EdgeInsetsGeometry footerPadding = const EdgeInsets.only(top: 12),
+    BorderRadius? borderRadius,
+    double borderOpacity = 0.5,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -235,10 +246,10 @@ class RistoNoticeCard extends StatelessWidget {
       titleMaxLines: titleMaxLines,
       subtitleMaxLines: subtitleMaxLines,
       footerBuilder: footerBuilder,
-      footerAlignment: footerAlignment,
-      footerPadding: footerPadding,
       showClose: showClose,
       onClose: onClose,
+      borderRadius: borderRadius,
+      borderOpacity: borderOpacity,
     );
   }
 
@@ -249,73 +260,52 @@ class RistoNoticeCard extends StatelessWidget {
     final stripeColor = accentColor ?? d.accent;
     final leadingIcon = icon ?? d.icon;
     final r = borderRadius ?? BorderRadius.circular(12);
-    final resolvedMinHeight = minHeight ?? 64.0;
     final resolvedPadding = padding ??
         EdgeInsets.symmetric(horizontal: 12, vertical: dense ? 10 : 14);
-    const gapX = 12.0;
     const gapTitleToSubtitle = 6.0;
 
-    final body = IntrinsicHeight(
+    final innerLayout = IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: r.topLeft,
-              bottomLeft: r.bottomLeft,
-            ),
-            child: Container(
-              key: const ValueKey('risto_notice_stripe'), // ADDED THIS KEY
-              width: 8,
-              height: resolvedMinHeight,
-              color: stripeColor,
-            ),
-          ),
-          const SizedBox(width: gapX),
+          Container(width: 8, color: stripeColor),
           Expanded(
             child: Padding(
               padding: resolvedPadding,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(leadingIcon, color: stripeColor, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                title,
-                                style: theme.textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                                maxLines: titleMaxLines,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(leadingIcon, color: stripeColor, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: theme.textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                          maxLines: titleMaxLines,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        if ((subtitle ?? '').isNotEmpty)
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(top: gapTitleToSubtitle),
-                            child: Text(
-                              subtitle!,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface
-                                    .withCustomOpacity(0.8),
-                              ),
-                              maxLines: subtitleMaxLines,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                  if ((subtitle ?? '').isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: gapTitleToSubtitle),
+                      child: Text(
+                        subtitle!,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface
+                              .withCustomOpacity(0.8),
+                        ),
+                        maxLines: subtitleMaxLines,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  if (footerBuilder != null) const Spacer(),
                   if (footerBuilder != null)
                     Align(
                       alignment: footerAlignment,
@@ -332,36 +322,32 @@ class RistoNoticeCard extends StatelessWidget {
       ),
     );
 
-    final resolvedBorderRadius = borderRadius ?? BorderRadius.circular(12);
-
-    if (!showClose) {
-      return RoundedContainer(
-        margin: margin,
-        borderRadius: resolvedBorderRadius.topLeft.x,
-        backgroundColor: backgroundColor ?? theme.colorScheme.surface,
-        backgroundGradient: backgroundGradient,
-        borderColor: borderColor ?? theme.colorScheme.outlineVariant,
-        borderWidth: borderWidth,
+    final cardShell = Container(
+      margin: margin,
+      child: Material(
+        color: backgroundColor ?? theme.colorScheme.surface,
         elevation: elevation ?? (kind == RistoNoticeKind.error ? 1.5 : 0),
         shadowColor: shadowColor ?? theme.colorScheme.shadow,
-        child: body,
-      );
+        shape: RoundedRectangleBorder(
+          borderRadius: r,
+          side: BorderSide(
+            color: borderColor ?? stripeColor.withCustomOpacity(borderOpacity),
+            width: borderWidth,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: innerLayout,
+      ),
+    );
+
+    if (!showClose) {
+      return cardShell;
     }
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        RoundedContainer(
-          margin: margin,
-          borderRadius: resolvedBorderRadius.topLeft.x,
-          backgroundColor: backgroundColor ?? theme.colorScheme.surface,
-          backgroundGradient: backgroundGradient,
-          borderColor: borderColor ?? theme.colorScheme.outlineVariant,
-          borderWidth: borderWidth,
-          elevation: elevation ?? (kind == RistoNoticeKind.error ? 1.5 : 0),
-          shadowColor: shadowColor ?? theme.colorScheme.shadow,
-          child: body,
-        ),
+        cardShell,
         Positioned(
           top: 0,
           right: 0,
