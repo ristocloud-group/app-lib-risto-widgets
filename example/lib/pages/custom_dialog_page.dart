@@ -33,13 +33,11 @@ class CustomDialogPage extends StatelessWidget {
           CustomActionButton.flat(
             margin: const EdgeInsets.symmetric(vertical: 8),
             onPressed: () {
-              // Esempio di personalizzazione
               OpenCustomDialog.error(
                 context,
                 title: 'Connection Failed',
                 subtitle:
                     'Please check your internet connection and try again.',
-                // Personalizza l'aspetto della card
                 elevation: 8.0,
                 borderRadius: BorderRadius.circular(8),
                 onClose:
@@ -50,6 +48,38 @@ class CustomDialogPage extends StatelessWidget {
               ).show(context);
             },
             child: const Text('Open Error Dialog (Custom Style)'),
+          ),
+
+          CustomActionButton.flat(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            onPressed: () {
+              final customNotice = RistoNoticeCard(
+                kind: RistoNoticeKind.info,
+                title: 'This is a Custom Notice',
+                subtitle: 'It was built separately and passed to the dialog.',
+                showClose: true,
+                onClose: () => Navigator.pop(context, 'closed_with_x'),
+                footerBuilder: (ctx, color) {
+                  return CustomActionButton.rounded(
+                    onPressed: () => Navigator.pop(ctx, 'dismissed_manually'),
+                    backgroundColor: Colors.deepPurple,
+                    child: const Text('Custom Dismiss'),
+                  );
+                },
+              );
+
+              OpenCustomDialog.notice(
+                context,
+                notice: customNotice,
+                onClose: (result) {
+                  RistoToast.info(
+                    context,
+                    message: 'Custom notice closed with result: $result',
+                  );
+                },
+              ).show(context);
+            },
+            child: const Text('Open Custom Notice Dialog'),
           ),
 
           const Divider(height: 32),

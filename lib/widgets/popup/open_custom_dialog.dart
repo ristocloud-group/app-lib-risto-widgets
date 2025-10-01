@@ -27,16 +27,27 @@ class OpenCustomDialog {
     );
   }
 
-  /// The base factory for a standard notice dialog.
+  /// Factory for a dialog that displays a pre-configured [RistoNoticeCard].
+  /// This is useful when you need to display a notice with a more complex
+  /// footer or body than the standard convenience factories provide.
   factory OpenCustomDialog.notice(
     BuildContext context, {
-    required RistoNoticeKind kind,
+    required RistoNoticeCard notice,
+    Function(dynamic)? onClose,
+  }) {
+    return OpenCustomDialog._internal(
+      bodyBuilder: (ctx) => notice,
+      onClose: onClose,
+    );
+  }
+
+  /// Displays a success dialog.
+  factory OpenCustomDialog.success(
+    BuildContext context, {
     required String title,
     String? subtitle,
     String? confirmButtonText,
     Function(dynamic)? onClose,
-
-    /// Card Customization
     BorderRadius? borderRadius,
     double? borderOpacity,
     Color? backgroundColor,
@@ -47,7 +58,7 @@ class OpenCustomDialog {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) {
         return RistoNoticeCard(
-          kind: kind,
+          kind: RistoNoticeKind.success,
           title: title,
           subtitle: subtitle,
           showClose: true,
@@ -63,44 +74,12 @@ class OpenCustomDialog {
               height: 44,
               backgroundColor: accentColor,
               onPressed: () => Navigator.pop(ctx, true),
-              child: Text(confirmButtonText ?? 'OK'),
+              child: Text(confirmButtonText ?? 'Great!'),
             );
           },
         );
       },
       onClose: onClose,
-    );
-  }
-
-  /// Displays a success dialog.
-  factory OpenCustomDialog.success(
-    BuildContext context, {
-    required String title,
-    String? subtitle,
-    String? confirmButtonText,
-    Function(dynamic)? onClose,
-
-    /// Card Customization
-    BorderRadius? borderRadius,
-    double? borderOpacity,
-    Color? backgroundColor,
-    double? elevation,
-    int? titleMaxLines,
-    int? subtitleMaxLines,
-  }) {
-    return OpenCustomDialog.notice(
-      context,
-      kind: RistoNoticeKind.success,
-      title: title,
-      subtitle: subtitle,
-      confirmButtonText: confirmButtonText ?? 'Great!',
-      onClose: onClose,
-      borderRadius: borderRadius,
-      borderOpacity: borderOpacity,
-      backgroundColor: backgroundColor,
-      elevation: elevation,
-      titleMaxLines: titleMaxLines,
-      subtitleMaxLines: subtitleMaxLines,
     );
   }
 
@@ -111,8 +90,6 @@ class OpenCustomDialog {
     String? subtitle,
     String? confirmButtonText,
     Function(dynamic)? onClose,
-
-    /// Card Customization
     BorderRadius? borderRadius,
     double? borderOpacity,
     Color? backgroundColor,
@@ -120,19 +97,31 @@ class OpenCustomDialog {
     int? titleMaxLines,
     int? subtitleMaxLines,
   }) {
-    return OpenCustomDialog.notice(
-      context,
-      kind: RistoNoticeKind.error,
-      title: title,
-      subtitle: subtitle,
-      confirmButtonText: confirmButtonText ?? 'Close',
+    return OpenCustomDialog._internal(
+      bodyBuilder: (ctx) {
+        return RistoNoticeCard(
+          kind: RistoNoticeKind.error,
+          title: title,
+          subtitle: subtitle,
+          showClose: true,
+          onClose: () => Navigator.pop(ctx, null),
+          borderRadius: borderRadius,
+          borderOpacity: borderOpacity ?? 0.5,
+          backgroundColor: backgroundColor,
+          elevation: elevation,
+          titleMaxLines: titleMaxLines ?? 1,
+          subtitleMaxLines: subtitleMaxLines ?? 2,
+          footerBuilder: (context, accentColor) {
+            return CustomActionButton.rounded(
+              height: 44,
+              backgroundColor: accentColor,
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(confirmButtonText ?? 'Close'),
+            );
+          },
+        );
+      },
       onClose: onClose,
-      borderRadius: borderRadius,
-      borderOpacity: borderOpacity,
-      backgroundColor: backgroundColor,
-      elevation: elevation,
-      titleMaxLines: titleMaxLines,
-      subtitleMaxLines: subtitleMaxLines,
     );
   }
 
@@ -143,8 +132,6 @@ class OpenCustomDialog {
     String? subtitle,
     String? confirmButtonText,
     Function(dynamic)? onClose,
-
-    /// Card Customization
     BorderRadius? borderRadius,
     double? borderOpacity,
     Color? backgroundColor,
@@ -152,19 +139,31 @@ class OpenCustomDialog {
     int? titleMaxLines,
     int? subtitleMaxLines,
   }) {
-    return OpenCustomDialog.notice(
-      context,
-      kind: RistoNoticeKind.info,
-      title: title,
-      subtitle: subtitle,
-      confirmButtonText: confirmButtonText ?? 'Got it',
+    return OpenCustomDialog._internal(
+      bodyBuilder: (ctx) {
+        return RistoNoticeCard(
+          kind: RistoNoticeKind.info,
+          title: title,
+          subtitle: subtitle,
+          showClose: true,
+          onClose: () => Navigator.pop(ctx, null),
+          borderRadius: borderRadius,
+          borderOpacity: borderOpacity ?? 0.5,
+          backgroundColor: backgroundColor,
+          elevation: elevation,
+          titleMaxLines: titleMaxLines ?? 1,
+          subtitleMaxLines: subtitleMaxLines ?? 2,
+          footerBuilder: (context, accentColor) {
+            return CustomActionButton.rounded(
+              height: 44,
+              backgroundColor: accentColor,
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(confirmButtonText ?? 'Got it'),
+            );
+          },
+        );
+      },
       onClose: onClose,
-      borderRadius: borderRadius,
-      borderOpacity: borderOpacity,
-      backgroundColor: backgroundColor,
-      elevation: elevation,
-      titleMaxLines: titleMaxLines,
-      subtitleMaxLines: subtitleMaxLines,
     );
   }
 
@@ -176,8 +175,6 @@ class OpenCustomDialog {
     String? confirmButtonText,
     String? cancelButtonText,
     Function(dynamic)? onClose,
-
-    /// Card Customization
     BorderRadius? borderRadius,
     double? borderOpacity,
     Color? backgroundColor,
@@ -236,8 +233,6 @@ class OpenCustomDialog {
     String? confirmButtonText,
     String? cancelButtonText,
     Function(dynamic)? onClose,
-
-    /// Card Customization
     BorderRadius? borderRadius,
     double? borderOpacity,
     Color? backgroundColor,
