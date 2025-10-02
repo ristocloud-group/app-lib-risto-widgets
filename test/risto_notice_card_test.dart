@@ -37,33 +37,21 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('uses kind accent color on icon', (tester) async {
-      const kErr = Color(0xFFAA0011);
-      final theme = ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo).copyWith(
-          error: kErr,
-        ),
-      );
-
+    testWidgets('renders icon when one is provided', (tester) async {
       await tester.pumpWidget(_wrap(
         const RistoNoticeCard(
-          kind: RistoNoticeKind.error,
-          title: 'Boom',
+          kind: RistoNoticeKind.info,
+          noticeIcon: Icon(Icons.info),
         ),
-        theme: theme,
       ));
-
-      // Find the icon and check its color
-      final icon = tester.widget<Icon>(find.byType(Icon));
-      expect(icon.color, kErr);
+      expect(find.byType(Icon), findsOneWidget);
     });
 
-    testWidgets('does not render icon when showIcon is false', (tester) async {
+    testWidgets('does not render icon when it is not provided', (tester) async {
       await tester.pumpWidget(_wrap(
         const RistoNoticeCard(
           kind: RistoNoticeKind.info,
           title: 'No Icon Here',
-          showIcon: false,
         ),
       ));
 
@@ -76,6 +64,7 @@ void main() {
       await tester.pumpWidget(_wrap(
         RistoNoticeCard(
           kind: RistoNoticeKind.info,
+          noticeIcon: const Icon(Icons.info),
           title: 'Title',
           subtitle: 'Subtitle',
           runSpacing: spacing,
@@ -83,13 +72,17 @@ void main() {
         ),
       ));
 
-      // Find the main content column
-      final column = tester.widget<Column>(find.byType(Column).first);
+      // Find the main column by finding an ancestor of one of its direct children (the footer)
+      final column = tester.widget<Column>(find.ancestor(
+        of: find.text('Footer'),
+        matching: find.byType(Column),
+      ));
       final children = column.children;
 
-      // Expect [contentGroup, SizedBox, footer]
+      // The direct children should be [contentGroup (a Column), SizedBox, footer (a Text)]
       expect(children.length, 3);
-      expect(children[1], isA<SizedBox>().having((s) => s.height, 'height', spacing));
+      expect(children[1],
+          isA<SizedBox>().having((s) => s.height, 'height', spacing));
     });
 
     testWidgets('respects mainAxisAlignment for alignment', (tester) async {
@@ -98,7 +91,8 @@ void main() {
           kind: RistoNoticeKind.info,
           title: 'Title',
           footerBuilder: (context, accentColor) => const Text('Footer'),
-          minHeight: 300, // Important for alignment to take effect
+          minHeight: 300,
+          // Important for alignment to take effect
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
         ),
       ));
@@ -109,7 +103,6 @@ void main() {
       ));
       expect(column.mainAxisAlignment, MainAxisAlignment.spaceBetween);
     });
-
 
     testWidgets('applies custom titleStyle', (tester) async {
       const customStyle = TextStyle(color: Colors.purple, fontSize: 24.0);
