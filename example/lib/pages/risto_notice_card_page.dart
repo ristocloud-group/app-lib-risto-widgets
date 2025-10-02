@@ -4,188 +4,255 @@ import 'package:risto_widgets/risto_widgets.dart';
 class RistoNoticeCardPage extends StatelessWidget {
   const RistoNoticeCardPage({super.key});
 
-  void _snack(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(msg)));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Info card with close button
-          RistoNoticeCard.info(
-            title: 'Information',
-            subtitle: 'Some useful contextual information.',
-            footerBuilder:
-                (context, accentColor) => Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomActionButton.rounded(
-                      minHeight: 0,
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      foregroundColor: Colors.black,
-                      onPressed: () => _snack(context, 'Learn more tapped'),
-                      child: Text(
-                        'Learn more',
-                        style: TextStyle(color: accentColor),
-                      ),
-                    ),
-                  ],
-                ),
-            showClose: true,
-            onClose: () => _snack(context, 'Info closed'),
-          ),
-          const SizedBox(height: 12),
+      backgroundColor: Colors.grey.shade200,
+      appBar: AppBar(title: const Text('Risto Notice Card Examples')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _SectionTitle('Default Styles'),
 
-          // Success card with a filled style
-          RistoNoticeCard.success(
-            title: 'Success',
-            subtitle: 'Your operation completed successfully.',
-            footerBuilder:
-                (context, accentColor) => Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomActionButton.rounded(
-                      minHeight: 0,
-                      onPressed: () => _snack(context, 'View tapped'),
-                      backgroundColor: accentColor,
-                      child: const Text('View'),
-                    ),
-                  ],
-                ),
-            showClose: true,
-            onClose: () => _snack(context, 'Success closed'),
-          ),
-          const SizedBox(height: 12),
-
-          // Warning with 2 actions
-          RistoNoticeCard.warning(
-            title: 'Warning',
-            subtitle: 'This may have unintended consequences.',
-            footerBuilder:
-                (context, accentColor) => Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomActionButton.minimal(
-                      minHeight: 0,
-                      onPressed: () => _snack(context, 'Ignore tapped'),
-                      child: const Text('Ignore'),
-                    ),
-                    const SizedBox(width: 8),
-                    CustomActionButton.rounded(
-                      minHeight: 0,
-                      onPressed: () => _snack(context, 'Fix tapped'),
-                      backgroundColor: accentColor,
-                      child: const Text('Fix'),
-                    ),
-                  ],
-                ),
-            showClose: true,
-            onClose: () => _snack(context, 'Warning closed'),
-          ),
-          const SizedBox(height: 12),
-
-          // Error card with icons on actions
-          RistoNoticeCard.error(
-            title: 'Error',
-            subtitle: 'Something went wrong, please retry.',
-            footerBuilder:
-                (context, accentColor) => Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomActionButton.minimal(
-                      minHeight: 0,
-                      onPressed: () => _snack(context, 'Show details'),
-                      child: const CustomIconText(
-                        icon: Icons.info_outline,
-                        iconSize: 18,
-                        text: 'Details',
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    CustomActionButton.rounded(
-                      minHeight: 0,
-                      onPressed: () => _snack(context, 'Retry tapped'),
-                      backgroundColor: accentColor,
-                      child: const CustomIconText(
-                        icon: Icons.refresh,
-                        iconSize: 18,
-                        text: 'Retry',
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-            showClose: true,
-            onClose: () => _snack(context, 'Error closed'),
-          ),
-          const SizedBox(height: 12), // Error card with icons on actions
-          SizedBox(
-            height: 150,
-            child: RistoNoticeCard(
-              kind: RistoNoticeKind.empty,
-              title: 'Nessun piatto disponibile',
+            // Using .rounded for a softer look, and minHeight: 0 for proper sizing.
+            RistoNoticeCard.success(
+              title: 'Operation Successful',
               subtitle:
-                  'Non sono presenti piatti per la data selezionata. Riprova!',
-              icon: Icons.fastfood_outlined,
+                  'Your operation completed successfully and the data was saved.',
+              
+              footerBuilder: (context, accentColor) {
+                return CustomActionButton.rounded(
+                  minHeight: 0,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 24,
+                  ),
+                  onPressed:
+                      () => RistoToast.success(context, message: 'View tapped'),
+                  backgroundColor: accentColor,
+                  child: const Text('View Details'),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+
+            // A combination of .minimal and .rounded in a two-button layout.
+            RistoNoticeCard.warning(
+              title: 'Warning',
+              subtitle:
+                  'This may have unintended consequences. Please review your changes before proceeding.',
+              footerBuilder: (context, accentColor) {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: CustomActionButton.minimal(
+                        minHeight: 0, // Let button size to its content
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 24,
+                        ),
+                        onPressed:
+                            () => RistoToast.warning(
+                              context,
+                              message: 'Ignore tapped',
+                            ),
+                        child: const Text('Ignore'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: CustomActionButton.rounded(
+                        minHeight: 0,
+                        // Let button size to its content
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 24,
+                        ),
+                        onPressed:
+                            () =>
+                                RistoToast.info(context, message: 'Fix tapped'),
+                        backgroundColor: accentColor,
+                        child: const Text('Fix'),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 48),
+
+            const _SectionTitle('Alignment & Padding'),
+
+            RistoNoticeCard.info(
+              title: 'Left-Aligned Content',
+              subtitle:
+                  'Using crossAxisAlignment: CrossAxisAlignment.start to align all content to the left.',
+              crossAxisAlignment: CrossAxisAlignment.start,
+              noticeIcon: Icon(
+                Icons.align_horizontal_left,
+                size: 48,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            RistoNoticeCard.neutral(
+              title: 'Right-Aligned Footer',
+              subtitle:
+                  'Content is left-aligned, but the footer is aligned to the right using footerAlignment.',
+              crossAxisAlignment: CrossAxisAlignment.start,
+              footerAlignment: Alignment.centerRight,
               footerBuilder:
                   (context, accentColor) => CustomActionButton.rounded(
                     minHeight: 0,
                     padding: const EdgeInsets.symmetric(
-                      vertical: 6,
-                      horizontal: 12,
+                      horizontal: 24,
+                      vertical: 10,
                     ),
-                    onPressed: () {},
-                    backgroundColor: accentColor,
-                    child: CustomIconText(
-                      icon: Icons.refresh_rounded,
-                      iconSize: 20,
-                      text: 'Ricarica',
-                      color: Colors.white,
-                      spacing: 3,
-                    ),
+                    onPressed:
+                        () => RistoToast.info(
+                          context,
+                          message: 'Next Step tapped',
+                        ),
+                    child: const Text('Next Step'),
                   ),
-              footerPadding: EdgeInsetsGeometry.zero,
-              minHeight: 150,
-              dense: true,
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 24),
 
-          // Neutral card (no actions)
-          const RistoNoticeCard(
-            kind: RistoNoticeKind.neutral,
-            title: 'Heads up',
-            subtitle: 'Neutral informational message.',
-          ),
-          const SizedBox(height: 12),
-
-          // Empty card with a custom button
-          RistoNoticeCard(
-            kind: RistoNoticeKind.empty,
-            title: 'No items found',
-            subtitle: 'Try adjusting your filters or adding a new item.',
-            minHeight: 200,
-            footerAlignment: AlignmentGeometry.bottomRight,
-            footerBuilder:
-                (context, accentColor) => CustomActionButton.elevated(
-                  minHeight: 0,
-                  onPressed: () => _snack(context, 'Add item tapped'),
-                  backgroundColor: accentColor,
-                  child: const CustomIconText(
-                    icon: Icons.add,
-                    iconSize: 18,
-                    text: 'Add item',
-                    color: Colors.white,
+            RistoNoticeCard.neutral(
+              title: 'Custom Footer Padding',
+              subtitle:
+                  'Using footerPadding to add extra space around the button.',
+              footerPadding: const EdgeInsets.only(top: 20, right: 10),
+              footerAlignment: Alignment.centerRight,
+              footerBuilder:
+                  (context, accentColor) => CustomActionButton.rounded(
+                    minHeight: 0,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 10,
+                    ),
+                    onPressed:
+                        () => RistoToast.info(
+                          context,
+                          message: 'Submit button tapped',
+                        ),
+                    child: const Text('Submit'),
                   ),
-                ),
-          ),
-        ],
+            ),
+            const SizedBox(height: 48),
+
+            const _SectionTitle('Sizing & Compact Mode'),
+
+            RistoNoticeCard.info(
+              title: 'Compact Mode',
+              subtitle:
+                  'Using compact: true to reduce vertical spacing between elements.',
+              compact: true,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              footerBuilder:
+                  (context, accentColor) => CustomActionButton.rounded(
+                    minHeight: 0,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 8,
+                    ),
+                    // Smaller padding for compact
+                    onPressed:
+                        () => RistoToast.info(context, message: 'OK tapped'),
+                    child: const Text('OK'),
+                  ),
+            ),
+            const SizedBox(height: 24),
+
+            RistoNoticeCard.empty(
+              title: 'Minimum Height',
+              subtitle:
+                  'This card has a minHeight of 250, forcing it to be taller than its content.',
+              minHeight: 250,
+              footerBuilder:
+                  (context, accentColor) => CustomActionButton.rounded(
+                    minHeight: 0,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 24,
+                    ),
+                    onPressed:
+                        () => RistoToast.success(
+                          context,
+                          message: 'Add item tapped',
+                        ),
+                    backgroundColor: accentColor,
+                    child: const Text('Add Item'),
+                  ),
+            ),
+            const SizedBox(height: 24),
+
+            Center(
+              child: RistoNoticeCard.error(
+                title: 'Maximum Width',
+                subtitle:
+                    'This card has a maxWidth of 400. Click the button to see an error toast.',
+                maxWidth: 400,
+                footerBuilder:
+                    (context, accentColor) => CustomActionButton.rounded(
+                      minHeight: 0,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 24,
+                      ),
+                      onPressed:
+                          () => RistoToast.error(
+                            context,
+                            message: 'This is an error toast!',
+                          ),
+                      backgroundColor: accentColor,
+                      child: const Text('Trigger Error'),
+                    ),
+              ),
+            ),
+            const SizedBox(height: 48),
+
+            const _SectionTitle('Custom Spacing'),
+
+            // Using the main constructor to access fine-grained spacing controls.
+            RistoNoticeCard(
+              kind: RistoNoticeKind.neutral,
+              title: 'Custom Spacing',
+              subtitle: 'This card has custom spacing between its elements.',
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacingIconToTitle: 40,
+              spacingTitleToSubtitle: 4,
+              spacingContentToFooter: 32,
+              footerBuilder:
+                  (context, accentColor) =>
+                      const Text('Notice the large gaps above!'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A simple helper widget to create section titles for the example page.
+class _SectionTitle extends StatelessWidget {
+  final String title;
+
+  const _SectionTitle(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16, top: 16.0),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Colors.black54,
+        ),
       ),
     );
   }

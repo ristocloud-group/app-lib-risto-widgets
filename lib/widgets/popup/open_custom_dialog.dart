@@ -28,8 +28,6 @@ class OpenCustomDialog {
   }
 
   /// Factory for a dialog that displays a pre-configured [RistoNoticeCard].
-  /// This is useful when you need to display a notice with a more complex
-  /// footer or body than the standard convenience factories provide.
   factory OpenCustomDialog.notice(
     BuildContext context, {
     required RistoNoticeCard notice,
@@ -42,41 +40,48 @@ class OpenCustomDialog {
   }
 
   /// Displays a success dialog.
+  /// Does not have a footer button by default. Provide [confirmButtonText] to add one.
   factory OpenCustomDialog.success(
     BuildContext context, {
     required String title,
     String? subtitle,
-    String? confirmButtonText,
+    String? confirmButtonText, // Nullable to allow no button
     Function(dynamic)? onClose,
-    BorderRadius? borderRadius,
-    double? borderOpacity,
+    // --- RistoNoticeCard Pass-through Properties ---
+    Widget? noticeIcon,
+    RistoFooterBuilder? footerBuilder,
+    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    bool compact = false,
+    Color? accentColor,
     Color? backgroundColor,
-    double? elevation,
-    int? titleMaxLines,
-    int? subtitleMaxLines,
+    double? minHeight,
+    double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) {
-        return RistoNoticeCard(
-          kind: RistoNoticeKind.success,
+        return RistoNoticeCard.success(
           title: title,
           subtitle: subtitle,
           showClose: true,
           onClose: () => Navigator.pop(ctx, null),
-          borderRadius: borderRadius,
-          borderOpacity: borderOpacity ?? 0.5,
+          noticeIcon: noticeIcon,
+          crossAxisAlignment: crossAxisAlignment,
+          compact: compact,
+          accentColor: accentColor,
           backgroundColor: backgroundColor,
-          elevation: elevation,
-          titleMaxLines: titleMaxLines ?? 1,
-          subtitleMaxLines: subtitleMaxLines ?? 2,
-          footerBuilder: (context, accentColor) {
-            return CustomActionButton.rounded(
-              height: 44,
-              backgroundColor: accentColor,
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(confirmButtonText ?? 'Great!'),
-            );
-          },
+          minHeight: minHeight,
+          maxWidth: maxWidth,
+          footerBuilder: footerBuilder ??
+              (confirmButtonText != null
+                  ? (context, accentColor) => CustomActionButton.rounded(
+                        minHeight: 0,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 24),
+                        backgroundColor: accentColor,
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(confirmButtonText),
+                      )
+                  : null),
         );
       },
       onClose: onClose,
@@ -84,41 +89,48 @@ class OpenCustomDialog {
   }
 
   /// Displays an error dialog.
+  /// Does not have a footer button by default. Provide [confirmButtonText] to add one.
   factory OpenCustomDialog.error(
     BuildContext context, {
     required String title,
     String? subtitle,
-    String? confirmButtonText,
+    String? confirmButtonText, // Nullable to allow no button
     Function(dynamic)? onClose,
-    BorderRadius? borderRadius,
-    double? borderOpacity,
+    // --- RistoNoticeCard Pass-through Properties ---
+    Widget? noticeIcon,
+    RistoFooterBuilder? footerBuilder,
+    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    bool compact = false,
+    Color? accentColor,
     Color? backgroundColor,
-    double? elevation,
-    int? titleMaxLines,
-    int? subtitleMaxLines,
+    double? minHeight,
+    double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) {
-        return RistoNoticeCard(
-          kind: RistoNoticeKind.error,
+        return RistoNoticeCard.error(
           title: title,
           subtitle: subtitle,
           showClose: true,
           onClose: () => Navigator.pop(ctx, null),
-          borderRadius: borderRadius,
-          borderOpacity: borderOpacity ?? 0.5,
+          noticeIcon: noticeIcon,
+          crossAxisAlignment: crossAxisAlignment,
+          compact: compact,
+          accentColor: accentColor,
           backgroundColor: backgroundColor,
-          elevation: elevation,
-          titleMaxLines: titleMaxLines ?? 1,
-          subtitleMaxLines: subtitleMaxLines ?? 2,
-          footerBuilder: (context, accentColor) {
-            return CustomActionButton.rounded(
-              height: 44,
-              backgroundColor: accentColor,
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(confirmButtonText ?? 'Close'),
-            );
-          },
+          minHeight: minHeight,
+          maxWidth: maxWidth,
+          footerBuilder: footerBuilder ??
+              (confirmButtonText != null
+                  ? (context, accentColor) => CustomActionButton.rounded(
+                        minHeight: 0,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 24),
+                        backgroundColor: accentColor,
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(confirmButtonText),
+                      )
+                  : null),
         );
       },
       onClose: onClose,
@@ -126,41 +138,48 @@ class OpenCustomDialog {
   }
 
   /// Displays an informational dialog.
+  /// Does not have a footer button by default. Provide [confirmButtonText] to add one.
   factory OpenCustomDialog.info(
     BuildContext context, {
     required String title,
     String? subtitle,
-    String? confirmButtonText,
+    String? confirmButtonText, // Nullable to allow no button
     Function(dynamic)? onClose,
-    BorderRadius? borderRadius,
-    double? borderOpacity,
+    // --- RistoNoticeCard Pass-through Properties ---
+    Widget? noticeIcon,
+    RistoFooterBuilder? footerBuilder,
+    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    bool compact = false,
+    Color? accentColor,
     Color? backgroundColor,
-    double? elevation,
-    int? titleMaxLines,
-    int? subtitleMaxLines,
+    double? minHeight,
+    double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) {
-        return RistoNoticeCard(
-          kind: RistoNoticeKind.info,
+        return RistoNoticeCard.info(
           title: title,
           subtitle: subtitle,
           showClose: true,
           onClose: () => Navigator.pop(ctx, null),
-          borderRadius: borderRadius,
-          borderOpacity: borderOpacity ?? 0.5,
+          noticeIcon: noticeIcon,
+          crossAxisAlignment: crossAxisAlignment,
+          compact: compact,
+          accentColor: accentColor,
           backgroundColor: backgroundColor,
-          elevation: elevation,
-          titleMaxLines: titleMaxLines ?? 1,
-          subtitleMaxLines: subtitleMaxLines ?? 2,
-          footerBuilder: (context, accentColor) {
-            return CustomActionButton.rounded(
-              height: 44,
-              backgroundColor: accentColor,
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(confirmButtonText ?? 'Got it'),
-            );
-          },
+          minHeight: minHeight,
+          maxWidth: maxWidth,
+          footerBuilder: footerBuilder ??
+              (confirmButtonText != null
+                  ? (context, accentColor) => CustomActionButton.rounded(
+                        minHeight: 0,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 24),
+                        backgroundColor: accentColor,
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(confirmButtonText),
+                      )
+                  : null),
         );
       },
       onClose: onClose,
@@ -175,57 +194,62 @@ class OpenCustomDialog {
     String? confirmButtonText,
     String? cancelButtonText,
     Function(dynamic)? onClose,
-    BorderRadius? borderRadius,
-    double? borderOpacity,
+    // --- RistoNoticeCard Pass-through Properties ---
+    Widget? noticeIcon,
+    RistoFooterBuilder? footerBuilder,
+    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    bool compact = false,
+    Color? accentColor,
     Color? backgroundColor,
-    double? elevation,
-    int? titleMaxLines,
-    int? subtitleMaxLines,
+    double? minHeight,
+    double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) {
-        return RistoNoticeCard(
-          kind: RistoNoticeKind.warning,
+        return RistoNoticeCard.warning(
           title: title,
           subtitle: subtitle,
           showClose: true,
           onClose: () => Navigator.pop(ctx, null),
-          borderRadius: borderRadius,
-          borderOpacity: borderOpacity ?? 0.5,
+          noticeIcon: noticeIcon,
+          crossAxisAlignment: crossAxisAlignment,
+          compact: compact,
+          accentColor: accentColor,
           backgroundColor: backgroundColor,
-          elevation: elevation,
-          titleMaxLines: titleMaxLines ?? 1,
-          subtitleMaxLines: subtitleMaxLines ?? 2,
-          footerBuilder: (context, accentColor) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomActionButton.rounded(
-                  height: 44,
-                  backgroundColor: Colors.transparent,
-                  borderColor: accentColor,
-                  foregroundColor: accentColor,
-                  elevation: 0,
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(cancelButtonText ?? 'Cancel'),
-                ),
-                const SizedBox(width: 8),
-                CustomActionButton.rounded(
-                  height: 44,
-                  backgroundColor: accentColor,
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: Text(confirmButtonText ?? 'Continue'),
-                ),
-              ],
-            );
-          },
+          minHeight: minHeight,
+          maxWidth: maxWidth,
+          footerBuilder: footerBuilder ??
+              (context, accentColor) => Row(
+                    children: [
+                      Expanded(
+                        child: CustomActionButton.minimal(
+                          minHeight: 0,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 24),
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: Text(cancelButtonText ?? 'Cancel'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: CustomActionButton.rounded(
+                          minHeight: 0,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 24),
+                          backgroundColor: accentColor,
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: Text(confirmButtonText ?? 'Continue'),
+                        ),
+                      ),
+                    ],
+                  ),
         );
       },
       onClose: onClose,
     );
   }
 
-  /// Factory for a confirmation dialog.
+  /// Displays a confirmation dialog with "Confirm" and "Cancel" buttons.
   factory OpenCustomDialog.confirm(
     BuildContext context, {
     required String title,
@@ -233,50 +257,56 @@ class OpenCustomDialog {
     String? confirmButtonText,
     String? cancelButtonText,
     Function(dynamic)? onClose,
-    BorderRadius? borderRadius,
-    double? borderOpacity,
+    // --- RistoNoticeCard Pass-through Properties ---
+    Widget? noticeIcon,
+    RistoFooterBuilder? footerBuilder,
+    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    bool compact = false,
+    Color? accentColor,
     Color? backgroundColor,
-    double? elevation,
-    int? titleMaxLines,
-    int? subtitleMaxLines,
+    double? minHeight,
+    double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) {
-        return RistoNoticeCard(
-          kind: RistoNoticeKind.neutral,
+        return RistoNoticeCard.neutral(
           title: title,
           subtitle: subtitle,
           showClose: true,
           onClose: () => Navigator.pop(ctx, null),
-          borderRadius: borderRadius,
-          borderOpacity: borderOpacity ?? 0.5,
+          noticeIcon: noticeIcon,
+          crossAxisAlignment: crossAxisAlignment,
+          compact: compact,
+          accentColor: accentColor,
           backgroundColor: backgroundColor,
-          elevation: elevation,
-          titleMaxLines: titleMaxLines ?? 1,
-          subtitleMaxLines: subtitleMaxLines ?? 2,
-          footerBuilder: (context, accentColor) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomActionButton.rounded(
-                  height: 44,
-                  backgroundColor: Colors.transparent,
-                  borderColor: Theme.of(context).disabledColor,
-                  foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
-                  elevation: 0,
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(cancelButtonText ?? 'Cancel'),
-                ),
-                const SizedBox(width: 8),
-                CustomActionButton.rounded(
-                  height: 44,
-                  backgroundColor: Colors.green,
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: Text(confirmButtonText ?? 'Confirm'),
-                ),
-              ],
-            );
-          },
+          minHeight: minHeight,
+          maxWidth: maxWidth,
+          footerBuilder: footerBuilder ??
+              (context, accentColor) => Row(
+                    children: [
+                      Expanded(
+                        child: CustomActionButton.minimal(
+                          minHeight: 0,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 24),
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: Text(cancelButtonText ?? 'Cancel'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: CustomActionButton.rounded(
+                          minHeight: 0,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 24),
+                          backgroundColor: Colors.green.shade600,
+                          // Specific color for confirm
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: Text(confirmButtonText ?? 'Confirm'),
+                        ),
+                      ),
+                    ],
+                  ),
         );
       },
       onClose: onClose,
