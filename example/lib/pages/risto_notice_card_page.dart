@@ -21,7 +21,7 @@ class RistoNoticeCardPage extends StatelessWidget {
               title: 'Operation Successful',
               subtitle:
                   'Your operation completed successfully and the data was saved.',
-              
+
               footerBuilder: (context, accentColor) {
                 return CustomActionButton.rounded(
                   minHeight: 0,
@@ -223,9 +223,7 @@ class RistoNoticeCardPage extends StatelessWidget {
               title: 'Custom Spacing',
               subtitle: 'This card has custom spacing between its elements.',
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacingIconToTitle: 40,
-              spacingTitleToSubtitle: 4,
-              spacingContentToFooter: 32,
+              runSpacing: 32,
               footerBuilder:
                   (context, accentColor) =>
                       const Text('Notice the large gaps above!'),

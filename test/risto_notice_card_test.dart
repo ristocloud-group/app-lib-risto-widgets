@@ -37,7 +37,7 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('uses kind accent color on stripe and icon', (tester) async {
+    testWidgets('uses kind accent color on icon', (tester) async {
       const kErr = Color(0xFFAA0011);
       final theme = ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo).copyWith(
@@ -53,21 +53,42 @@ void main() {
         theme: theme,
       ));
 
-      // Find the stripe Container (the first Container inside the Row)
-      final stripe = tester.widget<Container>(
-        find
-            .descendant(
-              of: find.byType(Row),
-              matching: find.byType(Container),
-            )
-            .first,
-      );
-      expect(stripe.color, kErr);
-
       // Find the icon and check its color
       final icon = tester.widget<Icon>(find.byType(Icon));
       expect(icon.color, kErr);
     });
+
+    testWidgets('does not render icon when showIcon is false', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const RistoNoticeCard(
+          kind: RistoNoticeKind.info,
+          title: 'No Icon Here',
+          showIcon: false,
+        ),
+      ));
+
+      expect(find.text('No Icon Here'), findsOneWidget);
+      expect(find.byType(Icon), findsNothing);
+    });
+
+    testWidgets('applies runSpacing between elements', (tester) async {
+      const spacing = 24.0;
+      await tester.pumpWidget(_wrap(
+        const RistoNoticeCard(
+          kind: RistoNoticeKind.info,
+          title: 'Title',
+          subtitle: 'Subtitle',
+          runSpacing: spacing,
+        ),
+      ));
+
+      final sizedBoxes = tester.widgetList<SizedBox>(find.byType(SizedBox));
+
+      // We expect two SizedBoxes for spacing between icon-title and title-subtitle.
+      final spacingBoxes = sizedBoxes.where((box) => box.height == spacing).toList();
+      expect(spacingBoxes.length, 2);
+    });
+
 
     testWidgets('applies custom titleStyle', (tester) async {
       const customStyle = TextStyle(color: Colors.purple, fontSize: 24.0);
@@ -122,7 +143,7 @@ void main() {
       expect(titleText.style?.color, customStyle.color);
 
       // Check that the default fontWeight from the widget's internal styling is preserved.
-      expect(titleText.style?.fontWeight, FontWeight.w600);
+      expect(titleText.style?.fontWeight, FontWeight.bold);
     });
   });
 }
