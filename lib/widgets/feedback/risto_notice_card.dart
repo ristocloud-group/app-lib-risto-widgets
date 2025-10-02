@@ -71,6 +71,9 @@ class RistoNoticeCard extends StatelessWidget {
   /// Defaults to false.
   final bool compact;
 
+  /// If true, inverts the position of the title and the icon.
+  final bool invert;
+
   /// The vertical spacing between elements in the card.
   /// Overrides [compact] defaults.
   final double? runSpacing;
@@ -126,6 +129,7 @@ class RistoNoticeCard extends StatelessWidget {
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.compact = false,
+    this.invert = false,
     this.runSpacing,
     this.minWidth,
     this.maxWidth,
@@ -156,6 +160,7 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
+    bool invert = false,
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
@@ -180,6 +185,7 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       mainAxisAlignment: mainAxisAlignment,
       compact: compact,
+      invert: invert,
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
@@ -205,6 +211,7 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
+    bool invert = false,
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
@@ -229,6 +236,7 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       mainAxisAlignment: mainAxisAlignment,
       compact: compact,
+      invert: invert,
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
@@ -254,6 +262,7 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
+    bool invert = false,
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
@@ -278,6 +287,7 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       mainAxisAlignment: mainAxisAlignment,
       compact: compact,
+      invert: invert,
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
@@ -303,6 +313,7 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
+    bool invert = false,
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
@@ -327,6 +338,7 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       mainAxisAlignment: mainAxisAlignment,
       compact: compact,
+      invert: invert,
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
@@ -352,6 +364,7 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
+    bool invert = false,
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
@@ -376,6 +389,7 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       mainAxisAlignment: mainAxisAlignment,
       compact: compact,
+      invert: invert,
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
@@ -401,6 +415,7 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
+    bool invert = false,
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
@@ -425,6 +440,7 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       mainAxisAlignment: mainAxisAlignment,
       compact: compact,
+      invert: invert,
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
@@ -476,45 +492,55 @@ class RistoNoticeCard extends StatelessWidget {
       footerWidget = footerContent;
     }
 
+    final titleWidget = title != null && title!.isNotEmpty
+        ? Text(
+            title!,
+            textAlign: textAlign,
+            style: theme.textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold)
+                .merge(titleStyle),
+            maxLines: titleMaxLines,
+            overflow: TextOverflow.ellipsis,
+          )
+        : null;
+
+    final subtitleWidget = subtitle != null && subtitle!.isNotEmpty
+        ? Text(
+            subtitle!,
+            textAlign: textAlign,
+            style: theme.textTheme.bodyLarge
+                ?.copyWith(
+                    color: theme.colorScheme.onSurface.withCustomOpacity(0.7))
+                .merge(subtitleStyle),
+            maxLines: subtitleMaxLines,
+            overflow: TextOverflow.ellipsis,
+          )
+        : null;
+
     final List<Widget> bodyContent = [];
-    if (noticeIcon != null) {
-      bodyContent.add(noticeIcon!);
+
+    final topContent = invert ? titleWidget : noticeIcon;
+    final bottomContent = invert ? noticeIcon : titleWidget;
+
+    if (topContent != null) {
+      bodyContent.add(topContent);
     }
-    if (title != null && title!.isNotEmpty) {
+    if (bottomContent != null) {
       if (bodyContent.isNotEmpty &&
           mainAxisAlignment == MainAxisAlignment.start) {
         bodyContent.add(SizedBox(height: finalRunSpacing));
       }
-      bodyContent.add(
-        Text(
-          title!,
-          textAlign: textAlign,
-          style: theme.textTheme.headlineSmall
-              ?.copyWith(fontWeight: FontWeight.bold)
-              .merge(titleStyle),
-          maxLines: titleMaxLines,
-          overflow: TextOverflow.ellipsis,
-        ),
-      );
+      bodyContent.add(bottomContent);
     }
-    if (subtitle != null && subtitle!.isNotEmpty) {
+
+    if (subtitleWidget != null) {
       if (bodyContent.isNotEmpty &&
           mainAxisAlignment == MainAxisAlignment.start) {
         bodyContent.add(SizedBox(height: finalRunSpacing / 2));
       }
-      bodyContent.add(
-        Text(
-          subtitle!,
-          textAlign: textAlign,
-          style: theme.textTheme.bodyLarge
-              ?.copyWith(
-                  color: theme.colorScheme.onSurface.withCustomOpacity(0.7))
-              .merge(subtitleStyle),
-          maxLines: subtitleMaxLines,
-          overflow: TextOverflow.ellipsis,
-        ),
-      );
+      bodyContent.add(subtitleWidget);
     }
+
     if (footerWidget != null) {
       if (bodyContent.isNotEmpty &&
           mainAxisAlignment == MainAxisAlignment.start) {
