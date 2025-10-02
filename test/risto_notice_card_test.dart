@@ -47,7 +47,8 @@ void main() {
       expect(find.byType(Icon), findsOneWidget);
     });
 
-    testWidgets('does not render icon when it is not provided', (tester) async {
+    testWidgets('does not render icon when it is not provided',
+        (tester) async {
       await tester.pumpWidget(_wrap(
         const RistoNoticeCard(
           kind: RistoNoticeKind.info,
@@ -78,11 +79,12 @@ void main() {
         matching: find.byType(Column),
       ));
       final children = column.children;
-
-      // The direct children should be [contentGroup (a Column), SizedBox, footer (a Text)]
-      expect(children.length, 3);
-      expect(children[1],
-          isA<SizedBox>().having((s) => s.height, 'height', spacing));
+      
+      // We expect 7 children: icon, space, title, space, subtitle, space, footer
+      expect(children.length, 7);
+      expect(children[1], isA<SizedBox>().having((s) => s.height, 'height', spacing));
+      expect(children[3], isA<SizedBox>().having((s) => s.height, 'height', spacing / 2));
+      expect(children[5], isA<SizedBox>().having((s) => s.height, 'height', spacing));
     });
 
     testWidgets('respects mainAxisAlignment for alignment', (tester) async {
@@ -91,8 +93,7 @@ void main() {
           kind: RistoNoticeKind.info,
           title: 'Title',
           footerBuilder: (context, accentColor) => const Text('Footer'),
-          minHeight: 300,
-          // Important for alignment to take effect
+          minHeight: 300, // Important for alignment to take effect
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
         ),
       ));

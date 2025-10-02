@@ -476,9 +476,16 @@ class RistoNoticeCard extends StatelessWidget {
       footerWidget = footerContent;
     }
 
-    final textBlockItems = <Widget>[];
+    final List<Widget> bodyContent = [];
+    if (noticeIcon != null) {
+      bodyContent.add(noticeIcon!);
+    }
     if (title != null && title!.isNotEmpty) {
-      textBlockItems.add(
+      if (bodyContent.isNotEmpty &&
+          mainAxisAlignment == MainAxisAlignment.start) {
+        bodyContent.add(SizedBox(height: finalRunSpacing));
+      }
+      bodyContent.add(
         Text(
           title!,
           textAlign: textAlign,
@@ -490,12 +497,12 @@ class RistoNoticeCard extends StatelessWidget {
         ),
       );
     }
-
     if (subtitle != null && subtitle!.isNotEmpty) {
-      if (textBlockItems.isNotEmpty) {
-        textBlockItems.add(SizedBox(height: finalRunSpacing / 2));
+      if (bodyContent.isNotEmpty &&
+          mainAxisAlignment == MainAxisAlignment.start) {
+        bodyContent.add(SizedBox(height: finalRunSpacing / 2));
       }
-      textBlockItems.add(
+      bodyContent.add(
         Text(
           subtitle!,
           textAlign: textAlign,
@@ -508,53 +515,12 @@ class RistoNoticeCard extends StatelessWidget {
         ),
       );
     }
-    
-    final Widget? textBlock = textBlockItems.isNotEmpty
-        ? Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: crossAxisAlignment,
-            children: textBlockItems,
-          )
-        : null;
-
-    final contentGroupItems = <Widget>[];
-    if (noticeIcon != null) {
-      contentGroupItems.add(noticeIcon!);
-    }
-    if (textBlock != null) {
-      if (contentGroupItems.isNotEmpty) {
-        contentGroupItems.add(SizedBox(height: finalRunSpacing));
+    if (footerWidget != null) {
+      if (bodyContent.isNotEmpty &&
+          mainAxisAlignment == MainAxisAlignment.start) {
+        bodyContent.add(SizedBox(height: finalRunSpacing));
       }
-      contentGroupItems.add(textBlock);
-    }
-    
-    final Widget? contentGroup = contentGroupItems.isNotEmpty
-        ? Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: crossAxisAlignment,
-            children: contentGroupItems,
-          )
-        : null;
-
-
-    final List<Widget> bodyContent = [];
-    if (mainAxisAlignment == MainAxisAlignment.start) {
-      if (contentGroup != null) {
-        bodyContent.add(contentGroup);
-      }
-      if (footerWidget != null) {
-        if (bodyContent.isNotEmpty) {
-          bodyContent.add(SizedBox(height: finalRunSpacing));
-        }
-        bodyContent.add(footerWidget);
-      }
-    } else {
-      if (contentGroup != null) {
-        bodyContent.add(contentGroup);
-      }
-      if (footerWidget != null) {
-        bodyContent.add(footerWidget);
-      }
+      bodyContent.add(footerWidget);
     }
 
     final cardShell = Container(
@@ -628,32 +594,26 @@ class RistoNoticeCard extends StatelessWidget {
       case RistoNoticeKind.success:
         return _KindDefaults(
           accent: Colors.green.shade600,
-          icon: Icons.check_circle_outline_rounded,
         );
       case RistoNoticeKind.warning:
         return _KindDefaults(
           accent: Colors.orange.shade700,
-          icon: Icons.warning_amber_rounded,
         );
       case RistoNoticeKind.error:
         return _KindDefaults(
           accent: cs.error,
-          icon: Icons.error_outline_rounded,
         );
       case RistoNoticeKind.info:
         return _KindDefaults(
           accent: cs.primary,
-          icon: Icons.info_outline_rounded,
         );
       case RistoNoticeKind.neutral:
         return _KindDefaults(
           accent: cs.onSurface.withCustomOpacity(0.8),
-          icon: Icons.info_outline_rounded,
         );
       case RistoNoticeKind.empty:
         return _KindDefaults(
           accent: cs.secondary,
-          icon: Icons.inbox_outlined,
         );
     }
   }
@@ -661,7 +621,6 @@ class RistoNoticeCard extends StatelessWidget {
 
 class _KindDefaults {
   final Color accent;
-  final IconData icon;
 
-  const _KindDefaults({required this.accent, required this.icon});
+  const _KindDefaults({required this.accent});
 }
