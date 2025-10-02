@@ -20,6 +20,11 @@ class RistoNoticeCard extends StatelessWidget {
   /// The secondary text displayed below the title.
   final String? subtitle;
 
+  /// A list of [InlineSpan] for a rich text subtitle.
+  /// Use this for custom styling, like bolding text.
+  /// If provided, [subtitle] will be ignored.
+  final List<InlineSpan>? subtitleSpan;
+
   final int titleMaxLines;
   final int subtitleMaxLines;
 
@@ -114,6 +119,7 @@ class RistoNoticeCard extends StatelessWidget {
     required this.kind,
     this.title,
     this.subtitle,
+    this.subtitleSpan,
     this.titleMaxLines = 2,
     this.subtitleMaxLines = 4,
     this.titleStyle,
@@ -147,12 +153,14 @@ class RistoNoticeCard extends StatelessWidget {
     this.shadowColor,
     this.layoutAnimDuration = const Duration(milliseconds: 180),
     this.layoutAnimCurve = Curves.easeInOut,
-  });
+  }) : assert(subtitle == null || subtitleSpan == null,
+            'Cannot provide both a subtitle and a subtitleSpan.');
 
   factory RistoNoticeCard.info({
     Key? key,
     String? title,
     String? subtitle,
+    List<InlineSpan>? subtitleSpan,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -178,6 +186,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.info,
       title: title,
       subtitle: subtitle,
+      subtitleSpan: subtitleSpan,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -204,6 +213,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     String? title,
     String? subtitle,
+    List<InlineSpan>? subtitleSpan,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -229,6 +239,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.success,
       title: title,
       subtitle: subtitle,
+      subtitleSpan: subtitleSpan,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -255,6 +266,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     String? title,
     String? subtitle,
+    List<InlineSpan>? subtitleSpan,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -280,6 +292,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.warning,
       title: title,
       subtitle: subtitle,
+      subtitleSpan: subtitleSpan,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -306,6 +319,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     String? title,
     String? subtitle,
+    List<InlineSpan>? subtitleSpan,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -331,6 +345,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.error,
       title: title,
       subtitle: subtitle,
+      subtitleSpan: subtitleSpan,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -357,6 +372,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     String? title,
     String? subtitle,
+    List<InlineSpan>? subtitleSpan,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -382,6 +398,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.neutral,
       title: title,
       subtitle: subtitle,
+      subtitleSpan: subtitleSpan,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -408,6 +425,7 @@ class RistoNoticeCard extends StatelessWidget {
     Key? key,
     String? title,
     String? subtitle,
+    List<InlineSpan>? subtitleSpan,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -433,6 +451,7 @@ class RistoNoticeCard extends StatelessWidget {
       kind: RistoNoticeKind.empty,
       title: title,
       subtitle: subtitle,
+      subtitleSpan: subtitleSpan,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -504,18 +523,32 @@ class RistoNoticeCard extends StatelessWidget {
           )
         : null;
 
-    final subtitleWidget = subtitle != null && subtitle!.isNotEmpty
-        ? Text(
-            subtitle!,
+    final subtitleWidget = subtitleSpan != null
+        ? RichText(
             textAlign: textAlign,
-            style: theme.textTheme.bodyLarge
-                ?.copyWith(
-                    color: theme.colorScheme.onSurface.withCustomOpacity(0.7))
-                .merge(subtitleStyle),
             maxLines: subtitleMaxLines,
             overflow: TextOverflow.ellipsis,
+            text: TextSpan(
+              style: theme.textTheme.bodyLarge
+                  ?.copyWith(
+                      color: theme.colorScheme.onSurface.withCustomOpacity(0.7))
+                  .merge(subtitleStyle),
+              children: subtitleSpan,
+            ),
           )
-        : null;
+        : (subtitle != null && subtitle!.isNotEmpty
+            ? Text(
+                subtitle!,
+                textAlign: textAlign,
+                style: theme.textTheme.bodyLarge
+                    ?.copyWith(
+                        color:
+                            theme.colorScheme.onSurface.withCustomOpacity(0.7))
+                    .merge(subtitleStyle),
+                maxLines: subtitleMaxLines,
+                overflow: TextOverflow.ellipsis,
+              )
+            : null);
 
     final List<Widget> bodyContent = [];
 

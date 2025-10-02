@@ -47,8 +47,7 @@ void main() {
       expect(find.byType(Icon), findsOneWidget);
     });
 
-    testWidgets('does not render icon when it is not provided',
-        (tester) async {
+    testWidgets('does not render icon when it is not provided', (tester) async {
       await tester.pumpWidget(_wrap(
         const RistoNoticeCard(
           kind: RistoNoticeKind.info,
@@ -58,6 +57,46 @@ void main() {
 
       expect(find.text('No Icon Here'), findsOneWidget);
       expect(find.byType(Icon), findsNothing);
+    });
+
+    testWidgets('inverts title and icon when invert is true', (tester) async {
+      await tester.pumpWidget(_wrap(
+        RistoNoticeCard(
+          kind: RistoNoticeKind.info,
+          title: 'Inverted Title',
+          noticeIcon: const Icon(Icons.invert_colors),
+          invert: true,
+        ),
+      ));
+
+      final column = tester.widget<Column>(find.byType(Column).first);
+      expect(column.children.first, isA<Text>());
+      expect(column.children.last, isA<Icon>());
+    });
+
+    testWidgets('renders rich text when subtitleSpan is provided',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        const RistoNoticeCard(
+          kind: RistoNoticeKind.info,
+          title: 'Rich Text',
+          subtitleSpan: [
+            TextSpan(text: 'Hello '),
+            TextSpan(
+              text: 'World',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ));
+
+      // Find the specific RichText for the subtitle to avoid matching the title's RichText.
+      final subtitleFinder = find.byWidgetPredicate(
+        (widget) =>
+            widget is RichText && widget.text.toPlainText() == 'Hello World',
+      );
+
+      expect(subtitleFinder, findsOneWidget);
     });
 
     testWidgets('applies runSpacing between elements', (tester) async {
@@ -79,12 +118,15 @@ void main() {
         matching: find.byType(Column),
       ));
       final children = column.children;
-      
+
       // We expect 7 children: icon, space, title, space, subtitle, space, footer
       expect(children.length, 7);
-      expect(children[1], isA<SizedBox>().having((s) => s.height, 'height', spacing));
-      expect(children[3], isA<SizedBox>().having((s) => s.height, 'height', spacing / 2));
-      expect(children[5], isA<SizedBox>().having((s) => s.height, 'height', spacing));
+      expect(children[1],
+          isA<SizedBox>().having((s) => s.height, 'height', spacing));
+      expect(children[3],
+          isA<SizedBox>().having((s) => s.height, 'height', spacing / 2));
+      expect(children[5],
+          isA<SizedBox>().having((s) => s.height, 'height', spacing));
     });
 
     testWidgets('respects mainAxisAlignment for alignment', (tester) async {
@@ -93,7 +135,8 @@ void main() {
           kind: RistoNoticeKind.info,
           title: 'Title',
           footerBuilder: (context, accentColor) => const Text('Footer'),
-          minHeight: 300, // Important for alignment to take effect
+          minHeight: 300,
+          // Important for alignment to take effect
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
         ),
       ));

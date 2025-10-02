@@ -215,7 +215,33 @@ class RistoNoticeCardPage extends StatelessWidget {
             ),
             const SizedBox(height: 48),
 
-            const _SectionTitle('Custom Spacing'),
+            const _SectionTitle('Custom Layout'),
+            
+            RistoNoticeCard.info(
+              invert: true,
+              title: 'Inverted Layout',
+              subtitle: 'The title is displayed above the icon.',
+              noticeIcon: Icon(
+                Icons.info_outline,
+                size: 48,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            RistoNoticeCard.info(
+              title: 'Rich Text Subtitle',
+              subtitleSpan: const [
+                TextSpan(text: 'You can use '),
+                TextSpan(
+                  text: 'InlineSpan',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(text: ' to style your subtitle.'),
+              ],
+              crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            const SizedBox(height: 24),
 
             // Using the main constructor to access fine-grained spacing controls.
             RistoNoticeCard(
