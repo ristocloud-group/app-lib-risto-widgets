@@ -74,19 +74,40 @@ void main() {
     testWidgets('applies runSpacing between elements', (tester) async {
       const spacing = 24.0;
       await tester.pumpWidget(_wrap(
-        const RistoNoticeCard(
+        RistoNoticeCard(
           kind: RistoNoticeKind.info,
           title: 'Title',
           subtitle: 'Subtitle',
           runSpacing: spacing,
+          footerBuilder: (context, accentColor) => const Text('Footer'),
         ),
       ));
 
-      final sizedBoxes = tester.widgetList<SizedBox>(find.byType(SizedBox));
+      // Find the main content column
+      final column = tester.widget<Column>(find.byType(Column).first);
+      final children = column.children;
 
-      // We expect two SizedBoxes for spacing between icon-title and title-subtitle.
-      final spacingBoxes = sizedBoxes.where((box) => box.height == spacing).toList();
-      expect(spacingBoxes.length, 2);
+      // Expect [contentGroup, SizedBox, footer]
+      expect(children.length, 3);
+      expect(children[1], isA<SizedBox>().having((s) => s.height, 'height', spacing));
+    });
+
+    testWidgets('respects mainAxisAlignment for alignment', (tester) async {
+      await tester.pumpWidget(_wrap(
+        RistoNoticeCard(
+          kind: RistoNoticeKind.info,
+          title: 'Title',
+          footerBuilder: (context, accentColor) => const Text('Footer'),
+          minHeight: 300, // Important for alignment to take effect
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ),
+      ));
+
+      // Find the main column, which will have MainAxisSize.max because a height is set.
+      final column = tester.widget<Column>(find.byWidgetPredicate(
+        (widget) => widget is Column && widget.mainAxisSize == MainAxisSize.max,
+      ));
+      expect(column.mainAxisAlignment, MainAxisAlignment.spaceBetween);
     });
 
 

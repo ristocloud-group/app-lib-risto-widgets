@@ -66,6 +66,11 @@ class RistoNoticeCard extends StatelessWidget {
   /// for a left-aligned layout.
   final CrossAxisAlignment crossAxisAlignment;
 
+  /// The vertical alignment of the content within the card.
+  /// Use [MainAxisAlignment.spaceBetween] to push the footer to the bottom
+  /// when a fixed height is set. Defaults to [MainAxisAlignment.start].
+  final MainAxisAlignment mainAxisAlignment;
+
   /// If true, reduces vertical spacing for a more compact layout.
   /// Defaults to false.
   final bool compact;
@@ -124,6 +129,7 @@ class RistoNoticeCard extends StatelessWidget {
     this.showIcon = true,
     this.accentColor,
     this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.mainAxisAlignment = MainAxisAlignment.start,
     this.compact = false,
     this.runSpacing,
     this.minWidth,
@@ -153,6 +159,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
     bool showIcon = true,
     double? runSpacing,
@@ -177,6 +184,7 @@ class RistoNoticeCard extends StatelessWidget {
       showClose: showClose,
       onClose: onClose,
       crossAxisAlignment: crossAxisAlignment,
+      mainAxisAlignment: mainAxisAlignment,
       compact: compact,
       showIcon: showIcon,
       runSpacing: runSpacing,
@@ -202,6 +210,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
     bool showIcon = true,
     double? runSpacing,
@@ -226,6 +235,7 @@ class RistoNoticeCard extends StatelessWidget {
       showClose: showClose,
       onClose: onClose,
       crossAxisAlignment: crossAxisAlignment,
+      mainAxisAlignment: mainAxisAlignment,
       compact: compact,
       showIcon: showIcon,
       runSpacing: runSpacing,
@@ -251,6 +261,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
     bool showIcon = true,
     double? runSpacing,
@@ -275,6 +286,7 @@ class RistoNoticeCard extends StatelessWidget {
       showClose: showClose,
       onClose: onClose,
       crossAxisAlignment: crossAxisAlignment,
+      mainAxisAlignment: mainAxisAlignment,
       compact: compact,
       showIcon: showIcon,
       runSpacing: runSpacing,
@@ -300,6 +312,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
     bool showIcon = true,
     double? runSpacing,
@@ -324,6 +337,7 @@ class RistoNoticeCard extends StatelessWidget {
       showClose: showClose,
       onClose: onClose,
       crossAxisAlignment: crossAxisAlignment,
+      mainAxisAlignment: mainAxisAlignment,
       compact: compact,
       showIcon: showIcon,
       runSpacing: runSpacing,
@@ -349,6 +363,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
     bool showIcon = true,
     double? runSpacing,
@@ -373,6 +388,7 @@ class RistoNoticeCard extends StatelessWidget {
       showClose: showClose,
       onClose: onClose,
       crossAxisAlignment: crossAxisAlignment,
+      mainAxisAlignment: mainAxisAlignment,
       compact: compact,
       showIcon: showIcon,
       runSpacing: runSpacing,
@@ -398,6 +414,7 @@ class RistoNoticeCard extends StatelessWidget {
     bool showClose = false,
     VoidCallback? onClose,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     bool compact = false,
     bool showIcon = true,
     double? runSpacing,
@@ -422,6 +439,7 @@ class RistoNoticeCard extends StatelessWidget {
       showClose: showClose,
       onClose: onClose,
       crossAxisAlignment: crossAxisAlignment,
+      mainAxisAlignment: mainAxisAlignment,
       compact: compact,
       showIcon: showIcon,
       runSpacing: runSpacing,
@@ -497,45 +515,58 @@ class RistoNoticeCard extends StatelessWidget {
       footerWidget = footerContent;
     }
 
-    final List<Widget> children = [];
-    if (showIcon) {
-      children.add(headerIcon);
-    }
-    children.add(
-      Text(
-        title,
-        textAlign: textAlign,
-        style: theme.textTheme.headlineSmall
-            ?.copyWith(fontWeight: FontWeight.bold)
-            .merge(titleStyle),
-        maxLines: titleMaxLines,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-
-    if (subtitle != null && subtitle!.isNotEmpty) {
-      children.add(
+    final textBlock = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: crossAxisAlignment,
+      children: [
         Text(
-          subtitle!,
+          title,
           textAlign: textAlign,
-          style: theme.textTheme.bodyLarge
-              ?.copyWith(
-                  color: theme.colorScheme.onSurface.withCustomOpacity(0.7))
-              .merge(subtitleStyle),
-          maxLines: subtitleMaxLines,
+          style: theme.textTheme.headlineSmall
+              ?.copyWith(fontWeight: FontWeight.bold)
+              .merge(titleStyle),
+          maxLines: titleMaxLines,
           overflow: TextOverflow.ellipsis,
         ),
-      );
-    }
-    if (footerWidget != null) {
-      children.add(footerWidget);
-    }
+        if (subtitle != null && subtitle!.isNotEmpty) ...[
+          SizedBox(height: finalRunSpacing / 2),
+          Text(
+            subtitle!,
+            textAlign: textAlign,
+            style: theme.textTheme.bodyLarge
+                ?.copyWith(
+                    color: theme.colorScheme.onSurface.withCustomOpacity(0.7))
+                .merge(subtitleStyle),
+            maxLines: subtitleMaxLines,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
+    );
 
-    final bodyContent = <Widget>[];
-    for (var i = 0; i < children.length; i++) {
-      bodyContent.add(children[i]);
-      if (i < children.length - 1) {
+    final contentGroup = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: crossAxisAlignment,
+      children: [
+        if (showIcon) ...[
+          headerIcon,
+          SizedBox(height: finalRunSpacing),
+        ],
+        textBlock,
+      ],
+    );
+
+    final List<Widget> bodyContent = [];
+    if (mainAxisAlignment == MainAxisAlignment.start) {
+      bodyContent.add(contentGroup);
+      if (footerWidget != null) {
         bodyContent.add(SizedBox(height: finalRunSpacing));
+        bodyContent.add(footerWidget);
+      }
+    } else {
+      bodyContent.add(contentGroup);
+      if (footerWidget != null) {
+        bodyContent.add(footerWidget);
       }
     }
 
@@ -559,7 +590,10 @@ class RistoNoticeCard extends StatelessWidget {
         child: Padding(
           padding: resolvedPadding,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: (minHeight != null || maxHeight != null)
+                ? MainAxisSize.max
+                : MainAxisSize.min,
+            mainAxisAlignment: mainAxisAlignment,
             crossAxisAlignment: crossAxisAlignment,
             children: bodyContent,
           ),
