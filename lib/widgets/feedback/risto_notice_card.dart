@@ -531,7 +531,8 @@ class RistoNoticeCard extends StatelessWidget {
             text: TextSpan(
               style: theme.textTheme.bodyLarge
                   ?.copyWith(
-                      color: theme.colorScheme.onSurface.withCustomOpacity(0.7))
+                      color:
+                          theme.colorScheme.onSurface.withCustomOpacity(0.7))
                   .merge(subtitleStyle),
               children: subtitleSpan,
             ),
@@ -550,36 +551,26 @@ class RistoNoticeCard extends StatelessWidget {
               )
             : null);
 
-    final List<Widget> bodyContent = [];
+    final List<Widget?> potentialChildren = [
+      if (invert) titleWidget else noticeIcon,
+      if (invert) noticeIcon else titleWidget,
+      subtitleWidget,
+      footerWidget,
+    ];
 
-    final topContent = invert ? titleWidget : noticeIcon;
-    final bottomContent = invert ? noticeIcon : titleWidget;
+    final List<Widget> children =
+        potentialChildren.whereType<Widget>().toList();
 
-    if (topContent != null) {
-      bodyContent.add(topContent);
-    }
-    if (bottomContent != null) {
-      if (bodyContent.isNotEmpty &&
-          mainAxisAlignment == MainAxisAlignment.start) {
-        bodyContent.add(SizedBox(height: finalRunSpacing));
+    List<Widget> bodyContent = [];
+    if (mainAxisAlignment == MainAxisAlignment.start) {
+      for (int i = 0; i < children.length; i++) {
+        bodyContent.add(children[i]);
+        if (i < children.length - 1) {
+          bodyContent.add(SizedBox(height: finalRunSpacing));
+        }
       }
-      bodyContent.add(bottomContent);
-    }
-
-    if (subtitleWidget != null) {
-      if (bodyContent.isNotEmpty &&
-          mainAxisAlignment == MainAxisAlignment.start) {
-        bodyContent.add(SizedBox(height: finalRunSpacing / 2));
-      }
-      bodyContent.add(subtitleWidget);
-    }
-
-    if (footerWidget != null) {
-      if (bodyContent.isNotEmpty &&
-          mainAxisAlignment == MainAxisAlignment.start) {
-        bodyContent.add(SizedBox(height: finalRunSpacing));
-      }
-      bodyContent.add(footerWidget);
+    } else {
+      bodyContent = children;
     }
 
     final cardShell = Container(
