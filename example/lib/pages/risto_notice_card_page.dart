@@ -216,7 +216,7 @@ class RistoNoticeCardPage extends StatelessWidget {
             const SizedBox(height: 48),
 
             const _SectionTitle('Custom Layout'),
-            
+
             RistoNoticeCard.info(
               invert: true,
               title: 'Inverted Layout',
