@@ -1,4 +1,4 @@
-## 2.0.0
+## 0.2.0
 
 - Added `RistoToast` widget with multiple factory
   constructors (`info`, `success`, `warning`, `error`, `neutral`, `empty`).
