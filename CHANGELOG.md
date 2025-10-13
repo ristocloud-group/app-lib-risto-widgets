@@ -1,3 +1,23 @@
+## 0.2.0
+
+- Added `RistoToast` widget with multiple factory
+  constructors (`info`, `success`, `warning`, `error`, `neutral`, `empty`).
+- Added `RistoNoticeCard` widget with multiple static
+  function (`info`, `success`, `warning`, `error`,).
+- Added `LinearPercentIndicator` widget
+- Added `CircularPercentIndicator` widget
+- Added `OpenCustomDialog` with factory constructors `custom` and `notice`,
+  supporting `RistoNoticeCard` as body.
+- Improved `CustomActionButton` with the new `rounded` and `icon` factory constructors.
+- Improved `CustomActionButton` and `ListTileButton` widgets with additional customization options.
+- Added `SinglePressButton` widget with factory
+  constructors (`rounded`).
+- Added `InfiniteSnapList` widget and `InfiniteSnapListController` for manage SnapList states.
+- Added `SizeReportingWidget` for getting widget size.
+- Added `SectionSwitcher` with `SegmentedControl` and `SegmentedControlStyle`.
+- Enhanced documentation across all major classes and widgets.
+- Solved multiples bug and enhance the already existing widgets.
+
 ## 0.1.0
 
 - Added `PaddingWrapper` widget with multiple factory

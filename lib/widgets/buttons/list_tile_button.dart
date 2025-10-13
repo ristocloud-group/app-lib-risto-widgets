@@ -108,8 +108,8 @@ class ListTileButton extends StatelessWidget {
     final CrossAxisAlignment textCross = contentAlignment.x <= -0.5
         ? CrossAxisAlignment.start
         : contentAlignment.x >= 0.5
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.center;
+        ? CrossAxisAlignment.end
+        : CrossAxisAlignment.center;
 
     final Widget? leadingWidget = leading == null
         ? null
@@ -124,10 +124,7 @@ class ListTileButton extends StatelessWidget {
 
     final Widget? trailingWidget = trailing == null
         ? null
-        : Padding(
-            padding: trailingPadding ?? EdgeInsets.zero,
-            child: trailing,
-          );
+        : Padding(padding: trailingPadding ?? EdgeInsets.zero, child: trailing);
 
     final Widget textBlock = Flexible(
       fit: FlexFit.tight,
@@ -138,10 +135,7 @@ class ListTileButton extends StatelessWidget {
           crossAxisAlignment: textCross,
           children: [
             body,
-            if (subtitle != null) ...[
-              const SizedBox(height: 4),
-              subtitle!,
-            ],
+            if (subtitle != null) ...[const SizedBox(height: 4), subtitle!],
           ],
         ),
       ),
@@ -165,8 +159,9 @@ class ListTileButton extends StatelessWidget {
       opacity: disabled ? 0.5 : 1.0,
       child: RoundedContainer(
         margin: margin,
-        backgroundColor:
-            effectiveGradient != null ? Colors.transparent : backgroundColor,
+        backgroundColor: effectiveGradient != null
+            ? Colors.transparent
+            : backgroundColor,
         borderColor: borderColor,
         shadowColor: shadowColor,
         borderRadius: borderRadius,
@@ -188,10 +183,7 @@ class ListTileButton extends StatelessWidget {
               onLongPress: disabled ? null : onLongPress,
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: minHeight),
-                child: Padding(
-                  padding: padding ?? EdgeInsets.zero,
-                  child: row,
-                ),
+                child: Padding(padding: padding ?? EdgeInsets.zero, child: row),
               ),
             ),
           ),
@@ -456,11 +448,7 @@ class DoubleListTileButtons extends StatelessWidget {
                 SizedBox(width: space ?? 8),
                 Expanded(child: secondButton),
               ]
-            : [
-                firstButton,
-                SizedBox(width: space ?? 8),
-                secondButton,
-              ],
+            : [firstButton, SizedBox(width: space ?? 8), secondButton],
       ),
     );
   }

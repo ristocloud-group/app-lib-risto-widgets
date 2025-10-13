@@ -212,7 +212,8 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       bottomNavigationBar: Card(
         margin: widget.margin ?? const EdgeInsets.all(0),
         elevation: widget.elevation ?? bottomNavBarTheme.elevation ?? 8.0,
-        color: widget.backgroundColor ??
+        color:
+            widget.backgroundColor ??
             bottomNavBarTheme.backgroundColor ??
             Theme.of(context).colorScheme.surface,
         shape: const RoundedRectangleBorder(
@@ -225,31 +226,40 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
             elevation: 0,
             backgroundColor: Colors.transparent,
             // Allows Card's color to show.
-            type: widget.type ??
+            type:
+                widget.type ??
                 bottomNavBarTheme.type ??
                 BottomNavigationBarType.shifting,
-            selectedItemColor: widget.selectedItemColor ??
+            selectedItemColor:
+                widget.selectedItemColor ??
                 bottomNavBarTheme.selectedItemColor ??
                 Theme.of(context).colorScheme.primary,
-            unselectedItemColor: widget.unselectedItemColor ??
+            unselectedItemColor:
+                widget.unselectedItemColor ??
                 bottomNavBarTheme.unselectedItemColor ??
                 Theme.of(context).unselectedWidgetColor,
-            selectedFontSize: widget.selectedFontSize ??
+            selectedFontSize:
+                widget.selectedFontSize ??
                 bottomNavBarTheme.selectedLabelStyle?.fontSize ??
                 14.0,
-            unselectedFontSize: widget.unselectedFontSize ??
+            unselectedFontSize:
+                widget.unselectedFontSize ??
                 bottomNavBarTheme.unselectedLabelStyle?.fontSize ??
                 12.0,
-            showSelectedLabels: widget.showSelectedLabels ??
+            showSelectedLabels:
+                widget.showSelectedLabels ??
                 bottomNavBarTheme.showSelectedLabels ??
                 true,
-            showUnselectedLabels: widget.showUnselectedLabels ??
+            showUnselectedLabels:
+                widget.showUnselectedLabels ??
                 bottomNavBarTheme.showUnselectedLabels ??
                 true,
-            selectedIconTheme: widget.selectedIconTheme ??
+            selectedIconTheme:
+                widget.selectedIconTheme ??
                 bottomNavBarTheme.selectedIconTheme ??
                 const IconThemeData(size: 24.0),
-            unselectedIconTheme: widget.unselectedIconTheme ??
+            unselectedIconTheme:
+                widget.unselectedIconTheme ??
                 bottomNavBarTheme.unselectedIconTheme ??
                 const IconThemeData(size: 20.0),
             items: widget.items.map((item) {

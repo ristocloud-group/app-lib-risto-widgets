@@ -122,7 +122,6 @@ class SectionSwitcherController extends ChangeNotifier {
   }
 }
 
-
 // -----------------------------------------------------------------------------
 // Segmented Control Widget
 // -----------------------------------------------------------------------------
@@ -259,21 +258,25 @@ class _SegmentedControlState extends State<SegmentedControl> {
     final style = widget.style;
     final primary =
         style.indicatorColor ?? Theme.of(context).colorScheme.primary;
-    final backCol = style.backgroundColor ??
+    final backCol =
+        style.backgroundColor ??
         Theme.of(context).colorScheme.surfaceContainerHighest;
     final radius = style.borderRadius ?? BorderRadius.circular(999);
-    final unselectedStyle = style.unselectedTextStyle ??
+    final unselectedStyle =
+        style.unselectedTextStyle ??
         Theme.of(context).textTheme.labelMedium!.copyWith(color: primary);
-    final selectedStyle = style.selectedTextStyle ??
+    final selectedStyle =
+        style.selectedTextStyle ??
         Theme.of(context).textTheme.labelMedium!.copyWith(
-              color: primary,
-              fontWeight: FontWeight.w600,
-            );
+          color: primary,
+          fontWeight: FontWeight.w600,
+        );
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final height =
-            constraints.maxHeight.isFinite ? constraints.maxHeight : 40.0;
+        final height = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : 40.0;
         final totalWidth = constraints.maxWidth;
         final count = widget.segments.length;
         final indicatorWidth = (totalWidth - style.padding.horizontal) / count;
@@ -289,7 +292,9 @@ class _SegmentedControlState extends State<SegmentedControl> {
             borderRadius: radius,
             side: style.borderColor != null
                 ? BorderSide(
-                    color: style.borderColor!, width: style.borderWidth)
+                    color: style.borderColor!,
+                    width: style.borderWidth,
+                  )
                 : BorderSide.none,
           ),
           child: SizedBox(
@@ -500,7 +505,7 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
             duration: widget.duration,
             curve: widget.curve,
             style:
-            widget.segmentedControlStyle ?? const SegmentedControlStyle(),
+                widget.segmentedControlStyle ?? const SegmentedControlStyle(),
           ),
         ),
         Padding(
@@ -511,10 +516,7 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
             switchOutCurve: widget.curve,
             layoutBuilder: (current, previous) => Stack(
               clipBehavior: Clip.none,
-              children: [
-                if (current != null) current,
-                ...previous,
-              ],
+              children: [if (current != null) current, ...previous],
             ),
             transitionBuilder: (child, animation) {
               final isIncoming = child.key == ValueKey<int>(_selectedIndex);
@@ -530,8 +532,9 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
               final anim = isIncoming ? animation : ReverseAnimation(animation);
 
               return SlideTransition(
-                position:
-                anim.drive(tween.chain(CurveTween(curve: widget.curve))),
+                position: anim.drive(
+                  tween.chain(CurveTween(curve: widget.curve)),
+                ),
                 child: child,
               );
             },

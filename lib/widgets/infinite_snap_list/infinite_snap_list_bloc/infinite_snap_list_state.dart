@@ -34,8 +34,11 @@ abstract class InfiniteSnapListState<T> extends Equatable {
   const InfiniteSnapListState(this.state);
 
   @override
-  List<Object?> get props =>
-      [state.items, state.selectedItem, state.loadingDirection];
+  List<Object?> get props => [
+    state.items,
+    state.selectedItem,
+    state.loadingDirection,
+  ];
 }
 
 /// Stato iniziale prima di caricare i dati
@@ -53,8 +56,10 @@ class ISLoadedState<T> extends InfiniteSnapListState<T> {
   // Aggiunto il campo prependedItemCount a LoadedState
   final int prependedItemCount;
 
-  const ISLoadedState(super.s,
-      {this.prependedItemCount = 0}); // Valore di default 0
+  const ISLoadedState(
+    super.s, {
+    this.prependedItemCount = 0,
+  }); // Valore di default 0
 
   @override
   List<Object?> get props => [...super.props, prependedItemCount];

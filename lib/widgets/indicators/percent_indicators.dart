@@ -51,7 +51,8 @@ class LinearPercentIndicator extends StatelessWidget {
                       key: const ValueKey('linear_percent_filled'),
                       width: filled,
                       child: Container(
-                        color: progressColor ??
+                        color:
+                            progressColor ??
                             Theme.of(context).colorScheme.primary,
                       ),
                     ),
@@ -121,7 +122,8 @@ class CircularPercentIndicator extends StatelessWidget {
           painter: _RingPainter(
             value: value,
             lineWidth: lineWidth,
-            bgColor: backgroundColor ??
+            bgColor:
+                backgroundColor ??
                 Theme.of(context).dividerColor.withCustomOpacity(.4),
             fgColor: progressColor ?? Theme.of(context).colorScheme.primary,
           ),

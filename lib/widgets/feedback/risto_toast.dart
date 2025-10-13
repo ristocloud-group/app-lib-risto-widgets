@@ -26,8 +26,10 @@ class RistoToast {
     Color textColor = Colors.white,
     IconData? icon,
     Duration duration = const Duration(seconds: 2),
-    EdgeInsets margin =
-        const EdgeInsets.symmetric(horizontal: 24, vertical: 64),
+    EdgeInsets margin = const EdgeInsets.symmetric(
+      horizontal: 24,
+      vertical: 64,
+    ),
     double radius = 12,
     bool top = false, // false => bottom
   }) {
@@ -79,8 +81,10 @@ class RistoToast {
     Color? backgroundColor,
     Color? textColor,
     IconData? icon,
-    EdgeInsets margin =
-        const EdgeInsets.symmetric(horizontal: 24, vertical: 64),
+    EdgeInsets margin = const EdgeInsets.symmetric(
+      horizontal: 24,
+      vertical: 64,
+    ),
     double radius = 12,
   }) {
     final d = _defaultsForKind(context, kind);
@@ -107,17 +111,16 @@ class RistoToast {
     Color? backgroundColor,
     Color? textColor,
     IconData? icon,
-  }) =>
-      toast(
-        context,
-        message: message,
-        kind: ToastKind.info,
-        duration: duration,
-        top: top,
-        backgroundColor: backgroundColor,
-        textColor: textColor,
-        icon: icon,
-      );
+  }) => toast(
+    context,
+    message: message,
+    kind: ToastKind.info,
+    duration: duration,
+    top: top,
+    backgroundColor: backgroundColor,
+    textColor: textColor,
+    icon: icon,
+  );
 
   static void success(
     BuildContext context, {
@@ -127,17 +130,16 @@ class RistoToast {
     Color? backgroundColor,
     Color? textColor,
     IconData? icon,
-  }) =>
-      toast(
-        context,
-        message: message,
-        kind: ToastKind.success,
-        duration: duration,
-        top: top,
-        backgroundColor: backgroundColor,
-        textColor: textColor,
-        icon: icon,
-      );
+  }) => toast(
+    context,
+    message: message,
+    kind: ToastKind.success,
+    duration: duration,
+    top: top,
+    backgroundColor: backgroundColor,
+    textColor: textColor,
+    icon: icon,
+  );
 
   static void warning(
     BuildContext context, {
@@ -147,17 +149,16 @@ class RistoToast {
     Color? backgroundColor,
     Color? textColor,
     IconData? icon,
-  }) =>
-      toast(
-        context,
-        message: message,
-        kind: ToastKind.warning,
-        duration: duration,
-        top: top,
-        backgroundColor: backgroundColor,
-        textColor: textColor,
-        icon: icon,
-      );
+  }) => toast(
+    context,
+    message: message,
+    kind: ToastKind.warning,
+    duration: duration,
+    top: top,
+    backgroundColor: backgroundColor,
+    textColor: textColor,
+    icon: icon,
+  );
 
   static void error(
     BuildContext context, {
@@ -167,17 +168,16 @@ class RistoToast {
     Color? backgroundColor,
     Color? textColor,
     IconData? icon,
-  }) =>
-      toast(
-        context,
-        message: message,
-        kind: ToastKind.error,
-        duration: duration,
-        top: top,
-        backgroundColor: backgroundColor,
-        textColor: textColor,
-        icon: icon,
-      );
+  }) => toast(
+    context,
+    message: message,
+    kind: ToastKind.error,
+    duration: duration,
+    top: top,
+    backgroundColor: backgroundColor,
+    textColor: textColor,
+    icon: icon,
+  );
 
   // ---- internals -----------------------------------------------------------
 
@@ -254,8 +254,10 @@ class _ToastBubbleState extends State<_ToastBubble>
     vsync: this,
     duration: const Duration(milliseconds: 180),
   );
-  late final Animation<double> _fade =
-      CurvedAnimation(parent: _c, curve: Curves.easeOut);
+  late final Animation<double> _fade = CurvedAnimation(
+    parent: _c,
+    curve: Curves.easeOut,
+  );
   late final Animation<Offset> _slide = Tween<Offset>(
     begin: widget.top ? const Offset(0, -0.1) : const Offset(0, 0.1),
     end: Offset.zero,

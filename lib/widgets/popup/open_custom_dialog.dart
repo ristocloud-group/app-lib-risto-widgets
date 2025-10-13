@@ -16,8 +16,10 @@ class OpenCustomDialog {
   factory OpenCustomDialog.custom(
     BuildContext context, {
     required Widget Function(
-            BuildContext context, void Function(dynamic result) close)
-        builder,
+      BuildContext context,
+      void Function(dynamic result) close,
+    )
+    builder,
     Function(dynamic)? onClose,
   }) {
     return OpenCustomDialog._internal(
@@ -71,16 +73,19 @@ class OpenCustomDialog {
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
-          footerBuilder: footerBuilder ??
+          footerBuilder:
+              footerBuilder ??
               (confirmButtonText != null
                   ? (context, accentColor) => CustomActionButton.rounded(
-                        minHeight: 0,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 24),
-                        backgroundColor: accentColor,
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(confirmButtonText),
-                      )
+                      minHeight: 0,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 24,
+                      ),
+                      backgroundColor: accentColor,
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(confirmButtonText),
+                    )
                   : null),
         );
       },
@@ -120,16 +125,19 @@ class OpenCustomDialog {
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
-          footerBuilder: footerBuilder ??
+          footerBuilder:
+              footerBuilder ??
               (confirmButtonText != null
                   ? (context, accentColor) => CustomActionButton.rounded(
-                        minHeight: 0,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 24),
-                        backgroundColor: accentColor,
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(confirmButtonText),
-                      )
+                      minHeight: 0,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 24,
+                      ),
+                      backgroundColor: accentColor,
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(confirmButtonText),
+                    )
                   : null),
         );
       },
@@ -169,16 +177,19 @@ class OpenCustomDialog {
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
-          footerBuilder: footerBuilder ??
+          footerBuilder:
+              footerBuilder ??
               (confirmButtonText != null
                   ? (context, accentColor) => CustomActionButton.rounded(
-                        minHeight: 0,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 24),
-                        backgroundColor: accentColor,
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(confirmButtonText),
-                      )
+                      minHeight: 0,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 24,
+                      ),
+                      backgroundColor: accentColor,
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(confirmButtonText),
+                    )
                   : null),
         );
       },
@@ -218,31 +229,36 @@ class OpenCustomDialog {
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
-          footerBuilder: footerBuilder ??
+          footerBuilder:
+              footerBuilder ??
               (context, accentColor) => Row(
-                    children: [
-                      Expanded(
-                        child: CustomActionButton.minimal(
-                          minHeight: 0,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 24),
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: Text(cancelButtonText ?? 'Cancel'),
-                        ),
+                children: [
+                  Expanded(
+                    child: CustomActionButton.minimal(
+                      minHeight: 0,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 24,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: CustomActionButton.rounded(
-                          minHeight: 0,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 24),
-                          backgroundColor: accentColor,
-                          onPressed: () => Navigator.pop(ctx, true),
-                          child: Text(confirmButtonText ?? 'Continue'),
-                        ),
-                      ),
-                    ],
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(cancelButtonText ?? 'Cancel'),
+                    ),
                   ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: CustomActionButton.rounded(
+                      minHeight: 0,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 24,
+                      ),
+                      backgroundColor: accentColor,
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(confirmButtonText ?? 'Continue'),
+                    ),
+                  ),
+                ],
+              ),
         );
       },
       onClose: onClose,
@@ -281,32 +297,37 @@ class OpenCustomDialog {
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
-          footerBuilder: footerBuilder ??
+          footerBuilder:
+              footerBuilder ??
               (context, accentColor) => Row(
-                    children: [
-                      Expanded(
-                        child: CustomActionButton.minimal(
-                          minHeight: 0,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 24),
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: Text(cancelButtonText ?? 'Cancel'),
-                        ),
+                children: [
+                  Expanded(
+                    child: CustomActionButton.minimal(
+                      minHeight: 0,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 24,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: CustomActionButton.rounded(
-                          minHeight: 0,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 24),
-                          backgroundColor: Colors.green.shade600,
-                          // Specific color for confirm
-                          onPressed: () => Navigator.pop(ctx, true),
-                          child: Text(confirmButtonText ?? 'Confirm'),
-                        ),
-                      ),
-                    ],
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(cancelButtonText ?? 'Cancel'),
+                    ),
                   ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: CustomActionButton.rounded(
+                      minHeight: 0,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 24,
+                      ),
+                      backgroundColor: Colors.green.shade600,
+                      // Specific color for confirm
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(confirmButtonText ?? 'Confirm'),
+                    ),
+                  ),
+                ],
+              ),
         );
       },
       onClose: onClose,
@@ -323,8 +344,10 @@ class OpenCustomDialog {
           backgroundColor: Colors.transparent,
           elevation: 0,
           contentPadding: EdgeInsets.zero,
-          insetPadding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
+          ),
           content: _bodyBuilder(context),
         );
       },

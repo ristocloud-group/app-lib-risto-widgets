@@ -17,7 +17,9 @@ class SizeReportingWidget extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, SizeReportingRenderBox renderObject) {
+    BuildContext context,
+    SizeReportingRenderBox renderObject,
+  ) {
     renderObject.onSizeChange = onSizeChange;
   }
 }
