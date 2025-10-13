@@ -375,6 +375,10 @@ class RoundedContainer extends StatelessWidget {
   /// Color of the container's shadow.
   final Color? shadowColor;
 
+  /// The clip behavior for the container. Defaults to [Clip.none].
+  /// Use [Clip.antiAlias] for smooth, rounded clipping.
+  final Clip clipBehavior;
+
   const RoundedContainer({
     super.key,
     this.margin,
@@ -387,6 +391,7 @@ class RoundedContainer extends StatelessWidget {
     this.borderWidth = 1,
     this.elevation,
     this.shadowColor,
+    this.clipBehavior = Clip.none,
   });
 
   @override
@@ -399,11 +404,13 @@ class RoundedContainer extends StatelessWidget {
         elevation: elevation ?? 0,
         shadowColor: shadowColor,
         borderRadius: BorderRadius.circular(borderRadius),
+        clipBehavior: clipBehavior,
         color: useGradient
             ? Colors.transparent
             : (backgroundColor ?? Theme.of(context).cardColor),
         child: Container(
           padding: padding,
+          clipBehavior: clipBehavior,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadius),
             gradient: backgroundGradient,

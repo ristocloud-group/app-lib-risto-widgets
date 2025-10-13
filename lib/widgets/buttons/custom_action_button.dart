@@ -130,6 +130,7 @@ class CustomActionButton extends StatefulWidget {
   ///
   /// The [onPressed] and [child] parameters are required.
   factory CustomActionButton.elevated({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required Widget child,
     Color? backgroundColor,
@@ -154,6 +155,8 @@ class CustomActionButton extends StatefulWidget {
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.elevated,
       onPressed: onPressed,
       foregroundColor: foregroundColor,
@@ -183,6 +186,7 @@ class CustomActionButton extends StatefulWidget {
   ///
   /// The [onPressed] and [child] parameters are required.
   factory CustomActionButton.flat({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required Widget child,
     Color? backgroundColor,
@@ -206,6 +210,8 @@ class CustomActionButton extends StatefulWidget {
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.flat,
       onPressed: onPressed,
       foregroundColor: foregroundColor,
@@ -234,6 +240,7 @@ class CustomActionButton extends StatefulWidget {
   ///
   /// The [onPressed] and [child] parameters are required.
   factory CustomActionButton.minimal({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required Widget child,
     Color? borderColor,
@@ -250,6 +257,8 @@ class CustomActionButton extends StatefulWidget {
     EdgeInsetsGeometry? margin,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.minimal,
       onPressed: onPressed,
       foregroundColor: foregroundColor,
@@ -272,6 +281,7 @@ class CustomActionButton extends StatefulWidget {
   ///
   /// The [onPressed], [onLongPress], and [child] parameters are required.
   factory CustomActionButton.longPress({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required VoidCallback? onLongPress,
     required Widget child,
@@ -297,6 +307,8 @@ class CustomActionButton extends StatefulWidget {
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.longPress,
       onPressed: onPressed,
       onLongPress: onLongPress,
@@ -328,6 +340,7 @@ class CustomActionButton extends StatefulWidget {
   /// The [onPressed], [height] e [child] sono obbligatori.
   /// [height] viene usata per calcolare il raggio = height / 2.
   factory CustomActionButton.rounded({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required Widget child,
     Color? backgroundColor,
@@ -349,6 +362,8 @@ class CustomActionButton extends StatefulWidget {
     InteractiveInkFeatureFactory? splashFactory,
   }) {
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: ButtonType.rounded,
       onPressed: onPressed,
       backgroundColor: backgroundColor,
@@ -391,6 +406,7 @@ class CustomActionButton extends StatefulWidget {
   /// );
   /// ```
   factory CustomActionButton.icon({
+    Key? key, // ADDED
     required VoidCallback? onPressed,
     required IconData icon,
 
@@ -429,6 +445,8 @@ class CustomActionButton extends StatefulWidget {
     final resolvedPadding = padding ?? (size != null ? EdgeInsets.zero : null);
 
     return CustomActionButton(
+      key: key,
+      // ADDED
       buttonType: baseType,
       onPressed: onPressed,
 
@@ -509,25 +527,29 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     required double? width,
     required double? height,
   }) {
+    // The visual part of the button
+    final core = Material(
+      shape: shape.copyWith(side: BorderSide.none),
+      clipBehavior: Clip.antiAlias,
+      elevation: elevation ?? 0,
+      shadowColor: shadowColor,
+      color: Colors.transparent,
+      child: Ink(
+        decoration: ShapeDecoration(
+          shape: shape.copyWith(side: BorderSide.none),
+          color: gradient == null ? solidColor : null,
+          gradient: gradient,
+        ),
+        child: child,
+      ),
+    );
+
+    // Apply width, height, and margin
     return Container(
       margin: margin,
       width: width,
       height: height,
-      child: Material(
-        shape: shape,
-        clipBehavior: Clip.antiAlias,
-        elevation: elevation ?? 0,
-        shadowColor: shadowColor,
-        color: Colors.transparent,
-        child: Ink(
-          decoration: ShapeDecoration(
-            shape: shape,
-            color: gradient == null ? solidColor : null,
-            gradient: gradient,
-          ),
-          child: child,
-        ),
-      ),
+      child: core,
     );
   }
 
@@ -878,7 +900,6 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _buildRoundedButton(BuildContext context) {
-    final disabled = widget.onPressed == null;
     final shape = _resolveShapeFor(type: ButtonType.rounded, context: context);
     final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
 
@@ -887,33 +908,37 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
-      minimumSize: _getEffectiveMinimumSize(),
-    ).copyWith(
-      overlayColor: widget.splashColor != null
-          ? WidgetStateProperty.all(widget.splashColor)
-          : null,
+      overlayColor: widget.splashColor ?? Colors.transparent,
       splashFactory: widget.splashFactory,
+      minimumSize: _getEffectiveMinimumSize(),
     );
 
-    return _decoratedShell(
+    final buttonShell = _decoratedShell(
       context: context,
       shape: shape,
       child: ElevatedButton(
         style: _transparentifyBackground(style),
         onPressed: widget.onPressed,
-        child: _wrapChild(context, disabled: disabled),
+        child: _wrapChild(context, disabled: false),
       ),
-      solidColor: disabled
-          ? _disabledColor(widget.disabledBackgroundColor, solid,
-              Theme.of(context).disabledColor)
-          : solid,
-      gradient: disabled ? null : widget.backgroundGradient,
-      elevation: widget.elevation,
+      solidColor: solid,
+      gradient: widget.backgroundGradient,
+      elevation: widget.elevation ?? 2.0,
       shadowColor: widget.shadowColor,
       margin: widget.margin,
       width: widget.width,
       height: widget.height,
     );
+
+    // If no specific width is set, this forces the button to shrink-wrap its content.
+    if (widget.width == null) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [buttonShell],
+      );
+    }
+
+    return buttonShell;
   }
 
   @override

@@ -113,6 +113,42 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           child: Text('Rounded Button ($counter)'),
         ),
+
+        CustomActionButton.rounded(
+          onPressed: () {
+            setState(() {
+              counter++;
+            });
+          },
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          borderColor: Colors.orange,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black87,
+          shadowColor: Colors.transparent,
+          minHeight: 50,
+          elevation: 0,
+          splashColor: Colors.deepOrangeAccent.withCustomOpacity(0.1),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          child: Text('Rounded Button ($counter)'),
+        ),
+        CustomActionButton.rounded(
+          onPressed: () {
+            setState(() {
+              counter++;
+            });
+          },
+          minHeight: 35,
+          elevation: 0,
+          borderColor: Colors.orange,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black87,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: CustomIconText(
+            icon: CupertinoIcons.arrow_down_doc,
+            text: "Bollettino",
+          ),
+        ),
+
         CustomActionButton.rounded(
           onPressed: null,
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -140,7 +176,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
         // Big rounded “Invia” with a blue sweep
         CustomActionButton.rounded(
           onPressed: () {},
-          height: 64,
+          minHeight: 64,
           margin: const EdgeInsets.symmetric(vertical: 8),
           backgroundGradient: const LinearGradient(
             begin: Alignment.centerLeft,
@@ -226,6 +262,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
                 baseType: ButtonType.rounded,
                 backgroundColor: Colors.transparent,
                 foregroundColor: Colors.black38,
+                elevation: 0,
                 iconColor: Colors.black,
                 size: 40,
               ),

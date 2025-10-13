@@ -82,14 +82,15 @@ class InfiniteSnapList<T> extends StatefulWidget {
   /// Padding for the list as a whole.
   final EdgeInsetsGeometry listPadding;
 
-  // --- Loading/Empty/Error/Loader ---
-  /// Optional: custom builder for shimmer (loading placeholder) items.
+  // --- SHIMMER & LOADER ---
+  /// **NEW**: Optional builder for the *entire* shimmer list widget.
+  /// Gives you full control over the loading animation.
+  final Widget Function(BuildContext, int)? loadingShimmerListBuilder;
+
+  /// Optional: custom builder for a *single* shimmer placeholder item.
+  /// Used by the default shimmer animation if `loadingShimmerListBuilder` is not provided.
   final Widget Function(BuildContext, int)? loadingShimmerItemBuilder;
-
-  /// How many shimmer items to display during initial loading.
   final int initialItemsCountForShimmer;
-
-  /// Optional: custom builder for the loader indicator when fetching more items.
   final Widget Function(BuildContext)? loadingIndicatorBuilder;
 
   /// Optional: custom builder for the empty state.
@@ -186,6 +187,7 @@ class InfiniteSnapList<T> extends StatefulWidget {
     this.scrollDirection = Axis.horizontal,
     this.itemAlignment = Alignment.center,
     this.listPadding = const EdgeInsets.symmetric(horizontal: 8),
+    this.loadingShimmerListBuilder,
     this.loadingShimmerItemBuilder,
     this.initialItemsCountForShimmer = 7,
     this.loadingIndicatorBuilder,
@@ -694,12 +696,16 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                             : null,
                         child: SizedBox(
                           width: widget.scrollDirection == Axis.horizontal
-                              ? widget.itemWidth
-                              : null,
-                          height: widget.scrollDirection == Axis.vertical
+                              ? _currentStartEndPadding
+                              : widget.itemWidth,
+                          height: widget.scrollDirection == Axis.horizontal
                               ? widget.itemHeight
-                              : null,
-                          child: Center(
+                              : _currentStartEndPadding,
+                          child: SizedBox(
+                            width:
+                                min(widget.itemWidth, widget.itemHeight) * 0.5,
+                            height:
+                                min(widget.itemWidth, widget.itemHeight) * 0.5,
                             child:
                                 widget.loadingIndicatorBuilder?.call(context) ??
                                     _defaultLoadingIndicatorBuilder(context),
@@ -747,54 +753,64 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     return KeyEventResult.ignored;
   }
 
-  /// Builds a shimmer loading placeholder list.
+  /// REFACTORED: This method now handles the new `loadingShimmerListBuilder`
+  /// and provides a much-improved default shimmer experience.
   Widget _buildShimmerList(BuildContext context, int count) {
-    return SizedBox(
-      width: widget.scrollDirection == Axis.horizontal
-          ? double.infinity
-          : widget.itemWidth,
-      height: widget.scrollDirection == Axis.horizontal
-          ? widget.itemHeight
-          : double.infinity,
-      child: ListView.separated(
-        scrollDirection: widget.scrollDirection,
-        padding: widget.listPadding.add(
-          widget.scrollDirection == Axis.horizontal
-              ? EdgeInsets.symmetric(horizontal: _currentStartEndPadding)
-              : EdgeInsets.symmetric(vertical: _currentStartEndPadding),
-        ),
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: count,
-        separatorBuilder: (_, __) => SizedBox(
-          width: widget.scrollDirection == Axis.horizontal
-              ? widget.itemSpacing
-              : 0,
-          height:
-              widget.scrollDirection == Axis.vertical ? widget.itemSpacing : 0,
-        ),
-        itemBuilder: (context, index) {
-          return widget.loadingShimmerItemBuilder?.call(context, index) ??
-              _defaultShimmerItemBuilder(context, index);
-        },
-      ),
-    );
-  }
+    // 1. If the user provided a custom builder for the entire list, use it.
+    if (widget.loadingShimmerListBuilder != null) {
+      return widget.loadingShimmerListBuilder!(context, count);
+    }
 
-  /// Default shimmer item for loading state.
-  Widget _defaultShimmerItemBuilder(BuildContext context, int index) {
+    // 2. Otherwise, use the improved default shimmer.
     final baseColor = widget.shimmerBaseColor ?? Colors.grey.shade300;
     final highlightColor = widget.shimmerHighlightColor ?? Colors.grey.shade100;
-    final borderRadius =
-        widget.shimmerBorderRadius ?? BorderRadius.circular(8.0);
+
+    // The Shimmer.fromColors now wraps the entire list for a smooth, unified animation.
     return Shimmer.fromColors(
       baseColor: baseColor,
       highlightColor: highlightColor,
-      child: Container(
-        width: widget.itemWidth,
-        height: widget.itemHeight,
-        decoration: BoxDecoration(
-          color: baseColor,
-          borderRadius: borderRadius,
+      child: SizedBox(
+        width: widget.scrollDirection == Axis.horizontal
+            ? double.infinity
+            : widget.itemWidth,
+        height: widget.scrollDirection == Axis.horizontal
+            ? widget.itemHeight
+            : double.infinity,
+        child: ListView.separated(
+          scrollDirection: widget.scrollDirection,
+          padding: widget.listPadding.add(
+            widget.scrollDirection == Axis.horizontal
+                ? EdgeInsets.symmetric(horizontal: _currentStartEndPadding)
+                : EdgeInsets.symmetric(vertical: _currentStartEndPadding),
+          ),
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: count,
+          separatorBuilder: (_, _) => SizedBox(
+            width: widget.scrollDirection == Axis.horizontal
+                ? widget.itemSpacing
+                : 0,
+            height: widget.scrollDirection == Axis.vertical
+                ? widget.itemSpacing
+                : 0,
+          ),
+          itemBuilder: (context, index) {
+            // If the user provided a custom item builder, use it.
+            if (widget.loadingShimmerItemBuilder != null) {
+              return widget.loadingShimmerItemBuilder!(context, index);
+            }
+            // Otherwise, use the simple, default placeholder container.
+            final borderRadius =
+                widget.shimmerBorderRadius ?? BorderRadius.circular(8.0);
+            return Container(
+              width: widget.itemWidth,
+              height: widget.itemHeight,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                // This color will be overridden by the shimmer effect
+                borderRadius: borderRadius,
+              ),
+            );
+          },
         ),
       ),
     );
@@ -821,8 +837,9 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
   Widget _defaultLoadingIndicatorBuilder(BuildContext context) {
     final indicatorColor = widget.loadingIndicatorColor;
     final strokeWidth = widget.loadingIndicatorStrokeWidth ?? 2;
+
     return Center(
-      child: CircularProgressIndicator(
+      child: CircularProgressIndicator.adaptive(
         strokeWidth: strokeWidth,
         valueColor: indicatorColor != null
             ? AlwaysStoppedAnimation<Color>(indicatorColor)

@@ -3,8 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:risto_widgets/widgets/navigation/custom_bottom_navbar.dart';
 
 void main() {
-  testWidgets('CustomBottomNavBar renders correctly with default settings',
-      (WidgetTester tester) async {
+  testWidgets('CustomBottomNavBar renders correctly with default settings', (
+    WidgetTester tester,
+  ) async {
     // Arrange
     final items = [
       const NavigationItem(
@@ -22,9 +23,7 @@ void main() {
     // Act
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: CustomBottomNavBar(items: items),
-        ),
+        home: Scaffold(body: CustomBottomNavBar(items: items)),
       ),
     );
 
@@ -33,8 +32,9 @@ void main() {
     expect(find.text('Search'), findsOneWidget);
   });
 
-  testWidgets('CustomBottomNavBar allows item selection and page navigation',
-      (WidgetTester tester) async {
+  testWidgets('CustomBottomNavBar allows item selection and page navigation', (
+    WidgetTester tester,
+  ) async {
     // Arrange
     final items = [
       const NavigationItem(
@@ -50,9 +50,7 @@ void main() {
     ];
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: CustomBottomNavBar(items: items),
-      ),
+      MaterialApp(home: CustomBottomNavBar(items: items)),
     );
 
     // Act
@@ -63,8 +61,9 @@ void main() {
     expect(find.text('Page 2'), findsOneWidget);
   });
 
-  testWidgets('CustomBottomNavBar applies custom item padding and margin',
-      (WidgetTester tester) async {
+  testWidgets('CustomBottomNavBar applies custom item padding and margin', (
+    WidgetTester tester,
+  ) async {
     // Arrange
     final items = [
       const NavigationItem(
@@ -105,8 +104,9 @@ void main() {
     expect(firstContainer.padding, const EdgeInsets.all(16.0)); // Check padding
   });
 
-  testWidgets('CustomBottomNavBar applies custom elevation',
-      (WidgetTester tester) async {
+  testWidgets('CustomBottomNavBar applies custom elevation', (
+    WidgetTester tester,
+  ) async {
     // Arrange
     final items = [
       const NavigationItem(
@@ -123,12 +123,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: CustomBottomNavBar(
-            items: items,
-            elevation: 12.0,
-          ),
-        ),
+        home: Scaffold(body: CustomBottomNavBar(items: items, elevation: 12.0)),
       ),
     );
 

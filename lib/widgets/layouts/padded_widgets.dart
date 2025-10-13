@@ -70,8 +70,8 @@ class PaddingWrapper extends StatelessWidget {
   /// ```
   factory PaddingWrapper.symmetric({
     required Widget child,
-    double vertical = 16.0,
-    double horizontal = 16.0,
+    double vertical = 0.0,
+    double horizontal = 0.0,
   }) {
     return PaddingWrapper(
       padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
@@ -95,8 +95,8 @@ class PaddingWrapper extends StatelessWidget {
   /// ```
   factory PaddingWrapper.only({
     required Widget child,
-    double left = 16.0,
-    double right = 16.0,
+    double left = 0.0,
+    double right = 0.0,
     double top = 0.0,
     double bottom = 0.0,
   }) {

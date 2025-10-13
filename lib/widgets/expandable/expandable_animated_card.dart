@@ -585,7 +585,7 @@ class _ExpandableAnimatedCardState extends State<ExpandableAnimatedCard> {
       barrierLabel: widget.barrierLabel,
       transitionDuration: widget.animationDuration,
       reverseTransitionDuration: widget.animationDuration,
-      pageBuilder: (_, __, ___) => overlayWidget,
+      pageBuilder: (_, _, _) => overlayWidget,
     );
 
     navigator.push(route);

@@ -305,7 +305,9 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                               : null,
                       // Loader while fetching more items (edge)
                       loadingIndicatorBuilder:
-                          (ctx) => const CircularProgressIndicator.adaptive(),
+                          (ctx) => Center(
+                            child: const CircularProgressIndicator.adaptive(),
+                          ),
                       // Empty state
                       emptyListBuilder:
                           (ctx) =>

@@ -39,15 +39,21 @@ class CustomIconText extends StatelessWidget {
 
   /// The alignment of the icon and text within the row.
   ///
-  /// Controls how the children are placed along the main axis (horizontal).
-  /// Defaults to [MainAxisAlignment.center].
-  final MainAxisAlignment mainAxisAlignment;
+  /// Controls how the children are placed.
+  /// Defaults to [AlignmentGeometry.center].
+  final AlignmentGeometry contentAlignment;
 
   /// The text style to apply to the [text].
   ///
   /// If [textStyle] is provided, it overrides the default text style from the
   /// current theme. If not specified, it defaults to the theme's [TextTheme.bodyMedium].
   final TextStyle? textStyle;
+
+  /// The maximum number of lines to apply to the [text].
+  ///
+  /// If [maxLines] is provided, it limits the number of lines displayed in the text.
+  /// If not specified, the default value is 2.
+  final int? maxLines;
 
   /// The size of the icon.
   ///
@@ -63,59 +69,65 @@ class CustomIconText extends StatelessWidget {
   /// Creates a [CustomIconText] widget.
   ///
   /// The [icon] and [text] parameters are required and must not be null.
-  /// The [mainAxisAlignment] defaults to [MainAxisAlignment.center].
+  /// The [contentAlignment] defaults to [Alignment.center].
   /// The [spacing] defaults to 8.0.
   const CustomIconText({
     super.key,
     required this.icon,
     required this.text,
     this.color,
-    this.mainAxisAlignment = MainAxisAlignment.center,
+    this.contentAlignment = Alignment.center,
     this.textStyle,
+    this.maxLines = 2,
     this.iconSize,
     this.spacing = 8.0,
   });
 
+  // In CustomIconText
+
   @override
   Widget build(BuildContext context) {
-    // Determine the effective text style by merging the provided [textStyle]
-    // with the theme's default if [textStyle] is not provided.
     final TextStyle effectiveTextStyle = textStyle ??
         Theme.of(context).textTheme.bodyMedium!.copyWith(
-              color: color ?? Theme.of(context).textTheme.bodyMedium!.color,
-            );
+          color: color ?? Theme.of(context).textTheme.bodyMedium!.color,
+        );
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: mainAxisAlignment,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        /// The icon widget.
-        ///
-        /// Uses the [iconSize] if provided; otherwise, defaults to the font size
-        /// of the [textStyle]. The color defaults to the theme's icon color
-        /// unless [color] is specified.
-        Icon(
-          icon,
-          size: iconSize ?? effectiveTextStyle.fontSize,
-          color: color ?? Theme.of(context).iconTheme.color,
-        ),
-
-        /// Spacer between the icon and text.
-        SizedBox(width: spacing),
-
-        /// The text widget.
-        ///
-        /// Uses the [effectiveTextStyle] and ensures that long text is truncated
-        /// with an ellipsis if it overflows.
-        Flexible(
-          child: Text(
-            text,
-            style: effectiveTextStyle,
-            overflow: TextOverflow.ellipsis,
+    return Align(
+      alignment: contentAlignment,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          /// The icon widget.
+          ///
+          /// Uses the [iconSize] if provided; otherwise, defaults to the font size
+          /// of the [textStyle]. The color defaults to the theme's icon color
+          /// unless [color] is specified.
+          Flexible(
+            child: Icon(
+              icon,
+              size: iconSize ?? effectiveTextStyle.fontSize,
+              color: color ?? Theme.of(context).iconTheme.color,
+            ),
           ),
-        ),
-      ],
+
+          /// Spacer between the icon and text.
+          SizedBox(width: spacing),
+
+          /// The text widget.
+          ///
+          /// Uses the [effectiveTextStyle] and ensures that long text is truncated
+          /// with an ellipsis if it overflows.
+          Flexible(
+            child: Text(
+              text,
+              style: effectiveTextStyle,
+              overflow: TextOverflow.ellipsis,
+              maxLines: maxLines,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -3,8 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
 /// A playground for your refactored SectionSwitcher and SegmentedControl widgets.
-class NavigationWidgetPage extends StatelessWidget {
+class NavigationWidgetPage extends StatefulWidget {
   const NavigationWidgetPage({super.key});
+
+  @override
+  State<NavigationWidgetPage> createState() => _NavigationWidgetPageState();
+}
+
+class _NavigationWidgetPageState extends State<NavigationWidgetPage> {
+  // 1. Create the controller
+  late final SectionSwitcherController _sectionSwitcherController;
+
+  @override
+  void initState() {
+    super.initState();
+    // 2. Initialize the controller
+    _sectionSwitcherController = SectionSwitcherController();
+  }
+
+  @override
+  void dispose() {
+    // 3. Dispose the controller to prevent memory leaks
+    _sectionSwitcherController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +60,6 @@ class NavigationWidgetPage extends StatelessWidget {
       indicatorColor: Colors.white,
       borderRadius: BorderRadius.circular(12),
       padding: const EdgeInsets.all(5),
-      // The old `indicatorShadow` is now handled by Card's elevation.
       elevation: 0,
       indicatorElevation: 4,
       selectedTextStyle: const TextStyle(
@@ -56,15 +77,45 @@ class NavigationWidgetPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'SectionSwitcher Example',
+              'SectionSwitcher Example (with Controller)',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             SectionSwitcher(
+              // 4. Pass the controller to the widget
+              controller: _sectionSwitcherController,
               items: demoItems,
               segmentedHeight: 50,
               segmentedMargin: const EdgeInsets.only(bottom: 16),
               segmentedControlStyle: customSegmentedControlStyle,
+              onPageChanged: (index) {
+                debugPrint('Page changed to index: $index');
+              },
+            ),
+
+            // 5. Add external buttons to control the SectionSwitcher
+            const SizedBox(height: 16),
+            const Text(
+              'External Controls',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () => _sectionSwitcherController.goTo(0),
+                  child: const Text('Go to Red'),
+                ),
+                ElevatedButton(
+                  onPressed: () => _sectionSwitcherController.goTo(1),
+                  child: const Text('Go to Green'),
+                ),
+                ElevatedButton(
+                  onPressed: () => _sectionSwitcherController.goTo(2),
+                  child: const Text('Go to Blue'),
+                ),
+              ],
             ),
 
             const Divider(height: 40),
@@ -98,9 +149,7 @@ class NavigationWidgetPage extends StatelessWidget {
             SizedBox(
               height: 50,
               child: SegmentedControl(
-                segments: const [
-                  Text('Option A'),
-                ],
+                segments: const [Text('Option A')],
                 onSegmentSelected: (index) {
                   debugPrint('SegmentedControl selected index: $index');
                 },

@@ -44,7 +44,9 @@ void main() {
 
       // Drag should NOT dismiss for default ctor
       await tester.drag(
-          find.byKey(const ValueKey('default-expanded')), const Offset(0, 500));
+        find.byKey(const ValueKey('default-expanded')),
+        const Offset(0, 500),
+      );
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('default-expanded')), findsOneWidget);
 
@@ -84,8 +86,10 @@ void main() {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   color: Colors.blue,
-                  child: const Text('Custom Header',
-                      style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Custom Header',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -125,7 +129,11 @@ void main() {
           home: Scaffold(
             body: ExpandableAnimatedCard.sheet(
               margin: const EdgeInsets.only(
-                  top: 120, left: 16, right: 16, bottom: 16),
+                top: 120,
+                left: 16,
+                right: 16,
+                bottom: 16,
+              ),
               maxHeightFraction: 0.60,
               // clamp to 480 on 800h
               dragDismissThresholdFraction: 0.20,
@@ -154,8 +162,11 @@ void main() {
 
       final sheet = find.byKey(const ValueKey('sheet-expanded'));
       expect(sheet, findsOneWidget);
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing,
-          reason: 'Sheet must have no header');
+      expect(
+        find.byIcon(Icons.arrow_back_ios_new),
+        findsNothing,
+        reason: 'Sheet must have no header',
+      );
 
       // EXPECT 304, not 320: the key is on the child Container itself;
       // its own padding is internal, so its global top equals the card's top.
@@ -192,8 +203,10 @@ void main() {
                 key: const ValueKey('full-expanded'),
                 color: const Color(0xFF121212),
                 child: const Center(
-                  child: Text('Fullscreen content',
-                      style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    'Fullscreen content',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -208,8 +221,11 @@ void main() {
 
       final full = find.byKey(const ValueKey('full-expanded'));
       expect(full, findsOneWidget);
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing,
-          reason: 'Fullscreen must have no header');
+      expect(
+        find.byIcon(Icons.arrow_back_ios_new),
+        findsNothing,
+        reason: 'Fullscreen must have no header',
+      );
 
       // Drag shouldn't dismiss
       await tester.drag(full, const Offset(0, 400));
@@ -217,8 +233,9 @@ void main() {
       expect(full, findsOneWidget);
 
       // Pop the top route directly (no app bar back in fullscreen)
-      final navigatorState =
-          tester.state<NavigatorState>(find.byType(Navigator));
+      final navigatorState = tester.state<NavigatorState>(
+        find.byType(Navigator),
+      );
       navigatorState.pop(); // <-- fixed
       await tester.pumpAndSettle();
 
