@@ -477,11 +477,7 @@ class CustomActionButton extends StatefulWidget {
       splashFactory: splashFactory,
 
       // Child is built here so the button body is the icon
-      child: Icon(
-        icon,
-        size: iconSize,
-        color: iconColor ?? foregroundColor,
-      ),
+      child: Icon(icon, size: iconSize, color: iconColor ?? foregroundColor),
     );
   }
 
@@ -545,12 +541,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     );
 
     // Apply width, height, and margin
-    return Container(
-      margin: margin,
-      width: width,
-      height: height,
-      child: core,
-    );
+    return Container(margin: margin, width: width, height: height, child: core);
   }
 
   /// When a gradient is present we make the inner button background transparent
@@ -618,8 +609,10 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   /// Computes the effective text style based on the disabled state.
-  TextStyle _effectiveTextStyle(BuildContext context,
-      {required bool disabled}) {
+  TextStyle _effectiveTextStyle(
+    BuildContext context, {
+    required bool disabled,
+  }) {
     if (disabled) {
       return TextStyle(
         color: _disabledColor(
@@ -630,7 +623,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       );
     } else {
       return TextStyle(
-        color: widget.foregroundColor ??
+        color:
+            widget.foregroundColor ??
             Theme.of(context).textTheme.labelLarge?.color ??
             Colors.white,
       );
@@ -648,12 +642,11 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   /// Handles long-press actions by periodically invoking [widget.onLongPress].
   void _handleLongPress() {
     if (widget.onLongPress != null) {
-      _longPressTimer = Timer.periodic(
-        const Duration(milliseconds: 100),
-        (timer) {
-          widget.onLongPress?.call();
-        },
-      );
+      _longPressTimer = Timer.periodic(const Duration(milliseconds: 100), (
+        timer,
+      ) {
+        widget.onLongPress?.call();
+      });
     }
   }
 
@@ -724,7 +717,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
         widget.foregroundColor,
         Theme.of(context).disabledColor,
       ),
-      padding: widget.padding ??
+      padding:
+          widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
       minimumSize: _getEffectiveMinimumSize(),
@@ -760,7 +754,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     final style = ElevatedButton.styleFrom(
       // text/icon color (text is also wrapped)
       foregroundColor: widget.foregroundColor ?? Colors.white,
-      padding: widget.padding ??
+      padding:
+          widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
       overlayColor: widget.splashColor ?? Colors.transparent,
@@ -794,7 +789,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     final style = TextButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.white,
       overlayColor: widget.splashColor ?? Colors.grey.withCustomOpacity(0.2),
-      padding: widget.padding ??
+      padding:
+          widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
       splashFactory: widget.splashFactory ?? InkRipple.splashFactory,
@@ -823,16 +819,18 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   Widget _buildMinimalButton(BuildContext context) {
     final shape = _resolveShapeFor(type: ButtonType.minimal, context: context);
 
-    final style = TextButton.styleFrom(
-      foregroundColor: widget.foregroundColor ?? Colors.black,
-      padding: widget.padding ??
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      shape: shape,
-      minimumSize: _getEffectiveMinimumSize(),
-    ).copyWith(
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      splashFactory: NoSplash.splashFactory,
-    );
+    final style =
+        TextButton.styleFrom(
+          foregroundColor: widget.foregroundColor ?? Colors.black,
+          padding:
+              widget.padding ??
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: shape,
+          minimumSize: _getEffectiveMinimumSize(),
+        ).copyWith(
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          splashFactory: NoSplash.splashFactory,
+        );
 
     // Default minimal is transparent; if a gradient is supplied, we paint it.
     final solid = widget.backgroundColor ?? Colors.transparent;
@@ -857,22 +855,26 @@ class _CustomActionButtonState extends State<CustomActionButton> {
 
   /// Builds the long-press button style.
   Widget _buildLongPressButton(BuildContext context) {
-    final shape =
-        _resolveShapeFor(type: ButtonType.longPress, context: context);
+    final shape = _resolveShapeFor(
+      type: ButtonType.longPress,
+      context: context,
+    );
     final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
 
-    final style = ElevatedButton.styleFrom(
-      foregroundColor: widget.foregroundColor ?? Colors.white,
-      padding: widget.padding ??
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      shape: shape,
-      minimumSize: _getEffectiveMinimumSize(),
-    ).copyWith(
-      overlayColor: widget.splashColor != null
-          ? WidgetStateProperty.all(widget.splashColor)
-          : null,
-      splashFactory: widget.splashFactory,
-    );
+    final style =
+        ElevatedButton.styleFrom(
+          foregroundColor: widget.foregroundColor ?? Colors.white,
+          padding:
+              widget.padding ??
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: shape,
+          minimumSize: _getEffectiveMinimumSize(),
+        ).copyWith(
+          overlayColor: widget.splashColor != null
+              ? WidgetStateProperty.all(widget.splashColor)
+              : null,
+          splashFactory: widget.splashFactory,
+        );
 
     final btn = GestureDetector(
       onTap: widget.onPressed,
@@ -905,7 +907,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
 
     final style = ElevatedButton.styleFrom(
       foregroundColor: widget.foregroundColor ?? Colors.white,
-      padding: widget.padding ??
+      padding:
+          widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
       overlayColor: widget.splashColor ?? Colors.transparent,
@@ -932,10 +935,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
 
     // If no specific width is set, this forces the button to shrink-wrap its content.
     if (widget.width == null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [buttonShell],
-      );
+      return Row(mainAxisSize: MainAxisSize.min, children: [buttonShell]);
     }
 
     return buttonShell;

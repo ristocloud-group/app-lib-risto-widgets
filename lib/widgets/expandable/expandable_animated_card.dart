@@ -100,10 +100,17 @@ class ExpandableAnimatedCard extends StatefulWidget {
     required WidgetBuilder expandedBuilder,
     Duration animationDuration = const Duration(milliseconds: 500),
     Curve animationCurve = Curves.easeInOut,
-    Interval fadeInterval =
-        const Interval(0.35, 1.0, curve: Cubic(0.5, 0.0, 0.3, 1.0)),
-    EdgeInsetsGeometry expandedMargin =
-        const EdgeInsets.fromLTRB(16, 16, 16, 16),
+    Interval fadeInterval = const Interval(
+      0.35,
+      1.0,
+      curve: Cubic(0.5, 0.0, 0.3, 1.0),
+    ),
+    EdgeInsetsGeometry expandedMargin = const EdgeInsets.fromLTRB(
+      16,
+      16,
+      16,
+      16,
+    ),
     EdgeInsetsGeometry expandedPadding = const EdgeInsets.all(0),
     double? maxWidth,
     bool useSafeArea = true,
@@ -282,7 +289,6 @@ class ExpandableAnimatedCard extends StatefulWidget {
     double? maxHeight, // pixel cap
     double? maxHeightFraction, // 0..1 of screen height
     double? dragDismissThresholdFraction, // 0..1 of final height
-
     // Scrim + barrier
     Color overlayBackgroundColor = Colors.black54,
     Color barrierColor = Colors.transparent,
@@ -298,11 +304,15 @@ class ExpandableAnimatedCard extends StatefulWidget {
     String? barrierLabel,
   }) {
     assert(maxHeight == null || maxHeight > 0);
-    assert(maxHeightFraction == null ||
-        (maxHeightFraction > 0 && maxHeightFraction <= 1));
-    assert(dragDismissThresholdFraction == null ||
-        (dragDismissThresholdFraction > 0 &&
-            dragDismissThresholdFraction <= 1));
+    assert(
+      maxHeightFraction == null ||
+          (maxHeightFraction > 0 && maxHeightFraction <= 1),
+    );
+    assert(
+      dragDismissThresholdFraction == null ||
+          (dragDismissThresholdFraction > 0 &&
+              dragDismissThresholdFraction <= 1),
+    );
 
     return ExpandableAnimatedCard._internal(
       key: key,
@@ -363,8 +373,11 @@ class ExpandableAnimatedCard extends StatefulWidget {
     required this.expandedBuilder,
     this.animationDuration = const Duration(milliseconds: 500),
     this.animationCurve = Curves.easeInOut,
-    this.fadeInterval =
-        const Interval(0.35, 1.0, curve: Cubic(0.5, 0.0, 0.3, 1.0)),
+    this.fadeInterval = const Interval(
+      0.35,
+      1.0,
+      curve: Cubic(0.5, 0.0, 0.3, 1.0),
+    ),
     this.expandedMargin = const EdgeInsets.fromLTRB(16, 16, 16, 16),
     this.expandedPadding = const EdgeInsets.all(0),
     this.maxWidth,
@@ -412,10 +425,10 @@ class ExpandableAnimatedCard extends StatefulWidget {
     double? sheetMaxHeight,
     double? sheetMaxHeightFraction,
     double? sheetDragDismissThresholdFraction,
-  })  : _type = type,
-        _sheetMaxHeight = sheetMaxHeight,
-        _sheetMaxHeightFraction = sheetMaxHeightFraction,
-        _sheetDragDismissThresholdFraction = sheetDragDismissThresholdFraction;
+  }) : _type = type,
+       _sheetMaxHeight = sheetMaxHeight,
+       _sheetMaxHeightFraction = sheetMaxHeightFraction,
+       _sheetDragDismissThresholdFraction = sheetDragDismissThresholdFraction;
 
   // convenience to attach sheet clamp values from the factory
   ExpandableAnimatedCard _withSheetClamp({
@@ -507,7 +520,8 @@ class _ExpandableAnimatedCardState extends State<ExpandableAnimatedCard> {
         currentContext == null ||
         !currentContext.mounted) {
       debugPrint(
-          "ExpandableAnimatedCard: overlay skipped (size/context missing)");
+        "ExpandableAnimatedCard: overlay skipped (size/context missing)",
+      );
       return;
     }
 
@@ -567,8 +581,9 @@ class _ExpandableAnimatedCardState extends State<ExpandableAnimatedCard> {
       clipBehavior: widget.clipBehavior,
 
       // Sheet clamp
-      sheetMaxHeight:
-          (widget._type == CardType.sheet) ? widget._sheetMaxHeight : null,
+      sheetMaxHeight: (widget._type == CardType.sheet)
+          ? widget._sheetMaxHeight
+          : null,
       sheetMaxHeightFraction: (widget._type == CardType.sheet)
           ? widget._sheetMaxHeightFraction
           : null,
@@ -767,7 +782,8 @@ class _ExpandableAnimatedOverlayState
 
     // Final rect (where the card ends up)
     double left = baseOuter.left;
-    double top = baseOuter.top +
+    double top =
+        baseOuter.top +
         (widget.headerMode == HeaderMode.overlay ? widget.headerHeight : 0);
     double width = screen.width - baseOuter.left - baseOuter.right;
     double height = screen.height - top - baseOuter.bottom;
@@ -816,11 +832,13 @@ class _ExpandableAnimatedOverlayState
           height * widget.sheetDragDismissThresholdFraction!;
     }
 
-    final Animation<double> fadeAnim =
-        routeAnim.drive(CurveTween(curve: widget.fadeInterval));
+    final Animation<double> fadeAnim = routeAnim.drive(
+      CurveTween(curve: widget.fadeInterval),
+    );
 
     // Scrim (custom or default)
-    final Widget scrim = widget.scrimBuilder?.call(context, fadeAnim) ??
+    final Widget scrim =
+        widget.scrimBuilder?.call(context, fadeAnim) ??
         FadeTransition(
           opacity: fadeAnim,
           child: GestureDetector(
@@ -832,8 +850,9 @@ class _ExpandableAnimatedOverlayState
 
     // Resolve border radius geometry safely for ClipRRect
     final BorderRadius borderRadius =
-        (widget.expandedDecoration.borderRadius ?? BorderRadius.zero)
-            .resolve(dir);
+        (widget.expandedDecoration.borderRadius ?? BorderRadius.zero).resolve(
+          dir,
+        );
 
     return Material(
       color: Colors.transparent,
@@ -866,9 +885,9 @@ class _ExpandableAnimatedOverlayState
               child: GestureDetector(
                 onVerticalDragUpdate: widget.enableDragToDismiss
                     ? (details) => setState(() {
-                          _dragDy += details.delta.dy;
-                          if (_dragDy < 0) _dragDy = 0;
-                        })
+                        _dragDy += details.delta.dy;
+                        if (_dragDy < 0) _dragDy = 0;
+                      })
                     : null,
                 onVerticalDragEnd: widget.enableDragToDismiss
                     ? (_) {

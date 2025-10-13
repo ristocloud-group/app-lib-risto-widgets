@@ -45,14 +45,8 @@ class PaddingWrapper extends StatelessWidget {
   ///   child: Text('Uniformly Padded Text'),
   /// );
   /// ```
-  factory PaddingWrapper.all({
-    required Widget child,
-    double padding = 16.0,
-  }) {
-    return PaddingWrapper(
-      padding: EdgeInsets.all(padding),
-      child: child,
-    );
+  factory PaddingWrapper.all({required Widget child, double padding = 16.0}) {
+    return PaddingWrapper(padding: EdgeInsets.all(padding), child: child);
   }
 
   /// Factory constructor for symmetric padding (vertical and horizontal).
@@ -101,8 +95,12 @@ class PaddingWrapper extends StatelessWidget {
     double bottom = 0.0,
   }) {
     return PaddingWrapper(
-      padding:
-          EdgeInsets.only(left: left, right: right, top: top, bottom: bottom),
+      padding: EdgeInsets.only(
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom,
+      ),
       child: child,
     );
   }
@@ -151,10 +149,7 @@ class PaddingWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: padding,
-      child: child,
-    );
+    return Padding(padding: padding, child: child);
   }
 }
 
@@ -300,8 +295,12 @@ class PaddedChildrenList extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.start,
   }) {
     return PaddedChildrenList(
-      padding:
-          EdgeInsets.only(left: left, right: right, top: top, bottom: bottom),
+      padding: EdgeInsets.only(
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom,
+      ),
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment,
       children: children,

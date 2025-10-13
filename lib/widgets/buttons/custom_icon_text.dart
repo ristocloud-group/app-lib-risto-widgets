@@ -87,7 +87,8 @@ class CustomIconText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle effectiveTextStyle = textStyle ??
+    final TextStyle effectiveTextStyle =
+        textStyle ??
         Theme.of(context).textTheme.bodyMedium!.copyWith(
           color: color ?? Theme.of(context).textTheme.bodyMedium!.color,
         );

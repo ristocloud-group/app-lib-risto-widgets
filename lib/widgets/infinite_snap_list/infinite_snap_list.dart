@@ -117,7 +117,7 @@ class InfiniteSnapList<T> extends StatefulWidget {
   // --- Overlay ---
   /// Optional: custom overlay builder for selected item highlight.
   final Widget Function(BuildContext, double, double)?
-      selectedItemOverlayBuilder;
+  selectedItemOverlayBuilder;
 
   /// Default color for the selected item overlay.
   final Color? selectedOverlayColor;
@@ -300,9 +300,9 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     // to ensure layout metrics are recalculated.
     final bool layoutConfigChanged =
         oldWidget.scrollDirection != widget.scrollDirection ||
-            oldWidget.itemWidth != widget.itemWidth ||
-            oldWidget.itemHeight != widget.itemHeight ||
-            oldWidget.itemSpacing != widget.itemSpacing;
+        oldWidget.itemWidth != widget.itemWidth ||
+        oldWidget.itemHeight != widget.itemHeight ||
+        oldWidget.itemSpacing != widget.itemSpacing;
 
     if (layoutConfigChanged) {
       // Dispose the old controller
@@ -331,13 +331,15 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
             _controller.position.hasContentDimensions &&
             widget.bloc.state.state.items.isNotEmpty &&
             widget.bloc.state.state.selectedItem != null) {
-          final idx = widget.bloc.state.state.items
-              .indexOf(widget.bloc.state.state.selectedItem!);
+          final idx = widget.bloc.state.state.items.indexOf(
+            widget.bloc.state.state.selectedItem!,
+          );
           if (idx != -1) {
-            _snapTo(idx,
-                animate: false,
-                notifyCallback:
-                    false); // Use jumpTo (animate: false) for immediate repositioning
+            _snapTo(
+              idx,
+              animate: false,
+              notifyCallback: false,
+            ); // Use jumpTo (animate: false) for immediate repositioning
           }
         }
       });
@@ -378,12 +380,13 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     }
     final double itemContentMainAxisDim =
         widget.scrollDirection == Axis.horizontal
-            ? widget.itemWidth
-            : widget.itemHeight;
+        ? widget.itemWidth
+        : widget.itemHeight;
     final double listPaddingStart = widget.scrollDirection == Axis.horizontal
         ? widget.listPadding.horizontal / 2
         : widget.listPadding.vertical / 2;
-    final double offset = listPaddingStart +
+    final double offset =
+        listPaddingStart +
         _currentStartEndPadding +
         (index * _totalItemSlotMainAxis) +
         (widget.itemSpacing / 2) +
@@ -401,12 +404,13 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     }
     final double itemContentMainAxisDim =
         widget.scrollDirection == Axis.horizontal
-            ? widget.itemWidth
-            : widget.itemHeight;
+        ? widget.itemWidth
+        : widget.itemHeight;
     final double listPaddingStart = widget.scrollDirection == Axis.horizontal
         ? widget.listPadding.horizontal / 2
         : widget.listPadding.vertical / 2;
-    final double offset = listPaddingStart +
+    final double offset =
+        listPaddingStart +
         _currentStartEndPadding +
         (index * _totalItemSlotMainAxis) +
         (widget.itemSpacing / 2) +
@@ -445,13 +449,14 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
 
     final double itemContentMainAxisDim =
         widget.scrollDirection == Axis.horizontal
-            ? widget.itemWidth
-            : widget.itemHeight;
+        ? widget.itemWidth
+        : widget.itemHeight;
     final double listPaddingStart = widget.scrollDirection == Axis.horizontal
         ? widget.listPadding.horizontal / 2
         : widget.listPadding.vertical / 2;
 
-    final double viewportCenterInScrollExtent = _controller.offset +
+    final double viewportCenterInScrollExtent =
+        _controller.offset +
         (_currentActualMainAxis / 2) -
         listPaddingStart -
         _currentStartEndPadding;
@@ -462,8 +467,8 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
       // Calcola il centro del CONTENUTO dell'elemento rispetto all'inizio del Content Size Box della ListView.
       final double itemContentCenterInScrollExtent =
           (i * _totalItemSlotMainAxis) +
-              (widget.itemSpacing / 2) +
-              (itemContentMainAxisDim / 2);
+          (widget.itemSpacing / 2) +
+          (itemContentMainAxisDim / 2);
 
       final double distance =
           (itemContentCenterInScrollExtent - viewportCenterInScrollExtent)
@@ -491,13 +496,14 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
 
     final double itemContentMainAxisDim =
         widget.scrollDirection == Axis.horizontal
-            ? widget.itemWidth
-            : widget.itemHeight;
+        ? widget.itemWidth
+        : widget.itemHeight;
     final double listPaddingStart = widget.scrollDirection == Axis.horizontal
         ? widget.listPadding.horizontal / 2
         : widget.listPadding.vertical / 2;
 
-    final double targetOffset = listPaddingStart +
+    final double targetOffset =
+        listPaddingStart +
         _currentStartEndPadding +
         (index * _totalItemSlotMainAxis) +
         (widget.itemSpacing / 2) +
@@ -550,10 +556,14 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
               _currentActualMainAxis = widget.scrollDirection == Axis.horizontal
                   ? constraints.maxWidth
                   : constraints.maxHeight;
-              _currentStartEndPadding = max(0.0,
-                  (_currentActualMainAxis / 2) - (_totalItemSlotMainAxis / 2));
+              _currentStartEndPadding = max(
+                0.0,
+                (_currentActualMainAxis / 2) - (_totalItemSlotMainAxis / 2),
+              );
               return _buildShimmerList(
-                  context, widget.initialItemsCountForShimmer);
+                context,
+                widget.initialItemsCountForShimmer,
+              );
             },
           );
         }
@@ -589,22 +599,29 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
               builder: (context, constraints) {
                 _currentActualMainAxis =
                     widget.scrollDirection == Axis.horizontal
-                        ? constraints.maxWidth
-                        : constraints.maxHeight;
+                    ? constraints.maxWidth
+                    : constraints.maxHeight;
                 _currentStartEndPadding = max(
-                    0.0,
-                    (_currentActualMainAxis / 2) -
-                        (_totalItemSlotMainAxis / 2));
+                  0.0,
+                  (_currentActualMainAxis / 2) - (_totalItemSlotMainAxis / 2),
+                );
 
                 return Stack(
                   children: [
                     // --- Selected item overlay ---
                     Align(
                       alignment: widget.itemAlignment,
-                      child: widget.selectedItemOverlayBuilder?.call(
-                              context, widget.itemWidth, widget.itemHeight) ??
+                      child:
+                          widget.selectedItemOverlayBuilder?.call(
+                            context,
+                            widget.itemWidth,
+                            widget.itemHeight,
+                          ) ??
                           _defaultSelectedItemOverlayBuilder(
-                              context, widget.itemWidth, widget.itemHeight),
+                            context,
+                            widget.itemWidth,
+                            widget.itemHeight,
+                          ),
                     ),
                     // --- Main item list ---
                     ListView.builder(
@@ -616,9 +633,11 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                       padding: widget.listPadding.add(
                         widget.scrollDirection == Axis.horizontal
                             ? EdgeInsets.symmetric(
-                                horizontal: _currentStartEndPadding)
+                                horizontal: _currentStartEndPadding,
+                              )
                             : EdgeInsets.symmetric(
-                                vertical: _currentStartEndPadding),
+                                vertical: _currentStartEndPadding,
+                              ),
                       ),
                       itemCount: items.length,
                       itemBuilder: (context, i) {
@@ -636,8 +655,8 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                             padding: EdgeInsets.symmetric(
                               horizontal:
                                   widget.scrollDirection == Axis.horizontal
-                                      ? widget.itemSpacing / 2
-                                      : 0,
+                                  ? widget.itemSpacing / 2
+                                  : 0,
                               vertical: widget.scrollDirection == Axis.vertical
                                   ? widget.itemSpacing / 2
                                   : 0,
@@ -649,7 +668,8 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                                 onTap: () {
                                   if (!_isSnapping && !isLoading) _snapTo(i);
                                 },
-                                borderRadius: widget.itemInkWellBorderRadius ??
+                                borderRadius:
+                                    widget.itemInkWellBorderRadius ??
                                     BorderRadius.circular(8),
                                 splashColor: widget.inkWellSplashColor,
                                 highlightColor: widget.inkWellHighlightColor,
@@ -660,12 +680,18 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                                     duration: widget.itemFadeAnimationDuration,
                                     transitionBuilder: (child, animation) =>
                                         FadeTransition(
-                                            opacity: animation, child: child),
+                                          opacity: animation,
+                                          child: child,
+                                        ),
                                     child: FittedBox(
                                       key: ValueKey(item),
                                       fit: BoxFit.contain,
                                       child: widget.itemBuilder(
-                                          context, item, i, isSelected),
+                                        context,
+                                        item,
+                                        i,
+                                        isSelected,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -678,19 +704,23 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                     // --- Loader for fetching more items ---
                     if (showLoader)
                       Positioned(
-                        right: widget.scrollDirection == Axis.horizontal &&
+                        right:
+                            widget.scrollDirection == Axis.horizontal &&
                                 loadingDir == LoadingDirection.right
                             ? 0
                             : null,
-                        left: widget.scrollDirection == Axis.horizontal &&
+                        left:
+                            widget.scrollDirection == Axis.horizontal &&
                                 loadingDir == LoadingDirection.left
                             ? 0
                             : null,
-                        top: widget.scrollDirection == Axis.vertical &&
+                        top:
+                            widget.scrollDirection == Axis.vertical &&
                                 loadingDir == LoadingDirection.left
                             ? 0
                             : null,
-                        bottom: widget.scrollDirection == Axis.vertical &&
+                        bottom:
+                            widget.scrollDirection == Axis.vertical &&
                                 loadingDir == LoadingDirection.right
                             ? 0
                             : null,
@@ -708,7 +738,7 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                                 min(widget.itemWidth, widget.itemHeight) * 0.5,
                             child:
                                 widget.loadingIndicatorBuilder?.call(context) ??
-                                    _defaultLoadingIndicatorBuilder(context),
+                                _defaultLoadingIndicatorBuilder(context),
                           ),
                         ),
                       ),
@@ -818,8 +848,12 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
 
   /// Default overlay for the selected item.
   Widget _defaultSelectedItemOverlayBuilder(
-      BuildContext context, double w, double h) {
-    final overlayColor = widget.selectedOverlayColor ??
+    BuildContext context,
+    double w,
+    double h,
+  ) {
+    final overlayColor =
+        widget.selectedOverlayColor ??
         Theme.of(context).colorScheme.secondary.withCustomOpacity(0.2);
     final borderRadius =
         widget.selectedOverlayBorderRadius ?? BorderRadius.circular(8.0);
@@ -856,8 +890,11 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     return Center(
       child: Padding(
         padding: padding,
-        child: Text(widget.emptyListMessage,
-            textAlign: TextAlign.center, style: textStyle),
+        child: Text(
+          widget.emptyListMessage,
+          textAlign: TextAlign.center,
+          style: textStyle,
+        ),
       ),
     );
   }
@@ -870,8 +907,11 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     return Center(
       child: Padding(
         padding: padding,
-        child: Text('Error: ${error.toString()}',
-            textAlign: TextAlign.center, style: textStyle),
+        child: Text(
+          'Error: ${error.toString()}',
+          textAlign: TextAlign.center,
+          style: textStyle,
+        ),
       ),
     );
   }

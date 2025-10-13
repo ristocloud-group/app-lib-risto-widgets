@@ -6,8 +6,8 @@ import '../buttons/custom_action_button.dart';
 enum RistoNoticeKind { info, success, warning, error, neutral, empty }
 
 /// Footer builder type, providing the card's accent color
-typedef RistoFooterBuilder = Widget Function(
-    BuildContext context, Color accentColor);
+typedef RistoFooterBuilder =
+    Widget Function(BuildContext context, Color accentColor);
 
 class RistoNoticeCard extends StatelessWidget {
   /// The semantic type of the notice (success, warning, etc.).
@@ -153,8 +153,10 @@ class RistoNoticeCard extends StatelessWidget {
     this.shadowColor,
     this.layoutAnimDuration = const Duration(milliseconds: 180),
     this.layoutAnimCurve = Curves.easeInOut,
-  }) : assert(subtitle == null || subtitleSpan == null,
-            'Cannot provide both a subtitle and a subtitleSpan.');
+  }) : assert(
+         subtitle == null || subtitleSpan == null,
+         'Cannot provide both a subtitle and a subtitleSpan.',
+       );
 
   factory RistoNoticeCard.info({
     Key? key,
@@ -505,8 +507,10 @@ class RistoNoticeCard extends StatelessWidget {
         footerContent = Padding(padding: footerPadding!, child: footerContent);
       }
       if (footerAlignment != null) {
-        footerContent =
-            Align(alignment: footerAlignment!, child: footerContent);
+        footerContent = Align(
+          alignment: footerAlignment!,
+          child: footerContent,
+        );
       }
       footerWidget = footerContent;
     }
@@ -531,25 +535,27 @@ class RistoNoticeCard extends StatelessWidget {
             text: TextSpan(
               style: theme.textTheme.bodyLarge
                   ?.copyWith(
-                      color:
-                          theme.colorScheme.onSurface.withCustomOpacity(0.7))
+                    color: theme.colorScheme.onSurface.withCustomOpacity(0.7),
+                  )
                   .merge(subtitleStyle),
               children: subtitleSpan,
             ),
           )
         : (subtitle != null && subtitle!.isNotEmpty
-            ? Text(
-                subtitle!,
-                textAlign: textAlign,
-                style: theme.textTheme.bodyLarge
-                    ?.copyWith(
-                        color:
-                            theme.colorScheme.onSurface.withCustomOpacity(0.7))
-                    .merge(subtitleStyle),
-                maxLines: subtitleMaxLines,
-                overflow: TextOverflow.ellipsis,
-              )
-            : null);
+              ? Text(
+                  subtitle!,
+                  textAlign: textAlign,
+                  style: theme.textTheme.bodyLarge
+                      ?.copyWith(
+                        color: theme.colorScheme.onSurface.withCustomOpacity(
+                          0.7,
+                        ),
+                      )
+                      .merge(subtitleStyle),
+                  maxLines: subtitleMaxLines,
+                  overflow: TextOverflow.ellipsis,
+                )
+              : null);
 
     final List<Widget?> potentialChildren = [
       if (invert) titleWidget else noticeIcon,
@@ -558,8 +564,9 @@ class RistoNoticeCard extends StatelessWidget {
       footerWidget,
     ];
 
-    final List<Widget> children =
-        potentialChildren.whereType<Widget>().toList();
+    final List<Widget> children = potentialChildren
+        .whereType<Widget>()
+        .toList();
 
     List<Widget> bodyContent = [];
     if (mainAxisAlignment == MainAxisAlignment.start) {
@@ -642,29 +649,17 @@ class RistoNoticeCard extends StatelessWidget {
     final cs = theme.colorScheme;
     switch (kind) {
       case RistoNoticeKind.success:
-        return _KindDefaults(
-          accent: Colors.green.shade600,
-        );
+        return _KindDefaults(accent: Colors.green.shade600);
       case RistoNoticeKind.warning:
-        return _KindDefaults(
-          accent: Colors.orange.shade700,
-        );
+        return _KindDefaults(accent: Colors.orange.shade700);
       case RistoNoticeKind.error:
-        return _KindDefaults(
-          accent: cs.error,
-        );
+        return _KindDefaults(accent: cs.error);
       case RistoNoticeKind.info:
-        return _KindDefaults(
-          accent: cs.primary,
-        );
+        return _KindDefaults(accent: cs.primary);
       case RistoNoticeKind.neutral:
-        return _KindDefaults(
-          accent: cs.onSurface.withCustomOpacity(0.8),
-        );
+        return _KindDefaults(accent: cs.onSurface.withCustomOpacity(0.8));
       case RistoNoticeKind.empty:
-        return _KindDefaults(
-          accent: cs.secondary,
-        );
+        return _KindDefaults(accent: cs.secondary);
     }
   }
 }

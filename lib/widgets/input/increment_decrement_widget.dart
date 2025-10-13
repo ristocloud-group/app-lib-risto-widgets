@@ -559,8 +559,8 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
             widget.decrementIcon ?? const Icon(Icons.remove),
             onPressed:
                 (widget.minValue == null || _currentQuantity > widget.minValue!)
-                    ? _decrement
-                    : null,
+                ? _decrement
+                : null,
             isEnabled:
                 widget.minValue == null || _currentQuantity > widget.minValue!,
             onLongPress: _decrement,
@@ -573,11 +573,13 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
           _buildActionButton(
             context,
             widget.incrementIcon ?? const Icon(Icons.add),
-            onPressed: (widget.maxQuantity == null ||
+            onPressed:
+                (widget.maxQuantity == null ||
                     _currentQuantity < widget.maxQuantity!)
                 ? _increment
                 : null,
-            isEnabled: widget.maxQuantity == null ||
+            isEnabled:
+                widget.maxQuantity == null ||
                 _currentQuantity < widget.maxQuantity!,
             onLongPress: _increment,
             effectiveBackgroundColor: effectiveBackgroundColor,
@@ -625,7 +627,8 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
       width: effectiveWidth,
       height: effectiveHeight,
       backgroundColor: effectiveBackgroundColor,
-      shape: widget.buttonShape ??
+      shape:
+          widget.buttonShape ??
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(widget.borderRadius ?? 10.0),
           ),
@@ -668,7 +671,8 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
         padding: padding,
         child: Text(
           _currentQuantity.toString(),
-          style: widget.quantityTextStyle ??
+          style:
+              widget.quantityTextStyle ??
               Theme.of(context).textTheme.titleLarge,
         ),
       ),
