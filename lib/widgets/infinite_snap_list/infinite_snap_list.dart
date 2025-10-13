@@ -785,7 +785,7 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
           ),
           physics: const NeverScrollableScrollPhysics(),
           itemCount: count,
-          separatorBuilder: (_, __) => SizedBox(
+          separatorBuilder: (_, _) => SizedBox(
             width: widget.scrollDirection == Axis.horizontal
                 ? widget.itemSpacing
                 : 0,

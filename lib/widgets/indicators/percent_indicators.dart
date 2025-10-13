@@ -135,7 +135,7 @@ class CircularPercentIndicator extends StatelessWidget {
             tween: Tween(begin: 0, end: p),
             duration: Duration(milliseconds: animationDuration),
             curve: Curves.easeInOut,
-            builder: (_, value, __) => ring(value),
+            builder: (_, value, _) => ring(value),
           )
         : ring(p);
   }
