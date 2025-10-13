@@ -13,8 +13,9 @@ void main() {
 
   Future<void> tapBarrier(WidgetTester tester) async {
     // Tap near the top-left of the screen, which is always outside the sheet.
-    final scaffoldTopLeft =
-        tester.getTopLeft(find.byType(Scaffold)).translate(8, 8);
+    final scaffoldTopLeft = tester
+        .getTopLeft(find.byType(Scaffold))
+        .translate(8, 8);
     await tester.tapAt(scaffoldTopLeft);
     await tester.pump();
     await tester.pumpAndSettle(anim);
@@ -23,24 +24,27 @@ void main() {
   Widget host(Widget child) => MaterialApp(home: Scaffold(body: child));
 
   group('OpenCustomSheet', () {
-    testWidgets('Confirm buttons are visible in openConfirmSheet',
-        (tester) async {
-      await tester.pumpWidget(host(
-        Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () {
-              OpenCustomSheet.openConfirmSheet(
-                context,
-                body: const Text('Are you sure?'),
-                confirmButtonText: 'Confirm',
-                cancelButtonText: 'Cancel',
-                onClose: (_) {},
-              ).show(context);
-            },
-            child: const Text('Open Confirm Sheet'),
+    testWidgets('Confirm buttons are visible in openConfirmSheet', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                OpenCustomSheet.openConfirmSheet(
+                  context,
+                  body: const Text('Are you sure?'),
+                  confirmButtonText: 'Confirm',
+                  cancelButtonText: 'Cancel',
+                  onClose: (_) {},
+                ).show(context);
+              },
+              child: const Text('Open Confirm Sheet'),
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.text('Open Confirm Sheet'), findsOneWidget);
 
@@ -51,26 +55,29 @@ void main() {
       expect(find.text('Cancel'), findsOneWidget);
     });
 
-    testWidgets('Confirm buttons function correctly - Confirm Action',
-        (tester) async {
+    testWidgets('Confirm buttons function correctly - Confirm Action', (
+      tester,
+    ) async {
       bool confirmed = false;
 
-      await tester.pumpWidget(host(
-        Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () {
-              OpenCustomSheet.openConfirmSheet(
-                context,
-                body: const Text('Are you sure?'),
-                confirmButtonText: 'Confirm',
-                cancelButtonText: 'Cancel',
-                onClose: (value) => confirmed = value == true,
-              ).show(context);
-            },
-            child: const Text('Open Confirm Sheet'),
+      await tester.pumpWidget(
+        host(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                OpenCustomSheet.openConfirmSheet(
+                  context,
+                  body: const Text('Are you sure?'),
+                  confirmButtonText: 'Confirm',
+                  cancelButtonText: 'Cancel',
+                  onClose: (value) => confirmed = value == true,
+                ).show(context);
+              },
+              child: const Text('Open Confirm Sheet'),
+            ),
           ),
         ),
-      ));
+      );
 
       await openByTap(tester, 'Open Confirm Sheet');
       await tester.tap(find.text('Confirm'));
@@ -80,26 +87,29 @@ void main() {
       expect(confirmed, isTrue);
     });
 
-    testWidgets('Confirm buttons function correctly - Cancel Action',
-        (tester) async {
+    testWidgets('Confirm buttons function correctly - Cancel Action', (
+      tester,
+    ) async {
       bool cancelled = false;
 
-      await tester.pumpWidget(host(
-        Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () {
-              OpenCustomSheet.openConfirmSheet(
-                context,
-                body: const Text('Are you sure?'),
-                confirmButtonText: 'Confirm',
-                cancelButtonText: 'Cancel',
-                onClose: (value) => cancelled = value == false,
-              ).show(context);
-            },
-            child: const Text('Open Confirm Sheet'),
+      await tester.pumpWidget(
+        host(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                OpenCustomSheet.openConfirmSheet(
+                  context,
+                  body: const Text('Are you sure?'),
+                  confirmButtonText: 'Confirm',
+                  cancelButtonText: 'Cancel',
+                  onClose: (value) => cancelled = value == false,
+                ).show(context);
+              },
+              child: const Text('Open Confirm Sheet'),
+            ),
           ),
         ),
-      ));
+      );
 
       await openByTap(tester, 'Open Confirm Sheet');
       await tester.tap(find.text('Cancel'));
@@ -109,55 +119,64 @@ void main() {
       expect(cancelled, isTrue);
     });
 
-    testWidgets('Confirm buttons are not visible in normal sheet',
-        (tester) async {
-      await tester.pumpWidget(host(
-        Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () {
-              OpenCustomSheet(
-                barrierDismissible: true,
-                barrierColor: Colors.black.withCustomOpacity(0.5),
-                onClose: (_) {},
-                backgroundColor: Colors.white,
-                handleColor: Colors.grey,
-                sheetPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                body: ({scrollController}) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Enter Details',
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 16),
-                    const TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Name',
-                        border: OutlineInputBorder(),
+    testWidgets('Confirm buttons are not visible in normal sheet', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                OpenCustomSheet(
+                  barrierDismissible: true,
+                  barrierColor: Colors.black.withCustomOpacity(0.5),
+                  onClose: (_) {},
+                  backgroundColor: Colors.white,
+                  handleColor: Colors.grey,
+                  sheetPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  body: ({scrollController}) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Enter Details',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    const TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(),
+                      const SizedBox(height: 16),
+                      const TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          border: OutlineInputBorder(),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    CustomActionButton.flat(
-                      onPressed: () => Navigator.pop(context, true),
-                      backgroundColor: Colors.green,
-                      margin: EdgeInsets.zero,
-                      child: const Text('Submit',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
-              ).show(context);
-            },
-            child: const Text('Open Custom Form Sheet'),
+                      const SizedBox(height: 16),
+                      const TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      CustomActionButton.flat(
+                        onPressed: () => Navigator.pop(context, true),
+                        backgroundColor: Colors.green,
+                        margin: EdgeInsets.zero,
+                        child: const Text(
+                          'Submit',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ).show(context);
+              },
+              child: const Text('Open Custom Form Sheet'),
+            ),
           ),
         ),
-      ));
+      );
 
       await openByTap(tester, 'Open Custom Form Sheet');
 
@@ -171,33 +190,35 @@ void main() {
     });
 
     testWidgets('Scrollable sheet works correctly', (tester) async {
-      await tester.pumpWidget(host(
-        Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () {
-              OpenCustomSheet.scrollableSheet(
-                context,
-                expand: true,
-                initialChildSize: 0.5,
-                minChildSize: 0.25,
-                maxChildSize: 1.0,
-                body: ({scrollController}) {
-                  return ListView.builder(
-                    controller: scrollController,
-                    itemCount: 50,
-                    itemBuilder: (context, index) =>
-                        ListTile(title: Text('Item $index')),
-                  );
-                },
-                onClose: (_) {},
-                backgroundColor: Colors.white,
-                handleColor: Colors.grey,
-              ).show(context);
-            },
-            child: const Text('Open Scrollable Sheet'),
+      await tester.pumpWidget(
+        host(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                OpenCustomSheet.scrollableSheet(
+                  context,
+                  expand: true,
+                  initialChildSize: 0.5,
+                  minChildSize: 0.25,
+                  maxChildSize: 1.0,
+                  body: ({scrollController}) {
+                    return ListView.builder(
+                      controller: scrollController,
+                      itemCount: 50,
+                      itemBuilder: (context, index) =>
+                          ListTile(title: Text('Item $index')),
+                    );
+                  },
+                  onClose: (_) {},
+                  backgroundColor: Colors.white,
+                  handleColor: Colors.grey,
+                ).show(context);
+              },
+              child: const Text('Open Scrollable Sheet'),
+            ),
           ),
         ),
-      ));
+      );
 
       await openByTap(tester, 'Open Scrollable Sheet');
 
@@ -215,25 +236,29 @@ void main() {
     testWidgets('Barrier dismiss works correctly', (tester) async {
       bool dismissed = false;
 
-      await tester.pumpWidget(host(
-        Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () {
-              OpenCustomSheet(
-                barrierDismissible: true,
-                barrierColor: Colors.black.withCustomOpacity(0.5),
-                onClose: (value) => dismissed = value == null,
-                backgroundColor: Colors.white,
-                handleColor: Colors.grey,
-                sheetPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                body: ({scrollController}) => const Text('Dismissable Sheet'),
-              ).show(context);
-            },
-            child: const Text('Open Dismissable Sheet'),
+      await tester.pumpWidget(
+        host(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                OpenCustomSheet(
+                  barrierDismissible: true,
+                  barrierColor: Colors.black.withCustomOpacity(0.5),
+                  onClose: (value) => dismissed = value == null,
+                  backgroundColor: Colors.white,
+                  handleColor: Colors.grey,
+                  sheetPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  body: ({scrollController}) => const Text('Dismissable Sheet'),
+                ).show(context);
+              },
+              child: const Text('Open Dismissable Sheet'),
+            ),
           ),
         ),
-      ));
+      );
 
       await openByTap(tester, 'Open Dismissable Sheet');
       expect(find.text('Dismissable Sheet'), findsOneWidget);
@@ -243,30 +268,35 @@ void main() {
       expect(dismissed, isTrue);
     });
 
-    testWidgets('Barrier dismiss disabled prevents sheet from closing',
-        (tester) async {
+    testWidgets('Barrier dismiss disabled prevents sheet from closing', (
+      tester,
+    ) async {
       bool dismissed = false;
 
-      await tester.pumpWidget(host(
-        Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () {
-              OpenCustomSheet(
-                barrierDismissible: false,
-                barrierColor: Colors.black.withCustomOpacity(0.5),
-                onClose: (value) => dismissed = value == null,
-                backgroundColor: Colors.white,
-                handleColor: Colors.grey,
-                sheetPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                body: ({scrollController}) =>
-                    const Text('Non-dismissible Sheet'),
-              ).show(context);
-            },
-            child: const Text('Open Non-dismissible Sheet'),
+      await tester.pumpWidget(
+        host(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                OpenCustomSheet(
+                  barrierDismissible: false,
+                  barrierColor: Colors.black.withCustomOpacity(0.5),
+                  onClose: (value) => dismissed = value == null,
+                  backgroundColor: Colors.white,
+                  handleColor: Colors.grey,
+                  sheetPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  body: ({scrollController}) =>
+                      const Text('Non-dismissible Sheet'),
+                ).show(context);
+              },
+              child: const Text('Open Non-dismissible Sheet'),
+            ),
           ),
         ),
-      ));
+      );
 
       await openByTap(tester, 'Open Non-dismissible Sheet');
       expect(find.text('Non-dismissible Sheet'), findsOneWidget);
@@ -284,57 +314,66 @@ void main() {
       expect(find.text('Non-dismissible Sheet'), findsOneWidget);
     });
 
-    testWidgets('Custom sheet without confirm buttons returns true on Submit',
-        (tester) async {
+    testWidgets('Custom sheet without confirm buttons returns true on Submit', (
+      tester,
+    ) async {
       bool? result;
 
-      await tester.pumpWidget(host(
-        Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () {
-              OpenCustomSheet(
-                barrierDismissible: true,
-                barrierColor: Colors.black.withCustomOpacity(0.5),
-                onClose: (value) => result = value,
-                backgroundColor: Colors.white,
-                handleColor: Colors.grey,
-                sheetPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                body: ({scrollController}) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Enter Details',
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 16),
-                    const TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Name',
-                        border: OutlineInputBorder(),
+      await tester.pumpWidget(
+        host(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                OpenCustomSheet(
+                  barrierDismissible: true,
+                  barrierColor: Colors.black.withCustomOpacity(0.5),
+                  onClose: (value) => result = value,
+                  backgroundColor: Colors.white,
+                  handleColor: Colors.grey,
+                  sheetPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  body: ({scrollController}) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Enter Details',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    const TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(),
+                      const SizedBox(height: 16),
+                      const TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          border: OutlineInputBorder(),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    CustomActionButton.flat(
-                      onPressed: () => Navigator.pop(context, true),
-                      backgroundColor: Colors.green,
-                      margin: EdgeInsets.zero,
-                      child: const Text('Submit',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
-              ).show(context);
-            },
-            child: const Text('Open Custom Form Sheet'),
+                      const SizedBox(height: 16),
+                      const TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      CustomActionButton.flat(
+                        onPressed: () => Navigator.pop(context, true),
+                        backgroundColor: Colors.green,
+                        margin: EdgeInsets.zero,
+                        child: const Text(
+                          'Submit',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ).show(context);
+              },
+              child: const Text('Open Custom Form Sheet'),
+            ),
           ),
         ),
-      ));
+      );
 
       await openByTap(tester, 'Open Custom Form Sheet');
 

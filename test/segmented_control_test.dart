@@ -5,23 +5,20 @@ import 'package:risto_widgets/widgets/navigation/section_switcher.dart';
 
 void main() {
   // --- This test remains valid as it checks core rendering logic. ---
-  testWidgets('SegmentedControl renders segment labels correctly',
-      (WidgetTester tester) async {
+  testWidgets('SegmentedControl renders segment labels correctly', (
+    WidgetTester tester,
+  ) async {
     // Arrange
     final segments = [
       const Text('One'),
       const Text('Two'),
-      const Text('Three')
+      const Text('Three'),
     ];
 
     // Act
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: SegmentedControl(
-            segments: segments,
-          ),
-        ),
+        home: Scaffold(body: SegmentedControl(segments: segments)),
       ),
     );
 
@@ -32,8 +29,9 @@ void main() {
   });
 
   // --- This test remains valid as it checks the selection callback. ---
-  testWidgets('SegmentedControl calls onSegmentSelected callback on tap',
-      (WidgetTester tester) async {
+  testWidgets('SegmentedControl calls onSegmentSelected callback on tap', (
+    WidgetTester tester,
+  ) async {
     // Arrange
     final segments = [const Text('A'), const Text('B')];
     int? tappedIndex;
@@ -58,22 +56,27 @@ void main() {
   });
 
   // --- This test remains valid as it checks the core page switching logic. ---
-  testWidgets('SectionSwitcher shows initial page and switches on tap',
-      (WidgetTester tester) async {
+  testWidgets('SectionSwitcher shows initial page and switches on tap', (
+    WidgetTester tester,
+  ) async {
     // Arrange
     final items = [
       const NavigationItem(
-          page: Text('Page 1'), icon: Icon(Icons.home), label: 'Home'),
+        page: Text('Page 1'),
+        icon: Icon(Icons.home),
+        label: 'Home',
+      ),
       const NavigationItem(
-          page: Text('Page 2'), icon: Icon(Icons.search), label: 'Search'),
+        page: Text('Page 2'),
+        icon: Icon(Icons.search),
+        label: 'Search',
+      ),
     ];
 
     // Act
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: SectionSwitcher(items: items),
-        ),
+        home: Scaffold(body: SectionSwitcher(items: items)),
       ),
     );
 
@@ -92,8 +95,9 @@ void main() {
 
   // --- REFACTORED TEST for the new styling API ---
   // This test replaces the old `backgroundColor` test with a more comprehensive one.
-  testWidgets('SegmentedControl applies custom style correctly',
-      (WidgetTester tester) async {
+  testWidgets('SegmentedControl applies custom style correctly', (
+    WidgetTester tester,
+  ) async {
     // Arrange: Define a custom style using the new API.
     const bgColor = Colors.redAccent;
     const indicatorColor = Colors.blueAccent;
@@ -122,9 +126,11 @@ void main() {
     final trackCardFinder = find.byWidgetPredicate(
       (widget) => widget is Card && widget.color == bgColor,
     );
-    expect(trackCardFinder, findsOneWidget,
-        reason:
-            'Should find the track Card with the specified background color.');
+    expect(
+      trackCardFinder,
+      findsOneWidget,
+      reason: 'Should find the track Card with the specified background color.',
+    );
 
     // 2. Find the indicator Card by its unique properties.
     final indicatorCardFinder = find.byWidgetPredicate(
@@ -133,8 +139,11 @@ void main() {
           widget.color == indicatorColor &&
           widget.elevation == indicatorElevation,
     );
-    expect(indicatorCardFinder, findsOneWidget,
-        reason:
-            'Should find the indicator Card with specified color and elevation.');
+    expect(
+      indicatorCardFinder,
+      findsOneWidget,
+      reason:
+          'Should find the indicator Card with specified color and elevation.',
+    );
   });
 }

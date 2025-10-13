@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: bloc
-      sha256: "52c10575f4445c61dd9e0cafcc6356fdd827c4c64dd7945ef3c4105f6b6ac189"
+      sha256: e18b8e7825e9921d67a6d256dba0b6015ece8a577eb0a411845c46a352994d78
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.0"
+    version: "9.0.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -343,10 +343,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "993381400e94d18469750e5b9dcb8206f15bc09f9da86b9e44a9b0092a0066db"
+      sha256: "3b4c1fc3aa55ddc9cd4aa6759984330d5c8e66aa7702a6223c61540dc6380c37"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.18"
+    version: "2.2.19"
   path_provider_foundation:
     dependency: transitive
     description:

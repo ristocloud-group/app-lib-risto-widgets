@@ -4,8 +4,9 @@ import 'package:risto_widgets/widgets/buttons/list_tile_button.dart';
 
 void main() {
   group('ListTileButton Tests', () {
-    testWidgets('ListTileButton renders correctly and responds to tap',
-        (WidgetTester tester) async {
+    testWidgets('ListTileButton renders correctly and responds to tap', (
+      WidgetTester tester,
+    ) async {
       bool buttonPressed = false;
 
       await tester.pumpWidget(
@@ -31,8 +32,9 @@ void main() {
       final roundedContainerFinder = find.byType(RoundedContainer);
       expect(roundedContainerFinder, findsOneWidget);
 
-      final RoundedContainer roundedContainer =
-          tester.widget<RoundedContainer>(roundedContainerFinder);
+      final RoundedContainer roundedContainer = tester.widget<RoundedContainer>(
+        roundedContainerFinder,
+      );
       expect(roundedContainer.margin, const EdgeInsets.all(16.0));
 
       // Tap the ListTileButton and verify it triggers the onPressed callback.
@@ -42,8 +44,9 @@ void main() {
       expect(buttonPressed, true);
     });
 
-    testWidgets('ListTileButton displays subtitle and trailing widgets',
-        (WidgetTester tester) async {
+    testWidgets('ListTileButton displays subtitle and trailing widgets', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -64,8 +67,9 @@ void main() {
       expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
     });
 
-    testWidgets('ListTileButton applies margin correctly',
-        (WidgetTester tester) async {
+    testWidgets('ListTileButton applies margin correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -82,14 +86,18 @@ void main() {
       final roundedContainerFinder = find.byType(RoundedContainer);
       expect(roundedContainerFinder, findsOneWidget);
 
-      final RoundedContainer roundedContainer =
-          tester.widget<RoundedContainer>(roundedContainerFinder);
-      expect(roundedContainer.margin,
-          const EdgeInsets.only(left: 20.0, right: 20.0));
+      final RoundedContainer roundedContainer = tester.widget<RoundedContainer>(
+        roundedContainerFinder,
+      );
+      expect(
+        roundedContainer.margin,
+        const EdgeInsets.only(left: 20.0, right: 20.0),
+      );
     });
 
-    testWidgets('ListTileButton scales leading widget with leadingSizeFactor',
-        (WidgetTester tester) async {
+    testWidgets('ListTileButton scales leading widget with leadingSizeFactor', (
+      WidgetTester tester,
+    ) async {
       const double sizeFactor = 2.0;
 
       await tester.pumpWidget(
@@ -126,55 +134,57 @@ void main() {
 
   group('IconListTileButton Tests', () {
     testWidgets(
-        'IconListTileButton renders correctly with custom leadingSizeFactor',
-        (WidgetTester tester) async {
-      const double sizeFactor = 1.5;
+      'IconListTileButton renders correctly with custom leadingSizeFactor',
+      (WidgetTester tester) async {
+        const double sizeFactor = 1.5;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: IconListTileButton(
-              margin: const EdgeInsets.all(10.0),
-              icon: Icons.star,
-              title: const Text('Icon ListTileButton'),
-              leadingSizeFactor: sizeFactor,
-              onPressed: () {},
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: IconListTileButton(
+                margin: const EdgeInsets.all(10.0),
+                icon: Icons.star,
+                title: const Text('Icon ListTileButton'),
+                leadingSizeFactor: sizeFactor,
+                onPressed: () {},
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Verify the IconListTileButton is present.
-      expect(find.text('Icon ListTileButton'), findsOneWidget);
-      expect(find.byIcon(Icons.star), findsOneWidget);
+        // Verify the IconListTileButton is present.
+        expect(find.text('Icon ListTileButton'), findsOneWidget);
+        expect(find.byIcon(Icons.star), findsOneWidget);
 
-      // Verify the margin is applied by checking RoundedContainer.
-      final roundedContainerFinder = find.byType(RoundedContainer);
-      expect(roundedContainerFinder, findsOneWidget);
+        // Verify the margin is applied by checking RoundedContainer.
+        final roundedContainerFinder = find.byType(RoundedContainer);
+        expect(roundedContainerFinder, findsOneWidget);
 
-      final RoundedContainer roundedContainer =
-          tester.widget<RoundedContainer>(roundedContainerFinder);
-      expect(roundedContainer.margin, const EdgeInsets.all(10.0));
+        final RoundedContainer roundedContainer = tester
+            .widget<RoundedContainer>(roundedContainerFinder);
+        expect(roundedContainer.margin, const EdgeInsets.all(10.0));
 
-      // Find the leading Icon.
-      final iconFinder = find.byIcon(Icons.star);
-      expect(iconFinder, findsOneWidget);
+        // Find the leading Icon.
+        final iconFinder = find.byIcon(Icons.star);
+        expect(iconFinder, findsOneWidget);
 
-      // Find the SizedBox ancestor wrapping the leading icon.
-      final sizedBoxFinder = find.ancestor(
-        of: iconFinder,
-        matching: find.byType(SizedBox),
-      );
-      expect(sizedBoxFinder, findsOneWidget);
+        // Find the SizedBox ancestor wrapping the leading icon.
+        final sizedBoxFinder = find.ancestor(
+          of: iconFinder,
+          matching: find.byType(SizedBox),
+        );
+        expect(sizedBoxFinder, findsOneWidget);
 
-      // Retrieve the size of the wrapper SizedBox.
-      final Size boxSize = tester.getSize(sizedBoxFinder);
-      expect(boxSize.width, 24.0 * sizeFactor);
-      expect(boxSize.height, 24.0 * sizeFactor);
-    });
+        // Retrieve the size of the wrapper SizedBox.
+        final Size boxSize = tester.getSize(sizedBoxFinder);
+        expect(boxSize.width, 24.0 * sizeFactor);
+        expect(boxSize.height, 24.0 * sizeFactor);
+      },
+    );
 
-    testWidgets('IconListTileButton responds to tap',
-        (WidgetTester tester) async {
+    testWidgets('IconListTileButton responds to tap', (
+      WidgetTester tester,
+    ) async {
       bool buttonPressed = false;
 
       await tester.pumpWidget(
@@ -199,8 +209,9 @@ void main() {
       expect(buttonPressed, true);
     });
 
-    testWidgets('IconListTileButton applies margin correctly',
-        (WidgetTester tester) async {
+    testWidgets('IconListTileButton applies margin correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -218,14 +229,18 @@ void main() {
       final roundedContainerFinder = find.byType(RoundedContainer);
       expect(roundedContainerFinder, findsOneWidget);
 
-      final RoundedContainer roundedContainer =
-          tester.widget<RoundedContainer>(roundedContainerFinder);
-      expect(roundedContainer.margin,
-          const EdgeInsets.only(top: 10.0, bottom: 10.0));
+      final RoundedContainer roundedContainer = tester.widget<RoundedContainer>(
+        roundedContainerFinder,
+      );
+      expect(
+        roundedContainer.margin,
+        const EdgeInsets.only(top: 10.0, bottom: 10.0),
+      );
     });
 
-    testWidgets('IconListTileButton scales leading icon correctly',
-        (WidgetTester tester) async {
+    testWidgets('IconListTileButton scales leading icon correctly', (
+      WidgetTester tester,
+    ) async {
       const double sizeFactor = 2.0;
 
       await tester.pumpWidget(
@@ -261,8 +276,9 @@ void main() {
   });
 
   group('DoubleListTileButtons Tests', () {
-    testWidgets('DoubleListTileButtons renders two ListTileButtons',
-        (WidgetTester tester) async {
+    testWidgets('DoubleListTileButtons renders two ListTileButtons', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -292,8 +308,8 @@ void main() {
       final doubleListTileButtonsFinder = find.byType(DoubleListTileButtons);
       expect(doubleListTileButtonsFinder, findsOneWidget);
 
-      final DoubleListTileButtons doubleListTileButtons =
-          tester.widget<DoubleListTileButtons>(doubleListTileButtonsFinder);
+      final DoubleListTileButtons doubleListTileButtons = tester
+          .widget<DoubleListTileButtons>(doubleListTileButtonsFinder);
       expect(doubleListTileButtons.padding, const EdgeInsets.all(12.0));
 
       // Verify the spacing between buttons.
@@ -306,8 +322,9 @@ void main() {
       expect(sizedBox.width, 16.0);
     });
 
-    testWidgets('DoubleListTileButtons applies padding and spacing correctly',
-        (WidgetTester tester) async {
+    testWidgets('DoubleListTileButtons applies padding and spacing correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -333,12 +350,12 @@ void main() {
       final doubleListTileButtonsFinder = find.byType(DoubleListTileButtons);
       expect(doubleListTileButtonsFinder, findsOneWidget);
 
-      final DoubleListTileButtons doubleListTileButtons =
-          tester.widget<DoubleListTileButtons>(doubleListTileButtonsFinder);
+      final DoubleListTileButtons doubleListTileButtons = tester
+          .widget<DoubleListTileButtons>(doubleListTileButtonsFinder);
       expect(
-          doubleListTileButtons.padding,
-          const EdgeInsets.symmetric(
-              horizontal: 20.0)); // Verify horizontal padding
+        doubleListTileButtons.padding,
+        const EdgeInsets.symmetric(horizontal: 20.0),
+      ); // Verify horizontal padding
 
       // Verify the spacing between buttons.
       final sizedBoxFinder = find.descendant(

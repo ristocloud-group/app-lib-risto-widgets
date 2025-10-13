@@ -33,20 +33,22 @@ void main() {
     expect(find.byKey(const ValueKey('risto_toast_bubble')), findsNothing);
   });
 
-  testWidgets('RistoToast.error uses theme error color by default',
-      (tester) async {
+  testWidgets('RistoToast.error uses theme error color by default', (
+    tester,
+  ) async {
     const kErr = Color(0xFFAA0011);
     final theme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo).copyWith(
-        error: kErr,
-        onError: Colors.white,
-      ),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.indigo,
+      ).copyWith(error: kErr, onError: Colors.white),
     );
 
-    await tester.pumpWidget(MaterialApp(
-      theme: theme,
-      home: Scaffold(body: Container(key: _hostKey)),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(body: Container(key: _hostKey)),
+      ),
+    );
 
     RistoToast.error(
       _ctx(tester),
@@ -64,7 +66,9 @@ void main() {
     expect(containerFinder, findsWidgets); // at least one Container
 
     // Pick the first Container that has a BoxDecoration with a color
-    final container = tester.widgetList<Container>(containerFinder).firstWhere(
+    final container = tester
+        .widgetList<Container>(containerFinder)
+        .firstWhere(
           (c) =>
               c.decoration is BoxDecoration &&
               (c.decoration as BoxDecoration).color != null,
