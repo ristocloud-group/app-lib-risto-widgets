@@ -71,6 +71,6 @@ jobs:
         # This step doesn't have an ID, which is needed by the deploy job. Let's fix that.
         # However, the deploy job refers to `steps.deployment.outputs.page_url` which comes from the deploy step itself,
         # creating a circular dependency. The artifact upload doesn't produce a page_url. I will remove the problematic id.
-        uses: actions/upload-pages-artifact@v3 # Use a more recent version
+        uses: actions/upload-pages-artifact@v4 # Use a more recent version
         with:
           path: ./coverage
