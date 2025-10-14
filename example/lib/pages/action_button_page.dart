@@ -114,6 +114,48 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           child: Text('Rounded Button ($counter)'),
         ),
 
+        SizedBox(
+          height: 60,
+          width: double.infinity,
+          child: Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: CustomActionButton.rounded(
+                  backgroundColor: Colors.transparent,
+                  borderColor: Colors.black12,
+                  splashColor: Colors.black,
+                  minHeight: 40,
+                  elevation: 0,
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 5,
+                    horizontal: 24,
+                  ),
+                  onPressed: () {},
+                  child: Text("Test 1"),
+                ),
+              ),
+              Expanded(
+                child: CustomActionButton.rounded(
+                  minHeight: 40,
+                  width: double.infinity,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 5,
+                    horizontal: 24,
+                  ),
+                  backgroundColor: Colors.red.shade600,
+                  borderColor: Colors.red.shade600,
+                  splashColor: Colors.black,
+                  onPressed: () {},
+                  child: Text("Test 2"),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         CustomActionButton.rounded(
           onPressed: () {
             setState(() {
