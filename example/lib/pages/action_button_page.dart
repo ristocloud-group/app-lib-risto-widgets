@@ -284,22 +284,24 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
               // Filled & elevated circular icon button
               CustomActionButton.iconOnly(
                 onPressed: () {},
-                icon: Icons.add,
-                baseType: ButtonType.rounded,
+                icon: const Icon(Icons.add),
                 size: 48,
                 backgroundColor: Colors.blue,
                 elevation: 2,
-                iconColor: Colors.white,
+                foregroundColor: Colors.white,
               ),
 
               // Flat square icon button with gradient
               CustomActionButton.iconOnly(
                 onPressed: () {},
-                icon: Icons.favorite,
-                iconColor: Colors.white,
+                icon: const Icon(Icons.favorite),
+                foregroundColor: Colors.white,
                 baseType: ButtonType.flat,
                 splashColor: Colors.black,
                 size: 44,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 backgroundGradient: const LinearGradient(
                   colors: [Colors.pinkAccent, Colors.red],
                 ),
@@ -308,20 +310,19 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
               // Minimal (transparent) icon button
               CustomActionButton.iconOnly(
                 onPressed: () {},
-                icon: Icons.more_vert,
-                baseType: ButtonType.rounded,
+                icon: const Icon(Icons.more_vert),
+                baseType: ButtonType.minimal,
                 backgroundColor: Colors.transparent,
-                foregroundColor: Colors.black38,
+                foregroundColor: Colors.black,
                 elevation: 0,
-                iconColor: Colors.black,
                 size: 40,
               ),
 
               CustomActionButton.iconOnly(
                 onPressed: () {},
                 baseType: ButtonType.flat,
-                iconColor: Colors.white,
-                icon: CupertinoIcons.trash,
+                foregroundColor: Colors.white,
+                icon: const Icon(CupertinoIcons.trash),
                 size: 25,
               ),
             ],

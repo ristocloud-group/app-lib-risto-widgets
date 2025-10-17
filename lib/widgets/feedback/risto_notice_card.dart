@@ -614,13 +614,15 @@ class RistoNoticeCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: CustomActionButton.iconOnly(
-              icon: Icons.close_rounded,
               onPressed: onClose,
-              baseType: ButtonType.rounded,
+              icon: const Icon(Icons.close_rounded),
               size: 40,
+              baseType: ButtonType.minimal,
               backgroundColor: Colors.transparent,
+              foregroundColor: theme.colorScheme.onSurface.withCustomOpacity(
+                0.6,
+              ),
               elevation: 0,
-              iconColor: theme.colorScheme.onSurface.withCustomOpacity(0.6),
             ),
           ),
         ],

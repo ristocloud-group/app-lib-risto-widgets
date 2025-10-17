@@ -111,6 +111,9 @@ class CustomActionButton extends StatefulWidget {
   /// The splash factory to define interaction effects.
   final InteractiveInkFeatureFactory? splashFactory;
 
+  /// Configures the minimum size of the tap target.
+  final MaterialTapTargetSize? tapTargetSize;
+
   /// Creates a [CustomActionButton] with the given parameters.
   const CustomActionButton({
     super.key,
@@ -139,6 +142,7 @@ class CustomActionButton extends StatefulWidget {
     this.backgroundGradient,
     this.disabledBackgroundGradient,
     this.splashFactory,
+    this.tapTargetSize,
   });
 
   /// Creates an elevated button.
@@ -168,6 +172,7 @@ class CustomActionButton extends StatefulWidget {
     Gradient? backgroundGradient,
     Gradient? disabledBackgroundGradient,
     InteractiveInkFeatureFactory? splashFactory,
+    MaterialTapTargetSize? tapTargetSize,
   }) {
     return CustomActionButton(
       key: key,
@@ -194,6 +199,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBackgroundGradient: disabledBackgroundGradient,
       icon: icon,
       iconSpacing: iconSpacing,
+      tapTargetSize: tapTargetSize,
       child: child,
     );
   }
@@ -224,6 +230,7 @@ class CustomActionButton extends StatefulWidget {
     Gradient? backgroundGradient,
     Gradient? disabledBackgroundGradient,
     InteractiveInkFeatureFactory? splashFactory,
+    MaterialTapTargetSize? tapTargetSize,
   }) {
     return CustomActionButton(
       key: key,
@@ -249,6 +256,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBackgroundGradient: disabledBackgroundGradient,
       icon: icon,
       iconSpacing: iconSpacing,
+      tapTargetSize: tapTargetSize,
       child: child,
     );
   }
@@ -272,6 +280,7 @@ class CustomActionButton extends StatefulWidget {
     EdgeInsetsGeometry? padding,
     Gradient? disabledBackgroundGradient,
     EdgeInsetsGeometry? margin,
+    MaterialTapTargetSize? tapTargetSize,
   }) {
     return CustomActionButton(
       key: key,
@@ -291,6 +300,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBackgroundGradient: disabledBackgroundGradient,
       icon: icon,
       iconSpacing: iconSpacing,
+      tapTargetSize: tapTargetSize,
       child: child,
     );
   }
@@ -323,6 +333,7 @@ class CustomActionButton extends StatefulWidget {
     Gradient? backgroundGradient,
     Gradient? disabledBackgroundGradient,
     InteractiveInkFeatureFactory? splashFactory,
+    MaterialTapTargetSize? tapTargetSize,
   }) {
     return CustomActionButton(
       key: key,
@@ -350,6 +361,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBackgroundGradient: disabledBackgroundGradient,
       icon: icon,
       iconSpacing: iconSpacing,
+      tapTargetSize: tapTargetSize,
       child: child,
     );
   }
@@ -378,6 +390,7 @@ class CustomActionButton extends StatefulWidget {
     Gradient? backgroundGradient,
     Gradient? disabledBackgroundGradient,
     InteractiveInkFeatureFactory? splashFactory,
+    MaterialTapTargetSize? tapTargetSize,
   }) {
     return CustomActionButton(
       key: key,
@@ -402,6 +415,7 @@ class CustomActionButton extends StatefulWidget {
       splashFactory: splashFactory,
       icon: icon,
       iconSpacing: iconSpacing,
+      tapTargetSize: tapTargetSize,
       child: child,
     );
   }
@@ -435,6 +449,7 @@ class CustomActionButton extends StatefulWidget {
     Gradient? backgroundGradient,
     Gradient? disabledBackgroundGradient,
     InteractiveInkFeatureFactory? splashFactory,
+    MaterialTapTargetSize? tapTargetSize,
   }) {
     return CustomActionButton(
       key: key,
@@ -461,19 +476,22 @@ class CustomActionButton extends StatefulWidget {
       backgroundGradient: backgroundGradient,
       disabledBackgroundGradient: disabledBackgroundGradient,
       splashFactory: splashFactory,
+      tapTargetSize: tapTargetSize,
       child: label,
     );
   }
 
-  /// Creates a button that displays only an [Icon].
+  /// Creates a circular button that displays only an icon.
+  ///
+  /// This factory is designed to behave like [IconButton], with a circular
+  /// shape and a larger tap target by default.
   factory CustomActionButton.iconOnly({
     Key? key,
     required VoidCallback? onPressed,
-    required IconData icon,
+    required Widget icon,
     ButtonType baseType = ButtonType.elevated,
     Color? backgroundColor,
     Color? foregroundColor,
-    Color? iconColor,
     Color? shadowColor,
     Color? splashColor,
     Color? disabledBackgroundColor,
@@ -482,18 +500,18 @@ class CustomActionButton extends StatefulWidget {
     Color? borderColor,
     Gradient? backgroundGradient,
     Gradient? disabledBackgroundGradient,
-    double? size,
-    EdgeInsetsGeometry? padding,
+    double? size = 48.0,
+    double? iconSize,
     EdgeInsetsGeometry? margin,
-    double borderRadius = 8.0,
     OutlinedBorder? shape,
     double? elevation,
     InteractiveInkFeatureFactory? splashFactory,
-    double iconSize = 20.0,
+    MaterialTapTargetSize tapTargetSize = MaterialTapTargetSize.padded,
   }) {
-    final resolvedWidth = size;
-    final resolvedHeight = size;
-    final resolvedPadding = padding ?? (size != null ? EdgeInsets.zero : null);
+    final Widget themedIcon = IconTheme.merge(
+      data: IconThemeData(color: foregroundColor, size: iconSize),
+      child: icon,
+    );
 
     return CustomActionButton(
       key: key,
@@ -509,16 +527,16 @@ class CustomActionButton extends StatefulWidget {
       borderColor: borderColor,
       backgroundGradient: backgroundGradient,
       disabledBackgroundGradient: disabledBackgroundGradient,
-      width: resolvedWidth,
-      height: resolvedHeight,
+      width: size,
+      height: size,
       minHeight: 0.0,
-      padding: resolvedPadding,
+      padding: EdgeInsets.zero,
       margin: margin,
-      borderRadius: borderRadius,
-      shape: shape,
+      shape: shape ?? const CircleBorder(),
       elevation: elevation,
       splashFactory: splashFactory,
-      child: Icon(icon, size: iconSize, color: iconColor ?? foregroundColor),
+      tapTargetSize: tapTargetSize,
+      child: themedIcon,
     );
   }
 
@@ -787,7 +805,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
           widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      tapTargetSize: widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
       minimumSize: _getEffectiveMinimumSize(),
     );
 
@@ -825,7 +843,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       shape: shape,
       overlayColor: widget.splashColor ?? Colors.transparent,
       splashFactory: widget.splashFactory,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      tapTargetSize: widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
       minimumSize: _getEffectiveMinimumSize(),
     );
 
@@ -860,7 +878,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: shape,
       splashFactory: widget.splashFactory ?? InkRipple.splashFactory,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      tapTargetSize: widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
       minimumSize: _getEffectiveMinimumSize(),
     );
 
@@ -893,7 +911,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
               widget.padding ??
               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: shape,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          tapTargetSize:
+              widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
           minimumSize: _getEffectiveMinimumSize(),
         ).copyWith(
           overlayColor: WidgetStateProperty.all(Colors.transparent),
@@ -935,7 +954,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
               widget.padding ??
               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: shape,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          tapTargetSize:
+              widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
           minimumSize: _getEffectiveMinimumSize(),
         ).copyWith(
           overlayColor: widget.splashColor != null
@@ -982,7 +1002,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       shape: shape,
       overlayColor: widget.splashColor ?? Colors.transparent,
       splashFactory: widget.splashFactory,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      tapTargetSize: widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
       minimumSize: _getEffectiveMinimumSize(),
     );
 
