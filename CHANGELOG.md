@@ -1,3 +1,11 @@
+## 0.2.1
+``
+- Improve `CustomBottomNavBar` to handle `onPress` action.
+- Improve `CustomActionButton` by adding new `iconOnly` factory.
+- Solved `CustomActionButton` bugs.
+- Enhanced documentation across all major classes and widgets.
+- Solved multiples bug and enhance the already existing widgets.
+
 ## 0.2.0
 
 - Added `RistoToast` widget with multiple factory

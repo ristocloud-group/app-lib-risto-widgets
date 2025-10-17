@@ -1,6 +1,6 @@
 name: risto_widgets
 description: "A Flutter library with customizable UI widgets for buttons, expandable list tiles, and more."
-version: 0.2.0
+version: 0.2.1
 homepage: "https://github.com/ristocloud-group/app-lib-risto-widgets"
 
 environment:
@@ -16,7 +16,6 @@ dependencies:
   font_awesome_flutter: ^10.10.0
   html2md: ^1.3.2
   cached_network_image: ^3.4.1
-  flutter_markdown: ^0.7.7+1
   shimmer: ^3.0.0
 
   equatable: ^2.0.7

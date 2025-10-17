@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 /// provides flexibility in styling and alignment, allowing for consistent
 /// presentation across different parts of the application.
 ///
+/// This widget will shrink-wrap its content horizontally.
+///
 /// Example usage:
 /// ```dart
 /// CustomIconText(
@@ -37,11 +39,10 @@ class CustomIconText extends StatelessWidget {
   /// theme's [TextTheme.bodyMedium.color].
   final Color? color;
 
-  /// The alignment of the icon and text within the row.
+  /// The horizontal alignment of the icon and text within the row.
   ///
-  /// Controls how the children are placed.
-  /// Defaults to [AlignmentGeometry.center].
-  final AlignmentGeometry contentAlignment;
+  /// Defaults to [MainAxisAlignment.center].
+  final MainAxisAlignment mainAxisAlignment;
 
   /// The text style to apply to the [text].
   ///
@@ -69,21 +70,19 @@ class CustomIconText extends StatelessWidget {
   /// Creates a [CustomIconText] widget.
   ///
   /// The [icon] and [text] parameters are required and must not be null.
-  /// The [contentAlignment] defaults to [Alignment.center].
+  /// The [mainAxisAlignment] defaults to [MainAxisAlignment.center].
   /// The [spacing] defaults to 8.0.
   const CustomIconText({
     super.key,
     required this.icon,
     required this.text,
     this.color,
-    this.contentAlignment = Alignment.center,
+    this.mainAxisAlignment = MainAxisAlignment.center,
     this.textStyle,
     this.maxLines = 2,
     this.iconSize,
     this.spacing = 8.0,
   });
-
-  // In CustomIconText
 
   @override
   Widget build(BuildContext context) {
@@ -93,42 +92,26 @@ class CustomIconText extends StatelessWidget {
           color: color ?? Theme.of(context).textTheme.bodyMedium!.color,
         );
 
-    return Align(
-      alignment: contentAlignment,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          /// The icon widget.
-          ///
-          /// Uses the [iconSize] if provided; otherwise, defaults to the font size
-          /// of the [textStyle]. The color defaults to the theme's icon color
-          /// unless [color] is specified.
-          Flexible(
-            child: Icon(
-              icon,
-              size: iconSize ?? effectiveTextStyle.fontSize,
-              color: color ?? Theme.of(context).iconTheme.color,
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: mainAxisAlignment,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(
+          icon,
+          size: iconSize ?? effectiveTextStyle.fontSize,
+          color: color ?? Theme.of(context).iconTheme.color,
+        ),
+        SizedBox(width: spacing),
+        Flexible(
+          child: Text(
+            text,
+            style: effectiveTextStyle,
+            overflow: TextOverflow.ellipsis,
+            maxLines: maxLines,
           ),
-
-          /// Spacer between the icon and text.
-          SizedBox(width: spacing),
-
-          /// The text widget.
-          ///
-          /// Uses the [effectiveTextStyle] and ensures that long text is truncated
-          /// with an ellipsis if it overflows.
-          Flexible(
-            child: Text(
-              text,
-              style: effectiveTextStyle,
-              overflow: TextOverflow.ellipsis,
-              maxLines: maxLines,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

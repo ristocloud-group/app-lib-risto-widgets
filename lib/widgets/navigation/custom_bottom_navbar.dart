@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 
+/// A callback function for a navigation item action.
+///
+/// It can return a `Future<bool?>`. If it returns `true`, the default
+/// page navigation will proceed after the action is complete. If it returns
+/// `false` or `null`, only the action will be performed.
+typedef NavigationActionCallback = Future<bool?> Function();
+
 /// Represents an individual navigation item within the [CustomBottomNavBar].
 ///
 /// The [NavigationItem] class encapsulates the information required for each
-/// item in the bottom navigation bar, including the target page, icon, and label.
+/// item in the bottom navigation bar, including the target page, icon, label,
+/// and an optional custom action.
 class NavigationItem {
   /// The page to navigate to when this item is selected.
   ///
   /// This should be a widget that represents the content associated with the navigation item.
+  /// It is still required even if an `onPress` action is provided, as the [PageView]
+  /// needs a widget for every index.
   final Widget page;
 
   /// The icon to display for this navigation item.
@@ -20,13 +30,21 @@ class NavigationItem {
   /// This text appears below the icon and provides a descriptive name for the item.
   final String label;
 
-  /// Creates a [NavigationItem] with the specified [page], [icon], and [label].
+  /// An optional callback to execute when the item is tapped.
   ///
-  /// All parameters are required and must not be null.
+  /// If this function returns `true`, the default page navigation will occur
+  /// after the action completes. If it returns `false` or `null`, the
+  /// navigation is prevented.
+  final NavigationActionCallback? onPress;
+
+  /// Creates a [NavigationItem] with the specified properties.
+  ///
+  /// The [page], [icon], and [label] parameters are required.
   const NavigationItem({
     required this.page,
     required this.icon,
     required this.label,
+    this.onPress,
   });
 }
 
@@ -45,9 +63,14 @@ class NavigationItem {
 ///     label: 'Home',
 ///   ),
 ///   NavigationItem(
-///     page: SearchPage(),
-///     icon: Icon(Icons.search),
-///     label: 'Search',
+///     page: SearchPage(), // A page is still needed for the PageView
+///     icon: Icon(Icons.add_circle_outline),
+///     label: 'Add',
+///     onPress: () async {
+///       // Show a dialog and decide whether to navigate based on the result.
+///       final bool shouldNavigate = await showConfirmationDialog(context);
+///       return shouldNavigate; // Returning true will also switch the page.
+///     },
 ///   ),
 ///   NavigationItem(
 ///     page: ProfilePage(),
@@ -61,8 +84,6 @@ class NavigationItem {
 ///   backgroundColor: Colors.white,
 ///   selectedItemColor: Colors.blue,
 ///   unselectedItemColor: Colors.grey,
-///   elevation: 10.0,
-///   type: BottomNavigationBarType.fixed,
 /// );
 /// ```
 class CustomBottomNavBar extends StatefulWidget {
@@ -171,20 +192,13 @@ class CustomBottomNavBar extends StatefulWidget {
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   /// The index of the currently selected navigation item.
-  ///
-  /// Initialized to `0`, representing the first item in the [widget.items] list.
   int _selectedIndex = 0;
 
   /// Controller for managing page transitions in the [PageView].
-  ///
-  /// Prevents users from swiping between pages manually by setting
-  /// [physics] to [NeverScrollableScrollPhysics].
-  PageController pageController = PageController();
+  final PageController pageController = PageController();
 
-  /// Handles taps on navigation items.
-  ///
-  /// Animates the [PageView] to the selected page and updates the [_selectedIndex].
-  void _onItemTapped(int index) {
+  /// Switches the displayed page.
+  void _navigateToPage(int index) {
     pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 500),
@@ -195,20 +209,38 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
     });
   }
 
+  /// Handles taps on navigation items.
+  ///
+  /// If the tapped item has a custom `onPress` action, it is executed. If the
+  /// action returns `true`, the default navigation will also occur. Otherwise,
+  /// only the action is performed. If no action is provided, it navigates directly.
+  void _onItemTapped(int index) async {
+    final tappedItem = widget.items[index];
+
+    if (tappedItem.onPress != null) {
+      // If a custom action exists, execute it and await its result.
+      final bool? shouldNavigate = await tappedItem.onPress!();
+
+      // Proceed with navigation ONLY if the action explicitly returns true.
+      if (shouldNavigate == true) {
+        _navigateToPage(index);
+      }
+    } else {
+      // No custom action, so perform the default page navigation.
+      _navigateToPage(index);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Retrieve the current theme's BottomNavigationBarThemeData.
     final bottomNavBarTheme = Theme.of(context).bottomNavigationBarTheme;
 
     return Scaffold(
-      // The main content area that displays the selected page.
       body: PageView(
         controller: pageController,
         physics: const NeverScrollableScrollPhysics(),
-        // Disables swipe navigation.
         children: widget.items.map((e) => e.page).toList(),
       ),
-      // The bottom navigation bar wrapped in a styled Card.
       bottomNavigationBar: Card(
         margin: widget.margin ?? const EdgeInsets.all(0),
         elevation: widget.elevation ?? bottomNavBarTheme.elevation ?? 8.0,
@@ -225,7 +257,6 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           child: BottomNavigationBar(
             elevation: 0,
             backgroundColor: Colors.transparent,
-            // Allows Card's color to show.
             type:
                 widget.type ??
                 bottomNavBarTheme.type ??

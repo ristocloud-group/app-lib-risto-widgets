@@ -110,10 +110,6 @@ class RistoNoticeCard extends StatelessWidget {
   final double? elevation;
   final Color? shadowColor;
 
-  // Anim
-  final Duration layoutAnimDuration;
-  final Curve layoutAnimCurve;
-
   const RistoNoticeCard({
     super.key,
     required this.kind,
@@ -151,8 +147,6 @@ class RistoNoticeCard extends StatelessWidget {
     this.borderOpacity = 0.5,
     this.elevation,
     this.shadowColor,
-    this.layoutAnimDuration = const Duration(milliseconds: 180),
-    this.layoutAnimCurve = Curves.easeInOut,
   }) : assert(
          subtitle == null || subtitleSpan == null,
          'Cannot provide both a subtitle and a subtitleSpan.',
@@ -619,14 +613,16 @@ class RistoNoticeCard extends StatelessWidget {
           cardShell,
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: CustomActionButton.icon(
-              icon: Icons.close_rounded,
+            child: CustomActionButton.iconOnly(
               onPressed: onClose,
-              baseType: ButtonType.rounded,
+              icon: const Icon(Icons.close_rounded),
               size: 40,
+              baseType: ButtonType.minimal,
               backgroundColor: Colors.transparent,
+              foregroundColor: theme.colorScheme.onSurface.withCustomOpacity(
+                0.6,
+              ),
               elevation: 0,
-              iconColor: theme.colorScheme.onSurface.withCustomOpacity(0.6),
             ),
           ),
         ],

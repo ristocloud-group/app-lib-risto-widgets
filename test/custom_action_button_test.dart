@@ -200,38 +200,80 @@ void main() {
       expect(counter, 0);
     });
 
-    testWidgets('CustomActionButton.icon respects size and iconColor', (
+    testWidgets('CustomActionButton.iconOnly renders correctly', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Center(
-              child: CustomActionButton.icon(
+              child: CustomActionButton.iconOnly(
                 onPressed: () {},
-                icon: Icons.add,
+                icon: const Icon(Icons.add),
                 size: 48,
-                baseType: ButtonType.rounded,
                 backgroundColor: Colors.blue,
-                iconColor: Colors.white,
+                foregroundColor: Colors.white,
+                iconSize: 24,
               ),
             ),
           ),
         ),
       );
 
-      final icon = tester.widget<Icon>(find.byIcon(Icons.add));
-      expect(icon.color, Colors.white);
-      expect(icon.size, 20.0); // adjust if you changed the factory default
+      // Find the specific Icon widget first.
+      final iconFinder = find.descendant(
+        of: find.byType(CustomActionButton),
+        matching: find.byIcon(Icons.add),
+      );
+      expect(iconFinder, findsOneWidget);
+
+      // Now, find the IconTheme that is an ancestor of that specific Icon.
+      final iconThemeFinder = find.ancestor(
+        of: iconFinder,
+        matching: find.byType(IconTheme),
+      );
+
+      // We expect to find one or more; the first one is the closest one we wrapped.
+      expect(iconThemeFinder, findsWidgets);
+      final iconTheme = tester.widget<IconTheme>(iconThemeFinder.first);
+      expect(iconTheme.data.color, Colors.white);
+      expect(iconTheme.data.size, 24);
 
       final buttonSize = tester.getSize(find.byType(CustomActionButton));
       expect(buttonSize.width, 48);
       expect(buttonSize.height, 48);
 
-      expect(find.byType(ElevatedButton), findsOneWidget);
-
       final shell = _shellMaterialOf(tester);
-      expect(shell.elevation, isA<double>());
+      expect(shell.shape, isA<CircleBorder>());
+
+      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      expect(button.style?.tapTargetSize, MaterialTapTargetSize.padded);
+    });
+
+    testWidgets('CustomActionButton.icon renders an icon and a label', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomActionButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.add_shopping_cart),
+              label: const Text('Add to cart'),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.add_shopping_cart), findsOneWidget);
+      expect(find.text('Add to cart'), findsOneWidget);
+
+      // Check if they are in a Row
+      final rowFinder = find.descendant(
+        of: find.byType(CustomActionButton),
+        matching: find.byType(Row),
+      );
+      expect(rowFinder, findsOneWidget);
     });
   });
 }
