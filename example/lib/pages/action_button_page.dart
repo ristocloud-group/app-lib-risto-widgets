@@ -28,6 +28,15 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           'Custom Action Buttons',
           style: Theme.of(context).textTheme.titleLarge,
         ),
+        // Elevated Button with Icon Example
+        CustomActionButton.elevated(
+          onPressed: () {},
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          backgroundColor: Colors.teal,
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.save, size: 18),
+          child: const Text('Save Changes'),
+        ),
         // Elevated Button Example
         CustomActionButton.elevated(
           onPressed: () {
@@ -133,7 +142,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
                     horizontal: 24,
                   ),
                   onPressed: () {},
-                  child: Text("Test 1"),
+                  child: const Text("Test 1"),
                 ),
               ),
               Expanded(
@@ -149,7 +158,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
                   borderColor: Colors.red.shade600,
                   splashColor: Colors.black,
                   onPressed: () {},
-                  child: Text("Test 2"),
+                  child: const Text("Test 2"),
                 ),
               ),
             ],
@@ -185,10 +194,8 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.black87,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: CustomIconText(
-            icon: CupertinoIcons.arrow_down_doc,
-            text: "Bollettino",
-          ),
+          icon: const Icon(CupertinoIcons.arrow_down_doc, size: 18),
+          child: const Text("Bollettino"),
         ),
 
         CustomActionButton.rounded(
@@ -242,7 +249,8 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
             colors: [Color(0xFF0E5480), Color(0xFF108ED0)],
           ),
           foregroundColor: Colors.white,
-          child: Text('Pianifica assenza'),
+          icon: const Icon(Icons.calendar_today, size: 16),
+          child: const Text('Pianifica assenza'),
         ),
         CustomActionButton.flat(
           onPressed: null,
@@ -256,49 +264,49 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
             colors: [Color(0xFF0E5480), Color(0xFF108ED0)],
           ),
           foregroundColor: Colors.white,
-          child: Text('Pianifica assenza'),
+          icon: const Icon(Icons.calendar_today, size: 16),
+          child: const Text('Pianifica assenza'),
         ),
 
         const SizedBox(height: 16),
 
         RoundedContainer(
           backgroundColor: Colors.blueGrey,
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             spacing: 10,
             children: [
               Text(
-                'Icon Action Button',
+                'Icon Only Action Button',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
 
               // Filled & elevated circular icon button
-              CustomActionButton.icon(
+              CustomActionButton.iconOnly(
                 onPressed: () {},
                 icon: Icons.add,
                 baseType: ButtonType.rounded,
                 size: 48,
                 backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
                 elevation: 2,
-                iconColor: Colors.black,
+                iconColor: Colors.white,
               ),
 
               // Flat square icon button with gradient
-              CustomActionButton.icon(
+              CustomActionButton.iconOnly(
                 onPressed: () {},
                 icon: Icons.favorite,
                 iconColor: Colors.white,
                 baseType: ButtonType.flat,
                 splashColor: Colors.black,
                 size: 44,
-                backgroundGradient: LinearGradient(
+                backgroundGradient: const LinearGradient(
                   colors: [Colors.pinkAccent, Colors.red],
                 ),
               ),
 
               // Minimal (transparent) icon button
-              CustomActionButton.icon(
+              CustomActionButton.iconOnly(
                 onPressed: () {},
                 icon: Icons.more_vert,
                 baseType: ButtonType.rounded,
@@ -309,7 +317,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
                 size: 40,
               ),
 
-              CustomActionButton.icon(
+              CustomActionButton.iconOnly(
                 onPressed: () {},
                 baseType: ButtonType.flat,
                 iconColor: Colors.white,

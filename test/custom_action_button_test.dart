@@ -200,14 +200,14 @@ void main() {
       expect(counter, 0);
     });
 
-    testWidgets('CustomActionButton.icon respects size and iconColor', (
+    testWidgets('CustomActionButton.iconOnly respects size and iconColor', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Center(
-              child: CustomActionButton.icon(
+              child: CustomActionButton.iconOnly(
                 onPressed: () {},
                 icon: Icons.add,
                 size: 48,
@@ -222,7 +222,7 @@ void main() {
 
       final icon = tester.widget<Icon>(find.byIcon(Icons.add));
       expect(icon.color, Colors.white);
-      expect(icon.size, 20.0); // adjust if you changed the factory default
+      expect(icon.size, 20.0);
 
       final buttonSize = tester.getSize(find.byType(CustomActionButton));
       expect(buttonSize.width, 48);
@@ -232,6 +232,32 @@ void main() {
 
       final shell = _shellMaterialOf(tester);
       expect(shell.elevation, isA<double>());
+    });
+
+    testWidgets('CustomActionButton.icon renders an icon and a label', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomActionButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.add_shopping_cart),
+              label: const Text('Add to cart'),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.add_shopping_cart), findsOneWidget);
+      expect(find.text('Add to cart'), findsOneWidget);
+
+      // Check if they are in a Row
+      final rowFinder = find.descendant(
+        of: find.byType(CustomActionButton),
+        matching: find.byType(Row),
+      );
+      expect(rowFinder, findsOneWidget);
     });
   });
 }

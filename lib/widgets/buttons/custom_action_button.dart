@@ -19,6 +19,12 @@ enum ButtonType { elevated, flat, minimal, longPress, rounded }
 ///   onPressed: () {},
 ///   child: Text('Elevated Button'),
 /// );
+///
+/// CustomActionButton.icon(
+///   onPressed: () {},
+///   icon: Icon(Icons.add),
+///   label: Text('Add Item'),
+/// );
 /// ```
 class CustomActionButton extends StatefulWidget {
   /// The callback that is called when the button is tapped.
@@ -29,7 +35,14 @@ class CustomActionButton extends StatefulWidget {
   final VoidCallback? onLongPress;
 
   /// The child widget to display inside the button.
+  /// If [icon] is also provided, this will be treated as the label.
   final Widget child;
+
+  /// An optional icon to display before the child.
+  final Widget? icon;
+
+  /// The spacing between the icon and the child. Defaults to 8.0.
+  final double iconSpacing;
 
   /// The type of button to display.
   final ButtonType? buttonType;
@@ -102,6 +115,8 @@ class CustomActionButton extends StatefulWidget {
   const CustomActionButton({
     super.key,
     required this.child,
+    this.icon,
+    this.iconSpacing = 8.0,
     this.buttonType,
     this.onPressed,
     this.onLongPress,
@@ -127,12 +142,12 @@ class CustomActionButton extends StatefulWidget {
   });
 
   /// Creates an elevated button.
-  ///
-  /// The [onPressed] and [child] parameters are required.
   factory CustomActionButton.elevated({
     Key? key,
     required VoidCallback? onPressed,
     required Widget child,
+    Widget? icon,
+    double iconSpacing = 8.0,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -177,17 +192,19 @@ class CustomActionButton extends StatefulWidget {
       splashFactory: splashFactory,
       backgroundGradient: backgroundGradient,
       disabledBackgroundGradient: disabledBackgroundGradient,
+      icon: icon,
+      iconSpacing: iconSpacing,
       child: child,
     );
   }
 
   /// Creates a flat button.
-  ///
-  /// The [onPressed] and [child] parameters are required.
   factory CustomActionButton.flat({
     Key? key,
     required VoidCallback? onPressed,
     required Widget child,
+    Widget? icon,
+    double iconSpacing = 8.0,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -230,17 +247,19 @@ class CustomActionButton extends StatefulWidget {
       splashFactory: splashFactory,
       backgroundGradient: backgroundGradient,
       disabledBackgroundGradient: disabledBackgroundGradient,
+      icon: icon,
+      iconSpacing: iconSpacing,
       child: child,
     );
   }
 
   /// Creates a minimal button.
-  ///
-  /// The [onPressed] and [child] parameters are required.
   factory CustomActionButton.minimal({
     Key? key,
     required VoidCallback? onPressed,
     required Widget child,
+    Widget? icon,
+    double iconSpacing = 8.0,
     Color? borderColor,
     Color? foregroundColor,
     Color? disabledBorderColor,
@@ -270,18 +289,20 @@ class CustomActionButton extends StatefulWidget {
       padding: padding,
       margin: margin,
       disabledBackgroundGradient: disabledBackgroundGradient,
+      icon: icon,
+      iconSpacing: iconSpacing,
       child: child,
     );
   }
 
   /// Creates a long-press button.
-  ///
-  /// The [onPressed], [onLongPress], and [child] parameters are required.
   factory CustomActionButton.longPress({
     Key? key,
     required VoidCallback? onPressed,
     required VoidCallback? onLongPress,
     required Widget child,
+    Widget? icon,
+    double iconSpacing = 8.0,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -327,17 +348,19 @@ class CustomActionButton extends StatefulWidget {
       splashFactory: splashFactory,
       backgroundGradient: backgroundGradient,
       disabledBackgroundGradient: disabledBackgroundGradient,
+      icon: icon,
+      iconSpacing: iconSpacing,
       child: child,
     );
   }
 
   /// Creates a fully rounded button.
-  ///
-  /// The [onPressed] e [child] sono obbligatori.
   factory CustomActionButton.rounded({
     Key? key,
     required VoidCallback? onPressed,
     required Widget child,
+    Widget? icon,
+    double iconSpacing = 8.0,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -377,29 +400,73 @@ class CustomActionButton extends StatefulWidget {
       backgroundGradient: backgroundGradient,
       disabledBackgroundGradient: disabledBackgroundGradient,
       splashFactory: splashFactory,
+      icon: icon,
+      iconSpacing: iconSpacing,
       child: child,
     );
   }
 
-  /// Creates a button that displays only an [Icon].
+  /// Creates a button with an icon and a label.
   ///
-  /// - [baseType] controls the style: elevated (default), flat, or minimal.
-  /// - [size] sets a square dimension for width/height.
-  /// - [iconColor] directly controls the icon's color, falling back to
-  ///   [foregroundColor] if not provided.
-  ///
-  /// Example:
-  /// ```dart
-  /// CustomActionButton.icon(
-  ///   onPressed: () {},
-  ///   icon: Icons.add,
-  ///   size: 48,
-  ///   backgroundColor: Colors.blue,
-  ///   iconColor: Colors.white,
-  ///   baseType: ButtonType.rounded,
-  /// );
-  /// ```
+  /// - [baseType] controls the underlying button style (e.g., elevated, flat).
   factory CustomActionButton.icon({
+    Key? key,
+    required VoidCallback? onPressed,
+    required Widget icon,
+    required Widget label,
+    ButtonType baseType = ButtonType.elevated,
+    double iconSpacing = 8.0,
+    Color? backgroundColor,
+    Color? foregroundColor,
+    Color? shadowColor,
+    Color? splashColor,
+    Color? disabledBackgroundColor,
+    Color? disabledBorderColor,
+    Color? disabledForegroundColor,
+    Color? borderColor,
+    double? elevation,
+    double? borderRadius,
+    double? width,
+    double? height,
+    double minHeight = 60.0,
+    OutlinedBorder? shape,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+    Gradient? backgroundGradient,
+    Gradient? disabledBackgroundGradient,
+    InteractiveInkFeatureFactory? splashFactory,
+  }) {
+    return CustomActionButton(
+      key: key,
+      buttonType: baseType,
+      onPressed: onPressed,
+      icon: icon,
+      iconSpacing: iconSpacing,
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      shadowColor: shadowColor,
+      splashColor: splashColor,
+      disabledBackgroundColor: disabledBackgroundColor,
+      disabledBorderColor: disabledBorderColor,
+      disabledForegroundColor: disabledForegroundColor,
+      borderColor: borderColor,
+      elevation: elevation,
+      borderRadius: borderRadius,
+      width: width,
+      height: height,
+      minHeight: minHeight,
+      shape: shape,
+      padding: padding,
+      margin: margin,
+      backgroundGradient: backgroundGradient,
+      disabledBackgroundGradient: disabledBackgroundGradient,
+      splashFactory: splashFactory,
+      child: label,
+    );
+  }
+
+  /// Creates a button that displays only an [Icon].
+  factory CustomActionButton.iconOnly({
     Key? key,
     required VoidCallback? onPressed,
     required IconData icon,
@@ -613,9 +680,24 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _wrapChild(BuildContext context, {required bool disabled}) {
+    Widget content = widget.child;
+
+    if (widget.icon != null) {
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          widget.icon!,
+          SizedBox(width: widget.iconSpacing),
+          Flexible(child: widget.child),
+        ],
+      );
+    }
+
     return DefaultTextStyle(
       style: _effectiveTextStyle(context, disabled: disabled),
-      child: widget.child,
+      child: content,
     );
   }
 
@@ -755,7 +837,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
         onPressed: widget.onPressed,
         child: _wrapChild(context, disabled: false),
       ),
-      solidColor: solid,
+      solidColor: widget.backgroundGradient == null ? solid : null,
       gradient: widget.backgroundGradient,
       elevation: widget.elevation ?? 2.0,
       shadowColor: widget.shadowColor,
@@ -790,7 +872,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
         onPressed: widget.onPressed,
         child: _wrapChild(context, disabled: false),
       ),
-      solidColor: solid,
+      solidColor: widget.backgroundGradient == null ? solid : null,
       gradient: widget.backgroundGradient,
       elevation: widget.elevation,
       shadowColor: widget.shadowColor ?? Colors.transparent,
@@ -877,7 +959,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       context: context,
       shape: shape,
       child: btn,
-      solidColor: solid,
+      solidColor: widget.backgroundGradient == null ? solid : null,
       gradient: widget.backgroundGradient,
       elevation: widget.elevation ?? 2.0,
       shadowColor: widget.shadowColor,
@@ -912,7 +994,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
         onPressed: widget.onPressed,
         child: _wrapChild(context, disabled: false),
       ),
-      solidColor: solid,
+      solidColor: widget.backgroundGradient == null ? solid : null,
       gradient: widget.backgroundGradient,
       elevation: widget.elevation ?? 2.0,
       shadowColor: widget.shadowColor,

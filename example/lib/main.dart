@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
+import 'package:risto_widgets_example/pages/action_button_page.dart';
 import 'package:risto_widgets_example/pages/custom_dialog_page.dart';
 import 'package:risto_widgets_example/pages/infinite_snap_list_page.dart';
 import 'package:risto_widgets_example/pages/navigation_widget_page.dart';
@@ -7,8 +8,6 @@ import 'package:risto_widgets_example/pages/percent_indicators_page.dart';
 import 'package:risto_widgets_example/pages/risto_notice_card_page.dart';
 import 'package:risto_widgets_example/pages/risto_toast_page.dart';
 
-// Import the pages
-import 'pages/action_button_page.dart';
 import 'pages/custom_sheet_page.dart';
 import 'pages/expandable_page.dart';
 import 'pages/increment_decrement_page.dart';
@@ -70,7 +69,8 @@ class _HomePageState extends State<HomePage> {
         page: CustomSheetPage(),
         icon: Icon(Icons.open_in_new),
         label: 'Custom Sheets',
-      ), const NavigationItem(
+      ),
+      const NavigationItem(
         page: CustomDialogPage(),
         icon: Icon(Icons.present_to_all_sharp),
         label: 'Custom Dialogs',
