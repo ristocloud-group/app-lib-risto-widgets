@@ -48,6 +48,21 @@ extension CustomOpacityAndShade on Color {
     return Color.fromARGB((a * 255.0).round().clamp(0, 255), r, g, b);
   }
 
+  /// Returns a color that is a shade of this color.
+  ///
+  /// [shade] must be between 0.0 (no change) and 1.0 (full shade).
+  /// [brightness] can be either [Brightness.light] or [Brightness.dark].
+  Color shadedColor({
+    double shade = .1,
+    Brightness brightness = Brightness.light,
+  }) {
+    if (brightness == Brightness.light) {
+      return darker(shade);
+    } else {
+      return lighter(shade);
+    }
+  }
+
   /// Prefixes a hash sign if [leadingHashSign] is set to `true` (default is `true`).
   String toHex({bool leadingHashSign = true}) =>
       '${leadingHashSign ? '#' : ''}'
