@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
+import 'expandable_stack_page.dart';
+
 class CustomSheetPage extends StatefulWidget {
   const CustomSheetPage({super.key});
 
@@ -122,6 +124,18 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                   ).show(context);
                 },
                 child: const Text('Show Expandable Overlay'),
+              ),
+              CustomActionButton(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ExpandableStackPage(),
+                    ),
+                  );
+                },
+                child: const Text('Show Expandable Stack in page'),
               ),
 
               CustomActionButton(
