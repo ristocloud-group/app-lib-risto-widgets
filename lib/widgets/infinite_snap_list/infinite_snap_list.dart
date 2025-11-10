@@ -464,7 +464,7 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     double minDist = double.infinity;
     int closestIdx = 0;
     for (int i = 0; i < items.length; i++) {
-      // Calcola il centro del CONTENUTO dell'elemento rispetto all'inizio del Content Size Box della ListView.
+      // Calculate the center of the item's CONTENT relative to the start of the ListView's Content Size Box.
       final double itemContentCenterInScrollExtent =
           (i * _totalItemSlotMainAxis) +
           (widget.itemSpacing / 2) +

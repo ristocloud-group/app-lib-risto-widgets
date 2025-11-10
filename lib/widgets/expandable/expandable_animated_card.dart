@@ -6,7 +6,7 @@ enum HeaderMode { overlay, none }
 
 enum CardType { normal, fullscreen, sheet }
 
-/// Controller opzionale per apertura/chiusura programmatica.
+/// Optional controller for programmatic opening/closing.
 class ExpandableAnimatedCardController extends ChangeNotifier {
   VoidCallback? _open;
   VoidCallback? _close;
@@ -90,7 +90,7 @@ class ExpandableAnimatedCard extends StatefulWidget {
   final ExpandableAnimatedCardController? controller;
   final bool autoOpenOnTap;
 
-  // Tipo privato impostato dai factory
+  // Private type set by the factories
   final CardType _type;
 
   /// Public (free) constructor — allows full customization.
@@ -927,7 +927,7 @@ class _ExpandableAnimatedOverlayState
   }
 }
 
-/// Helper per ottenere i padding di sistema anche su API Flutter diverse.
+/// Helper to get system paddings even on different Flutter APIs.
 class MediaWidgetPadding {
   static EdgeInsets viewPaddingOf(BuildContext context) {
     try {

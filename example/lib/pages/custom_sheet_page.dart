@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
+import 'expandable_stack_page.dart';
+
 class CustomSheetPage extends StatefulWidget {
   const CustomSheetPage({super.key});
 
@@ -123,6 +125,18 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                 },
                 child: const Text('Show Expandable Overlay'),
               ),
+              CustomActionButton(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ExpandableStackPage(),
+                    ),
+                  );
+                },
+                child: const Text('Show Expandable Stack in page'),
+              ),
 
               CustomActionButton(
                 margin: const EdgeInsets.symmetric(vertical: 8),
@@ -179,7 +193,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                                 children: [
                                   const Expanded(
                                     child: Text(
-                                      'Ricarica saldo',
+                                      'Recharge wallet',
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
@@ -277,7 +291,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                                                   value.value,
                                                 ),
                                             child: const Text(
-                                              'Invia',
+                                              'Send',
                                               style: TextStyle(fontSize: 18),
                                             ),
                                           ),
@@ -314,7 +328,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                 header: const Padding(
                   padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
                   child: Text(
-                    'Riepilogo',
+                    'Recap',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -340,7 +354,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Retta mensile trasporto',
+                                      'Monthly subscription',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
@@ -389,7 +403,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Totale importo:', style: TextStyle(color: Colors.white70)),
+              Text('Total amount:', style: TextStyle(color: Colors.white70)),
               SizedBox(height: 4),
               Text(
                 '30,00€',
@@ -406,7 +420,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
               TextButton(
                 onPressed: onClose,
                 child: const Text(
-                  'Chiudi',
+                  'Close',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -423,7 +437,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                   ),
                 ),
                 child: const Text(
-                  'Avanti',
+                  'Next',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),

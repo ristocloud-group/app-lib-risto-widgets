@@ -78,7 +78,10 @@ class ListTileButtonPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text("21"),
-                Padding(padding: EdgeInsets.only(top: 2.0), child: Text("set")),
+                Padding(
+                  padding: EdgeInsets.only(top: 2.0),
+                  child: Text("Sep"), // Was: "set"
+                ),
               ],
             ),
             leadingSizeFactor: 2,
@@ -122,7 +125,7 @@ class ListTileButtonPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.calendar_today, color: Colors.purple),
-                Text('Pianifica assenza'),
+                Text('Schedule absence'), // Was: 'Pianifica assenza'
               ],
             ),
             backgroundColor: Colors.white,
@@ -242,7 +245,7 @@ class ListTileButtonPage extends StatelessWidget {
               margin: const EdgeInsets.only(right: 8.0),
               body: CustomIconText(
                 icon: Icons.today_rounded,
-                text: "Pianifica assenza",
+                text: "Schedule absence", // Was: "Pianifica assenza"
                 color: Colors.white,
               ),
               onPressed: () {},
@@ -258,7 +261,11 @@ class ListTileButtonPage extends StatelessWidget {
                     Flexible(
                       child: Icon(Icons.calendar_today, color: Colors.purple),
                     ),
-                    Expanded(child: Text('Pianifica assenza')),
+                    Expanded(
+                      child: Text(
+                        'Schedule absence',
+                      ), // Was: 'Pianifica assenza'
+                    ),
                   ],
                 ),
               ),
@@ -283,7 +290,7 @@ class ListTileButtonPage extends StatelessWidget {
                 icon: Icons.school,
                 iconColor: Colors.white,
                 title: Text(
-                  'Profilo',
+                  'Profile', // Was: 'Profilo'
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: Colors.white),
@@ -301,7 +308,7 @@ class ListTileButtonPage extends StatelessWidget {
                 icon: Icons.restaurant_menu,
                 iconColor: Colors.white,
                 title: Text(
-                  'Assente',
+                  'Absent', // Was: 'Assente'
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: Colors.white),
@@ -328,7 +335,7 @@ class ListTileButtonPage extends StatelessWidget {
               onPressed: () {},
               child: CustomIconText(
                 icon: Icons.download,
-                text: "Bollettino",
+                text: "Payment Slip", // Was: "Bollettino"
                 color: Colors.black,
               ),
             ),
