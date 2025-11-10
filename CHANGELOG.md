@@ -1,3 +1,10 @@
+## 0.2.2
+
+- Improve `ExpandableListTileButton` to handle bottom inerts.
+- Solved `CustomActionButton` bugs.
+- Updated tests files.
+- Solved multiples bug and enhance the already existing widgets.
+
 ## 0.2.1
 
 - Improve `CustomBottomNavBar` to handle `onPress` action.
