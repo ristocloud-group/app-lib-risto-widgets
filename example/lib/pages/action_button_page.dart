@@ -195,7 +195,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           foregroundColor: Colors.black87,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           icon: const Icon(CupertinoIcons.arrow_down_doc, size: 18),
-          child: const Text("Bollettino"),
+          child: const Text("Rounded Button Icon"),
         ),
 
         CustomActionButton.rounded(
@@ -222,7 +222,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           ),
         ),
 
-        // Big rounded “Invia” with a blue sweep
+        // Big rounded “Send” with a blue sweep
         CustomActionButton.rounded(
           onPressed: () {},
           minHeight: 64,
@@ -233,10 +233,10 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
             colors: [Color(0xFF0E5480), Color(0xFF0C6DA0)],
           ),
           foregroundColor: Colors.white,
-          child: const Text('Invia'),
+          child: const Text('Submit'),
         ),
 
-        // Compact “Pianifica assenza” tile with icon, same gradient
+        // Compact “Plan Absence” tile with icon, same gradient
         CustomActionButton.flat(
           onPressed: () {},
           borderRadius: 16,
@@ -250,7 +250,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           ),
           foregroundColor: Colors.white,
           icon: const Icon(Icons.calendar_today, size: 16),
-          child: const Text('Pianifica assenza'),
+          child: const Text('Plan Absence'),
         ),
         CustomActionButton.flat(
           onPressed: null,
@@ -265,7 +265,7 @@ class _ActionButtonPageState extends State<ActionButtonPage> {
           ),
           foregroundColor: Colors.white,
           icon: const Icon(Icons.calendar_today, size: 16),
-          child: const Text('Pianifica assenza'),
+          child: const Text('Plan Absence'),
         ),
 
         const SizedBox(height: 16),

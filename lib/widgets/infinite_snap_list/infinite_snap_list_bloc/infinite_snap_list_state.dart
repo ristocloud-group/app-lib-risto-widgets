@@ -2,7 +2,7 @@ part of 'infinite_snap_list_bloc.dart';
 
 enum LoadingDirection { left, right, initial }
 
-/// Stato interno della lista (items + selectedItem)
+/// Internal state of the list (items + selectedItem)
 class ISLState<T> {
   final List<T> items;
   final T selectedItem;
@@ -27,7 +27,7 @@ class ISLState<T> {
   }
 }
 
-/// Base dello stato emesso dal BLoC
+/// Base class for the state emitted by the BLoC
 abstract class InfiniteSnapListState<T> extends Equatable {
   final ISLState<T> state;
 
@@ -41,31 +41,31 @@ abstract class InfiniteSnapListState<T> extends Equatable {
   ];
 }
 
-/// Stato iniziale prima di caricare i dati
+/// Initial state before loading data
 class ISLInitialState<T> extends InfiniteSnapListState<T> {
   const ISLInitialState(super.s);
 }
 
-/// Stato di caricamento
+/// Loading state
 class ISLLoadingState<T> extends InfiniteSnapListState<T> {
   const ISLLoadingState(super.s);
 }
 
-/// Stato con dati caricati (items aggiornati)
+/// State with loaded data (items updated)
 class ISLoadedState<T> extends InfiniteSnapListState<T> {
-  // Aggiunto il campo prependedItemCount a LoadedState
+  // Added the prependedItemCount field to LoadedState
   final int prependedItemCount;
 
   const ISLoadedState(
     super.s, {
     this.prependedItemCount = 0,
-  }); // Valore di default 0
+  }); // Default value 0
 
   @override
   List<Object?> get props => [...super.props, prependedItemCount];
 }
 
-/// Stato di errore
+/// Error state
 class ISLErrorState<T> extends InfiniteSnapListState<T> {
   final Exception error;
 
@@ -75,7 +75,7 @@ class ISLErrorState<T> extends InfiniteSnapListState<T> {
   List<Object?> get props => [...super.props, error];
 }
 
-/// Stato che indica che non ci sono più item da caricare
+/// State indicating there are no more items to load
 class ISLNoMoreItemsState<T> extends InfiniteSnapListState<T> {
   const ISLNoMoreItemsState(super.s);
 }

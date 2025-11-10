@@ -20,7 +20,7 @@ class ExpandableStackPage extends StatelessWidget {
         header: const Padding(
           padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
           child: Text(
-            'Riepilogo',
+            'Summary',
             style: TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -45,14 +45,14 @@ class ExpandableStackPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Retta mensile trasporto',
+                              'Monthly transport fee',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                               ),
                             ),
                             Text(
-                              '30,00€',
+                              '€30.00',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -84,10 +84,10 @@ class ExpandableStackPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Totale importo:', style: TextStyle(color: Colors.white70)),
+              Text('Total amount:', style: TextStyle(color: Colors.white70)),
               SizedBox(height: 4),
               Text(
-                '30,00€',
+                '€30.00',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -101,7 +101,7 @@ class ExpandableStackPage extends StatelessWidget {
               TextButton(
                 onPressed: onClose,
                 child: const Text(
-                  'Chiudi',
+                  'Close',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -118,7 +118,7 @@ class ExpandableStackPage extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Avanti',
+                  'Next',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),

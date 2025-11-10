@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:risto_widgets/risto_widgets.dart'; // Assicurati che questo import sia corretto
+import 'package:risto_widgets/risto_widgets.dart';
 
 /// Example data type for the infinite snap list demo.
 /// Should implement == and hashCode for correct comparison.
@@ -26,8 +26,8 @@ class DemoItem {
 /// Simple InfiniteListBloc implementation for demonstration purposes.
 /// Generates synthetic values based on the offset item.
 class DemoSnapBloc extends InfiniteSnapListBloc<DemoItem> {
-  // Inizializza il BLoC con uno stato iniziale contenente un elemento selezionato.
-  // Questo attiverà la logica di fetching iniziale in InfiniteListBloc.
+  // Initializes the BLoC with an initial state containing a selected item.
+  // This will trigger the initial fetching logic in InfiniteListBloc.
   DemoSnapBloc() : super(initValue: DemoItem(0));
 
   /// Simulate async fetching of more items to the left and right.
@@ -65,7 +65,7 @@ class InfiniteSnapDemoPage extends StatefulWidget {
 }
 
 class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
-  late final DemoSnapBloc _bloc; // Inizializza con `late` e nel `initState`
+  late final DemoSnapBloc _bloc; // Initialize with `late` and in `initState`
   final _controller = InfiniteSnapListController<DemoItem>();
 
   Axis _direction = Axis.horizontal;
@@ -75,7 +75,7 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
   @override
   void initState() {
     super.initState();
-    _bloc = DemoSnapBloc(); // Crea il BLoC qui
+    _bloc = DemoSnapBloc(); // Create the BLoC here
   }
 
   @override
@@ -128,19 +128,19 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
             children: [
               // Horizontal scrollable control bar
               BlocBuilder<DemoSnapBloc, InfiniteSnapListState<DemoItem>>(
-                // Avvolgi i pulsanti in un BlocBuilder per accedere allo stato del BLoC
+                // Wrap the buttons in a BlocBuilder to access the BLoC's state
                 builder: (context, state) {
                   final items = state.state.items;
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _demoButton(
-                        'Go to Start', // Rinomina per chiarezza
+                        'Go to Start', // Rename for clarity
                         () {
                           if (items.isNotEmpty) {
                             _controller.jumpTo(
                               0,
-                            ); // Vai all'inizio della lista caricata
+                            ); // Go to the start of the loaded list
                           }
                         },
                       ),
@@ -148,15 +148,15 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                         'Go to 0',
                         () => _controller.selectItem(
                           DemoItem(0),
-                        ), // Continua a selezionare l'elemento 0
+                        ), // Continue to select item 0
                       ),
                       _demoButton(
-                        'Go to End', // Rinomina per chiarezza
+                        'Go to End', // Rename for clarity
                         () {
                           if (items.isNotEmpty) {
                             _controller.jumpTo(
                               items.length - 1,
-                            ); // Vai alla fine della lista caricata
+                            ); // Go to the end of the loaded list
                           }
                         },
                       ),
@@ -178,9 +178,9 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                 },
               ),
               // Main list demo in a card
-              // Utilizziamo un Flexible per racchiudere la Card.
-              // Questo garantisce un tipo di widget consistente nel Column,
-              // impedendo la ricreazione dello stato di InfiniteSnapList al cambio di orientamento.
+              // We use a Flexible to wrap the Card.
+              // This ensures a consistent widget type in the Column,
+              // preventing the recreation of the InfiniteSnapList state on orientation change.
               Flexible(
                 child: Card(
                   margin: const EdgeInsets.symmetric(
@@ -204,10 +204,10 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                       itemWidth: 80,
                       itemHeight: 80,
                       itemSpacing: 16,
-                      // listPadding qui è il padding *all'interno* del ListView.
-                      // I vincoli di altezza/larghezza per l'intero InfiniteSnapList sono dati dal genitore (Flexible/Card).
+                      // listPadding here is the padding *inside* the ListView.
+                      // The height/width constraints for the entire InfiniteSnapList are given by the parent (Flexible/Card).
                       listPadding: const EdgeInsets.symmetric(horizontal: 12),
-                      // Assicurati che questo sia corretto per entrambi gli orientamenti se non vuoi padding verticali diversi
+                      // Make sure this is correct for both orientations if you don't want different vertical padding
                       itemAlignment: Alignment.center,
                       enableKeyboardNavigation: true,
                       semanticLabelBuilder: (item) => 'Item ${item.value}',
@@ -222,7 +222,7 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                       itemBuilder:
                           (ctx, item, idx, isSelected) => AnimatedContainer(
                             duration: const Duration(milliseconds: 250),
-                            // `width` e `height` dell'AnimatedContainer dovrebbero essere fissi come `itemWidth` e `itemHeight` del widget
+                            // `width` and `height` of the AnimatedContainer should be fixed like the widget's `itemWidth` and `itemHeight`
                             width: 80,
                             height: 80,
                             decoration: BoxDecoration(

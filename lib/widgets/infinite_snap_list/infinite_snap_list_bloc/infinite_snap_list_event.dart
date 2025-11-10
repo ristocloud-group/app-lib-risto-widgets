@@ -6,7 +6,7 @@ abstract class InfiniteSnapListEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Seleziona l'item snappato
+/// Selects the snapped item
 class SelectItemEvent<T> extends InfiniteSnapListEvent {
   final T selectedItem;
 

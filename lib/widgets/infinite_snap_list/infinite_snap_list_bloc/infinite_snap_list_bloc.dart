@@ -5,16 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'infinite_snap_list_event.dart';
 part 'infinite_snap_list_state.dart';
 
-/// BLoC che gestisce lo scrolling infinito bidirezionale con evento di selezione
-/// sfruttando il comportamento snap per caricare nuovi item solo quando
-/// si raggiunge la prima o l'ultima posizione, mantenendo traccia dell'item selezionato.
-/// Richiede un `initValue` per pre-selezionare l’elemento di partenza (offset iniziale).
+/// BLoC that manages bidirectional infinite scrolling with a selection event,
+/// leveraging snap behavior to load new items only when
+/// the first or last position is reached, keeping track of the selected item.
+/// Requires an `initValue` to pre-select the starting element (initial offset).
 abstract class InfiniteSnapListBloc<T>
     extends Bloc<InfiniteSnapListEvent, InfiniteSnapListState<T>> {
-  /// Limite di fetch di default
+  /// Default fetch limit
   final int defaultLimit;
 
-  /// Elemento iniziale da selezionare (offset di partenza), non null
+  /// Initial element to select (starting offset), non-null
   final T initValue;
 
   InfiniteSnapListBloc({required this.initValue, this.defaultLimit = 10})
@@ -28,12 +28,12 @@ abstract class InfiniteSnapListBloc<T>
         ),
       ) {
     on<SelectItemEvent<T>>(_onSelectItem);
-    // Lancia subito il caricamento iniziale con initValue
+    // Immediately triggers the initial load with initValue
     add(SelectItemEvent<T>(initValue));
   }
 
-  /// Selezione di un elemento: se è ai bordi, carica nella direzione appropriata;
-  /// altrimenti aggiorna solo selectedItem.
+  /// Selecting an item: if it's at the edges, load in the appropriate direction;
+  /// otherwise, just update selectedItem.
   Future<void> _onSelectItem(
     SelectItemEvent<T> event,
     Emitter<InfiniteSnapListState<T>> emit,
@@ -41,8 +41,8 @@ abstract class InfiniteSnapListBloc<T>
     final current = state.state.items;
     final selected = event.selectedItem;
 
-    // Se non siamo ai bordi, aggiorna solo selectedItem e resetta loadingDirection
-    // e non emettere se l'elemento selezionato è già lo stesso
+    // If we are not at the edges, just update selectedItem and reset loadingDirection
+    // and don't emit if the selected item is already the same
     if (current.isNotEmpty &&
         selected != current.first &&
         selected != current.last &&
@@ -55,7 +55,7 @@ abstract class InfiniteSnapListBloc<T>
       return;
     }
 
-    // Evita di caricare di nuovo se stiamo già caricando e l'elemento selezionato non è cambiato
+    // Avoid loading again if we are already loading and the selected item hasn't changed
     if (state is ISLLoadingState && state.state.selectedItem == selected) {
       return;
     }
@@ -70,7 +70,7 @@ abstract class InfiniteSnapListBloc<T>
       directionToLoad = LoadingDirection.left;
     }
 
-    // Emettiamo LoadingState solo se c'è una direzione di caricamento
+    // We only emit LoadingState if there is a loading direction
     if (directionToLoad != null) {
       emit(
         ISLLoadingState<T>(
@@ -86,9 +86,9 @@ abstract class InfiniteSnapListBloc<T>
 
     try {
       List<T> updated = List<T>.from(current);
-      int prependedCount = 0; // Inizializza per questo caso
+      int prependedCount = 0; // Initialize for this case
       if (directionToLoad == LoadingDirection.initial) {
-        // Caricamento iniziale
+        // Initial loading
         final (left, right) = await fetchItems(
           leftLimit: defaultLimit,
           rightLimit: defaultLimit,
@@ -98,7 +98,7 @@ abstract class InfiniteSnapListBloc<T>
         updated.insertAll(0, left);
         prependedCount = left.length;
       } else if (directionToLoad == LoadingDirection.right) {
-        // Carica elementi a destra
+        // Load items to the right
         final (_, right) = await fetchItems(
           leftLimit: 0,
           rightLimit: defaultLimit,
@@ -106,18 +106,18 @@ abstract class InfiniteSnapListBloc<T>
         );
         updated.addAll(right);
       } else if (directionToLoad == LoadingDirection.left) {
-        // Carica elementi a sinistra
+        // Load items to the left
         final (left, _) = await fetchItems(
           leftLimit: defaultLimit,
           rightLimit: 0,
           offset: selected,
         );
         updated.insertAll(0, left);
-        prependedCount = left.length; // Cattura il numero di elementi prepended
+        prependedCount = left.length; // Capture the number of prepended items
       }
 
-      // Emette LoadedState solo se c'è stato un caricamento o se l'elemento selezionato è cambiato
-      // Questo previene emissioni ridondanti quando non c'è caricamento effettivo
+      // Emits LoadedState only if there was a load or if the selected item changed
+      // This prevents redundant emissions when there's no actual loading
       if (directionToLoad != null || state.state.selectedItem != selected) {
         emit(
           ISLoadedState<T>(
@@ -125,9 +125,9 @@ abstract class InfiniteSnapListBloc<T>
               items: updated,
               selectedItem: selected,
               loadingDirection:
-                  null, // Reset direzione dopo il carico completato
+                  null, // Reset direction after loading is complete
             ),
-            prependedItemCount: prependedCount, // Passa il contatore
+            prependedItemCount: prependedCount, // Pass the counter
           ),
         );
       }
@@ -141,7 +141,7 @@ abstract class InfiniteSnapListBloc<T>
     }
   }
 
-  /// Deve essere implementato per recuperare liste (left, right)
+  /// Must be implemented to fetch lists (left, right)
   Future<(List<T>, List<T>)> fetchItems({
     required int leftLimit,
     required int rightLimit,

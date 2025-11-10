@@ -1,5 +1,3 @@
-// These imports are commented out because I don't have access to your specific files.
-// Make sure to uncomment them in your project.
 import 'package:expandable/expandable.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -635,11 +633,11 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
   bool? _dragStartExpanded;
   double? _dragStartExtent;
 
-  // Misure dinamiche reali (aggiornate dal probe)
-  double _footerHeight = 0.0; // include SafeArea bottom
+  // Actual dynamic measurements (updated by the probe)
+  double _footerHeight = 0.0; // includes SafeArea bottom
   double _headerHeight = 0.0;
 
-  // Soglia di snap direzionale (fra collassato ed espanso)
+  // Directional snap threshold (between collapsed and expanded)
   static const double _snapThresholdFraction = 0.20;
 
   double get _expandedSize => widget.maxChildSize;
@@ -655,7 +653,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
     return 0.0;
   }
 
-  // Calcolo "vero" della collapsed extent usando solo misure reali
+  // Actual calculation of the collapsed extent using only real-time measurements
   double _minCollapsedExtent(BuildContext context) {
     final screenH = MediaQuery.of(context).size.height;
     final neededPx =
@@ -667,7 +665,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
 
   double _collapsedTarget(BuildContext context) {
     final minNeeded = _minCollapsedExtent(context);
-    // Rispettiamo eventuale initialChildSize passato (se >= del minimo reale)
+    // Respect the provided initialChildSize (if it's >= the actual minimum)
     return (widget.initialChildSize >= minNeeded)
         ? widget.initialChildSize
         : minNeeded;
@@ -704,7 +702,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
   void _onFooterSize(Size s) {
     if ((_footerHeight - s.height).abs() > 0.5) {
       _footerHeight =
-          s.height; // include SafeArea perché lo misuriamo già wrappato
+          s.height; // includes SafeArea because we measure it already wrapped
       _d('footer measured: $_footerHeight');
       _coerceExtentAfterMeasure();
       setState(() {});
@@ -715,8 +713,8 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
     if (!_dragCtrl.isAttached) return;
     final collapsed = _collapsedTarget(context);
 
-    // Aggiorna minChildSize cambiando il build (setState sopra) e
-    // se siamo in stato collapsed o più in basso, riportati esattamente lì.
+    // Update minChildSize by changing the build (setState above) and
+    // if we are in the collapsed state or lower, jump back exactly there.
     if (!widget.controller.expanded && !_snapping) {
       final now = _dragCtrl.size;
       if ((now - collapsed).abs() > 0.005) {
@@ -808,7 +806,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
   Widget build(BuildContext context) {
     final collapsedNow = _collapsedTarget(
       context,
-    ); // già dinamico sulle misure reali
+    ); // already dynamic based on actual measurements
 
     return GestureDetector(
       onVerticalDragStart: (_) {
@@ -828,7 +826,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
       child: DraggableScrollableSheet(
         controller: _dragCtrl,
         expand: true,
-        // collapsed calcolato dinamicamente (nessun default fisso)
+        // dynamically calculated collapsed size (no fixed default)
         initialChildSize: widget.controller.expanded
             ? _expandedSize
             : collapsedNow,
@@ -841,7 +839,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                 behavior: const _NoBounceBehavior(),
                 child: NotificationListener<ScrollNotification>(
                   onNotification: (sn) {
-                    // Snap-back a fine gesto (come nella tua versione)
+                    // Snap-back at the end of the gesture (like in your version)
                     if (sn is ScrollStartNotification) {
                       _dragStartExpanded ??= widget.controller.expanded;
                       _dragStartExtent ??= _dragCtrl.size;
@@ -924,7 +922,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                                 ),
                               ),
 
-                            // HEADER misurato realmente
+                            // HEADER (actual measured size)
                             _SizeProbe(
                               onSize: _onHeaderSize,
                               child: widget.header,
@@ -934,11 +932,11 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                               child: LayoutBuilder(
                                 builder: (context, inner) {
                                   final reservedFooter =
-                                      _footerHeight; // reale; 0 prima del primo frame
+                                      _footerHeight; // actual; 0 before the first frame
                                   return Stack(
                                     fit: StackFit.expand,
                                     children: [
-                                      // BODY con bounce quando espanso
+                                      // BODY with bounce when expanded
                                       NotificationListener<ScrollNotification>(
                                         onNotification: (n) {
                                           if (widget.controller.expanded) {
@@ -978,7 +976,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                                         ),
                                       ),
 
-                                      // Fondo sotto il footer per evitare bleed-through
+                                      // Background under the footer to avoid bleed-through
                                       if (reservedFooter > 0)
                                         Positioned(
                                           left: 0,
@@ -992,7 +990,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                                           ),
                                         ),
 
-                                      // FOOTER reale + SafeArea e misurazione
+                                      // Actual FOOTER + SafeArea and measurement probe
                                       Positioned(
                                         left: 0,
                                         right: 0,
@@ -1062,7 +1060,7 @@ class _SizeProbeRender extends RenderProxyBox {
     final s = child?.size ?? Size.zero;
     if (_last != s) {
       _last = s;
-      // Notifica fuori dal layout-pass
+      // Notify outside of the layout-pass
       WidgetsBinding.instance.addPostFrameCallback((_) => onSize(s));
     }
   }

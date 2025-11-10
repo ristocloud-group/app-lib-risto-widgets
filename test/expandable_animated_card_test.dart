@@ -42,7 +42,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('default-expanded')), findsOneWidget);
 
-      // Drag should NOT dismiss for default ctor
+      // Drag should NOT dismiss for default expanded
       await tester.drag(
         find.byKey(const ValueKey('default-expanded')),
         const Offset(0, 500),
