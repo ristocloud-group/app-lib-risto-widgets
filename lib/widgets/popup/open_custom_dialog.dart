@@ -6,10 +6,12 @@ import 'package:risto_widgets/risto_widgets.dart';
 class OpenCustomDialog {
   final WidgetBuilder _bodyBuilder;
   final Function(dynamic)? onClose;
+  final bool barrierDismissible;
 
   const OpenCustomDialog._internal({
     required WidgetBuilder bodyBuilder,
     this.onClose,
+    this.barrierDismissible = true,
   }) : _bodyBuilder = bodyBuilder;
 
   /// Factory for a dialog with a completely custom body.
@@ -21,11 +23,13 @@ class OpenCustomDialog {
     )
     builder,
     Function(dynamic)? onClose,
+    bool barrierDismissible = true,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) =>
           builder(ctx, (result) => Navigator.of(ctx).pop(result)),
       onClose: onClose,
+      barrierDismissible: barrierDismissible,
     );
   }
 
@@ -34,10 +38,12 @@ class OpenCustomDialog {
     BuildContext context, {
     required RistoNoticeCard notice,
     Function(dynamic)? onClose,
+    bool barrierDismissible = true,
   }) {
     return OpenCustomDialog._internal(
       bodyBuilder: (ctx) => notice,
       onClose: onClose,
+      barrierDismissible: barrierDismissible,
     );
   }
 
@@ -49,6 +55,7 @@ class OpenCustomDialog {
     String? subtitle,
     String? confirmButtonText, // Nullable to allow no button
     Function(dynamic)? onClose,
+    bool barrierDismissible = true,
     // --- RistoNoticeCard Pass-through Properties ---
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
@@ -60,6 +67,7 @@ class OpenCustomDialog {
     double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
+      barrierDismissible: barrierDismissible,
       bodyBuilder: (ctx) {
         return RistoNoticeCard.success(
           title: title,
@@ -101,6 +109,7 @@ class OpenCustomDialog {
     String? subtitle,
     String? confirmButtonText, // Nullable to allow no button
     Function(dynamic)? onClose,
+    bool barrierDismissible = true,
     // --- RistoNoticeCard Pass-through Properties ---
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
@@ -112,6 +121,7 @@ class OpenCustomDialog {
     double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
+      barrierDismissible: barrierDismissible,
       bodyBuilder: (ctx) {
         return RistoNoticeCard.error(
           title: title,
@@ -151,8 +161,9 @@ class OpenCustomDialog {
     BuildContext context, {
     required String title,
     String? subtitle,
-    String? confirmButtonText, // Nullable to allow no button
+    String? confirmButtonText,
     Function(dynamic)? onClose,
+    bool barrierDismissible = true,
     // --- RistoNoticeCard Pass-through Properties ---
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
@@ -164,6 +175,7 @@ class OpenCustomDialog {
     double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
+      barrierDismissible: barrierDismissible,
       bodyBuilder: (ctx) {
         return RistoNoticeCard.info(
           title: title,
@@ -205,6 +217,7 @@ class OpenCustomDialog {
     String? confirmButtonText,
     String? cancelButtonText,
     Function(dynamic)? onClose,
+    bool barrierDismissible = true,
     // --- RistoNoticeCard Pass-through Properties ---
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
@@ -216,6 +229,7 @@ class OpenCustomDialog {
     double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
+      barrierDismissible: barrierDismissible,
       bodyBuilder: (ctx) {
         return RistoNoticeCard.warning(
           title: title,
@@ -273,6 +287,7 @@ class OpenCustomDialog {
     String? confirmButtonText,
     String? cancelButtonText,
     Function(dynamic)? onClose,
+    bool barrierDismissible = false,
     // --- RistoNoticeCard Pass-through Properties ---
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
@@ -284,6 +299,7 @@ class OpenCustomDialog {
     double? maxWidth,
   }) {
     return OpenCustomDialog._internal(
+      barrierDismissible: barrierDismissible,
       bodyBuilder: (ctx) {
         return RistoNoticeCard.neutral(
           title: title,
@@ -338,6 +354,7 @@ class OpenCustomDialog {
   void show(BuildContext context) {
     showDialog(
       context: context,
+      barrierDismissible: barrierDismissible,
       barrierColor: const Color(0x80000000),
       builder: (BuildContext context) {
         return AlertDialog(
