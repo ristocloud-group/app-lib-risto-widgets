@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
-// Assuming you import RistoToast and CustomIconText from your project files
-// import 'path/to/risto_toast.dart';
-// import 'path/to/custom_icon_text.dart';
-
 class CustomDialogPage extends StatelessWidget {
   const CustomDialogPage({super.key});
 
@@ -29,7 +25,6 @@ class CustomDialogPage extends StatelessWidget {
                   title: 'Operation Successful!',
                   subtitle:
                       'This dialog has no footer by default. It will auto-dismiss or can be closed with the X.',
-
                   noticeIcon: const Icon(
                     Icons.task_alt_rounded,
                     size: 48,
@@ -112,7 +107,7 @@ class CustomDialogPage extends StatelessWidget {
             ),
 
             const SizedBox(height: 24),
-            const _SectionTitle('Customized Dialogs'),
+            const _SectionTitle('Layout & Personalization Examples'),
 
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
@@ -120,55 +115,106 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.error(
                   context,
-                  title: 'Connection Failed',
+                  title: 'Strict Error',
                   subtitle:
-                      'Please check your internet connection and try again.',
-                  accentColor: Colors.deepOrange.shade700,
-                  backgroundColor: Colors.orange.shade50,
+                      'You cannot dismiss this by tapping outside or using the X. You must click the button.',
                   confirmButtonText: 'Understood',
-                  onClose:
-                      (result) => RistoToast.info(
-                        context,
-                        message: 'Error dialog dismissed.',
-                      ),
+                  showClose: false,
+                  barrierDismissible: false,
                 ).show(context);
               },
-              child: const Text('Open Error Dialog (Custom Colors)'),
+              child: const Text('Force Action (No X, Not Dismissible)'),
             ),
 
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
               minHeight: 0,
               onPressed: () {
-                OpenCustomDialog.info(
+                OpenCustomDialog.confirm(
                   context,
-                  confirmButtonText: 'OK',
-                  title: 'Left-Aligned Dialog',
-                  subtitle: 'This dialog has its content aligned to the left.',
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                ).show(context);
-              },
-              child: const Text('Open Left-Aligned Dialog'),
-            ),
-
-            CustomActionButton.elevated(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              minHeight: 0,
-              onPressed: () {
-                OpenCustomDialog.info(
-                  context,
-                  confirmButtonText: 'OK',
-                  title: 'Compact Dialog',
+                  title: 'Aligned Buttons',
                   subtitle:
-                      'This dialog uses the compact flag for reduced spacing.',
-                  compact: true,
+                      'These buttons are aligned to the right and shrink-wrapped instead of expanded.',
+                  confirmButtonText: 'Yes',
+                  cancelButtonText: 'No',
+                  expandButtons: false,
+                  footerAlignment: MainAxisAlignment.end,
+                  confirmButtonBackgroundColor: Colors.blueAccent,
+                  confirmButtonForegroundColor: Colors.white,
+                  cancelButtonForegroundColor: Colors.blueAccent,
                 ).show(context);
               },
-              child: const Text('Open Compact Dialog'),
+              child: const Text('Shrink-wrapped & Right-Aligned Buttons'),
+            ),
+
+            CustomActionButton.elevated(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              minHeight: 0,
+              onPressed: () {
+                OpenCustomDialog.warning(
+                  context,
+                  title: 'Space Between Layout',
+                  subtitle: 'Buttons are pushed to the opposite edges.',
+                  confirmButtonText: 'Proceed',
+                  cancelButtonText: 'Go Back',
+                  expandButtons: false,
+                  footerAlignment: MainAxisAlignment.spaceBetween,
+                ).show(context);
+              },
+              child: const Text('Space-Between Footer Alignment'),
+            ),
+
+            CustomActionButton.elevated(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              minHeight: 0,
+              onPressed: () {
+                OpenCustomDialog.info(
+                  context,
+                  title: 'Full Screen Edge Dialog',
+                  subtitle:
+                      'This dialog ignores safe area insets (useful for edge-to-edge custom designs).',
+                  confirmButtonText: 'Close',
+                  useSafeArea: false,
+                ).show(context);
+              },
+              child: const Text('Ignore Safe Area'),
             ),
 
             const SizedBox(height: 24),
             const _SectionTitle('Advanced Usage'),
+
+            CustomActionButton.elevated(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              minHeight: 0,
+              onPressed: () {
+                OpenCustomDialog.info(
+                  context,
+                  title: 'Custom Animation Overlay',
+                  subtitle:
+                      'This dialog slides up from the bottom instead of using the default scale transition.',
+                  confirmButtonText: 'Awesome',
+                ).show(
+                  context,
+                  transitionDuration: const Duration(milliseconds: 400),
+                  transitionBuilder: (
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                  ) {
+                    final tween = Tween(
+                      begin: const Offset(0.0, 0.2),
+                      end: Offset.zero,
+                    ).chain(CurveTween(curve: Curves.easeOutCubic));
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: FadeTransition(opacity: animation, child: child),
+                    );
+                  },
+                );
+              },
+              child: const Text('Open with Slide-Up Animation'),
+            ),
 
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
@@ -203,27 +249,6 @@ class CustomDialogPage extends StatelessWidget {
               },
               child: const Text('Open with Pre-built Notice Card'),
             ),
-
-            CustomActionButton.elevated(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              minHeight: 0,
-              onPressed: () {
-                OpenCustomDialog.success(
-                  context,
-                  title: 'Custom Footer',
-                  subtitle:
-                      'This success dialog has its default footer completely replaced.',
-                  footerBuilder: (context, accentColor) {
-                    return CustomActionButton.flat(
-                      minHeight: 0,
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('This is a custom footer!'),
-                    );
-                  },
-                ).show(context);
-              },
-              child: const Text('Open with Custom Footer Override'),
-            ),
           ],
         ),
       ),
@@ -231,7 +256,6 @@ class CustomDialogPage extends StatelessWidget {
   }
 }
 
-/// A simple helper widget to create section titles for the example page.
 class _SectionTitle extends StatelessWidget {
   final String title;
 
