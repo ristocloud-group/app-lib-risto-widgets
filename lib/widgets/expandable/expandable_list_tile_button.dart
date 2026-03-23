@@ -1,4 +1,4 @@
-import 'dart:ui'; // Needed for lerpDouble
+import 'dart:ui';
 
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,6 @@ import '../buttons/list_tile_button.dart';
 /// Example usage:
 /// ```dart
 /// ExpandableController _controller = ExpandableController();
-/// // ...
 /// ExpandableListTileButton.listTile(
 ///   controller: _controller,
 ///   title: Text('Tap to expand'),
@@ -30,8 +29,8 @@ import '../buttons/list_tile_button.dart';
 ///   ),
 ///   margin: EdgeInsets.all(8),
 ///   elevation: 4,
-///   headerBackgroundColor: Colors.blue[100], // Preferred
-///   expandedBodyColor: Colors.blue[50],    // Preferred
+///   headerBackgroundColor: Colors.blue[100],
+///   expandedBodyColor: Colors.blue[50],
 ///   borderRadius: BorderRadius.circular(12),
 /// );
 /// ```
@@ -77,6 +76,9 @@ class ExpandableListTileButton extends StatefulWidget {
 
   /// The external margin around the widget.
   final EdgeInsetsGeometry? margin;
+
+  /// The internal padding applied to the header content.
+  final EdgeInsetsGeometry? headerPadding;
 
   /// Factor to scale the size of the leading icon (used by default `.iconListTile` header).
   final double? leadingSizeFactor;
@@ -143,6 +145,7 @@ class ExpandableListTileButton extends StatefulWidget {
     this.borderColor,
     this.elevation = 1,
     this.margin,
+    this.headerPadding,
     this.leadingSizeFactor,
     this.leading,
     this.icon,
@@ -178,6 +181,7 @@ class ExpandableListTileButton extends StatefulWidget {
     double elevation = 1,
     Widget? leading,
     EdgeInsetsGeometry? margin,
+    EdgeInsetsGeometry? headerPadding,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
@@ -196,6 +200,7 @@ class ExpandableListTileButton extends StatefulWidget {
       borderColor: borderColor,
       elevation: elevation,
       margin: margin,
+      headerPadding: headerPadding,
       leading: leading,
       borderRadius: borderRadius,
       disabled: disabled,
@@ -238,6 +243,7 @@ class ExpandableListTileButton extends StatefulWidget {
     double elevation = 1,
     double? leadingSizeFactor,
     EdgeInsetsGeometry? margin,
+    EdgeInsetsGeometry? headerPadding,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
@@ -258,6 +264,7 @@ class ExpandableListTileButton extends StatefulWidget {
       borderColor: borderColor,
       elevation: elevation,
       margin: margin,
+      headerPadding: headerPadding,
       leadingSizeFactor: leadingSizeFactor,
       borderRadius: borderRadius,
       disabled: disabled,
@@ -302,6 +309,7 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? borderColor,
     double elevation = 1,
     EdgeInsetsGeometry? margin,
+    EdgeInsetsGeometry? headerPadding,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
@@ -318,6 +326,7 @@ class ExpandableListTileButton extends StatefulWidget {
       borderColor: borderColor,
       elevation: elevation,
       margin: margin,
+      headerPadding: headerPadding,
       borderRadius: borderRadius,
       disabled: disabled,
       bodyAlignment: bodyAlignment,
@@ -338,6 +347,7 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? borderColor,
     double elevation = 1,
     EdgeInsetsGeometry? margin,
+    EdgeInsetsGeometry? headerPadding,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
@@ -357,6 +367,7 @@ class ExpandableListTileButton extends StatefulWidget {
       borderColor: borderColor,
       elevation: elevation,
       margin: margin,
+      headerPadding: headerPadding,
       borderRadius: borderRadius,
       disabled: disabled,
       bodyAlignment: bodyAlignment,
@@ -411,7 +422,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
 
   /// Stores the measured height of the header.
   double _headerHeight = 0.0;
-  double _headerWidth = 0.0; // Also store header width for overlay sizing
+  double _headerWidth = 0.0;
 
   /// Link used to connect the header (target) to the overlay (follower).
   final LayerLink _layerLink = LayerLink();
@@ -438,27 +449,16 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       curve: Curves.easeInOutCubic,
     );
 
-    // Initial state for animation based on _isExpanded
     if (_isExpanded) {
       _animationController.value = 1.0;
     }
 
-    // Add listener for animation status changes
     _animationController.addStatusListener((status) {
-      // Rebuild the widget when the animation completes,
-      // specifically when collapsing to ensure widget removal.
       if (status == AnimationStatus.completed ||
           status == AnimationStatus.dismissed) {
-        // Only trigger setState if the expansion state is not managed externally
-        // AND if the current animation status does not match the _isExpanded state
-        // (e.g., if it completed dismissing but _isExpanded is still true, which shouldn't happen with proper sync)
         if (!_isStateManagedExternally && mounted) {
-          // A minor optimization: only call setState if it actually changes the rendering outcome
-          // i.e., if we are not expanded and the animation just finished reversing.
           if (!_isExpanded && status == AnimationStatus.dismissed) {
-            setState(() {
-              /* Empty setState to trigger rebuild */
-            });
+            setState(() {});
           }
         }
       }
@@ -468,7 +468,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       widget.controller!.addListener(_handleControllerChanged);
     }
 
-    // Schedule initial header height and width measurement after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateHeaderSize());
   }
 
@@ -490,20 +489,18 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       if (_isStateManagedExternally) {
         widget.controller?.removeListener(_handleControllerChanged);
         widget.controller?.addListener(_handleControllerChanged);
-        // Sync state if controller changed and has a different expansion state
         if (widget.controller!.expanded != _isExpanded) {
           _syncExpansionState(widget.controller!.expanded);
         }
       }
     }
-    // Re-measure header size after potentially relevant changes.
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateHeaderSize());
   }
 
   /// Cleans up resources, primarily the animation controller and controller listener.
   @override
   void dispose() {
-    _removeOverlay(); // Ensure overlay is removed on dispose
+    _removeOverlay();
     _animationController.dispose();
     widget.controller?.removeListener(_handleControllerChanged);
     super.dispose();
@@ -527,10 +524,8 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       }
     } else if (_headerHeight == 0.0 && mounted) {
       setState(() {
-        _headerHeight = 50.0; // Estimate a reasonable default
-        _headerWidth = MediaQuery.of(
-          context,
-        ).size.width; // Fallback to screen width
+        _headerHeight = 50.0;
+        _headerWidth = MediaQuery.of(context).size.width;
       });
     }
   }
@@ -541,14 +536,12 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
 
     if (widget._useOverlay) {
       if (_overlayEntry == null) {
-        // Show overlay immediately, then start animation
         setState(() {
           _isExpanded = true;
         });
-        _showOverlay(); // Create and insert overlay before animation
+        _showOverlay();
         _animationController.forward();
       } else {
-        // Reverse animation, then remove overlay when done.
         _animationController.reverse().whenComplete(() {
           _removeOverlay();
           if (mounted) {
@@ -568,26 +561,30 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
 
   /// Shows the expanded content as an [OverlayEntry].
   void _showOverlay() {
-    if (_overlayEntry != null) return; // Prevent duplicate overlays
+    if (_overlayEntry != null) return;
     if (_headerWidth == 0.0 || _headerHeight == 0.0) {
-      // Cannot show overlay if header size is not yet measured.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_headerWidth > 0 && _headerHeight > 0 && _overlayEntry == null) {
-          _showOverlay(); // Retry after measurement
+          _showOverlay();
         }
       });
       return;
     }
 
-    // Re-create actualHeaderContent for the overlay, ensuring consistency
-    final Widget actualHeaderContentForOverlay =
-        widget.customHeaderBuilder != null
+    Widget actualHeaderContentForOverlay = widget.customHeaderBuilder != null
         ? widget.customHeaderBuilder!(
             _toggleExpansion,
             _isExpanded,
             widget.disabled,
           )
         : _buildDefaultHeader(context, Theme.of(context));
+
+    if (widget.headerPadding != null) {
+      actualHeaderContentForOverlay = Padding(
+        padding: widget.headerPadding!,
+        child: actualHeaderContentForOverlay,
+      );
+    }
 
     _overlayEntry = OverlayEntry(
       builder: (context) {
@@ -654,7 +651,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
                   child: SizedBox(
                     height: _headerHeight,
                     width: _headerWidth,
-                    // Do NOT assign a key here! This prevents test failures.
                     child: actualHeaderContentForOverlay,
                   ),
                 ),
@@ -695,7 +691,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
         });
       }
     } else {
-      // Existing logic for non-overlay mode
       if (expand) {
         _animationController.forward();
       } else {
@@ -704,7 +699,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     }
   }
 
-  /// Builds the visual structure of the widget using the revised Stack layout.
   /// Builds the visual structure of the widget using the revised Stack layout.
   @override
   Widget build(BuildContext context) {
@@ -715,14 +709,20 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
         widget._finalExpandedBodyColor ??
         theme.colorScheme.secondary.withCustomOpacity(0.1);
 
-    // The header content.
-    final Widget actualHeaderContent = widget.customHeaderBuilder != null
+    Widget actualHeaderContent = widget.customHeaderBuilder != null
         ? widget.customHeaderBuilder!(
             _toggleExpansion,
             _isExpanded,
             widget.disabled,
           )
         : _buildDefaultHeader(context, theme);
+
+    if (widget.headerPadding != null) {
+      actualHeaderContent = Padding(
+        padding: widget.headerPadding!,
+        child: actualHeaderContent,
+      );
+    }
 
     final placeholderHeight = _headerHeight > 0 ? _headerHeight : 50.0;
 
@@ -736,8 +736,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
             clipBehavior: Clip.none,
             children: [
               SizedBox(height: placeholderHeight),
-              // Only render the inline expanded body if not using overlay AND
-              // if it's expanded or an animation is running.
               if (!widget._useOverlay &&
                   (_isExpanded || _animationController.isAnimating))
                 Padding(
@@ -774,7 +772,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
                     borderWidth: widget.borderColor != null ? 1.0 : 0.0,
                   ),
                   clipBehavior: Clip.antiAlias,
-                  // The header content is always present in the main widget tree.
                   child: actualHeaderContent,
                 ),
               ),
@@ -843,7 +840,7 @@ class RemainsRoundedBorder extends RoundedRectangleBorder {
            bottomLeft: Radius.circular(bottomRadius),
            bottomRight: Radius.circular(bottomRadius),
          ),
-         side: BorderSide.none, // We'll paint the border manually
+         side: BorderSide.none,
        );
 
   @override
