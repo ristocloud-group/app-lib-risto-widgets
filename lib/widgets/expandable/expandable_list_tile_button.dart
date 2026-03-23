@@ -77,7 +77,8 @@ class ExpandableListTileButton extends StatefulWidget {
   /// The external margin around the widget.
   final EdgeInsetsGeometry? margin;
 
-  /// The internal padding applied to the header content.
+  /// The internal padding applied to the default header content.
+  /// If using a custom header builder, you should handle padding within the custom widget itself.
   final EdgeInsetsGeometry? headerPadding;
 
   /// Factor to scale the size of the leading icon (used by default `.iconListTile` header).
@@ -208,6 +209,7 @@ class ExpandableListTileButton extends StatefulWidget {
       controller: controller,
       customHeaderBuilder: (toggleExpansion, isExpanded, isDisabled) =>
           ListTileButton(
+            padding: headerPadding,
             onPressed: toggleExpansion,
             leading: leading,
             body: title,
@@ -272,6 +274,7 @@ class ExpandableListTileButton extends StatefulWidget {
       controller: controller,
       customHeaderBuilder: (toggleExpansion, isExpanded, isDisabled) =>
           IconListTileButton(
+            padding: headerPadding,
             icon: icon,
             iconColor: iconColor,
             leadingSizeFactor: leadingSizeFactor ?? 1.0,
@@ -375,6 +378,7 @@ class ExpandableListTileButton extends StatefulWidget {
       trailingSize: trailingSize,
       overlay: true,
       customHeaderBuilder: (toggle, isExp, isDis) => ListTileButton(
+        padding: headerPadding,
         onPressed: toggle,
         leading: leading,
         leadingSizeFactor: leadingSizeFactor,
@@ -579,13 +583,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
           )
         : _buildDefaultHeader(context, Theme.of(context));
 
-    if (widget.headerPadding != null) {
-      actualHeaderContentForOverlay = Padding(
-        padding: widget.headerPadding!,
-        child: actualHeaderContentForOverlay,
-      );
-    }
-
     _overlayEntry = OverlayEntry(
       builder: (context) {
         final theme = Theme.of(context);
@@ -717,13 +714,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
           )
         : _buildDefaultHeader(context, theme);
 
-    if (widget.headerPadding != null) {
-      actualHeaderContent = Padding(
-        padding: widget.headerPadding!,
-        child: actualHeaderContent,
-      );
-    }
-
     final placeholderHeight = _headerHeight > 0 ? _headerHeight : 50.0;
 
     return IgnorePointer(
@@ -787,6 +777,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
   Widget _buildDefaultHeader(BuildContext context, ThemeData theme) {
     if (widget.icon != null && widget.title != null) {
       return IconListTileButton(
+        padding: widget.headerPadding,
         icon: widget.icon!,
         iconColor: widget.iconColor,
         leadingSizeFactor: widget.leadingSizeFactor ?? 1.0,
@@ -802,6 +793,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       );
     } else if (widget.title != null) {
       return ListTileButton(
+        padding: widget.headerPadding,
         onPressed: _toggleExpansion,
         leading: widget.leading,
         body: widget.title!,
