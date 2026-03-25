@@ -99,7 +99,6 @@ class RistoNoticeCard extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   final BorderRadius? borderRadius;
 
-  // Card styling
   final Color? backgroundColor;
   final Gradient? backgroundGradient;
   final Color? borderColor;
@@ -157,6 +156,10 @@ class RistoNoticeCard extends StatelessWidget {
     String? title,
     String? subtitle,
     List<InlineSpan>? subtitleSpan,
+    int titleMaxLines = 2,
+    int subtitleMaxLines = 4,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -168,6 +171,12 @@ class RistoNoticeCard extends StatelessWidget {
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
+    Gradient? backgroundGradient,
+    Color? borderColor,
+    double borderWidth = 1.0,
+    double borderOpacity = 0.5,
+    double? elevation,
+    Color? shadowColor,
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     bool showFooter = true,
@@ -175,7 +184,9 @@ class RistoNoticeCard extends StatelessWidget {
     double? minWidth,
     double? maxWidth,
     double? maxHeight,
+    EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
+    BorderRadius? borderRadius,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -183,6 +194,10 @@ class RistoNoticeCard extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       subtitleSpan: subtitleSpan,
+      titleMaxLines: titleMaxLines,
+      subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -194,6 +209,12 @@ class RistoNoticeCard extends StatelessWidget {
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
+      backgroundGradient: backgroundGradient,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderOpacity: borderOpacity,
+      elevation: elevation,
+      shadowColor: shadowColor,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       showFooter: showFooter,
@@ -201,7 +222,9 @@ class RistoNoticeCard extends StatelessWidget {
       minWidth: minWidth,
       maxWidth: maxWidth,
       maxHeight: maxHeight,
+      padding: padding,
       margin: margin,
+      borderRadius: borderRadius,
     );
   }
 
@@ -210,6 +233,10 @@ class RistoNoticeCard extends StatelessWidget {
     String? title,
     String? subtitle,
     List<InlineSpan>? subtitleSpan,
+    int titleMaxLines = 2,
+    int subtitleMaxLines = 4,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -221,6 +248,12 @@ class RistoNoticeCard extends StatelessWidget {
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
+    Gradient? backgroundGradient,
+    Color? borderColor,
+    double borderWidth = 1.0,
+    double borderOpacity = 0.5,
+    double? elevation,
+    Color? shadowColor,
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     bool showFooter = true,
@@ -228,7 +261,9 @@ class RistoNoticeCard extends StatelessWidget {
     double? minWidth,
     double? maxWidth,
     double? maxHeight,
+    EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
+    BorderRadius? borderRadius,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -236,6 +271,10 @@ class RistoNoticeCard extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       subtitleSpan: subtitleSpan,
+      titleMaxLines: titleMaxLines,
+      subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -247,6 +286,12 @@ class RistoNoticeCard extends StatelessWidget {
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
+      backgroundGradient: backgroundGradient,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderOpacity: borderOpacity,
+      elevation: elevation,
+      shadowColor: shadowColor,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       showFooter: showFooter,
@@ -254,7 +299,9 @@ class RistoNoticeCard extends StatelessWidget {
       minWidth: minWidth,
       maxWidth: maxWidth,
       maxHeight: maxHeight,
+      padding: padding,
       margin: margin,
+      borderRadius: borderRadius,
     );
   }
 
@@ -263,6 +310,10 @@ class RistoNoticeCard extends StatelessWidget {
     String? title,
     String? subtitle,
     List<InlineSpan>? subtitleSpan,
+    int titleMaxLines = 2,
+    int subtitleMaxLines = 4,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -274,6 +325,12 @@ class RistoNoticeCard extends StatelessWidget {
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
+    Gradient? backgroundGradient,
+    Color? borderColor,
+    double borderWidth = 1.0,
+    double borderOpacity = 0.5,
+    double? elevation,
+    Color? shadowColor,
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     bool showFooter = true,
@@ -281,7 +338,9 @@ class RistoNoticeCard extends StatelessWidget {
     double? minWidth,
     double? maxWidth,
     double? maxHeight,
+    EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
+    BorderRadius? borderRadius,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -289,6 +348,10 @@ class RistoNoticeCard extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       subtitleSpan: subtitleSpan,
+      titleMaxLines: titleMaxLines,
+      subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -300,6 +363,12 @@ class RistoNoticeCard extends StatelessWidget {
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
+      backgroundGradient: backgroundGradient,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderOpacity: borderOpacity,
+      elevation: elevation,
+      shadowColor: shadowColor,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       showFooter: showFooter,
@@ -307,7 +376,9 @@ class RistoNoticeCard extends StatelessWidget {
       minWidth: minWidth,
       maxWidth: maxWidth,
       maxHeight: maxHeight,
+      padding: padding,
       margin: margin,
+      borderRadius: borderRadius,
     );
   }
 
@@ -316,6 +387,10 @@ class RistoNoticeCard extends StatelessWidget {
     String? title,
     String? subtitle,
     List<InlineSpan>? subtitleSpan,
+    int titleMaxLines = 2,
+    int subtitleMaxLines = 4,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -327,6 +402,12 @@ class RistoNoticeCard extends StatelessWidget {
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
+    Gradient? backgroundGradient,
+    Color? borderColor,
+    double borderWidth = 1.0,
+    double borderOpacity = 0.5,
+    double? elevation,
+    Color? shadowColor,
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     bool showFooter = true,
@@ -334,7 +415,9 @@ class RistoNoticeCard extends StatelessWidget {
     double? minWidth,
     double? maxWidth,
     double? maxHeight,
+    EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
+    BorderRadius? borderRadius,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -342,6 +425,10 @@ class RistoNoticeCard extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       subtitleSpan: subtitleSpan,
+      titleMaxLines: titleMaxLines,
+      subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -353,6 +440,12 @@ class RistoNoticeCard extends StatelessWidget {
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
+      backgroundGradient: backgroundGradient,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderOpacity: borderOpacity,
+      elevation: elevation,
+      shadowColor: shadowColor,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       showFooter: showFooter,
@@ -360,7 +453,9 @@ class RistoNoticeCard extends StatelessWidget {
       minWidth: minWidth,
       maxWidth: maxWidth,
       maxHeight: maxHeight,
+      padding: padding,
       margin: margin,
+      borderRadius: borderRadius,
     );
   }
 
@@ -369,6 +464,10 @@ class RistoNoticeCard extends StatelessWidget {
     String? title,
     String? subtitle,
     List<InlineSpan>? subtitleSpan,
+    int titleMaxLines = 2,
+    int subtitleMaxLines = 4,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -380,6 +479,12 @@ class RistoNoticeCard extends StatelessWidget {
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
+    Gradient? backgroundGradient,
+    Color? borderColor,
+    double borderWidth = 1.0,
+    double borderOpacity = 0.5,
+    double? elevation,
+    Color? shadowColor,
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     bool showFooter = true,
@@ -387,7 +492,9 @@ class RistoNoticeCard extends StatelessWidget {
     double? minWidth,
     double? maxWidth,
     double? maxHeight,
+    EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
+    BorderRadius? borderRadius,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -395,6 +502,10 @@ class RistoNoticeCard extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       subtitleSpan: subtitleSpan,
+      titleMaxLines: titleMaxLines,
+      subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -406,6 +517,12 @@ class RistoNoticeCard extends StatelessWidget {
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
+      backgroundGradient: backgroundGradient,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderOpacity: borderOpacity,
+      elevation: elevation,
+      shadowColor: shadowColor,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       showFooter: showFooter,
@@ -413,7 +530,9 @@ class RistoNoticeCard extends StatelessWidget {
       minWidth: minWidth,
       maxWidth: maxWidth,
       maxHeight: maxHeight,
+      padding: padding,
       margin: margin,
+      borderRadius: borderRadius,
     );
   }
 
@@ -422,6 +541,10 @@ class RistoNoticeCard extends StatelessWidget {
     String? title,
     String? subtitle,
     List<InlineSpan>? subtitleSpan,
+    int titleMaxLines = 2,
+    int subtitleMaxLines = 4,
+    TextStyle? titleStyle,
+    TextStyle? subtitleStyle,
     Widget? noticeIcon,
     RistoFooterBuilder? footerBuilder,
     bool showClose = false,
@@ -433,6 +556,12 @@ class RistoNoticeCard extends StatelessWidget {
     double? runSpacing,
     Color? accentColor,
     Color? backgroundColor,
+    Gradient? backgroundGradient,
+    Color? borderColor,
+    double borderWidth = 1.0,
+    double borderOpacity = 0.5,
+    double? elevation,
+    Color? shadowColor,
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     bool showFooter = true,
@@ -440,7 +569,9 @@ class RistoNoticeCard extends StatelessWidget {
     double? minWidth,
     double? maxWidth,
     double? maxHeight,
+    EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
+    BorderRadius? borderRadius,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -448,6 +579,10 @@ class RistoNoticeCard extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       subtitleSpan: subtitleSpan,
+      titleMaxLines: titleMaxLines,
+      subtitleMaxLines: subtitleMaxLines,
+      titleStyle: titleStyle,
+      subtitleStyle: subtitleStyle,
       noticeIcon: noticeIcon,
       footerBuilder: footerBuilder,
       showClose: showClose,
@@ -459,6 +594,12 @@ class RistoNoticeCard extends StatelessWidget {
       runSpacing: runSpacing,
       accentColor: accentColor,
       backgroundColor: backgroundColor,
+      backgroundGradient: backgroundGradient,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderOpacity: borderOpacity,
+      elevation: elevation,
+      shadowColor: shadowColor,
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       showFooter: showFooter,
@@ -466,7 +607,9 @@ class RistoNoticeCard extends StatelessWidget {
       minWidth: minWidth,
       maxWidth: maxWidth,
       maxHeight: maxHeight,
+      padding: padding,
       margin: margin,
+      borderRadius: borderRadius,
     );
   }
 
@@ -491,7 +634,6 @@ class RistoNoticeCard extends StatelessWidget {
         textAlign = TextAlign.center;
     }
 
-    // Use provided spacing values, or fall back to defaults based on `compact` flag.
     final finalRunSpacing = runSpacing ?? (compact ? 8.0 : 16.0);
 
     Widget? footerWidget;
@@ -581,7 +723,9 @@ class RistoNoticeCard extends StatelessWidget {
         gradient: backgroundGradient,
         borderRadius: r,
         border: Border.all(
-          color: borderColor ?? Colors.transparent,
+          color: borderColor != null
+              ? borderColor!.withCustomOpacity(borderOpacity)
+              : Colors.transparent,
           width: borderWidth,
         ),
       ),
@@ -629,7 +773,6 @@ class RistoNoticeCard extends StatelessWidget {
       );
     }
 
-    // Apply sizing constraints to the entire widget
     return ConstrainedBox(
       constraints: BoxConstraints(
         minWidth: minWidth ?? 0.0,

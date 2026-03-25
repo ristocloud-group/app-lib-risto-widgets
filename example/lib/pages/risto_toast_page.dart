@@ -85,16 +85,39 @@ class _RistoToastPageState extends State<RistoToastPage> {
                   duration: _duration,
                 );
               }),
+              _btn('Long Styled Text', () {
+                RistoToast.info(
+                  context,
+                  message:
+                      'This is a very long text that will wrap to multiple lines. Tap to dismiss immediately.',
+                  top: _top,
+                  duration: const Duration(seconds: 4),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  iconSize: 28,
+                  maxLines: 3,
+                );
+              }),
               _btn('Custom', () {
                 RistoToast.show(
                   context,
                   message: _controller.text,
                   top: _top,
                   duration: _duration,
-                  backgroundColor: theme.colorScheme.primary,
-                  textColor: theme.colorScheme.onPrimary,
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                  textColor: theme.colorScheme.onPrimaryContainer,
                   icon: Icons.rocket_launch_outlined,
+                  iconSize: 24,
                   radius: 20,
+                  elevation: 6,
+                  borderColor: theme.colorScheme.primary,
+                  borderWidth: 1.5,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
                   margin: const EdgeInsets.symmetric(
                     horizontal: 24,
                     vertical: 48,
@@ -106,7 +129,7 @@ class _RistoToastPageState extends State<RistoToastPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Tip: RistoToast uses the root Overlay, so it works in dialogs and popup too.',
+            'Tip: RistoToast uses the root Overlay, so it works in dialogs and popup too.\nTap any active toast to instantly dismiss it.',
             style: theme.textTheme.bodySmall,
           ),
         ],

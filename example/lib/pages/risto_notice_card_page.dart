@@ -83,6 +83,44 @@ class RistoNoticeCardPage extends StatelessWidget {
             ),
             const SizedBox(height: 48),
 
+            const _SectionTitle('Custom Text & Border Styles'),
+
+            RistoNoticeCard.info(
+              title: 'Custom Typography',
+              subtitle:
+                  'The fonts here are modified via titleStyle and subtitleStyle.',
+              titleStyle: const TextStyle(
+                fontFamily: 'Courier',
+                fontSize: 24,
+                color: Colors.deepPurple,
+              ),
+              subtitleStyle: const TextStyle(
+                fontStyle: FontStyle.italic,
+                color: Colors.deepPurpleAccent,
+              ),
+              borderColor: Colors.deepPurple,
+              borderWidth: 2,
+              borderOpacity: 0.3,
+              backgroundColor: Colors.purple.shade50,
+            ),
+            const SizedBox(height: 24),
+
+            RistoNoticeCard.neutral(
+              title: 'Strong Shadows & Gradients',
+              subtitle:
+                  'This card features a custom background gradient, high elevation, and colored shadow.',
+              elevation: 8,
+              shadowColor: Colors.blueAccent.withCustomOpacity(0.5),
+              titleStyle: const TextStyle(color: Colors.white),
+              subtitleStyle: const TextStyle(color: Colors.white70),
+              backgroundGradient: const LinearGradient(
+                colors: [Colors.blue, Colors.indigo],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            const SizedBox(height: 48),
+
             const _SectionTitle('Alignment & Padding'),
 
             RistoNoticeCard.info(
