@@ -170,7 +170,50 @@ class ListTileButtonPage extends StatelessWidget {
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             leadingSizeFactor: 1.5,
           ),
+          const SizedBox(height: 20),
 
+          // --- Sizing Constraints Tests ---
+          Text(
+            'Sizing Constraints',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          ListTileButton(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            width: 250,
+            height: 100,
+            body: const Text('Fixed Width & Height'),
+            subtitle: const Text('width: 250, height: 100'),
+            onPressed: () {},
+            backgroundColor: Colors.white,
+            borderColor: Colors.teal,
+            elevation: 2.0,
+            contentAlignment: Alignment.center,
+          ),
+          ListTileButton(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            maxWidth: 300,
+            minHeight: 80,
+            body: const Text('Max Width & Min Height'),
+            subtitle: const Text(
+              'maxWidth: 300, minHeight: 80\nStretches vertically if content is long, but width is clamped.',
+            ),
+            onPressed: () {},
+            backgroundColor: Colors.white,
+            borderColor: Colors.teal,
+            elevation: 2.0,
+          ),
+          IconListTileButton(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            title: const Text('Custom Min Height (40)'),
+            icon: Icons.compress,
+            onPressed: () {},
+            backgroundColor: Colors.white,
+            borderColor: Colors.teal,
+            iconColor: Colors.teal,
+            minHeight: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          ),
           const SizedBox(height: 20),
 
           // --- Gradient tests ---

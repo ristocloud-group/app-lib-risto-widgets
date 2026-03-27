@@ -184,19 +184,17 @@ class ListTileButton extends StatelessWidget {
         shadowColor: shadowColor,
         borderRadius: borderRadius,
         elevation: elevation,
+        width: width,
+        height: height,
+        minWidth: minWidth,
+        maxWidth: maxWidth,
+        minHeight: minHeight,
+        maxHeight: maxHeight,
         child: InkWell(
           borderRadius: BorderRadius.circular(borderRadius),
           onTap: disabled ? null : onPressed,
           onLongPress: disabled ? null : onLongPress,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minWidth: width ?? minWidth ?? 0.0,
-              maxWidth: width ?? maxWidth ?? double.infinity,
-              minHeight: height ?? minHeight,
-              maxHeight: height ?? maxHeight ?? double.infinity,
-            ),
-            child: Padding(padding: padding ?? EdgeInsets.zero, child: row),
-          ),
+          child: Padding(padding: padding ?? EdgeInsets.zero, child: row),
         ),
       ),
     );
@@ -389,6 +387,24 @@ class RoundedContainer extends StatelessWidget {
   /// Color of the container's shadow.
   final Color? shadowColor;
 
+  /// Fixed width of the container. If provided, overrides [minWidth] and [maxWidth].
+  final double? width;
+
+  /// Fixed height of the container. If provided, overrides [minHeight] and [maxHeight].
+  final double? height;
+
+  /// Minimum width of the container.
+  final double? minWidth;
+
+  /// Maximum width of the container.
+  final double? maxWidth;
+
+  /// Minimum height of the container.
+  final double? minHeight;
+
+  /// Maximum height of the container.
+  final double? maxHeight;
+
   /// The clip behavior for the container. Defaults to [Clip.none].
   /// Use [Clip.antiAlias] for smooth, rounded clipping.
   final Clip clipBehavior;
@@ -405,6 +421,12 @@ class RoundedContainer extends StatelessWidget {
     this.borderWidth = 1,
     this.elevation,
     this.shadowColor,
+    this.width,
+    this.height,
+    this.minWidth,
+    this.maxWidth,
+    this.minHeight,
+    this.maxHeight,
     this.clipBehavior = Clip.none,
   });
 
@@ -421,6 +443,12 @@ class RoundedContainer extends StatelessWidget {
       child: Container(
         padding: padding,
         clipBehavior: clipBehavior,
+        constraints: BoxConstraints(
+          minWidth: width ?? minWidth ?? 0.0,
+          maxWidth: width ?? maxWidth ?? double.infinity,
+          minHeight: height ?? minHeight ?? 0.0,
+          maxHeight: height ?? maxHeight ?? double.infinity,
+        ),
         decoration: BoxDecoration(
           color: useGradient ? null : (backgroundColor ?? theme.cardColor),
           gradient: backgroundGradient,
