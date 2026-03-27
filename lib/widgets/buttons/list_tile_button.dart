@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/extensions.dart'; // Needed for withCustomOpacity
+import 'package:risto_widgets/extensions.dart';
 
 /// A customizable, tappable list tile styled as a rounded card.
 ///
@@ -9,7 +9,7 @@ import 'package:risto_widgets/extensions.dart'; // Needed for withCustomOpacity
 /// - Optional trailing widget (icon or custom).
 /// - Disabled state with reduced opacity and callbacks disabled.
 /// - Configurable margins, paddings, border, background, elevation, and shadow color.
-/// - Minimum height constraint for consistent sizing.
+/// - Configurable width and height constraints.
 class ListTileButton extends StatelessWidget {
   /// Called when the tile is tapped.
   final VoidCallback? onPressed;
@@ -71,12 +71,26 @@ class ListTileButton extends StatelessWidget {
   /// Elevation (shadow depth) of the tile.
   final double? elevation;
 
-  /// Alignment of the [body] and [subtitle] within their column
-  /// (e.g. `Alignment.centerLeft`, `Alignment.center`, `Alignment.centerRight`).
+  /// Alignment of the [body] and [subtitle] within their column.
   final Alignment contentAlignment;
 
-  /// Minimum height of the tile.
+  /// Fixed width of the tile. If provided, overrides [minWidth] and [maxWidth].
+  final double? width;
+
+  /// Fixed height of the tile. If provided, overrides [minHeight] and [maxHeight].
+  final double? height;
+
+  /// Minimum width of the tile.
+  final double? minWidth;
+
+  /// Maximum width of the tile.
+  final double? maxWidth;
+
+  /// Minimum height of the tile. Defaults to 60.0.
   final double minHeight;
+
+  /// Maximum height of the tile.
+  final double? maxHeight;
 
   const ListTileButton({
     super.key,
@@ -101,7 +115,12 @@ class ListTileButton extends StatelessWidget {
     this.borderRadius = 10,
     this.elevation,
     this.contentAlignment = Alignment.centerLeft,
+    this.width,
+    this.height,
+    this.minWidth,
+    this.maxWidth,
     this.minHeight = 60.0,
+    this.maxHeight,
   });
 
   @override
@@ -151,7 +170,6 @@ class ListTileButton extends StatelessWidget {
       ],
     );
 
-    // Pick active/disabled gradient if present
     final Gradient? effectiveGradient = disabled
         ? disabledBackgroundGradient ?? backgroundGradient
         : backgroundGradient;
@@ -171,7 +189,12 @@ class ListTileButton extends StatelessWidget {
           onTap: disabled ? null : onPressed,
           onLongPress: disabled ? null : onLongPress,
           child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: minHeight),
+            constraints: BoxConstraints(
+              minWidth: width ?? minWidth ?? 0.0,
+              maxWidth: width ?? maxWidth ?? double.infinity,
+              minHeight: height ?? minHeight,
+              maxHeight: height ?? maxHeight ?? double.infinity,
+            ),
             child: Padding(padding: padding ?? EdgeInsets.zero, child: row),
           ),
         ),
@@ -182,20 +205,7 @@ class ListTileButton extends StatelessWidget {
 
 /// A convenience widget that combines an icon with a [ListTileButton].
 /// Supports a disabled state, shadow color, gradient backgrounds,
-/// and minimum height constraint.
-///
-/// Example usage:
-/// ```dart
-/// IconListTileButton(
-///   icon: Icons.settings,
-///   title: Text('Settings'),
-///   onPressed: () {},
-///   disabled: true,
-///   shadowColor: Colors.grey,
-///   backgroundGradient: LinearGradient(colors: [Colors.blue, Colors.purple]),
-///   minHeight: 70,
-/// );
-/// ```
+/// and multiple sizing constraints.
 class IconListTileButton extends StatelessWidget {
   /// The icon to display as the leading widget.
   final IconData icon;
@@ -260,8 +270,23 @@ class IconListTileButton extends StatelessWidget {
   /// Alignment of the title and subtitle within the text column.
   final Alignment contentAlignment;
 
-  /// Minimum height of the tile.
+  /// Fixed width of the tile. Overrides [minWidth] and [maxWidth].
+  final double? width;
+
+  /// Fixed height of the tile. Overrides [minHeight] and [maxHeight].
+  final double? height;
+
+  /// Minimum width of the tile.
+  final double? minWidth;
+
+  /// Maximum width of the tile.
+  final double? maxWidth;
+
+  /// Minimum height of the tile. Defaults to 60.0.
   final double minHeight;
+
+  /// Maximum height of the tile.
+  final double? maxHeight;
 
   const IconListTileButton({
     super.key,
@@ -286,7 +311,12 @@ class IconListTileButton extends StatelessWidget {
     this.leadingPadding,
     this.trailingPadding,
     this.contentAlignment = Alignment.centerLeft,
+    this.width,
+    this.height,
+    this.minWidth,
+    this.maxWidth,
     this.minHeight = 60.0,
+    this.maxHeight,
   });
 
   @override
@@ -307,6 +337,12 @@ class IconListTileButton extends StatelessWidget {
       leadingPadding:
           leadingPadding ?? const EdgeInsets.symmetric(horizontal: 5),
       trailingPadding: trailingPadding,
+      width: width,
+      height: height,
+      minWidth: minWidth,
+      maxWidth: maxWidth,
+      minHeight: minHeight,
+      maxHeight: maxHeight,
       leading: Icon(
         icon,
         color: iconColor ?? Theme.of(context).iconTheme.color,
@@ -316,7 +352,6 @@ class IconListTileButton extends StatelessWidget {
       subtitle: subtitle,
       trailing: trailing,
       contentAlignment: contentAlignment,
-      minHeight: minHeight,
     );
   }
 }
@@ -379,7 +414,6 @@ class RoundedContainer extends StatelessWidget {
     final effectiveShadowColor = shadowColor ?? theme.colorScheme.shadow;
     final double el = elevation ?? 0.0;
 
-    // Check if we are using a gradient. If so, nullify solid background color.
     final bool useGradient = backgroundGradient != null;
 
     return Padding(
@@ -394,8 +428,6 @@ class RoundedContainer extends StatelessWidget {
           border: borderColor != null
               ? Border.all(color: borderColor!, width: borderWidth)
               : null,
-          // Utilizing BoxShadow here ensures shadows render flawlessly
-          // even when the container's background is driven by a gradient.
           boxShadow: el > 0
               ? [
                   BoxShadow(
@@ -407,8 +439,6 @@ class RoundedContainer extends StatelessWidget {
                 ]
               : null,
         ),
-        // Providing a transparent Material acts as a canvas for the Ink splashes
-        // triggered by InkWell inside the children.
         child: Material(
           type: MaterialType.transparency,
           borderRadius: BorderRadius.circular(borderRadius),
