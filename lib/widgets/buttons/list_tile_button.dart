@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extensions.dart'; // Needed for withCustomOpacity
 
 /// A customizable, tappable list tile styled as a rounded card.
 ///
@@ -159,33 +160,19 @@ class ListTileButton extends StatelessWidget {
       opacity: disabled ? 0.5 : 1.0,
       child: RoundedContainer(
         margin: margin,
-        backgroundColor: effectiveGradient != null
-            ? Colors.transparent
-            : backgroundColor,
+        backgroundColor: backgroundColor,
+        backgroundGradient: effectiveGradient,
         borderColor: borderColor,
         shadowColor: shadowColor,
         borderRadius: borderRadius,
         elevation: elevation,
-        child: Material(
-          type: MaterialType.transparency,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-          ),
-          child: Ink(
-            decoration: BoxDecoration(
-              gradient: effectiveGradient,
-              color: effectiveGradient == null ? backgroundColor : null,
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(borderRadius),
-              onTap: disabled ? null : onPressed,
-              onLongPress: disabled ? null : onLongPress,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: minHeight),
-                child: Padding(padding: padding ?? EdgeInsets.zero, child: row),
-              ),
-            ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(borderRadius),
+          onTap: disabled ? null : onPressed,
+          onLongPress: disabled ? null : onLongPress,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: minHeight),
+            child: Padding(padding: padding ?? EdgeInsets.zero, child: row),
           ),
         ),
       ),
@@ -388,28 +375,44 @@ class RoundedContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final effectiveShadowColor = shadowColor ?? theme.colorScheme.shadow;
+    final double el = elevation ?? 0.0;
+
+    // Check if we are using a gradient. If so, nullify solid background color.
     final bool useGradient = backgroundGradient != null;
 
     return Padding(
       padding: margin ?? EdgeInsets.zero,
-      child: Material(
-        elevation: elevation ?? 0,
-        shadowColor: shadowColor,
-        borderRadius: BorderRadius.circular(borderRadius),
+      child: Container(
+        padding: padding,
         clipBehavior: clipBehavior,
-        color: useGradient
-            ? Colors.transparent
-            : (backgroundColor ?? Theme.of(context).cardColor),
-        child: Container(
-          padding: padding,
+        decoration: BoxDecoration(
+          color: useGradient ? null : (backgroundColor ?? theme.cardColor),
+          gradient: backgroundGradient,
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: borderColor != null
+              ? Border.all(color: borderColor!, width: borderWidth)
+              : null,
+          // Utilizing BoxShadow here ensures shadows render flawlessly
+          // even when the container's background is driven by a gradient.
+          boxShadow: el > 0
+              ? [
+                  BoxShadow(
+                    color: effectiveShadowColor.withCustomOpacity(0.15),
+                    blurRadius: el * 2.5,
+                    spreadRadius: 0,
+                    offset: Offset(0, el * 0.8),
+                  ),
+                ]
+              : null,
+        ),
+        // Providing a transparent Material acts as a canvas for the Ink splashes
+        // triggered by InkWell inside the children.
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: BorderRadius.circular(borderRadius),
           clipBehavior: clipBehavior,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(borderRadius),
-            gradient: backgroundGradient,
-            border: borderColor != null
-                ? Border.all(color: borderColor!, width: borderWidth)
-                : null,
-          ),
           child: child,
         ),
       ),

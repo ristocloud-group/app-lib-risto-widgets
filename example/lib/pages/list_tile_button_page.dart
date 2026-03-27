@@ -78,10 +78,7 @@ class ListTileButtonPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text("21"),
-                Padding(
-                  padding: EdgeInsets.only(top: 2.0),
-                  child: Text("Sep"), // Was: "set"
-                ),
+                Padding(padding: EdgeInsets.only(top: 2.0), child: Text("Sep")),
               ],
             ),
             leadingSizeFactor: 2,
@@ -125,7 +122,7 @@ class ListTileButtonPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.calendar_today, color: Colors.purple),
-                Text('Schedule absence'), // Was: 'Pianifica assenza'
+                Text('Schedule absence'),
               ],
             ),
             backgroundColor: Colors.white,
@@ -137,6 +134,43 @@ class ListTileButtonPage extends StatelessWidget {
             contentAlignment: Alignment.center,
             minHeight: 70,
           ),
+          const SizedBox(height: 20),
+
+          // --- Elevation & Shadow Color Tests ---
+          Text(
+            'Elevation & Custom Shadows',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          ListTileButton(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            body: const Text(
+              'High Elevation, Colored Shadow',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: const Text('shadowColor: Colors.purple'),
+            onPressed: () {},
+            backgroundColor: Colors.white,
+            elevation: 8.0,
+            shadowColor: Colors.purple,
+            trailing: const Icon(
+              Icons.wb_cloudy_outlined,
+              color: Colors.purple,
+            ),
+          ),
+          IconListTileButton(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            title: const Text('Subtle Deep Shadow'),
+            icon: Icons.layers,
+            subtitle: const Text('elevation: 12.0, shadowColor: Colors.black'),
+            onPressed: () {},
+            backgroundColor: Colors.white,
+            elevation: 12.0,
+            shadowColor: Colors.black,
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            leadingSizeFactor: 1.5,
+          ),
+
           const SizedBox(height: 20),
 
           // --- Gradient tests ---
@@ -160,6 +194,36 @@ class ListTileButtonPage extends StatelessWidget {
             elevation: 3,
             trailing: const Icon(Icons.chevron_right),
             minHeight: 80,
+          ),
+
+          const SizedBox(height: 16),
+          IconListTileButton(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            title: const Text(
+              'Gradient with Elevation & Shadow',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            subtitle: const Text(
+              'Shadows now work flawlessly under gradients!',
+              style: TextStyle(color: Colors.white70),
+            ),
+            icon: Icons.auto_awesome,
+            onPressed: () {},
+            backgroundColor: Colors.white,
+            // Ignored due to gradient
+            backgroundGradient: const LinearGradient(
+              colors: [Colors.orange, Colors.deepOrange],
+            ),
+            borderColor: Colors.transparent,
+            iconColor: Colors.white,
+            elevation: 6.0,
+            shadowColor: Colors.deepOrange,
+            // Colored shadow matching the gradient
+            trailing: const Icon(Icons.star_border, color: Colors.white),
+            leadingSizeFactor: 1.4,
           ),
 
           const SizedBox(height: 16),
@@ -205,17 +269,29 @@ class ListTileButtonPage extends StatelessWidget {
             space: 16.0,
             firstButton: ListTileButton(
               margin: const EdgeInsets.only(right: 8.0),
-              body: const Center(child: Text('First Button with Elevation')),
+              body: const Center(
+                child: Text(
+                  'First Button with Elevation',
+                  textAlign: TextAlign.center,
+                ),
+              ),
               onPressed: () {},
-              backgroundColor: Colors.red,
-              elevation: 2.0,
+              backgroundColor: Colors.red.shade100,
+              elevation: 4.0,
+              shadowColor: Colors.red,
             ),
             secondButton: ListTileButton(
               margin: const EdgeInsets.only(left: 8.0),
-              body: const Center(child: Text('Second Button with Elevation')),
+              body: const Center(
+                child: Text(
+                  'Second Button with Elevation',
+                  textAlign: TextAlign.center,
+                ),
+              ),
               onPressed: () {},
-              backgroundColor: Colors.green,
-              elevation: 2.0,
+              backgroundColor: Colors.green.shade100,
+              elevation: 4.0,
+              shadowColor: Colors.green,
             ),
           ),
           const SizedBox(height: 16),
@@ -245,7 +321,7 @@ class ListTileButtonPage extends StatelessWidget {
               margin: const EdgeInsets.only(right: 8.0),
               body: CustomIconText(
                 icon: Icons.today_rounded,
-                text: "Schedule absence", // Was: "Pianifica assenza"
+                text: "Schedule absence",
                 color: Colors.white,
               ),
               onPressed: () {},
@@ -261,11 +337,7 @@ class ListTileButtonPage extends StatelessWidget {
                     Flexible(
                       child: Icon(Icons.calendar_today, color: Colors.purple),
                     ),
-                    Expanded(
-                      child: Text(
-                        'Schedule absence',
-                      ), // Was: 'Pianifica assenza'
-                    ),
+                    Expanded(child: Text('Schedule absence')),
                   ],
                 ),
               ),
@@ -290,7 +362,7 @@ class ListTileButtonPage extends StatelessWidget {
                 icon: Icons.school,
                 iconColor: Colors.white,
                 title: Text(
-                  'Profile', // Was: 'Profilo'
+                  'Profile',
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: Colors.white),
@@ -308,7 +380,7 @@ class ListTileButtonPage extends StatelessWidget {
                 icon: Icons.restaurant_menu,
                 iconColor: Colors.white,
                 title: Text(
-                  'Absent', // Was: 'Assente'
+                  'Absent',
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: Colors.white),
@@ -335,7 +407,7 @@ class ListTileButtonPage extends StatelessWidget {
               onPressed: () {},
               child: CustomIconText(
                 icon: Icons.download,
-                text: "Payment Slip", // Was: "Bollettino"
+                text: "Payment Slip",
                 color: Colors.black,
               ),
             ),
