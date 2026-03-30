@@ -4,43 +4,20 @@ import 'package:risto_widgets/risto_widgets.dart';
 /// Semantic UI states for the Status Switcher.
 enum RistoUiState { loading, content, empty, error }
 
-/// An animated container that smoothly transitions between Loading, Content,
-/// Empty, and Error states. It handles both cross-fading and size adjustments.
-/// Uses builder functions to lazily construct only the necessary UI for the current state.
 class RistoStatusSwitcher extends StatelessWidget {
-  /// The current state of the UI.
   final RistoUiState state;
-
-  /// A builder for the main content to display when [state] is [RistoUiState.content].
   final WidgetBuilder contentBuilder;
-
-  /// A builder for the widget to display when loading. If null, a default adaptive spinner is used.
   final WidgetBuilder? loadingBuilder;
-
-  /// A builder for the widget to display when empty.
   final WidgetBuilder? emptyBuilder;
-
-  /// A builder for the widget to display on error.
   final WidgetBuilder? errorBuilder;
-
-  /// Text to populate the default Empty [RistoNoticeCard] if [emptyBuilder] is null.
   final String? defaultEmptyTitle;
   final String? defaultEmptySubtitle;
-
-  /// Text to populate the default Error [RistoNoticeCard] if [errorBuilder] is null.
   final String? defaultErrorTitle;
   final String? defaultErrorSubtitle;
-
-  /// If provided, automatically adds a Retry button to the default error fallback card.
   final VoidCallback? onRetry;
-
-  /// The duration of the size and fade animations. Defaults to 400ms.
   final Duration duration;
-
-  /// The alignment of the children during the size animation.
   final Alignment alignment;
 
-  // --- Container Styling & Constraints ---
   final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? padding;
   final double? width;
@@ -88,8 +65,6 @@ class RistoStatusSwitcher extends StatelessWidget {
     this.clipBehavior = Clip.none,
   });
 
-  /// Factory constructor that automatically determines the [RistoUiState]
-  /// based on standard boolean flags. Perfect for BLoC/Cubit state mapping.
   factory RistoStatusSwitcher.computed({
     Key? key,
     bool isLoading = false,
@@ -122,7 +97,6 @@ class RistoStatusSwitcher extends StatelessWidget {
     Color? shadowColor,
     Clip clipBehavior = Clip.none,
   }) {
-    // Resolve the semantic state strictly based on precedence
     RistoUiState derivedState = RistoUiState.content;
     if (isLoading) {
       derivedState = RistoUiState.loading;
@@ -231,19 +205,7 @@ class RistoStatusSwitcher extends StatelessWidget {
             alignment: alignment,
             clipBehavior: Clip.none,
             children: <Widget>[
-              ...previousChildren.map(
-                (child) => Positioned(
-                  top:
-                      alignment == Alignment.topCenter ||
-                          alignment == Alignment.topLeft ||
-                          alignment == Alignment.topRight
-                      ? 0
-                      : null,
-                  left: 0,
-                  right: 0,
-                  child: child,
-                ),
-              ),
+              ...previousChildren,
               if (currentChild != null) currentChild,
             ],
           );
