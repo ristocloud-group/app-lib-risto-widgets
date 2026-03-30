@@ -12,6 +12,8 @@ import 'pages/custom_sheet_page.dart';
 import 'pages/expandable_page.dart';
 import 'pages/increment_decrement_page.dart';
 import 'pages/list_tile_button_page.dart';
+import 'pages/loading_overlay_page.dart'; // <-- Added import
+import 'pages/status_switcher_page.dart'; // <-- Added import
 
 void main() {
   runApp(const MyApp());
@@ -99,6 +101,17 @@ class _HomePageState extends State<HomePage> {
         page: PercentIndicatorsPage(),
         icon: Icon(Icons.pie_chart),
         label: 'Percent Indicators',
+      ),
+      // --- New Pages Added Here ---
+      const NavigationItem(
+        page: LoadingOverlayPage(),
+        icon: Icon(Icons.blur_on), // Represents the blur/overlay effect
+        label: 'Loading Overlay',
+      ),
+      const NavigationItem(
+        page: StatusSwitcherPage(),
+        icon: Icon(Icons.switch_access_shortcut), // Represents switching states
+        label: 'Status Switcher',
       ),
     ]);
   }
