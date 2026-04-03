@@ -334,7 +334,7 @@ class _ExpandableControllerExampleState
 
   @override
   void dispose() {
-    _controller.dispose(); // IMPORTANT: Dispose the controller
+    _controller.dispose();
     super.dispose();
   }
 
