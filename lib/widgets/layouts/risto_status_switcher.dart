@@ -4,6 +4,7 @@ import 'package:risto_widgets/risto_widgets.dart';
 /// Semantic UI states for the Status Switcher.
 enum RistoUiState { loading, content, empty, error }
 
+/// A widget that seamlessly animates between loading, error, empty, and content states.
 class RistoStatusSwitcher extends StatelessWidget {
   final RistoUiState state;
   final WidgetBuilder contentBuilder;
@@ -65,6 +66,8 @@ class RistoStatusSwitcher extends StatelessWidget {
     this.clipBehavior = Clip.none,
   });
 
+  /// A convenience factory that automatically computes the [RistoUiState] based on boolean flags.
+  /// Priority: isLoading > hasError > isEmpty > content.
   factory RistoStatusSwitcher.computed({
     Key? key,
     bool isLoading = false,
@@ -204,10 +207,7 @@ class RistoStatusSwitcher extends StatelessWidget {
           return Stack(
             alignment: alignment,
             clipBehavior: Clip.none,
-            children: <Widget>[
-              ...previousChildren,
-              if (currentChild != null) currentChild,
-            ],
+            children: <Widget>[...previousChildren, ?currentChild],
           );
         },
         child: keyedChild,

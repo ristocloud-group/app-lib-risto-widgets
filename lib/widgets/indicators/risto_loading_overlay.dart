@@ -3,7 +3,130 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/extensions.dart';
 
-/// The visual style of the loading indicator.
+// ===========================================================================
+// LOADER UTILITY
+// ===========================================================================
+
+/// Different loader configurations.
+enum _LoaderStyle { basic, fitted, centered }
+
+/// A versatile loading indicator with factory constructors for different styles.
+class Loader extends StatelessWidget {
+  final _LoaderStyle _style;
+  final EdgeInsetsGeometry? _padding;
+  final Alignment _alignment;
+  final Color? _color;
+
+  const Loader._({
+    super.key,
+    required _LoaderStyle style,
+    EdgeInsetsGeometry? padding,
+    Alignment alignment = Alignment.center,
+    Color? color,
+  }) : _style = style,
+       _padding = padding,
+       _alignment = alignment,
+       _color = color;
+
+  /// Basic adaptive circular progress indicator.
+  factory Loader.basic({Key? key, Color? color}) {
+    return Loader._(key: key, style: _LoaderStyle.basic, color: color);
+  }
+
+  /// Loader scaled down via FittedBox with optional padding/alignment.
+  factory Loader.fitted({
+    Key? key,
+    EdgeInsetsGeometry? padding,
+    Alignment alignment = Alignment.center,
+    Color? color,
+  }) {
+    return Loader._(
+      key: key,
+      style: _LoaderStyle.fitted,
+      padding: padding,
+      alignment: alignment,
+      color: color,
+    );
+  }
+
+  /// Loader centered within a Container with optional padding/alignment.
+  factory Loader.centered({
+    Key? key,
+    EdgeInsetsGeometry? padding,
+    Alignment alignment = Alignment.center,
+    Color? color,
+  }) {
+    return Loader._(
+      key: key,
+      style: _LoaderStyle.centered,
+      padding: padding,
+      alignment: alignment,
+      color: color,
+    );
+  }
+
+  static Widget _basicIndicator(Color? color) {
+    if (color != null) {
+      return CircularProgressIndicator.adaptive(
+        valueColor: AlwaysStoppedAnimation<Color>(color),
+      );
+    }
+    return const CircularProgressIndicator.adaptive();
+  }
+
+  static Widget _fittedIndicator({
+    EdgeInsetsGeometry? padding,
+    Alignment alignment = Alignment.center,
+    Color? color,
+  }) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: alignment,
+      child: Padding(
+        padding: padding ?? EdgeInsets.zero,
+        child: _basicIndicator(color),
+      ),
+    );
+  }
+
+  static Widget _centeredIndicator({
+    EdgeInsetsGeometry? padding,
+    Alignment alignment = Alignment.center,
+    Color? color,
+  }) {
+    return Container(
+      padding: padding,
+      alignment: alignment,
+      child: _basicIndicator(color),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    switch (_style) {
+      case _LoaderStyle.fitted:
+        return _fittedIndicator(
+          padding: _padding,
+          alignment: _alignment,
+          color: _color,
+        );
+      case _LoaderStyle.centered:
+        return _centeredIndicator(
+          padding: _padding,
+          alignment: _alignment,
+          color: _color,
+        );
+      case _LoaderStyle.basic:
+        return _basicIndicator(_color);
+    }
+  }
+}
+
+// ===========================================================================
+// LOADING OVERLAY
+// ===========================================================================
+
+/// The visual style of the loading indicator within the overlay.
 enum RistoLoaderStyle { adaptive, pulsingDots }
 
 /// A highly customizable Loading Overlay that can be used globally (via static methods)
@@ -24,11 +147,20 @@ class RistoLoadingOverlay extends StatelessWidget {
   /// The visual style of the loader.
   final RistoLoaderStyle loaderStyle;
 
-  /// Custom background color for the overlay.
+  /// Custom background color for the overlay barrier.
   final Color? barrierColor;
+
+  /// Custom color for the loader widget (spinner or dots).
+  final Color? loaderColor;
 
   /// The blur amount for the background (X and Y). Defaults to 4.0.
   final double blurSigma;
+
+  /// The internal padding of the loader panel. Defaults to horizontal 24, vertical 16.
+  final EdgeInsetsGeometry? padding;
+
+  /// The external margin of the loader panel.
+  final EdgeInsetsGeometry? margin;
 
   const RistoLoadingOverlay({
     super.key,
@@ -38,12 +170,92 @@ class RistoLoadingOverlay extends StatelessWidget {
     this.progress,
     this.loaderStyle = RistoLoaderStyle.adaptive,
     this.barrierColor,
+    this.loaderColor,
     this.blurSigma = 4.0,
+    this.padding,
+    this.margin,
   });
 
-  // ===========================================================================
-  // GLOBAL STATE MANAGEMENT (MODAL OVERLAY)
-  // ===========================================================================
+  /// Creates a loading overlay with a dark, semi-transparent barrier.
+  factory RistoLoadingOverlay.dark({
+    Key? key,
+    required bool isLoading,
+    Widget? child,
+    String? message,
+    double? progress,
+    RistoLoaderStyle loaderStyle = RistoLoaderStyle.pulsingDots,
+    Color? loaderColor,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+  }) {
+    return RistoLoadingOverlay(
+      key: key,
+      isLoading: isLoading,
+      message: message,
+      progress: progress,
+      loaderStyle: loaderStyle,
+      barrierColor: Colors.black.withCustomOpacity(0.6),
+      loaderColor: loaderColor,
+      blurSigma: 2.0,
+      padding: padding,
+      margin: margin,
+      child: child,
+    );
+  }
+
+  /// Creates a loading overlay with a high-blur, glass-like barrier.
+  factory RistoLoadingOverlay.glass({
+    Key? key,
+    required bool isLoading,
+    Widget? child,
+    String? message,
+    double? progress,
+    RistoLoaderStyle loaderStyle = RistoLoaderStyle.adaptive,
+    Color? loaderColor,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+  }) {
+    return RistoLoadingOverlay(
+      key: key,
+      isLoading: isLoading,
+      message: message,
+      progress: progress,
+      loaderStyle: loaderStyle,
+      barrierColor: Colors.white.withCustomOpacity(0.1),
+      loaderColor: loaderColor,
+      blurSigma: 10.0,
+      padding: padding,
+      margin: margin,
+      child: child,
+    );
+  }
+
+  /// Creates a loading overlay with no blur and a fully transparent barrier.
+  factory RistoLoadingOverlay.clear({
+    Key? key,
+    required bool isLoading,
+    Widget? child,
+    String? message,
+    double? progress,
+    RistoLoaderStyle loaderStyle = RistoLoaderStyle.adaptive,
+    Color? loaderColor,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+  }) {
+    return RistoLoadingOverlay(
+      key: key,
+      isLoading: isLoading,
+      message: message,
+      progress: progress,
+      loaderStyle: loaderStyle,
+      barrierColor: Colors.transparent,
+      loaderColor: loaderColor,
+      blurSigma: 0.0,
+      padding: padding,
+      margin: margin,
+      child: child,
+    );
+  }
 
   static bool _isShowing = false;
 
@@ -66,6 +278,10 @@ class RistoLoadingOverlay extends StatelessWidget {
     double? progress,
     RistoLoaderStyle loaderStyle = RistoLoaderStyle.pulsingDots,
     double blurSigma = 6.0,
+    Color? barrierColor,
+    Color? loaderColor,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
   }) {
     if (_isShowing) return;
     _isShowing = true;
@@ -83,7 +299,10 @@ class RistoLoadingOverlay extends StatelessWidget {
           progress: progress,
           loaderStyle: loaderStyle,
           blurSigma: blurSigma,
-          barrierColor: Colors.black.withCustomOpacity(0.25),
+          barrierColor: barrierColor ?? Colors.black.withCustomOpacity(0.25),
+          loaderColor: loaderColor,
+          padding: padding,
+          margin: margin,
         ),
       ),
       transitionBuilder: (ctx, anim, _, child) => FadeTransition(
@@ -93,10 +312,6 @@ class RistoLoadingOverlay extends StatelessWidget {
     ).then((_) => _isShowing = false);
   }
 
-  // ===========================================================================
-  // BUILDER
-  // ===========================================================================
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -105,7 +320,10 @@ class RistoLoadingOverlay extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          margin: margin,
+          padding:
+              padding ??
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           constraints: const BoxConstraints(minWidth: 160),
           decoration: BoxDecoration(
             color: theme.cardColor,
@@ -125,10 +343,9 @@ class RistoLoadingOverlay extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (loaderStyle == RistoLoaderStyle.pulsingDots)
-                    const _PulsingDots()
+                    _PulsingDots(color: loaderColor)
                   else
-                    const CircularProgressIndicator.adaptive(),
-
+                    Loader.basic(color: loaderColor),
                   if (message != null) ...[
                     const SizedBox(width: 16),
                     Flexible(
@@ -149,9 +366,10 @@ class RistoLoadingOverlay extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: progress,
-                    backgroundColor: theme.primaryColor.withCustomOpacity(0.2),
+                    backgroundColor: (loaderColor ?? theme.primaryColor)
+                        .withCustomOpacity(0.2),
                     minHeight: 6,
-                    color: theme.primaryColor,
+                    color: loaderColor ?? theme.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -166,34 +384,36 @@ class RistoLoadingOverlay extends StatelessWidget {
       ),
     );
 
-    final overlay = Positioned.fill(
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-          child: Container(
-            color:
-                barrierColor ??
-                theme.colorScheme.surface.withCustomOpacity(0.4),
-            child: loaderPanel,
-          ),
+    final barrierWidget = ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+        child: Container(
+          color:
+              barrierColor ?? theme.colorScheme.surface.withCustomOpacity(0.4),
+          child: loaderPanel,
         ),
       ),
     );
 
     if (child == null) {
-      return isLoading ? loaderPanel : const SizedBox.shrink();
+      return isLoading ? barrierWidget : const SizedBox.shrink();
     }
 
     return Stack(
       alignment: Alignment.center,
-      children: [child!, if (isLoading) overlay],
+      children: [
+        child!,
+        if (isLoading) Positioned.fill(child: barrierWidget),
+      ],
     );
   }
 }
 
 /// The core three-dot pulsing animation widget.
 class _PulsingDots extends StatefulWidget {
-  const _PulsingDots();
+  final Color? color;
+
+  const _PulsingDots({this.color});
 
   @override
   State<_PulsingDots> createState() => _PulsingDotsState();
@@ -229,7 +449,7 @@ class _PulsingDotsState extends State<_PulsingDots>
       height: 8,
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
+        color: widget.color ?? Theme.of(context).primaryColor,
         shape: BoxShape.circle,
       ),
     ),

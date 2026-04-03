@@ -11,14 +11,13 @@ class ExpandablePage extends StatelessWidget {
     const white70TextStyle = TextStyle(color: Colors.white70);
 
     return PaddedChildrenList(
-      // Assuming PaddedChildrenList handles padding
       children: [
         Text('Expandable List Tile Button Examples', style: titleStyle),
         const SizedBox(height: 20),
 
         // --- Example 1: .listTile with Alignment & BorderRadius ---
         Text(
-          '1. ListTile with Body Alignment & BorderRadius',
+          '1. ListTile with Body Alignment & Padding',
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
@@ -29,6 +28,12 @@ class ExpandablePage extends StatelessWidget {
           elevation: 4.0,
           borderRadius: BorderRadius.circular(12),
           bodyAlignment: Alignment.bottomCenter,
+          // Testing the new padding properties
+          headerPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 16,
+          ),
+          headerBodyPadding: const EdgeInsets.only(left: 16),
           expanded: Container(
             padding: const EdgeInsets.all(16.0),
             child: const Text(
@@ -36,10 +41,12 @@ class ExpandablePage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
-          title: const Text('Aligned Body Content', style: whiteTextStyle),
-          subtitle: const Text('Using bodyAlignment', style: white70TextStyle),
+          title: const Text('Spacious Header', style: whiteTextStyle),
+          subtitle: const Text(
+            'Using headerPadding & headerBodyPadding',
+            style: white70TextStyle,
+          ),
           leading: const Icon(Icons.format_align_center, color: Colors.white),
-          // Updated Icon
           trailingIconColor: Colors.white,
         ),
         const SizedBox(height: 20),
@@ -132,7 +139,7 @@ class ExpandablePage extends StatelessWidget {
           elevation: 1,
           borderColor: Colors.blue,
           borderRadius: BorderRadius.circular(12),
-          leading: CircleAvatar(radius: 80, backgroundColor: Colors.pink),
+          leading: const CircleAvatar(radius: 80, backgroundColor: Colors.pink),
           bodyAlignment: Alignment.center,
           leadingSizeFactor: 1.5,
           title: const Text('Overlay Header', style: whiteTextStyle),

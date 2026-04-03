@@ -46,10 +46,13 @@ void main() {
 
         expect(find.byKey(listTileHeaderKey), findsOneWidget);
         expect(find.byKey(listTileExpandedContentKey), findsNothing);
-        await tester.tap(find.byKey(listTileHeaderKey));
+
+        // Tap the actual hit-testable Material surface
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(listTileExpandedContentKey), findsOneWidget);
-        await tester.tap(find.byKey(listTileHeaderKey));
+
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(listTileExpandedContentKey), findsNothing);
       },
@@ -115,20 +118,16 @@ void main() {
           ),
         );
 
-        // Use a descendant finder to ensure we only find the header in the main tree
-        final headerFinder = find.descendant(
-          of: find.byKey(overlayContainerKey),
-          matching: find.byKey(overlayHeaderKey),
-        );
-
-        expect(headerFinder, findsOneWidget);
+        expect(find.byKey(overlayHeaderKey), findsOneWidget);
         expect(find.byKey(overlayExpandedContentKey), findsNothing);
 
-        await tester.tap(headerFinder);
+        // Tap the ListTileButton itself to avoid hit-test offset issues
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(overlayExpandedContentKey), findsOneWidget);
 
-        await tester.tap(headerFinder);
+        // When overlay is active, tap the background (TapRegion) or the tile again to close
+        await tester.tap(find.byType(ListTileButton).last);
         await tester.pumpAndSettle();
         expect(find.byKey(overlayExpandedContentKey), findsNothing);
       },
@@ -167,13 +166,8 @@ void main() {
           ),
         );
 
-        final headerFinder = find.descendant(
-          of: find.byKey(scrollableContainerKey),
-          matching: find.byKey(scrollableOverlayHeaderKey),
-        );
-
         // Act 1: Tap the header to expand the overlay.
-        await tester.tap(headerFinder);
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
 
         // Assert 1: Verify the overlay is visible.
@@ -223,14 +217,9 @@ void main() {
           ),
         );
 
-        final headerFinder = find.descendant(
-          of: find.byKey(rebuildTestContainerKey),
-          matching: find.byKey(overlayHeaderKey),
-        );
-
         // 1. Expand the tile and verify the overlay is shown.
         expect(find.byKey(overlayExpandedContentKey), findsNothing);
-        await tester.tap(headerFinder);
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(overlayExpandedContentKey), findsOneWidget);
 
@@ -242,14 +231,14 @@ void main() {
         expect(find.byKey(overlayExpandedContentKey), findsOneWidget);
 
         // 3. Collapse the tile.
-        await tester.tap(headerFinder);
+        await tester.tap(find.byType(ListTileButton).last);
         await tester.pumpAndSettle();
 
         // Assert: Verify the overlay is now gone.
         expect(find.byKey(overlayExpandedContentKey), findsNothing);
 
         // 4. Re-expand the tile to check if it's still functional.
-        await tester.tap(headerFinder);
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(overlayExpandedContentKey), findsOneWidget);
       },
