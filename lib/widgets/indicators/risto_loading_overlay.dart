@@ -131,7 +131,7 @@ enum RistoLoaderStyle { adaptive, pulsingDots }
 
 /// A highly customizable Loading Overlay that can be used globally (via static methods)
 /// or locally (by wrapping a specific widget).
-class RistoLoadingOverlay extends StatelessWidget {
+class LoadingPanel extends StatelessWidget {
   /// The widget to display behind the overlay (used for local overlays).
   final Widget? child;
 
@@ -162,7 +162,7 @@ class RistoLoadingOverlay extends StatelessWidget {
   /// The external margin of the loader panel.
   final EdgeInsetsGeometry? margin;
 
-  const RistoLoadingOverlay({
+  const LoadingPanel({
     super.key,
     required this.isLoading,
     this.child,
@@ -177,7 +177,7 @@ class RistoLoadingOverlay extends StatelessWidget {
   });
 
   /// Creates a loading overlay with a dark, semi-transparent barrier.
-  factory RistoLoadingOverlay.dark({
+  factory LoadingPanel.dark({
     Key? key,
     required bool isLoading,
     Widget? child,
@@ -188,7 +188,7 @@ class RistoLoadingOverlay extends StatelessWidget {
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
   }) {
-    return RistoLoadingOverlay(
+    return LoadingPanel(
       key: key,
       isLoading: isLoading,
       message: message,
@@ -204,7 +204,7 @@ class RistoLoadingOverlay extends StatelessWidget {
   }
 
   /// Creates a loading overlay with a high-blur, glass-like barrier.
-  factory RistoLoadingOverlay.glass({
+  factory LoadingPanel.glass({
     Key? key,
     required bool isLoading,
     Widget? child,
@@ -215,7 +215,7 @@ class RistoLoadingOverlay extends StatelessWidget {
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
   }) {
-    return RistoLoadingOverlay(
+    return LoadingPanel(
       key: key,
       isLoading: isLoading,
       message: message,
@@ -231,7 +231,7 @@ class RistoLoadingOverlay extends StatelessWidget {
   }
 
   /// Creates a loading overlay with no blur and a fully transparent barrier.
-  factory RistoLoadingOverlay.clear({
+  factory LoadingPanel.clear({
     Key? key,
     required bool isLoading,
     Widget? child,
@@ -242,7 +242,7 @@ class RistoLoadingOverlay extends StatelessWidget {
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
   }) {
-    return RistoLoadingOverlay(
+    return LoadingPanel(
       key: key,
       isLoading: isLoading,
       message: message,
@@ -293,7 +293,7 @@ class RistoLoadingOverlay extends StatelessWidget {
       barrierColor: Colors.transparent,
       pageBuilder: (_, _, _) => PopScope(
         canPop: false,
-        child: RistoLoadingOverlay(
+        child: LoadingPanel(
           isLoading: true,
           message: message,
           progress: progress,

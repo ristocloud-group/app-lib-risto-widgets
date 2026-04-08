@@ -516,7 +516,7 @@ class _SectionSwitcherState extends State<SectionSwitcher> {
             switchOutCurve: widget.curve,
             layoutBuilder: (current, previous) => Stack(
               clipBehavior: Clip.none,
-              children: [if (current != null) current, ...previous],
+              children: [?current, ...previous],
             ),
             transitionBuilder: (child, animation) {
               final isIncoming = child.key == ValueKey<int>(_selectedIndex);

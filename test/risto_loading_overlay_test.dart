@@ -67,7 +67,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: RistoLoadingOverlay(
+            body: LoadingPanel(
               isLoading: true,
               child: const Text('Background Content', key: childKey),
             ),
@@ -86,7 +86,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: RistoLoadingOverlay(
+            body: LoadingPanel(
               isLoading: false,
               child: const Text('Background Content', key: childKey),
             ),
@@ -103,7 +103,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: RistoLoadingOverlay(
+            body: LoadingPanel(
               isLoading: true,
               message: 'Uploading...',
               progress: 0.75,
@@ -130,7 +130,7 @@ void main() {
       // .dark
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: RistoLoadingOverlay.dark(isLoading: true)),
+          home: Scaffold(body: LoadingPanel.dark(isLoading: true)),
         ),
       );
       expect(find.byType(BackdropFilter), findsOneWidget);
@@ -138,7 +138,7 @@ void main() {
       // .glass
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: RistoLoadingOverlay.glass(isLoading: true)),
+          home: Scaffold(body: LoadingPanel.glass(isLoading: true)),
         ),
       );
       expect(find.byType(BackdropFilter), findsOneWidget);
@@ -146,7 +146,7 @@ void main() {
       // .clear
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: RistoLoadingOverlay.clear(isLoading: true)),
+          home: Scaffold(body: LoadingPanel.clear(isLoading: true)),
         ),
       );
       expect(find.byType(BackdropFilter), findsOneWidget);
@@ -169,10 +169,10 @@ void main() {
       await tester.pumpWidget(wrap());
 
       // Ensure it's not showing initially
-      expect(find.byType(RistoLoadingOverlay), findsNothing);
+      expect(find.byType(LoadingPanel), findsNothing);
 
       // Show the global overlay
-      RistoLoadingOverlay.show(
+      LoadingPanel.show(
         getCtx(tester),
         message: 'Global Loading',
         loaderStyle:
@@ -185,25 +185,25 @@ void main() {
       ); // Advance past transition animation
 
       // Verify the overlay is present
-      expect(find.byType(RistoLoadingOverlay), findsOneWidget);
+      expect(find.byType(LoadingPanel), findsOneWidget);
       expect(find.text('Global Loading'), findsOneWidget);
 
       // _PulsingDots uses 3 containers for the dots
       final dotFinder = find.descendant(
-        of: find.byType(RistoLoadingOverlay),
+        of: find.byType(LoadingPanel),
         matching: find.byType(ScaleTransition),
       );
       expect(dotFinder, findsWidgets);
 
       // Hide the global overlay
-      RistoLoadingOverlay.hide(getCtx(tester));
+      LoadingPanel.hide(getCtx(tester));
 
       await tester.pump(); // Start hide transition
       await tester
           .pumpAndSettle(); // Safe to pumpAndSettle now since the repeating animation is removed
 
       // Verify it's gone
-      expect(find.byType(RistoLoadingOverlay), findsNothing);
+      expect(find.byType(LoadingPanel), findsNothing);
     });
   });
 }

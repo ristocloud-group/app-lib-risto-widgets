@@ -19,7 +19,7 @@ class _LoadingOverlayPageState extends State<LoadingOverlayPage> {
     String? message,
     double? progress,
   }) async {
-    RistoLoadingOverlay.show(
+    LoadingPanel.show(
       context,
       message: message,
       loaderStyle: style,
@@ -29,7 +29,7 @@ class _LoadingOverlayPageState extends State<LoadingOverlayPage> {
     await Future.delayed(const Duration(seconds: 3));
 
     if (mounted) {
-      RistoLoadingOverlay.hide(context);
+      LoadingPanel.hide(context);
     }
   }
 
@@ -191,7 +191,7 @@ class _LoadingOverlayPageState extends State<LoadingOverlayPage> {
             ),
             const SizedBox(height: 16),
 
-            RistoLoadingOverlay.dark(
+            LoadingPanel.dark(
               isLoading: _isFactoriesLoading,
               message: 'Dark Barrier...',
               loaderColor: Colors.deepOrangeAccent,
@@ -202,7 +202,7 @@ class _LoadingOverlayPageState extends State<LoadingOverlayPage> {
             ),
             const SizedBox(height: 16),
 
-            RistoLoadingOverlay.glass(
+            LoadingPanel.glass(
               isLoading: _isFactoriesLoading,
               message: 'Glass Barrier...',
               loaderStyle: RistoLoaderStyle.pulsingDots,
@@ -214,7 +214,7 @@ class _LoadingOverlayPageState extends State<LoadingOverlayPage> {
             ),
             const SizedBox(height: 16),
 
-            RistoLoadingOverlay.clear(
+            LoadingPanel.clear(
               isLoading: _isFactoriesLoading,
               loaderColor: Colors.indigo,
               child: _buildGradientCard('Clear Factory (No Blur)', [
@@ -237,7 +237,7 @@ class _LoadingOverlayPageState extends State<LoadingOverlayPage> {
             ),
             const SizedBox(height: 16),
 
-            RistoLoadingOverlay(
+            LoadingPanel(
               isLoading: _isLocalLoading,
               message:
                   _localProgress != null ? 'Uploading...' : 'Processing...',

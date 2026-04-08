@@ -164,9 +164,9 @@ class ListTileButton extends StatelessWidget {
     final Widget row = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (leadingWidget != null) leadingWidget,
+        ?leadingWidget,
         textBlock,
-        if (trailingWidget != null) trailingWidget,
+        ?trailingWidget,
       ],
     );
 
