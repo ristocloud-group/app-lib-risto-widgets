@@ -259,6 +259,9 @@ class LoadingPanel extends StatelessWidget {
 
   static bool _isShowing = false;
 
+  /// Returns true if the global loading overlay is currently visible.
+  static bool get isShowing => _isShowing;
+
   /// Hides the currently visible global loading panel, if any.
   static void hide(BuildContext context) {
     if (_isShowing) {
