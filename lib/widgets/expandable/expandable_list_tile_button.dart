@@ -45,21 +45,15 @@ class ExpandableListTileButton extends StatefulWidget {
   final Widget? subtitle;
 
   /// The background color of the header area.
-  /// If null, [backgroundColor] is used. If both are null, theme default is used.
-  /// Using [headerBackgroundColor] is preferred for clarity.
   final Color? headerBackgroundColor;
 
   /// The background color of the expanded content area.
-  /// If null, [expandedColor] is used. If both are null, theme default is used.
-  /// Using [expandedBodyColor] is preferred for clarity.
   final Color? expandedBodyColor;
 
   /// An alternative way to set the header background color for backward compatibility.
-  /// [headerBackgroundColor] takes priority if both are provided.
   final Color? backgroundColor;
 
   /// An alternative way to set the expanded body background color for backward compatibility.
-  /// [expandedBodyColor] takes priority if both are provided.
   final Color? expandedColor;
 
   /// The color of the leading icon (used by default `.iconListTile` header).
@@ -78,13 +72,39 @@ class ExpandableListTileButton extends StatefulWidget {
   final EdgeInsetsGeometry? margin;
 
   /// The internal padding applied to the default header container.
-  /// If using a custom header builder, you should handle padding within the custom widget itself.
   final EdgeInsetsGeometry? headerPadding;
 
   /// The internal padding applied specifically around the title and subtitle block.
   final EdgeInsetsGeometry? headerBodyPadding;
 
-  /// Factor to scale the size of the leading icon (used by default `.iconListTile` header).
+  /// The padding around the leading widget or icon.
+  final EdgeInsetsGeometry? leadingPadding;
+
+  /// The padding around the trailing widget.
+  final EdgeInsetsGeometry? trailingPadding;
+
+  /// Fixed width for the header tile. Overrides minWidth and maxWidth.
+  final double? headerWidth;
+
+  /// Fixed height for the header tile. Overrides minHeight and maxHeight.
+  final double? headerHeight;
+
+  /// Minimum width of the header tile.
+  final double? headerMinWidth;
+
+  /// Maximum width of the header tile.
+  final double? headerMaxWidth;
+
+  /// Minimum height of the header tile. Defaults to 60.0.
+  final double? headerMinHeight;
+
+  /// Maximum height of the header tile.
+  final double? headerMaxHeight;
+
+  /// Alignment of the title and subtitle within the header.
+  final Alignment headerContentAlignment;
+
+  /// Factor to scale the size of the leading icon.
   final double? leadingSizeFactor;
 
   /// The leading widget of the tile (used by default `.listTile` header).
@@ -94,25 +114,19 @@ class ExpandableListTileButton extends StatefulWidget {
   final IconData? icon;
 
   /// A builder function to create a custom header widget.
-  ///
-  /// The function provides a `tapAction` callback, an `isExpanded` boolean,
-  /// and a `isDisabled` boolean. The custom header should handle its own internal layout.
   final Widget Function(Function() tapAction, bool isExpanded, bool isDisabled)?
   customHeaderBuilder;
 
   /// Controls the radius of the corners for the header and the overall shape.
   final BorderRadius borderRadius;
 
-  /// Whether the tile is interactive. If true, the tile cannot be expanded or collapsed
-  /// by user tap, and its appearance is dimmed.
+  /// Whether the tile is interactive.
   final bool disabled;
 
   /// Alignment of the [expanded] widget within the body container.
   final AlignmentGeometry bodyAlignment;
 
   /// An optional controller to manage the expansion state externally.
-  /// If provided, the widget's state will synchronize with the controller.
-  /// If null, the widget manages its own expansion state internally.
   final ExpandableController? controller;
 
   /// The final resolved background color for the header, prioritizing [headerBackgroundColor].
@@ -151,6 +165,15 @@ class ExpandableListTileButton extends StatefulWidget {
     this.margin,
     this.headerPadding,
     this.headerBodyPadding,
+    this.leadingPadding,
+    this.trailingPadding,
+    this.headerWidth,
+    this.headerHeight,
+    this.headerMinWidth,
+    this.headerMaxWidth,
+    this.headerMinHeight,
+    this.headerMaxHeight,
+    this.headerContentAlignment = Alignment.centerLeft,
     this.leadingSizeFactor,
     this.leading,
     this.icon,
@@ -188,6 +211,15 @@ class ExpandableListTileButton extends StatefulWidget {
     EdgeInsetsGeometry? margin,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? headerBodyPadding,
+    EdgeInsetsGeometry? leadingPadding,
+    EdgeInsetsGeometry? trailingPadding,
+    double? headerWidth,
+    double? headerHeight,
+    double? headerMinWidth,
+    double? headerMaxWidth,
+    double? headerMinHeight,
+    double? headerMaxHeight,
+    Alignment headerContentAlignment = Alignment.centerLeft,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
@@ -208,6 +240,15 @@ class ExpandableListTileButton extends StatefulWidget {
       margin: margin,
       headerPadding: headerPadding,
       headerBodyPadding: headerBodyPadding,
+      leadingPadding: leadingPadding,
+      trailingPadding: trailingPadding,
+      headerWidth: headerWidth,
+      headerHeight: headerHeight,
+      headerMinWidth: headerMinWidth,
+      headerMaxWidth: headerMaxWidth,
+      headerMinHeight: headerMinHeight,
+      headerMaxHeight: headerMaxHeight,
+      headerContentAlignment: headerContentAlignment,
       leading: leading,
       borderRadius: borderRadius,
       disabled: disabled,
@@ -217,6 +258,15 @@ class ExpandableListTileButton extends StatefulWidget {
           ListTileButton(
             padding: headerPadding,
             bodyPadding: headerBodyPadding,
+            leadingPadding: leadingPadding,
+            trailingPadding: trailingPadding,
+            width: headerWidth,
+            height: headerHeight,
+            minWidth: headerMinWidth,
+            maxWidth: headerMaxWidth,
+            minHeight: headerMinHeight ?? 60.0,
+            maxHeight: headerMaxHeight,
+            contentAlignment: headerContentAlignment,
             onPressed: toggleExpansion,
             leading: leading,
             body: title,
@@ -246,6 +296,7 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? backgroundColor,
     Color? expandedColor,
     EdgeInsetsGeometry? leadingPadding,
+    EdgeInsetsGeometry? trailingPadding,
     Color? iconColor,
     Color? trailingIconColor,
     Color? borderColor,
@@ -254,6 +305,13 @@ class ExpandableListTileButton extends StatefulWidget {
     EdgeInsetsGeometry? margin,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? headerBodyPadding,
+    double? headerWidth,
+    double? headerHeight,
+    double? headerMinWidth,
+    double? headerMaxWidth,
+    double? headerMinHeight,
+    double? headerMaxHeight,
+    Alignment headerContentAlignment = Alignment.centerLeft,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
@@ -276,6 +334,15 @@ class ExpandableListTileButton extends StatefulWidget {
       margin: margin,
       headerPadding: headerPadding,
       headerBodyPadding: headerBodyPadding,
+      leadingPadding: leadingPadding,
+      trailingPadding: trailingPadding,
+      headerWidth: headerWidth,
+      headerHeight: headerHeight,
+      headerMinWidth: headerMinWidth,
+      headerMaxWidth: headerMaxWidth,
+      headerMinHeight: headerMinHeight,
+      headerMaxHeight: headerMaxHeight,
+      headerContentAlignment: headerContentAlignment,
       leadingSizeFactor: leadingSizeFactor,
       borderRadius: borderRadius,
       disabled: disabled,
@@ -285,10 +352,18 @@ class ExpandableListTileButton extends StatefulWidget {
           IconListTileButton(
             padding: headerPadding,
             bodyPadding: headerBodyPadding,
+            leadingPadding: leadingPadding,
+            trailingPadding: trailingPadding,
+            width: headerWidth,
+            height: headerHeight,
+            minWidth: headerMinWidth,
+            maxWidth: headerMaxWidth,
+            minHeight: headerMinHeight ?? 60.0,
+            maxHeight: headerMaxHeight,
+            contentAlignment: headerContentAlignment,
             icon: icon,
             iconColor: iconColor,
             leadingSizeFactor: leadingSizeFactor ?? 1.0,
-            leadingPadding: leadingPadding,
             title: title,
             subtitle: subtitle,
             trailing: Icon(
@@ -324,6 +399,15 @@ class ExpandableListTileButton extends StatefulWidget {
     EdgeInsetsGeometry? margin,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? headerBodyPadding,
+    EdgeInsetsGeometry? leadingPadding,
+    EdgeInsetsGeometry? trailingPadding,
+    double? headerWidth,
+    double? headerHeight,
+    double? headerMinWidth,
+    double? headerMaxWidth,
+    double? headerMinHeight,
+    double? headerMaxHeight,
+    Alignment headerContentAlignment = Alignment.centerLeft,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
@@ -342,6 +426,15 @@ class ExpandableListTileButton extends StatefulWidget {
       margin: margin,
       headerPadding: headerPadding,
       headerBodyPadding: headerBodyPadding,
+      leadingPadding: leadingPadding,
+      trailingPadding: trailingPadding,
+      headerWidth: headerWidth,
+      headerHeight: headerHeight,
+      headerMinWidth: headerMinWidth,
+      headerMaxWidth: headerMaxWidth,
+      headerMinHeight: headerMinHeight,
+      headerMaxHeight: headerMaxHeight,
+      headerContentAlignment: headerContentAlignment,
       borderRadius: borderRadius,
       disabled: disabled,
       bodyAlignment: bodyAlignment,
@@ -364,6 +457,15 @@ class ExpandableListTileButton extends StatefulWidget {
     EdgeInsetsGeometry? margin,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? headerBodyPadding,
+    EdgeInsetsGeometry? leadingPadding,
+    EdgeInsetsGeometry? trailingPadding,
+    double? headerWidth,
+    double? headerHeight,
+    double? headerMinWidth,
+    double? headerMaxWidth,
+    double? headerMinHeight,
+    double? headerMaxHeight,
+    Alignment headerContentAlignment = Alignment.centerLeft,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
@@ -385,6 +487,15 @@ class ExpandableListTileButton extends StatefulWidget {
       margin: margin,
       headerPadding: headerPadding,
       headerBodyPadding: headerBodyPadding,
+      leadingPadding: leadingPadding,
+      trailingPadding: trailingPadding,
+      headerWidth: headerWidth,
+      headerHeight: headerHeight,
+      headerMinWidth: headerMinWidth,
+      headerMaxWidth: headerMaxWidth,
+      headerMinHeight: headerMinHeight,
+      headerMaxHeight: headerMaxHeight,
+      headerContentAlignment: headerContentAlignment,
       borderRadius: borderRadius,
       disabled: disabled,
       bodyAlignment: bodyAlignment,
@@ -394,6 +505,15 @@ class ExpandableListTileButton extends StatefulWidget {
       customHeaderBuilder: (toggle, isExp, isDis) => ListTileButton(
         padding: headerPadding,
         bodyPadding: headerBodyPadding,
+        leadingPadding: leadingPadding,
+        trailingPadding: trailingPadding,
+        width: headerWidth,
+        height: headerHeight,
+        minWidth: headerMinWidth,
+        maxWidth: headerMaxWidth,
+        minHeight: headerMinHeight ?? 60.0,
+        maxHeight: headerMaxHeight,
+        contentAlignment: headerContentAlignment,
         onPressed: toggle,
         leading: leading,
         leadingSizeFactor: leadingSizeFactor,
@@ -424,32 +544,18 @@ class ExpandableListTileButton extends StatefulWidget {
 
 class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     with SingleTickerProviderStateMixin {
-  /// Tracks the logical expansion state of the tile.
   late bool _isExpanded;
-
-  /// Controls the animation for the expand/collapse transition.
   late AnimationController _animationController;
-
-  /// Defines the curve and value of the size animation.
   late Animation<double> _animation;
-
-  /// Flag indicating if the expansion state is controlled externally via [widget.controller].
   bool _isStateManagedExternally = false;
-
-  /// Key to access the header widget's context and size.
   final GlobalKey _headerKey = GlobalKey();
 
-  /// Stores the measured height of the header.
   double _headerHeight = 0.0;
   double _headerWidth = 0.0;
 
-  /// Link used to connect the header (target) to the overlay (follower).
   final LayerLink _layerLink = LayerLink();
-
-  /// The overlay entry used when [_useOverlay] is true.
   OverlayEntry? _overlayEntry;
 
-  /// Initializes the state, animation controller, listeners, and measures header height.
   @override
   void initState() {
     super.initState();
@@ -497,7 +603,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     }
   }
 
-  /// Called when the widget configuration changes. Handles controller updates and height measurement.
   @override
   void didUpdateWidget(covariant ExpandableListTileButton oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -516,7 +621,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateHeaderSize());
   }
 
-  /// Cleans up resources, primarily the animation controller and controller listener.
   @override
   void dispose() {
     _removeOverlay();
@@ -614,7 +718,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
           child: CompositedTransformFollower(
             link: _layerLink,
             showWhenUnlinked: false,
-            offset: Offset(0.0, 0.0),
+            offset: const Offset(0.0, 0.0),
             targetAnchor: Alignment.topLeft,
             followerAnchor: Alignment.topLeft,
             child: Stack(
@@ -711,7 +815,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     }
   }
 
-  /// Builds the visual structure of the widget using the revised Stack layout.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -794,6 +897,15 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       return IconListTileButton(
         padding: widget.headerPadding,
         bodyPadding: widget.headerBodyPadding,
+        leadingPadding: widget.leadingPadding,
+        trailingPadding: widget.trailingPadding,
+        width: widget.headerWidth,
+        height: widget.headerHeight,
+        minWidth: widget.headerMinWidth,
+        maxWidth: widget.headerMaxWidth,
+        minHeight: widget.headerMinHeight ?? 60.0,
+        maxHeight: widget.headerMaxHeight,
+        contentAlignment: widget.headerContentAlignment,
         icon: widget.icon!,
         iconColor: widget.iconColor,
         leadingSizeFactor: widget.leadingSizeFactor ?? 1.0,
@@ -811,6 +923,15 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       return ListTileButton(
         padding: widget.headerPadding,
         bodyPadding: widget.headerBodyPadding,
+        leadingPadding: widget.leadingPadding,
+        trailingPadding: widget.trailingPadding,
+        width: widget.headerWidth,
+        height: widget.headerHeight,
+        minWidth: widget.headerMinWidth,
+        maxWidth: widget.headerMaxWidth,
+        minHeight: widget.headerMinHeight ?? 60.0,
+        maxHeight: widget.headerMaxHeight,
+        contentAlignment: widget.headerContentAlignment,
         onPressed: _toggleExpansion,
         leading: widget.leading,
         body: widget.title!,

@@ -202,6 +202,39 @@ class ExpandablePage extends StatelessWidget {
         const ExpandableControllerExample(),
         const SizedBox(height: 20),
 
+        Text(
+          '7. Constrained Sizing & Padding',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        ExpandableListTileButton.listTile(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          headerBackgroundColor: Colors.brown[600],
+          expandedBodyColor: Colors.brown[100],
+          headerMinHeight: 120,
+          // Forces the header to be very tall
+          headerContentAlignment: Alignment.center,
+          // Centers the title block vertically and horizontally
+          leadingPadding: const EdgeInsets.only(left: 32),
+          // Pushes the leading icon way to the right
+          trailingPadding: const EdgeInsets.only(right: 32),
+          // Pushes the trailing icon way to the left
+          elevation: 4.0,
+          borderRadius: BorderRadius.circular(12),
+          expanded: Container(
+            padding: const EdgeInsets.all(16.0),
+            child: const Text('Expanded content.'),
+          ),
+          title: const Text('Constrained Header', style: whiteTextStyle),
+          subtitle: const Text(
+            'minHeight 120, centered content',
+            style: white70TextStyle,
+          ),
+          leading: const Icon(Icons.height, color: Colors.white),
+          trailingIconColor: Colors.white,
+        ),
+        const SizedBox(height: 32),
+
         // 1) Overlay card (free ctor) with custom header
         ExpandableAnimatedCard(
           expandedDecoration: BoxDecoration(
