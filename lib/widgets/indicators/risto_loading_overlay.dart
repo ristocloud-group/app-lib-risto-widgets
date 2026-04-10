@@ -162,6 +162,9 @@ class LoadingPanel extends StatelessWidget {
   /// The external margin of the loader panel.
   final EdgeInsetsGeometry? margin;
 
+  /// Optional border radius for the outermost barrier (useful when wrapping non-rectangular content).
+  final BorderRadius? barrierBorderRadius;
+
   const LoadingPanel({
     super.key,
     required this.isLoading,
@@ -174,6 +177,7 @@ class LoadingPanel extends StatelessWidget {
     this.blurSigma = 4.0,
     this.padding,
     this.margin,
+    this.barrierBorderRadius,
   });
 
   /// Creates a loading overlay with a dark, semi-transparent barrier.
@@ -254,6 +258,29 @@ class LoadingPanel extends StatelessWidget {
       padding: padding,
       margin: margin,
       child: child,
+    );
+  }
+
+  /// A specialized factory meant to be dropped directly into a `Stack` or over a constrained area.
+  /// It defaults to `isLoading: true` (since you typically only inject it when needed)
+  /// and uses a slightly lower blur and lighter barrier color to match your old implementation.
+  factory LoadingPanel.asOverlay({
+    Key? key,
+    required String message,
+    double? progress,
+    BorderRadius? borderRadius,
+    RistoLoaderStyle loaderStyle = RistoLoaderStyle.pulsingDots,
+  }) {
+    return LoadingPanel(
+      key: key,
+      isLoading: true,
+      // If you call this, you expect it to show.
+      message: message,
+      progress: progress,
+      loaderStyle: loaderStyle,
+      barrierColor: Colors.black.withCustomOpacity(0.08),
+      blurSigma: 4.0,
+      barrierBorderRadius: borderRadius,
     );
   }
 
@@ -388,6 +415,7 @@ class LoadingPanel extends StatelessWidget {
     );
 
     final barrierWidget = ClipRRect(
+      borderRadius: barrierBorderRadius ?? BorderRadius.zero,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
         child: Container(
