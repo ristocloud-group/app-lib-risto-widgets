@@ -109,19 +109,22 @@ class RistoToast {
     int maxLines = 4,
     double? iconSize,
     TextStyle? textStyle,
+    Color? backgroundColor,
+    Color? textColor,
+    Color? shadowColor,
   }) {
     show(
       context,
       message: message,
       icon: Icons.info_outline,
-      backgroundColor: Colors.blue.shade800,
-      textColor: Colors.white,
+      backgroundColor: backgroundColor ?? Colors.blue.shade800,
+      textColor: textColor ?? Colors.white,
       duration: duration,
       top: top,
       maxLines: maxLines,
       iconSize: iconSize,
       textStyle: textStyle,
-      shadowColor: Colors.blue.shade900,
+      shadowColor: shadowColor ?? Colors.blue.shade900,
       elevation: 6.0,
     );
   }
@@ -135,19 +138,22 @@ class RistoToast {
     int maxLines = 4,
     double? iconSize,
     TextStyle? textStyle,
+    Color? backgroundColor,
+    Color? textColor,
+    Color? shadowColor,
   }) {
     show(
       context,
       message: message,
       icon: Icons.check_circle_outline,
-      backgroundColor: Colors.green.shade700,
-      textColor: Colors.white,
+      backgroundColor: backgroundColor ?? Colors.green.shade700,
+      textColor: textColor ?? Colors.white,
       duration: duration,
       top: top,
       maxLines: maxLines,
       iconSize: iconSize,
       textStyle: textStyle,
-      shadowColor: Colors.green.shade900,
+      shadowColor: shadowColor ?? Colors.green.shade900,
       elevation: 6.0,
     );
   }
@@ -161,19 +167,22 @@ class RistoToast {
     int maxLines = 4,
     double? iconSize,
     TextStyle? textStyle,
+    Color? backgroundColor,
+    Color? textColor,
+    Color? shadowColor,
   }) {
     show(
       context,
       message: message,
       icon: Icons.warning_amber_rounded,
-      backgroundColor: Colors.orange.shade800,
-      textColor: Colors.white,
+      backgroundColor: backgroundColor ?? Colors.orange.shade800,
+      textColor: textColor ?? Colors.white,
       duration: duration,
       top: top,
       maxLines: maxLines,
       iconSize: iconSize,
       textStyle: textStyle,
-      shadowColor: Colors.orange.shade900,
+      shadowColor: shadowColor ?? Colors.orange.shade900,
       elevation: 6.0,
     );
   }
@@ -187,19 +196,22 @@ class RistoToast {
     int maxLines = 4,
     double? iconSize,
     TextStyle? textStyle,
+    Color? backgroundColor,
+    Color? textColor,
+    Color? shadowColor,
   }) {
     show(
       context,
       message: message,
       icon: Icons.error_outline,
-      backgroundColor: Colors.red.shade700,
-      textColor: Colors.white,
+      backgroundColor: backgroundColor ?? Colors.red.shade700,
+      textColor: textColor ?? Colors.white,
       duration: duration,
       top: top,
       maxLines: maxLines,
       iconSize: iconSize,
       textStyle: textStyle,
-      shadowColor: Colors.red.shade900,
+      shadowColor: shadowColor ?? Colors.red.shade900,
       elevation: 6.0,
     );
   }
