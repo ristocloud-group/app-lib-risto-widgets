@@ -1,24 +1,17 @@
-// test/custom_action_button_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
-/// Returns the outer shell Material used by CustomActionButton to paint
-/// gradients/solid color and elevation. We find the unique Ink inside the
-/// button, then take its nearest Material ancestor.
-Material _shellMaterialOf(WidgetTester tester) {
+/// Returns the RistoDecorator used by CustomActionButton to paint
+/// gradients/solid color, elevation, and borders.
+RistoDecorator _shellDecoratorOf(WidgetTester tester) {
   final cabFinder = find.byType(CustomActionButton);
-
-  // There should be exactly one Ink painted by the shell.
-  final inkFinder = find.descendant(of: cabFinder, matching: find.byType(Ink));
-  expect(inkFinder, findsOneWidget);
-
-  // The nearest Material ancestor of that Ink is the shell Material.
-  final materialFinder = find
-      .ancestor(of: inkFinder, matching: find.byType(Material))
-      .first;
-
-  return tester.widget<Material>(materialFinder);
+  final decoratorFinder = find.descendant(
+    of: cabFinder,
+    matching: find.byType(RistoDecorator),
+  );
+  expect(decoratorFinder, findsOneWidget);
+  return tester.widget<RistoDecorator>(decoratorFinder);
 }
 
 void main() {
@@ -51,59 +44,57 @@ void main() {
       expect(counter, 1);
     });
 
-    testWidgets(
-      'CustomActionButton.flat renders correctly as TextButton and no elevation',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: CustomActionButton.flat(
-                onPressed: () {},
-                backgroundColor: Colors.red,
-                child: const Text('Flat Button'),
-              ),
+    testWidgets('CustomActionButton.flat renders correctly with no elevation', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomActionButton.flat(
+              onPressed: () {},
+              backgroundColor: Colors.red,
+              child: const Text('Flat Button'),
             ),
           ),
-        );
+        ),
+      );
 
-        expect(find.text('Flat Button'), findsOneWidget);
-        expect(find.byType(TextButton), findsOneWidget);
-        expect(find.byType(ElevatedButton), findsNothing);
+      expect(find.text('Flat Button'), findsOneWidget);
+      expect(find.byType(TextButton), findsOneWidget);
+      expect(find.byType(ElevatedButton), findsNothing);
 
-        final shell = _shellMaterialOf(tester);
-        expect(shell.elevation, 0.0);
-      },
-    );
+      final shell = _shellDecoratorOf(tester);
+      expect(shell.elevation, 0.0);
+    });
 
-    testWidgets(
-      'CustomActionButton.elevated renders with correct Material elevation',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: CustomActionButton.elevated(
-                onPressed: () {},
-                backgroundColor: Colors.green,
-                elevation: 5.0,
-                child: const Text('Elevated Button'),
-              ),
+    testWidgets('CustomActionButton.elevated renders with correct elevation', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomActionButton.elevated(
+              onPressed: () {},
+              backgroundColor: Colors.green,
+              elevation: 5.0,
+              child: const Text('Elevated Button'),
             ),
           ),
-        );
+        ),
+      );
 
-        expect(find.text('Elevated Button'), findsOneWidget);
-        expect(
-          find.descendant(
-            of: find.byType(CustomActionButton),
-            matching: find.byType(ElevatedButton),
-          ),
-          findsOneWidget,
-        );
+      expect(find.text('Elevated Button'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(CustomActionButton),
+          matching: find.byType(ElevatedButton),
+        ),
+        findsOneWidget,
+      );
 
-        final shell = _shellMaterialOf(tester);
-        expect(shell.elevation, 5.0);
-      },
-    );
+      final shell = _shellDecoratorOf(tester);
+      expect(shell.elevation, 5.0);
+    });
 
     testWidgets(
       'CustomActionButton.minimal renders correctly (no overlay/splash, zero elevation)',
@@ -129,7 +120,7 @@ void main() {
         expect(overlayColor, Colors.transparent);
         expect(textButton.style?.splashFactory, NoSplash.splashFactory);
 
-        final shell = _shellMaterialOf(tester);
+        final shell = _shellDecoratorOf(tester);
         expect(shell.elevation, 0.0);
       },
     );
@@ -174,7 +165,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: CustomActionButton.elevated(
-              onPressed: null,
+              disabled: true,
               child: const Text('Disabled Button'),
             ),
           ),
@@ -220,20 +211,17 @@ void main() {
         ),
       );
 
-      // Find the specific Icon widget first.
       final iconFinder = find.descendant(
         of: find.byType(CustomActionButton),
         matching: find.byIcon(Icons.add),
       );
       expect(iconFinder, findsOneWidget);
 
-      // Now, find the IconTheme that is an ancestor of that specific Icon.
       final iconThemeFinder = find.ancestor(
         of: iconFinder,
         matching: find.byType(IconTheme),
       );
 
-      // We expect to find one or more; the first one is the closest one we wrapped.
       expect(iconThemeFinder, findsWidgets);
       final iconTheme = tester.widget<IconTheme>(iconThemeFinder.first);
       expect(iconTheme.data.color, Colors.white);
@@ -243,8 +231,8 @@ void main() {
       expect(buttonSize.width, 48);
       expect(buttonSize.height, 48);
 
-      final shell = _shellMaterialOf(tester);
-      expect(shell.shape, isA<CircleBorder>());
+      final shell = _shellDecoratorOf(tester);
+      expect(shell.shape, BoxShape.circle); // RistoDecorator uses BoxShape
 
       final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
       expect(button.style?.tapTargetSize, MaterialTapTargetSize.padded);
@@ -268,7 +256,6 @@ void main() {
       expect(find.byIcon(Icons.add_shopping_cart), findsOneWidget);
       expect(find.text('Add to cart'), findsOneWidget);
 
-      // Check if they are in a Row
       final rowFinder = find.descendant(
         of: find.byType(CustomActionButton),
         matching: find.byType(Row),

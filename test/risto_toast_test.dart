@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:risto_widgets/widgets/feedback/risto_toast.dart';
+import 'package:risto_widgets/widgets/layouts/risto_decorator.dart';
 
 final _hostKey = GlobalKey();
 
-Widget _wrap() {
+Widget _wrap({ThemeData? theme}) {
   return MaterialApp(
+    theme: theme ?? ThemeData.light(),
     home: Scaffold(
       body: Container(key: _hostKey), // unique element to grab a BuildContext
     ),
@@ -66,22 +68,10 @@ void main() {
     expect(find.text('Tap me!'), findsNothing);
   });
 
-  testWidgets('RistoToast.error uses theme error color by default', (
+  testWidgets('RistoToast.error uses specific red color by default', (
     tester,
   ) async {
-    const kErr = Color(0xFFAA0011);
-    final theme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.indigo,
-      ).copyWith(error: kErr, onError: Colors.white),
-    );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: theme,
-        home: Scaffold(body: Container(key: _hostKey)),
-      ),
-    );
+    await tester.pumpWidget(_wrap());
 
     RistoToast.error(
       _ctx(tester),
@@ -92,17 +82,18 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
 
-    // Find the Container that wraps the text 'Boom'
-    final containerFinder = find.ancestor(
+    // Find the RistoDecorator that wraps the text 'Boom'
+    final decoratorFinder = find.ancestor(
       of: find.text('Boom'),
-      matching: find.byType(Container),
+      matching: find.byType(RistoDecorator),
     );
-    expect(containerFinder, findsWidgets);
+    expect(decoratorFinder, findsWidgets);
 
-    // Pick the first ancestor Container and verify its color
-    final container = tester.firstWidget<Container>(containerFinder);
-    final decoration = container.decoration as BoxDecoration;
-    expect(decoration.color, kErr);
+    // Pick the first ancestor RistoDecorator and verify its color
+    final decorator = tester.firstWidget<RistoDecorator>(decoratorFinder);
+
+    // RistoToast.error is explicitly implemented to use Colors.red.shade700
+    expect(decorator.backgroundColor, Colors.red.shade700);
 
     // Cleanup to prevent pending timers from failing the test suite
     RistoToast.hide();
@@ -122,10 +113,18 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
 
-    final aligns = find.byWidgetPredicate(
-      (w) => w is Align && w.alignment == Alignment.topCenter,
+    // RistoToast uses a Positioned widget to handle top/bottom alignment in the Overlay
+    final positionedFinder = find.ancestor(
+      of: find.text('Top!'),
+      matching: find.byType(Positioned),
     );
-    expect(aligns, findsOneWidget);
+    expect(positionedFinder, findsWidgets);
+
+    final positionedWidget = tester.widget<Positioned>(positionedFinder.first);
+
+    // When `top: true`, the Positioned widget sets `top` to a value and `bottom` to null.
+    expect(positionedWidget.top, isNotNull);
+    expect(positionedWidget.bottom, isNull);
 
     // Cleanup to prevent pending timers
     RistoToast.hide();

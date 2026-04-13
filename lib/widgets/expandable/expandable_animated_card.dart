@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
+import '../layouts/risto_decorator.dart';
 import '../layouts/size_reporting_widget.dart';
 
 enum HeaderMode { overlay, none }
@@ -46,20 +49,26 @@ class ExpandableAnimatedCard extends StatefulWidget {
   final double? maxWidth;
   final bool useSafeArea;
 
-  // Decoration
-  final BoxDecoration expandedDecoration;
+  // RistoDecorator Styling
+  final Color? backgroundColor;
+  final Gradient? backgroundGradient;
+  final Color? borderColor;
+  final double borderWidth;
+  final BorderRadiusGeometry? borderRadius;
+  final double elevation;
+  final Color? shadowColor;
 
   // Header
   final HeaderMode headerMode;
   final double headerHeight;
   final Widget Function(BuildContext, VoidCallback)? headerBuilder;
 
-  // Background scrim (inside overlay)
+  // Background scrim & Blur
   final Color overlayBackgroundColor;
+  final double blurSigma;
   final Widget Function(BuildContext, Animation<double>)? scrimBuilder;
 
-  // Route barrier (outside page builder)
-  /// Color used by the route barrier (NOT the scrim). Default: fully transparent.
+  // Route barrier
   final Color barrierColor;
 
   // UX toggles
@@ -73,7 +82,7 @@ class ExpandableAnimatedCard extends StatefulWidget {
   final VoidCallback? onClosed;
   final ValueChanged<bool>? onStateChanged;
 
-  // --- Sheet-only (optional) ---
+  // Sheet-only
   final double? _sheetMaxHeight;
   final double? _sheetMaxHeightFraction;
   final double? _sheetDragDismissThresholdFraction;
@@ -90,10 +99,9 @@ class ExpandableAnimatedCard extends StatefulWidget {
   final ExpandableAnimatedCardController? controller;
   final bool autoOpenOnTap;
 
-  // Private type set by the factories
   final CardType _type;
 
-  /// Public (free) constructor — allows full customization.
+  /// Public constructor — allows full customization.
   factory ExpandableAnimatedCard({
     Key? key,
     required WidgetBuilder collapsedBuilder,
@@ -114,39 +122,39 @@ class ExpandableAnimatedCard extends StatefulWidget {
     EdgeInsetsGeometry expandedPadding = const EdgeInsets.all(0),
     double? maxWidth,
     bool useSafeArea = true,
-    BoxDecoration expandedDecoration = const BoxDecoration(
-      color: Color(0xFF5D5D5D),
-      borderRadius: BorderRadius.all(Radius.circular(20)),
+
+    // Risto Styling
+    Color? backgroundColor = const Color(0xFF5D5D5D),
+    Gradient? backgroundGradient,
+    Color? borderColor,
+    double borderWidth = 1.0,
+    BorderRadiusGeometry? borderRadius = const BorderRadius.all(
+      Radius.circular(20),
     ),
+    double elevation = 4.0,
+    Color? shadowColor,
+
     HeaderMode headerMode = HeaderMode.overlay,
     double headerHeight = 40.0,
     Color overlayBackgroundColor = Colors.black54,
+    double blurSigma = 0.0, // <-- Glassmorphism!
     Widget Function(BuildContext, Animation<double>)? scrimBuilder,
     Widget Function(BuildContext, VoidCallback)? headerBuilder,
 
-    // Barrier config
     Color barrierColor = Colors.transparent,
     bool barrierDismissible = true,
-
-    // Drag
     bool enableDragToDismiss = false,
     double dragDismissThreshold = 120.0,
 
-    // Hooks
     VoidCallback? onClose,
     VoidCallback? onOpened,
     VoidCallback? onClosed,
     ValueChanged<bool>? onStateChanged,
 
-    // Nav
     bool useRootNavigator = false,
     RouteSettings? routeSettings,
     String? barrierLabel,
-
-    // Visual
     Clip clipBehavior = Clip.antiAlias,
-
-    // Control
     ExpandableAnimatedCardController? controller,
     bool autoOpenOnTap = true,
   }) {
@@ -165,10 +173,17 @@ class ExpandableAnimatedCard extends StatefulWidget {
       expandedPadding: expandedPadding,
       maxWidth: maxWidth,
       useSafeArea: useSafeArea,
-      expandedDecoration: expandedDecoration,
+      backgroundColor: backgroundColor,
+      backgroundGradient: backgroundGradient,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderRadius: borderRadius,
+      elevation: elevation,
+      shadowColor: shadowColor,
       headerMode: headerMode,
       headerHeight: headerHeight,
       overlayBackgroundColor: overlayBackgroundColor,
+      blurSigma: blurSigma,
       scrimBuilder: scrimBuilder,
       headerBuilder: headerBuilder,
       barrierColor: barrierColor,
@@ -190,23 +205,16 @@ class ExpandableAnimatedCard extends StatefulWidget {
   }
 
   /// Factory: fullscreen
-  /// - Full-bleed target rect (no outer margin).
-  /// - No header, no drag-to-dismiss.
-  /// - IMPORTANT: No background color on the expanded card, so any margin
-  ///   you add INSIDE the expandedBuilder will reveal the barrier behind it.
   factory ExpandableAnimatedCard.fullscreen({
     Key? key,
     required WidgetBuilder collapsedBuilder,
     required WidgetBuilder expandedBuilder,
     Duration animationDuration = const Duration(milliseconds: 500),
     Curve animationCurve = Curves.easeInOut,
-
-    // Scrim + barrier
     Color overlayBackgroundColor = Colors.black54,
+    double blurSigma = 0.0,
     Color barrierColor = Colors.transparent,
     bool barrierDismissible = true,
-
-    // Navigation
     bool useRootNavigator = false,
     RouteSettings? routeSettings,
     String? barrierLabel,
@@ -215,150 +223,89 @@ class ExpandableAnimatedCard extends StatefulWidget {
       key: key,
       collapsedBuilder: collapsedBuilder,
       expandedBuilder: expandedBuilder,
-
-      // Animations
       animationDuration: animationDuration,
       animationCurve: animationCurve,
       fadeInterval: const Interval(0.35, 1.0, curve: Cubic(0.5, 0.0, 0.3, 1.0)),
-
-      // Layout: fullscreen rect, no safe area
       expandedMargin: EdgeInsets.zero,
       expandedPadding: EdgeInsets.zero,
       maxWidth: null,
       useSafeArea: false,
 
-      // IMPORTANT: do NOT paint a background here.
-      // Leave it transparent so the route barrier shows through wherever
-      // the child (expandedBuilder) leaves gaps (e.g., via its own margin).
-      expandedDecoration: const BoxDecoration(),
-      // <- transparent
+      // Transparent so barrier shows through
+      backgroundColor: Colors.transparent,
+      elevation: 0.0,
+      borderRadius: BorderRadius.zero,
 
-      // No header & default scrim
       headerMode: HeaderMode.none,
       headerHeight: 0,
       overlayBackgroundColor: overlayBackgroundColor,
+      blurSigma: blurSigma,
       scrimBuilder: null,
       headerBuilder: null,
-
-      // Route barrier (outside the overlay widget)
       barrierColor: barrierColor,
       barrierDismissible: barrierDismissible,
-
-      // UX
       enableDragToDismiss: false,
       dragDismissThreshold: 9999,
-
-      // Hooks (locked off by default)
-      onClose: null,
-      onOpened: null,
-      onClosed: null,
-      onStateChanged: null,
-
-      // Nav
       useRootNavigator: useRootNavigator,
       routeSettings: routeSettings,
       barrierLabel: barrierLabel,
-
-      // Visual
       clipBehavior: Clip.none,
-      // allow child margins to create visible gaps
-      controller: null,
-      autoOpenOnTap: true,
       type: CardType.fullscreen,
     );
   }
 
   /// Factory: sheet
-  /// - Rounded card + shadow.
-  /// - No header. Close is via drag or internal controls.
-  /// - Supports clamped height like modal bottom sheet.
   factory ExpandableAnimatedCard.sheet({
     Key? key,
     required WidgetBuilder collapsedBuilder,
     required WidgetBuilder expandedBuilder,
-
-    // Look & feel
     double corner = 20,
     EdgeInsetsGeometry margin = const EdgeInsets.fromLTRB(16, 16, 16, 16),
-    Color color = const Color(0xFF5D5D5D),
-    List<BoxShadow> shadow = const [
-      BoxShadow(blurRadius: 24, offset: Offset(0, 8), color: Colors.black26),
-    ],
-
-    // Clamp / thresholds
-    double? maxHeight, // pixel cap
-    double? maxHeightFraction, // 0..1 of screen height
-    double? dragDismissThresholdFraction, // 0..1 of final height
-    // Scrim + barrier
+    Color backgroundColor = const Color(0xFF5D5D5D),
+    double elevation = 8.0,
+    Color? shadowColor,
+    double? maxHeight,
+    double? maxHeightFraction,
+    double? dragDismissThresholdFraction,
     Color overlayBackgroundColor = Colors.black54,
+    double blurSigma = 0.0,
     Color barrierColor = Colors.transparent,
-
-    // UX
     bool dragToClose = true,
-    double dragDismissThreshold = 120.0, // fallback when fraction not provided
+    double dragDismissThreshold = 120.0,
     bool barrierDismissible = true,
-
-    // Nav
     bool useRootNavigator = false,
     RouteSettings? routeSettings,
     String? barrierLabel,
   }) {
-    assert(maxHeight == null || maxHeight > 0);
-    assert(
-      maxHeightFraction == null ||
-          (maxHeightFraction > 0 && maxHeightFraction <= 1),
-    );
-    assert(
-      dragDismissThresholdFraction == null ||
-          (dragDismissThresholdFraction > 0 &&
-              dragDismissThresholdFraction <= 1),
-    );
-
     return ExpandableAnimatedCard._internal(
       key: key,
       collapsedBuilder: collapsedBuilder,
       expandedBuilder: expandedBuilder,
-
       expandedMargin: margin,
       expandedPadding: EdgeInsets.zero,
       maxWidth: null,
       useSafeArea: false,
-      expandedDecoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(corner),
-        boxShadow: shadow,
-      ),
-
+      backgroundColor: backgroundColor,
+      elevation: elevation,
+      shadowColor: shadowColor,
+      borderRadius: BorderRadius.circular(corner),
       headerMode: HeaderMode.none,
       headerHeight: 0,
       headerBuilder: null,
-
-      // scrim + barrier
       overlayBackgroundColor: overlayBackgroundColor,
+      blurSigma: blurSigma,
       scrimBuilder: null,
       barrierColor: barrierColor,
-
-      // UX
       barrierDismissible: barrierDismissible,
       enableDragToDismiss: dragToClose,
       dragDismissThreshold: dragDismissThreshold,
-
-      // animation
       animationDuration: const Duration(milliseconds: 500),
       animationCurve: Curves.easeInOut,
       fadeInterval: const Interval(0.35, 1.0, curve: Cubic(0.5, 0.0, 0.3, 1.0)),
-
-      // hooks & nav
-      onClose: null,
-      onOpened: null,
-      onClosed: null,
-      onStateChanged: null,
       useRootNavigator: useRootNavigator,
       routeSettings: routeSettings,
       barrierLabel: barrierLabel,
       clipBehavior: Clip.antiAlias,
-      controller: null,
-      autoOpenOnTap: true,
       type: CardType.sheet,
     )._withSheetClamp(
       maxHeight: maxHeight,
@@ -382,45 +329,35 @@ class ExpandableAnimatedCard extends StatefulWidget {
     this.expandedPadding = const EdgeInsets.all(0),
     this.maxWidth,
     this.useSafeArea = true,
-    this.expandedDecoration = const BoxDecoration(
-      color: Color(0xFF5D5D5D),
-      borderRadius: BorderRadius.all(Radius.circular(20)),
-    ),
+
+    this.backgroundColor,
+    this.backgroundGradient,
+    this.borderColor,
+    this.borderWidth = 1.0,
+    this.borderRadius,
+    this.elevation = 0.0,
+    this.shadowColor,
+
     this.headerMode = HeaderMode.overlay,
     this.headerHeight = 40.0,
-
-    // scrim + barrier
     this.overlayBackgroundColor = Colors.black54,
+    this.blurSigma = 0.0,
     this.scrimBuilder,
     this.barrierColor = Colors.transparent,
-
-    // header
     this.headerBuilder,
-
-    // UX
     this.barrierDismissible = true,
     this.enableDragToDismiss = true,
     this.dragDismissThreshold = 120.0,
-
-    // hooks
     this.onClose,
     this.onOpened,
     this.onClosed,
     this.onStateChanged,
-
-    // nav
     this.useRootNavigator = false,
     this.routeSettings,
     this.barrierLabel,
-
-    // visual
     this.clipBehavior = Clip.antiAlias,
-
-    // control
     this.controller,
     this.autoOpenOnTap = true,
-
-    // internals
     required CardType type,
     double? sheetMaxHeight,
     double? sheetMaxHeightFraction,
@@ -430,7 +367,6 @@ class ExpandableAnimatedCard extends StatefulWidget {
        _sheetMaxHeightFraction = sheetMaxHeightFraction,
        _sheetDragDismissThresholdFraction = sheetDragDismissThresholdFraction;
 
-  // convenience to attach sheet clamp values from the factory
   ExpandableAnimatedCard _withSheetClamp({
     double? maxHeight,
     double? maxHeightFraction,
@@ -447,15 +383,19 @@ class ExpandableAnimatedCard extends StatefulWidget {
       expandedPadding: expandedPadding,
       maxWidth: maxWidth,
       useSafeArea: useSafeArea,
-      expandedDecoration: expandedDecoration,
+      backgroundColor: backgroundColor,
+      backgroundGradient: backgroundGradient,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderRadius: borderRadius,
+      elevation: elevation,
+      shadowColor: shadowColor,
       headerMode: headerMode,
       headerHeight: headerHeight,
-
-      // scrim + barrier
       overlayBackgroundColor: overlayBackgroundColor,
+      blurSigma: blurSigma,
       scrimBuilder: scrimBuilder,
       barrierColor: barrierColor,
-
       headerBuilder: headerBuilder,
       barrierDismissible: barrierDismissible,
       enableDragToDismiss: enableDragToDismiss,
@@ -519,16 +459,12 @@ class _ExpandableAnimatedCardState extends State<ExpandableAnimatedCard> {
     if (_widgetSize == null ||
         currentContext == null ||
         !currentContext.mounted) {
-      debugPrint(
-        "ExpandableAnimatedCard: overlay skipped (size/context missing)",
-      );
       return;
     }
 
     final navigator = widget.useRootNavigator
         ? Navigator.of(currentContext, rootNavigator: true)
         : Navigator.of(currentContext);
-
     final RenderBox? box = currentContext.findRenderObject() as RenderBox?;
     final RenderObject? navRO = navigator.context.findRenderObject();
     if (box == null || navRO == null) return;
@@ -540,7 +476,6 @@ class _ExpandableAnimatedCardState extends State<ExpandableAnimatedCard> {
       _widgetSize!.width,
       _widgetSize!.height,
     );
-
     final bool canDrag =
         (widget._type == CardType.sheet) && widget.enableDragToDismiss;
 
@@ -549,38 +484,31 @@ class _ExpandableAnimatedCardState extends State<ExpandableAnimatedCard> {
       expandedBuilder: widget.expandedBuilder,
       animationCurve: widget.animationCurve,
       fadeInterval: widget.fadeInterval,
-
-      // Layout
       expandedMargin: widget.expandedMargin,
       expandedPadding: widget.expandedPadding,
-      expandedDecoration: widget.expandedDecoration,
+      backgroundColor: widget.backgroundColor,
+      backgroundGradient: widget.backgroundGradient,
+      borderColor: widget.borderColor,
+      borderWidth: widget.borderWidth,
+      borderRadius: widget.borderRadius,
+      elevation: widget.elevation,
+      shadowColor: widget.shadowColor,
       maxWidth: widget.maxWidth,
       useSafeArea: widget.useSafeArea,
-
-      // Header
       headerMode: widget.headerMode,
       headerHeight: widget.headerHeight,
       headerBuilder: widget.headerBuilder,
-
-      // Background
       overlayBackgroundColor: widget.overlayBackgroundColor,
+      blurSigma: widget.blurSigma,
       scrimBuilder: widget.scrimBuilder,
-
-      // UX
       barrierDismissible: widget.barrierDismissible,
       enableDragToDismiss: canDrag,
       dragDismissThreshold: widget.dragDismissThreshold,
-
-      // Hooks
       onClose: widget.onClose,
       onOpened: widget.onOpened,
       onClosed: widget.onClosed,
       onStateChanged: widget.onStateChanged,
-
-      // Visual
       clipBehavior: widget.clipBehavior,
-
-      // Sheet clamp
       sheetMaxHeight: (widget._type == CardType.sheet)
           ? widget._sheetMaxHeight
           : null,
@@ -627,46 +555,43 @@ class _ExpandableAnimatedCardState extends State<ExpandableAnimatedCard> {
 
 class _ExpandableAnimatedOverlay extends StatefulWidget {
   final Rect initialRect;
-
-  // Layout
   final EdgeInsetsGeometry expandedMargin;
   final EdgeInsetsGeometry expandedPadding;
-  final BoxDecoration expandedDecoration;
+
+  final Color? backgroundColor;
+  final Gradient? backgroundGradient;
+  final Color? borderColor;
+  final double borderWidth;
+  final BorderRadiusGeometry? borderRadius;
+  final double elevation;
+  final Color? shadowColor;
+
   final double? maxWidth;
   final bool useSafeArea;
+  final double? sheetMaxHeight;
+  final double? sheetMaxHeightFraction;
+  final double? sheetDragDismissThresholdFraction;
 
-  final double? sheetMaxHeight; // px
-  final double? sheetMaxHeightFraction; // 0..1
-  final double? sheetDragDismissThresholdFraction; // 0..1
-
-  // Content
   final WidgetBuilder expandedBuilder;
-
-  // Animations
   final Curve animationCurve;
   final Interval fadeInterval;
 
-  // Header
   final HeaderMode headerMode;
   final double headerHeight;
   final Widget Function(BuildContext, VoidCallback)? headerBuilder;
 
-  // Background (scrim inside overlay)
   final Color overlayBackgroundColor;
+  final double blurSigma;
   final Widget Function(BuildContext, Animation<double>)? scrimBuilder;
 
-  // UX
   final bool barrierDismissible;
   final bool enableDragToDismiss;
   final double dragDismissThreshold;
 
-  // Hooks
   final VoidCallback? onClose;
   final VoidCallback? onOpened;
   final VoidCallback? onClosed;
   final ValueChanged<bool>? onStateChanged;
-
-  // Visual
   final Clip clipBehavior;
 
   const _ExpandableAnimatedOverlay({
@@ -676,13 +601,20 @@ class _ExpandableAnimatedOverlay extends StatefulWidget {
     required this.fadeInterval,
     required this.expandedMargin,
     required this.expandedPadding,
-    required this.expandedDecoration,
     required this.maxWidth,
     required this.useSafeArea,
+    required this.backgroundColor,
+    this.backgroundGradient,
+    this.borderColor,
+    required this.borderWidth,
+    this.borderRadius,
+    required this.elevation,
+    this.shadowColor,
     required this.headerMode,
     required this.headerHeight,
     required this.headerBuilder,
     required this.overlayBackgroundColor,
+    required this.blurSigma,
     required this.scrimBuilder,
     required this.barrierDismissible,
     required this.enableDragToDismiss,
@@ -710,7 +642,6 @@ class _ExpandableAnimatedOverlayState
   void _close() {
     if (!mounted) return;
     Navigator.of(context).pop();
-    // onClose is fired in the status listener on dismissed.
   }
 
   void _onStatus(AnimationStatus status) {
@@ -719,7 +650,7 @@ class _ExpandableAnimatedOverlayState
       widget.onStateChanged?.call(true);
     } else if (status == AnimationStatus.dismissed) {
       widget.onClosed?.call();
-      widget.onClose?.call(); // BC hook
+      widget.onClose?.call();
       widget.onStateChanged?.call(false);
     }
   }
@@ -776,11 +707,9 @@ class _ExpandableAnimatedOverlayState
     final EdgeInsets viewPadding = MediaWidgetPadding.viewPaddingOf(context);
     final TextDirection dir = Directionality.of(context);
 
-    // Resolve directional margins/paddings safely
     final EdgeInsets baseOuter = widget.expandedMargin.resolve(dir);
     final EdgeInsets innerPad = widget.expandedPadding.resolve(dir);
 
-    // Final rect (where the card ends up)
     double left = baseOuter.left;
     double top =
         baseOuter.top +
@@ -788,7 +717,6 @@ class _ExpandableAnimatedOverlayState
     double width = screen.width - baseOuter.left - baseOuter.right;
     double height = screen.height - top - baseOuter.bottom;
 
-    // Safe areas
     if (widget.useSafeArea) {
       left += viewPadding.left;
       top += viewPadding.top;
@@ -796,7 +724,6 @@ class _ExpandableAnimatedOverlayState
       height -= (viewPadding.bottom);
     }
 
-    // Max width centering (e.g., tablets)
     double xInset = 0;
     if (widget.maxWidth != null && width > widget.maxWidth!) {
       xInset = (width - widget.maxWidth!) / 2;
@@ -804,7 +731,6 @@ class _ExpandableAnimatedOverlayState
       width = widget.maxWidth!;
     }
 
-    // Clamp height for sheet if requested
     double clampedHeight = height;
     if (widget.sheetMaxHeightFraction != null) {
       clampedHeight = clampedHeight.clamp(
@@ -816,7 +742,6 @@ class _ExpandableAnimatedOverlayState
       clampedHeight = clampedHeight.clamp(0.0, widget.sheetMaxHeight!);
     }
 
-    // If clamped, recompute top so we keep bottom margin and stop at the cap
     if (clampedHeight < height) {
       final double bottom = baseOuter.bottom + (widget.useSafeArea ? 0 : 0);
       top = screen.height - bottom - clampedHeight;
@@ -836,8 +761,7 @@ class _ExpandableAnimatedOverlayState
       CurveTween(curve: widget.fadeInterval),
     );
 
-    // Scrim (custom or default)
-    final Widget scrim =
+    Widget scrim =
         widget.scrimBuilder?.call(context, fadeAnim) ??
         FadeTransition(
           opacity: fadeAnim,
@@ -848,27 +772,34 @@ class _ExpandableAnimatedOverlayState
           ),
         );
 
-    // Resolve border radius geometry safely for ClipRRect
-    final BorderRadius borderRadius =
-        (widget.expandedDecoration.borderRadius ?? BorderRadius.zero).resolve(
-          dir,
-        );
+    // Apply the perfectly animated blur layer if requested!
+    if (widget.blurSigma > 0) {
+      scrim = AnimatedBuilder(
+        animation: fadeAnim,
+        builder: (context, child) {
+          return BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: widget.blurSigma * fadeAnim.value,
+              sigmaY: widget.blurSigma * fadeAnim.value,
+            ),
+            child: child,
+          );
+        },
+        child: scrim,
+      );
+    }
 
     return Material(
       color: Colors.transparent,
       child: Stack(
         children: [
-          // Background scrim + outside tap to dismiss
           Positioned.fill(child: scrim),
 
-          // Animated card
           AnimatedBuilder(
             animation: routeAnim,
             builder: (context, child) {
               final t = widget.animationCurve.transform(routeAnim.value);
               final Rect rect = Rect.lerp(initialRect, finalRect, t)!;
-
-              // Apply drag offset on top of animation (only downward)
               final double dragOffset = _dragDy > 0 ? _dragDy : 0;
 
               return Positioned(
@@ -879,9 +810,16 @@ class _ExpandableAnimatedOverlayState
                 child: child!,
               );
             },
-            child: ClipRRect(
+            // Replaced the raw Container with RistoDecorator!
+            child: RistoDecorator(
+              backgroundColor: widget.backgroundColor,
+              backgroundGradient: widget.backgroundGradient,
+              borderColor: widget.borderColor,
+              borderWidth: widget.borderWidth,
+              borderRadius: widget.borderRadius,
+              elevation: widget.elevation,
+              shadowColor: widget.shadowColor,
               clipBehavior: widget.clipBehavior,
-              borderRadius: borderRadius,
               child: GestureDetector(
                 onVerticalDragUpdate: widget.enableDragToDismiss
                     ? (details) => setState(() {
@@ -898,8 +836,7 @@ class _ExpandableAnimatedOverlayState
                         }
                       }
                     : null,
-                child: Container(
-                  decoration: widget.expandedDecoration,
+                child: Padding(
                   padding: innerPad,
                   child: widget.expandedBuilder(context),
                 ),
@@ -907,7 +844,6 @@ class _ExpandableAnimatedOverlayState
             ),
           ),
 
-          // Header overlay (optional)
           if (widget.headerMode == HeaderMode.overlay)
             Positioned(
               left: xInset == 0 ? 0 : xInset,
@@ -927,7 +863,6 @@ class _ExpandableAnimatedOverlayState
   }
 }
 
-/// Helper to get system paddings even on different Flutter APIs.
 class MediaWidgetPadding {
   static EdgeInsets viewPaddingOf(BuildContext context) {
     try {

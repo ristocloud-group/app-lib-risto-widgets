@@ -1,23 +1,19 @@
-// list_tile_button_page.dart
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/extensions.dart';
-import 'package:risto_widgets/widgets/buttons/custom_action_button.dart';
-import 'package:risto_widgets/widgets/buttons/custom_icon_text.dart';
-import 'package:risto_widgets/widgets/buttons/list_tile_button.dart';
+import 'package:risto_widgets/risto_widgets.dart';
 
 class ListTileButtonPage extends StatelessWidget {
   const ListTileButtonPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('List Tile Buttons')),
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
         children: [
-          Text(
-            'List Tile Button Examples',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Core ListTile Buttons', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
           ListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -30,7 +26,6 @@ class ListTileButtonPage extends StatelessWidget {
             trailing: const Icon(Icons.arrow_forward),
             minHeight: 90,
           ),
-          const SizedBox(height: 16),
           ListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
             body: const Text('List Tile Button without Elevation'),
@@ -40,17 +35,12 @@ class ListTileButtonPage extends StatelessWidget {
             borderColor: Colors.blue,
             trailing: const Icon(Icons.arrow_forward),
           ),
-          const SizedBox(height: 16),
           ListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
             body: const Text('List Tile Button with icon'),
             backgroundColor: Colors.white,
             subtitle: const Text('Without action'),
-            trailing: Icon(
-              Icons.error,
-              size: 18,
-              color: Theme.of(context).iconTheme.color,
-            ),
+            trailing: Icon(Icons.error, size: 18, color: theme.iconTheme.color),
             leading: const Icon(Icons.info, color: Colors.blue),
             leadingSizeFactor: 1.5,
           ),
@@ -60,11 +50,7 @@ class ListTileButtonPage extends StatelessWidget {
             subtitle: const Text('Disabled'),
             backgroundColor: Colors.white,
             elevation: 2,
-            trailing: Icon(
-              Icons.error,
-              size: 18,
-              color: Theme.of(context).iconTheme.color,
-            ),
+            trailing: Icon(Icons.error, size: 18, color: theme.iconTheme.color),
             leading: const Icon(Icons.info, color: Colors.blue),
             contentAlignment: Alignment.center,
             leadingSizeFactor: 1.5,
@@ -84,9 +70,13 @@ class ListTileButtonPage extends StatelessWidget {
             leadingSizeFactor: 2,
             trailing: const Icon(Icons.arrow_forward),
             subtitle: const Text('Subtitle Text'),
-            body: Text('List Tile Button column leading'),
+            body: const Text('List Tile Button column leading'),
           ),
+
+          const SizedBox(height: 24),
+          Text('IconListTile Buttons', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
+
           IconListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
             title: const Text('Icon List Tile with Elevation'),
@@ -100,7 +90,6 @@ class ListTileButtonPage extends StatelessWidget {
             trailing: const Icon(Icons.arrow_forward),
             leadingSizeFactor: 2.0,
           ),
-          const SizedBox(height: 16),
           IconListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
             title: const Text('Icon List Tile without Elevation'),
@@ -115,32 +104,9 @@ class ListTileButtonPage extends StatelessWidget {
             trailing: const Icon(Icons.arrow_forward),
             leadingSizeFactor: 1.0,
           ),
-          const SizedBox(height: 16),
-          ListTileButton(
-            onPressed: () {},
-            body: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.calendar_today, color: Colors.purple),
-                Text('Schedule absence'),
-              ],
-            ),
-            backgroundColor: Colors.white,
-            borderColor: Colors.purple,
-            leadingSizeFactor: 1.2,
-            elevation: 1.5,
-            bodyPadding: EdgeInsets.zero,
-            borderRadius: 18,
-            contentAlignment: Alignment.center,
-            minHeight: 70,
-          ),
-          const SizedBox(height: 20),
 
-          // --- Elevation & Shadow Color Tests ---
-          Text(
-            'Elevation & Custom Shadows',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          const SizedBox(height: 24),
+          Text('Elevation & Custom Shadows', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
           ListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -170,13 +136,9 @@ class ListTileButtonPage extends StatelessWidget {
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             leadingSizeFactor: 1.5,
           ),
-          const SizedBox(height: 20),
 
-          // --- Sizing Constraints Tests ---
-          Text(
-            'Sizing Constraints',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          const SizedBox(height: 24),
+          Text('Sizing Constraints', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
           ListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -214,19 +176,14 @@ class ListTileButtonPage extends StatelessWidget {
             minHeight: 40,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           ),
-          const SizedBox(height: 20),
 
-          // --- Gradient tests ---
-          Text(
-            'Gradient List Tile Buttons',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          const SizedBox(height: 24),
+          Text('Gradient List Tile Buttons', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
           ListTileButton(
             body: const Text('List Tile Button with Gradient'),
             subtitle: const Text('Enabled — uses backgroundGradient'),
             onPressed: () {},
-            // Solid color is ignored when gradient is provided
             backgroundColor: Colors.white,
             backgroundGradient: const LinearGradient(
               begin: Alignment.topLeft,
@@ -238,7 +195,6 @@ class ListTileButtonPage extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             minHeight: 80,
           ),
-
           const SizedBox(height: 16),
           IconListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -256,7 +212,6 @@ class ListTileButtonPage extends StatelessWidget {
             icon: Icons.auto_awesome,
             onPressed: () {},
             backgroundColor: Colors.white,
-            // Ignored due to gradient
             backgroundGradient: const LinearGradient(
               colors: [Colors.orange, Colors.deepOrange],
             ),
@@ -264,11 +219,9 @@ class ListTileButtonPage extends StatelessWidget {
             iconColor: Colors.white,
             elevation: 6.0,
             shadowColor: Colors.deepOrange,
-            // Colored shadow matching the gradient
             trailing: const Icon(Icons.star_border, color: Colors.white),
             leadingSizeFactor: 1.4,
           ),
-
           const SizedBox(height: 16),
           IconListTileButton(
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -276,12 +229,9 @@ class ListTileButtonPage extends StatelessWidget {
             subtitle: const Text('Disabled — uses disabledBackgroundGradient'),
             icon: Icons.lock,
             onPressed: () {},
-            // will be ignored because disabled = true
             disabled: true,
-            // Optional solid color to show fallback (will be under gradient if any)
             backgroundColor: Colors.white,
             backgroundGradient: const LinearGradient(
-              // This would be used when enabled
               colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
             ),
             disabledBackgroundGradient: const LinearGradient(
@@ -301,11 +251,8 @@ class ListTileButtonPage extends StatelessWidget {
             minHeight: 70,
           ),
 
-          const SizedBox(height: 20),
-          Text(
-            'Double List Tile Buttons',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          const SizedBox(height: 24),
+          Text('Double List Tile Buttons', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
           DoubleListTileButtons(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -337,7 +284,6 @@ class ListTileButtonPage extends StatelessWidget {
               shadowColor: Colors.green,
             ),
           ),
-          const SizedBox(height: 16),
           DoubleListTileButtons(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             space: 16.0,
@@ -356,48 +302,9 @@ class ListTileButtonPage extends StatelessWidget {
               backgroundColor: Colors.green,
             ),
           ),
-          const SizedBox(height: 16),
-          DoubleListTileButtons(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            space: 16.0,
-            firstButton: ListTileButton(
-              margin: const EdgeInsets.only(right: 8.0),
-              body: CustomIconText(
-                icon: Icons.today_rounded,
-                text: "Schedule absence",
-                color: Colors.white,
-              ),
-              onPressed: () {},
-              backgroundColor: Colors.red,
-            ),
-            secondButton: ListTileButton(
-              onPressed: () {},
-              body: Padding(
-                padding: const EdgeInsets.all(5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Icon(Icons.calendar_today, color: Colors.purple),
-                    ),
-                    Expanded(child: Text('Schedule absence')),
-                  ],
-                ),
-              ),
-              backgroundColor: Colors.white,
-              borderColor: Colors.purple,
-              leadingSizeFactor: 1.2,
-              elevation: 1.5,
-              borderRadius: 18,
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-              contentAlignment: Alignment.center,
-              minHeight: 50,
-            ),
-          ),
-          const SizedBox(height: 16),
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.75,
-            height: MediaQuery.of(context).size.height * 0.045,
+            height: MediaQuery.of(context).size.height * 0.065,
             child: DoubleListTileButtons(
               space: 10,
               firstButton: IconListTileButton(
@@ -406,15 +313,18 @@ class ListTileButtonPage extends StatelessWidget {
                 iconColor: Colors.white,
                 title: Text(
                   'Profile',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 backgroundColor: Colors.blueAccent,
                 borderRadius: 19 * 2,
                 margin: EdgeInsets.zero,
                 padding: EdgeInsets.zero,
-                leadingPadding: EdgeInsets.only(left: 10 / 2, right: 10 / 3),
+                leadingPadding: const EdgeInsets.only(
+                  left: 10 / 2,
+                  right: 10 / 3,
+                ),
                 bodyPadding: EdgeInsets.zero,
                 contentAlignment: Alignment.center,
               ),
@@ -424,49 +334,24 @@ class ListTileButtonPage extends StatelessWidget {
                 iconColor: Colors.white,
                 title: Text(
                   'Absent',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 backgroundColor: Colors.red,
                 borderRadius: 19 * 2,
                 margin: EdgeInsets.zero,
                 padding: EdgeInsets.zero,
-                leadingPadding: EdgeInsets.only(left: 10 / 2, right: 10 / 3),
+                leadingPadding: const EdgeInsets.only(
+                  left: 10 / 2,
+                  right: 10 / 3,
+                ),
                 bodyPadding: EdgeInsets.zero,
                 contentAlignment: Alignment.center,
               ),
             ),
           ),
-          DoubleListTileButtons(
-            padding: EdgeInsetsGeometry.symmetric(vertical: 20, horizontal: 10),
-            space: 10,
-            firstButton: CustomActionButton.rounded(
-              elevation: 0,
-              minHeight: 60,
-              backgroundColor: Colors.transparent,
-              foregroundColor: Colors.black,
-              borderColor: Colors.orange,
-              onPressed: () {},
-              child: CustomIconText(
-                icon: Icons.download,
-                text: "Payment Slip",
-                color: Colors.black,
-              ),
-            ),
-            secondButton: CustomActionButton.rounded(
-              onPressed: () {},
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.black87,
-              shadowColor: Colors.transparent,
-              minHeight: 50,
-              elevation: 0,
-              splashColor: Colors.deepOrangeAccent.withCustomOpacity(0.1),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              child: Text('Rounded Button'),
-            ),
-          ),
+          const SizedBox(height: 32),
         ],
       ),
     );

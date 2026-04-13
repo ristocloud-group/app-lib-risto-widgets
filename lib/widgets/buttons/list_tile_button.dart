@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/extensions.dart';
+
+import '../layouts/risto_decorator.dart'; // Import our new universal decorator
 
 /// A customizable, tappable list tile styled as a rounded card.
 ///
@@ -176,25 +177,32 @@ class ListTileButton extends StatelessWidget {
 
     return Opacity(
       opacity: disabled ? 0.5 : 1.0,
-      child: RoundedContainer(
+      // Replaced RoundedContainer with RistoDecorator!
+      child: RistoDecorator(
         margin: margin,
         backgroundColor: backgroundColor,
         backgroundGradient: effectiveGradient,
         borderColor: borderColor,
         shadowColor: shadowColor,
-        borderRadius: borderRadius,
-        elevation: elevation,
-        width: width,
-        height: height,
-        minWidth: minWidth,
-        maxWidth: maxWidth,
-        minHeight: minHeight,
-        maxHeight: maxHeight,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(borderRadius),
-          onTap: disabled ? null : onPressed,
-          onLongPress: disabled ? null : onLongPress,
-          child: Padding(padding: padding ?? EdgeInsets.zero, child: row),
+        borderRadius: BorderRadius.circular(borderRadius),
+        elevation: elevation ?? 0.0,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: width ?? minWidth ?? 0.0,
+            maxWidth: width ?? maxWidth ?? double.infinity,
+            minHeight: height ?? minHeight,
+            maxHeight: height ?? maxHeight ?? double.infinity,
+          ),
+          child: SizedBox(
+            width: width,
+            height: height,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(borderRadius),
+              onTap: disabled ? null : onPressed,
+              onLongPress: disabled ? null : onLongPress,
+              child: Padding(padding: padding ?? EdgeInsets.zero, child: row),
+            ),
+          ),
         ),
       ),
     );
@@ -205,85 +213,32 @@ class ListTileButton extends StatelessWidget {
 /// Supports a disabled state, shadow color, gradient backgrounds,
 /// and multiple sizing constraints.
 class IconListTileButton extends StatelessWidget {
-  /// The icon to display as the leading widget.
   final IconData icon;
-
-  /// The primary text of the tile.
   final Widget title;
-
-  /// Optional subtitle text below the title.
   final Widget? subtitle;
-
-  /// Optional trailing widget.
   final Widget? trailing;
-
-  /// Called when the tile is tapped.
   final VoidCallback? onPressed;
-
-  /// When true, the tile is disabled (reduced opacity and callbacks disabled).
   final bool disabled;
-
-  /// Background color of the tile.
   final Color? backgroundColor;
-
-  /// Gradient background of the tile when enabled.
   final Gradient? backgroundGradient;
-
-  /// Gradient background of the tile when disabled.
   final Gradient? disabledBackgroundGradient;
-
-  /// Border color of the tile.
   final Color? borderColor;
-
-  /// Color of the leading icon.
   final Color? iconColor;
-
-  /// Color of the shadow when elevation is set.
   final Color? shadowColor;
-
-  /// Scale factor for the leading icon size.
   final double leadingSizeFactor;
-
-  /// Elevation (shadow depth) of the tile.
   final double? elevation;
-
-  /// Radius of the tile corners.
   final double borderRadius;
-
-  /// Outer margin around the tile.
   final EdgeInsetsGeometry? margin;
-
-  /// Inner padding of the tile container.
   final EdgeInsetsGeometry? padding;
-
-  /// Padding around the title and subtitle.
   final EdgeInsetsGeometry? bodyPadding;
-
-  /// Padding around the leading icon.
   final EdgeInsetsGeometry? leadingPadding;
-
-  /// Padding around the trailing widget.
   final EdgeInsetsGeometry? trailingPadding;
-
-  /// Alignment of the title and subtitle within the text column.
   final Alignment contentAlignment;
-
-  /// Fixed width of the tile. Overrides [minWidth] and [maxWidth].
   final double? width;
-
-  /// Fixed height of the tile. Overrides [minHeight] and [maxHeight].
   final double? height;
-
-  /// Minimum width of the tile.
   final double? minWidth;
-
-  /// Maximum width of the tile.
   final double? maxWidth;
-
-  /// Minimum height of the tile. Defaults to 60.0.
   final double minHeight;
-
-  /// Maximum height of the tile.
   final double? maxHeight;
 
   const IconListTileButton({
@@ -350,130 +305,6 @@ class IconListTileButton extends StatelessWidget {
       subtitle: subtitle,
       trailing: trailing,
       contentAlignment: contentAlignment,
-    );
-  }
-}
-
-/// A container with rounded corners, optional border, and elevation with custom shadow color.
-/// Supports both solid background colors and gradient backgrounds.
-class RoundedContainer extends StatelessWidget {
-  /// Outer margin around the container.
-  final EdgeInsetsGeometry? margin;
-
-  /// Inner padding within the container.
-  final EdgeInsetsGeometry? padding;
-
-  /// The child widget to display inside the container.
-  final Widget child;
-
-  /// Background color of the container.
-  final Color? backgroundColor;
-
-  /// Gradient background of the container.
-  final Gradient? backgroundGradient;
-
-  /// Color of the border around the container.
-  final Color? borderColor;
-
-  /// Width of the border.
-  final double borderWidth;
-
-  /// Radius of the container's corners.
-  final double borderRadius;
-
-  /// Elevation (shadow depth) of the container.
-  final double? elevation;
-
-  /// Color of the container's shadow.
-  final Color? shadowColor;
-
-  /// Fixed width of the container. If provided, overrides [minWidth] and [maxWidth].
-  final double? width;
-
-  /// Fixed height of the container. If provided, overrides [minHeight] and [maxHeight].
-  final double? height;
-
-  /// Minimum width of the container.
-  final double? minWidth;
-
-  /// Maximum width of the container.
-  final double? maxWidth;
-
-  /// Minimum height of the container.
-  final double? minHeight;
-
-  /// Maximum height of the container.
-  final double? maxHeight;
-
-  /// The clip behavior for the container. Defaults to [Clip.none].
-  /// Use [Clip.antiAlias] for smooth, rounded clipping.
-  final Clip clipBehavior;
-
-  const RoundedContainer({
-    super.key,
-    this.margin,
-    this.padding,
-    required this.child,
-    this.backgroundColor,
-    this.backgroundGradient,
-    this.borderColor,
-    this.borderRadius = 10,
-    this.borderWidth = 1,
-    this.elevation,
-    this.shadowColor,
-    this.width,
-    this.height,
-    this.minWidth,
-    this.maxWidth,
-    this.minHeight,
-    this.maxHeight,
-    this.clipBehavior = Clip.none,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final effectiveShadowColor = shadowColor ?? theme.colorScheme.shadow;
-    final double el = elevation ?? 0.0;
-
-    final bool useGradient = backgroundGradient != null;
-
-    return Padding(
-      padding: margin ?? EdgeInsets.zero,
-      child: Container(
-        padding: padding,
-        clipBehavior: clipBehavior,
-        constraints: BoxConstraints(
-          minWidth: width ?? minWidth ?? 0.0,
-          maxWidth: width ?? maxWidth ?? double.infinity,
-          minHeight: height ?? minHeight ?? 0.0,
-          maxHeight: height ?? maxHeight ?? double.infinity,
-        ),
-        decoration: BoxDecoration(
-          color: useGradient ? null : (backgroundColor ?? theme.cardColor),
-          gradient: backgroundGradient,
-          borderRadius: BorderRadius.circular(borderRadius),
-          border: borderColor != null
-              ? Border.all(color: borderColor!, width: borderWidth)
-              : null,
-          boxShadow: el > 0
-              ? [
-                  BoxShadow(
-                    color: effectiveShadowColor.withCustomOpacity(0.15),
-                    blurRadius: el * 2.5,
-                    spreadRadius: 0,
-                    offset: Offset(0, el * 0.8),
-                  ),
-                ]
-              : null,
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          borderRadius: BorderRadius.circular(borderRadius),
-          clipBehavior: clipBehavior,
-          child: child,
-        ),
-      ),
     );
   }
 }

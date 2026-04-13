@@ -11,6 +11,7 @@ class ExpandablePage extends StatelessWidget {
     const white70TextStyle = TextStyle(color: Colors.white70);
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(title: const Text('Expandables')),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -239,6 +240,7 @@ class ExpandablePage extends StatelessWidget {
           const ExpandableControllerExample(),
           const SizedBox(height: 20),
 
+          // --- Example 7: Constrained Sizing & Padding ---
           Text(
             '7. Constrained Sizing & Padding',
             style: Theme.of(context).textTheme.titleMedium,
@@ -266,13 +268,27 @@ class ExpandablePage extends StatelessWidget {
             leading: const Icon(Icons.height, color: Colors.white),
             trailingIconColor: Colors.white,
           ),
+
+          const SizedBox(height: 32),
+          const Divider(),
           const SizedBox(height: 32),
 
+          Text('Animated Overlay Cards', style: titleStyle),
+          const SizedBox(height: 8),
+          Text(
+            'Cards that break out of the layout hierarchy to animate over the entire screen, utilizing RistoDecorator for perfect shadows and our new blurSigma glass effect.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+
+          // --- Animated Card 1: Standard Overlay with Blur ---
           ExpandableAnimatedCard(
-            expandedDecoration: BoxDecoration(
-              color: Colors.blueGrey.shade700,
-              borderRadius: BorderRadius.circular(20),
-            ),
+            backgroundColor: Colors.blueGrey.shade700,
+            borderRadius: BorderRadius.circular(20),
+            elevation: 8.0,
+            blurSigma: 6.0,
+            // <-- Glassmorphism Blur applied!
+            overlayBackgroundColor: Colors.black.withCustomOpacity(0.4),
             expandedMargin: EdgeInsets.fromLTRB(
               16,
               16,
@@ -305,17 +321,16 @@ class ExpandablePage extends StatelessWidget {
                     ],
                   ),
                 ),
-            overlayBackgroundColor: Colors.black.withCustomOpacity(0.6),
             collapsedBuilder:
-                (_) => _DemoTile(
-                  color: Colors.blueGrey.shade700,
-                  title: 'Breaking News',
+                (_) => const _DemoTile(
+                  color: Color(0xFF455A64),
+                  title: 'Standard Overlay Card (Blurred)',
                 ),
             expandedBuilder:
                 (_) => const SingleChildScrollView(
                   padding: EdgeInsets.all(16),
                   child: Text(
-                    'Full article...',
+                    'This card perfectly scales up, blurring the background underneath it via blurSigma: 6.0.',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -326,13 +341,16 @@ class ExpandablePage extends StatelessWidget {
 
           const SizedBox(height: 24),
 
+          // --- Animated Card 2: Fullscreen ---
           ExpandableAnimatedCard.fullscreen(
             barrierColor: Colors.blue.withCustomOpacity(0.5),
-            overlayBackgroundColor: Colors.black54,
+            overlayBackgroundColor: Colors.black.withCustomOpacity(0.8),
+            blurSigma: 8.0,
+            // <-- Glassmorphism Blur applied!
             collapsedBuilder:
-                (_) => _DemoTile(
-                  color: Colors.indigo.shade700,
-                  title: 'Fullscreen Story',
+                (_) => const _DemoTile(
+                  color: Color(0xFF303F9F),
+                  title: 'Fullscreen Story Style',
                 ),
             expandedBuilder:
                 (_) => Container(
@@ -340,32 +358,76 @@ class ExpandablePage extends StatelessWidget {
                   color: const Color(0xFF121212),
                   alignment: Alignment.center,
                   child: const Text(
-                    'Fullscreen content...',
+                    'Fullscreen edge-to-edge content...',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
           ),
+
           const SizedBox(height: 24),
 
+          // --- Animated Card 3: Bottom Sheet ---
           ExpandableAnimatedCard.sheet(
             margin: const EdgeInsets.all(16),
             maxHeightFraction: 0.60,
             dragDismissThresholdFraction: 0.20,
-            overlayBackgroundColor: Colors.blue.withCustomOpacity(0.8),
+            overlayBackgroundColor: Colors.blue.withCustomOpacity(0.6),
+            blurSigma: 12.0,
+            // Heavy blur for the sheet
+            elevation: 12.0,
             dragToClose: true,
+            backgroundColor: Colors.brown.shade700,
             collapsedBuilder:
-                (_) => _DemoTile(
-                  color: Colors.brown.shade700,
-                  title: 'Sheet Style',
+                (_) => const _DemoTile(
+                  color: Color(0xFF5D4037),
+                  title: 'Bottom Sheet Style',
                 ),
             expandedBuilder:
                 (_) => const Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(24),
                   child: Text(
-                    'Sheet content...',
-                    style: TextStyle(color: Colors.white),
+                    'This behaves exactly like a bottom sheet. You can drag it down to dismiss it!',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
                 ),
+          ),
+
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+}
+
+class _DemoTile extends StatelessWidget {
+  final Color color;
+  final String title;
+
+  const _DemoTile({required this.color, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return RistoDecorator(
+      backgroundColor: color,
+      borderRadius: BorderRadius.circular(20),
+      elevation: 4.0,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Tap to expand',
+            style: TextStyle(fontSize: 16, color: Colors.white70),
           ),
         ],
       ),
@@ -425,54 +487,12 @@ class _ExpandableControllerExampleState
           trailingIconColor: Colors.white,
         ),
         const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              onPressed: () => _controller.toggle(),
-              child: const Text('Toggle'),
-            ),
-          ],
+        CustomActionButton.elevated(
+          onPressed: () => _controller.toggle(),
+          minHeight: 40,
+          child: const Text('Toggle State'),
         ),
       ],
-    );
-  }
-}
-
-class _DemoTile extends StatelessWidget {
-  final Color color;
-  final String title;
-
-  const _DemoTile({required this.color, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Tap to open',
-            style: TextStyle(fontSize: 16, color: Colors.white70),
-          ),
-        ],
-      ),
     );
   }
 }

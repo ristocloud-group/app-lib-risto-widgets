@@ -129,25 +129,19 @@ void main() {
 
       // .dark
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: LoadingPanel.dark(isLoading: true)),
-        ),
+        MaterialApp(home: Scaffold(body: LoadingPanel.dark(isLoading: true))),
       );
       expect(find.byType(BackdropFilter), findsOneWidget);
 
       // .glass
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: LoadingPanel.glass(isLoading: true)),
-        ),
+        MaterialApp(home: Scaffold(body: LoadingPanel.glass(isLoading: true))),
       );
       expect(find.byType(BackdropFilter), findsOneWidget);
 
       // .clear
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: LoadingPanel.clear(isLoading: true)),
-        ),
+        MaterialApp(home: Scaffold(body: LoadingPanel.clear(isLoading: true))),
       );
       expect(find.byType(BackdropFilter), findsOneWidget);
     });
