@@ -31,7 +31,6 @@ class ExpandablePage extends StatelessWidget {
             elevation: 4.0,
             borderRadius: BorderRadius.circular(12),
             bodyAlignment: Alignment.bottomCenter,
-            // Testing the new padding properties
             headerPadding: const EdgeInsets.symmetric(
               horizontal: 24,
               vertical: 16,
@@ -104,8 +103,7 @@ class ExpandablePage extends StatelessWidget {
             ),
             customHeaderBuilder:
                 (tapAction, isExpanded, isDisabled) => CustomActionButton(
-                  backgroundColor:
-                      isDisabled ? Colors.grey[700] : Colors.deepPurple[700],
+                  backgroundColor: Colors.deepPurple[700],
                   margin: EdgeInsets.zero,
                   onPressed: tapAction,
                   child: Padding(
@@ -177,9 +175,9 @@ class ExpandablePage extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // --- Example 5: Disabled .listTile ---
+          // --- Example 5: Disabled Expansion vs Fully Disabled ---
           Text(
-            '5. Disabled ListTile',
+            '5. Disabled States',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
@@ -189,15 +187,45 @@ class ExpandablePage extends StatelessWidget {
             expandedBodyColor: Colors.blueGrey[400],
             elevation: 2.0,
             borderRadius: BorderRadius.circular(10),
+
+            // This disables expansion, but LEAVES the header active!
             disabled: true,
-            // Correctly set to disabled
+
             expanded: const Padding(
               padding: EdgeInsets.all(16.0),
               child: Text('This content should not be reachable.'),
             ),
-            title: const Text('Disabled Button', style: whiteTextStyle),
-            subtitle: const Text('Cannot be expanded', style: white70TextStyle),
+            title: const Text(
+              'Active Header, Disabled Expansion',
+              style: whiteTextStyle,
+            ),
+            subtitle: const Text(
+              'Tap me! I show a ripple effect, but I do not expand and the chevron is hidden.',
+              style: white70TextStyle,
+            ),
             leading: const Icon(Icons.block, color: Colors.white70),
+          ),
+          const SizedBox(height: 8),
+          ExpandableListTileButton.listTile(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            headerBackgroundColor: Colors.blueGrey[800],
+            expandedBodyColor: Colors.blueGrey[400],
+            elevation: 2.0,
+            borderRadius: BorderRadius.circular(10),
+
+            // This disables EVERYTHING.
+            headerDisabled: true,
+
+            expanded: const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text('This content should not be reachable.'),
+            ),
+            title: const Text('Fully Disabled Header', style: whiteTextStyle),
+            subtitle: const Text(
+              'Semi-transparent, completely ignores touches.',
+              style: white70TextStyle,
+            ),
+            leading: const Icon(Icons.close, color: Colors.white70),
             trailingIconColor: Colors.white70,
           ),
           const SizedBox(height: 20),
@@ -221,13 +249,9 @@ class ExpandablePage extends StatelessWidget {
             headerBackgroundColor: Colors.brown[600],
             expandedBodyColor: Colors.brown[100],
             headerMinHeight: 120,
-            // Forces the header to be very tall
             headerContentAlignment: Alignment.center,
-            // Centers the title block vertically and horizontally
             leadingPadding: const EdgeInsets.only(left: 32),
-            // Pushes the leading icon way to the right
             trailingPadding: const EdgeInsets.only(right: 32),
-            // Pushes the trailing icon way to the left
             elevation: 4.0,
             borderRadius: BorderRadius.circular(12),
             expanded: Container(
@@ -244,7 +268,6 @@ class ExpandablePage extends StatelessWidget {
           ),
           const SizedBox(height: 32),
 
-          // 1) Overlay card (free ctor) with custom header
           ExpandableAnimatedCard(
             expandedDecoration: BoxDecoration(
               color: Colors.blueGrey.shade700,
@@ -303,12 +326,9 @@ class ExpandablePage extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // 2) Fullscreen factory (header OFF, no drag-to-dismiss)
           ExpandableAnimatedCard.fullscreen(
             barrierColor: Colors.blue.withCustomOpacity(0.5),
-            // shows in the gaps
             overlayBackgroundColor: Colors.black54,
-            // scrim fade under the card
             collapsedBuilder:
                 (_) => _DemoTile(
                   color: Colors.indigo.shade700,
@@ -325,17 +345,13 @@ class ExpandablePage extends StatelessWidget {
                   ),
                 ),
           ),
-
           const SizedBox(height: 24),
 
-          // Sheet clamped to 60% of screen height, dismiss if user drags ≥ 20% of that height
           ExpandableAnimatedCard.sheet(
             margin: const EdgeInsets.all(16),
             maxHeightFraction: 0.60,
-            // or: maxHeight: 480,
             dragDismissThresholdFraction: 0.20,
             overlayBackgroundColor: Colors.blue.withCustomOpacity(0.8),
-            // 20% of final clamped height
             dragToClose: true,
             collapsedBuilder:
                 (_) => _DemoTile(
@@ -357,7 +373,6 @@ class ExpandablePage extends StatelessWidget {
   }
 }
 
-/// StatefulWidget to demonstrate using ExpandableController
 class ExpandableControllerExample extends StatefulWidget {
   const ExpandableControllerExample({super.key});
 
@@ -368,16 +383,12 @@ class ExpandableControllerExample extends StatefulWidget {
 
 class _ExpandableControllerExampleState
     extends State<ExpandableControllerExample> {
-  // Create and manage the controller
   late final ExpandableController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = ExpandableController(initialExpanded: false);
-    _controller.addListener(() {
-      // Optional: React to state changes if needed
-    });
   }
 
   @override
@@ -428,7 +439,6 @@ class _ExpandableControllerExampleState
   }
 }
 
-// Tiny helper for the examples
 class _DemoTile extends StatelessWidget {
   final Color color;
   final String title;

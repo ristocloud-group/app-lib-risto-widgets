@@ -21,8 +21,8 @@ import '../buttons/list_tile_button.dart';
 ///   (`.iconListTile`), completely custom headers (`.custom`), or floating dropdown
 ///   menus (`.overlayMenu`).
 /// * **Sizing & Padding:** Fine-grained control over heights, widths, and internal padding.
-/// * **Disabled State:** Setting [disabled] to `true` automatically dims the widget,
-///   hides the trailing expansion icon, and completely blocks user interactions.
+/// * **Disabled States:** ///   - [disabled]: Prevents expansion and hides the trailing chevron, but leaves the header visually active.
+///   - [headerDisabled]: Completely disables the header tile (dims it and blocks interaction).
 ///
 /// Example usage:
 /// ```dart
@@ -48,13 +48,9 @@ class ExpandableListTileButton extends StatefulWidget {
   final Widget? subtitle;
 
   /// The background color of the header area.
-  ///
-  /// Takes priority over the legacy [backgroundColor] property.
   final Color? headerBackgroundColor;
 
   /// The background color of the expanded content area.
-  ///
-  /// Takes priority over the legacy [expandedColor] property.
   final Color? expandedBodyColor;
 
   /// Legacy property for the header's background color. Use [headerBackgroundColor] instead.
@@ -122,28 +118,29 @@ class ExpandableListTileButton extends StatefulWidget {
   final IconData? icon;
 
   /// A builder function allowing you to completely define the visual layout of the header.
-  ///
-  /// Provides `tapAction` (to toggle state), `isExpanded` (current visual state),
-  /// and `isDisabled` (current interaction state).
   final Widget Function(Function() tapAction, bool isExpanded, bool isDisabled)?
   customHeaderBuilder;
 
   /// The radius of the corners for both the header and the expanded body container.
   final BorderRadius borderRadius;
 
-  /// Disables the widget.
+  /// Disables the expansion mechanism.
   ///
-  /// When `true`, the widget becomes semi-transparent, the trailing expansion
-  /// chevron is hidden, and all tap interactions are blocked. If the widget is
-  /// currently expanded when this changes to `true`, it will automatically collapse.
+  /// When `true`, the widget hides the trailing expansion chevron and ignores
+  /// requests to expand or collapse. The header itself remains visually active
+  /// and will still show touch ripples unless [headerDisabled] is also true.
   final bool disabled;
+
+  /// Disables the header tile completely.
+  ///
+  /// When `true`, the header tile becomes semi-transparent and completely
+  /// ignores all touch interactions.
+  final bool headerDisabled;
 
   /// The alignment of the [expanded] widget within its outer container.
   final AlignmentGeometry bodyAlignment;
 
   /// An optional external controller to manage the expansion state programmatically.
-  ///
-  /// If provided, the widget will synchronize its visual state with the controller.
   final ExpandableController? controller;
 
   /// The final resolved background color for the header.
@@ -155,14 +152,9 @@ class ExpandableListTileButton extends StatefulWidget {
   /// If non-null, strictly constrains the trailing widget (the chevron) to this exact size.
   final Size? trailingSize;
 
-  /// When true, the expanded content breaks out of the normal layout flow and
-  /// floats above the rest of the UI using an [OverlayEntry].
+  /// When true, the expanded content breaks out of the normal layout flow and floats via an [OverlayEntry].
   final bool _useOverlay;
 
-  /// Creates a foundational [ExpandableListTileButton].
-  ///
-  /// Usually, you should use one of the named factories (`.listTile`, `.iconListTile`, etc.).
-  /// Use this constructor directly only if you are manually providing a [customHeaderBuilder].
   const ExpandableListTileButton({
     super.key,
     required this.expanded,
@@ -194,6 +186,7 @@ class ExpandableListTileButton extends StatefulWidget {
     this.icon,
     this.borderRadius = const BorderRadius.all(Radius.circular(10)),
     this.disabled = false,
+    this.headerDisabled = false,
     this.bodyAlignment = Alignment.center,
     this.controller,
     this.trailingSize,
@@ -206,12 +199,6 @@ class ExpandableListTileButton extends StatefulWidget {
          'Either customHeaderBuilder or title must be provided for the header.',
        );
 
-  /// Creates an [ExpandableListTileButton] that automatically builds a standard
-  /// [ListTileButton] for its header.
-  ///
-  /// This is the most common factory, supporting a [leading] widget, a [title],
-  /// and an optional [subtitle]. It automatically handles the layout, alignment,
-  /// and constraints of the header.
   factory ExpandableListTileButton.listTile({
     Key? key,
     required Widget expanded,
@@ -239,6 +226,7 @@ class ExpandableListTileButton extends StatefulWidget {
     Alignment headerContentAlignment = Alignment.centerLeft,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
+    bool headerDisabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
     ExpandableController? controller,
   }) {
@@ -269,6 +257,7 @@ class ExpandableListTileButton extends StatefulWidget {
       leading: leading,
       borderRadius: borderRadius,
       disabled: disabled,
+      headerDisabled: headerDisabled,
       bodyAlignment: bodyAlignment,
       controller: controller,
       customHeaderBuilder: (toggleExpansion, isExpanded, isDisabled) =>
@@ -295,15 +284,11 @@ class ExpandableListTileButton extends StatefulWidget {
                     color: trailingIconColor,
                   ),
             backgroundColor: Colors.transparent,
-            disabled: isDisabled,
+            disabled: headerDisabled,
           ),
     );
   }
 
-  /// Creates an [ExpandableListTileButton] that utilizes an [IconListTileButton]
-  /// for its header, making it simple to construct menus with leading icon indicators.
-  ///
-  /// The [icon] parameter is required, and its size can be easily adjusted using [leadingSizeFactor].
   factory ExpandableListTileButton.iconListTile({
     Key? key,
     required Widget expanded,
@@ -333,6 +318,7 @@ class ExpandableListTileButton extends StatefulWidget {
     Alignment headerContentAlignment = Alignment.centerLeft,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
+    bool headerDisabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
     ExpandableController? controller,
   }) {
@@ -365,6 +351,7 @@ class ExpandableListTileButton extends StatefulWidget {
       leadingSizeFactor: leadingSizeFactor,
       borderRadius: borderRadius,
       disabled: disabled,
+      headerDisabled: headerDisabled,
       bodyAlignment: bodyAlignment,
       controller: controller,
       customHeaderBuilder: (toggleExpansion, isExpanded, isDisabled) =>
@@ -393,15 +380,11 @@ class ExpandableListTileButton extends StatefulWidget {
                   ),
             onPressed: toggleExpansion,
             backgroundColor: Colors.transparent,
-            disabled: isDisabled,
+            disabled: headerDisabled,
           ),
     );
   }
 
-  /// Creates an [ExpandableListTileButton] granting complete layout control over the header.
-  ///
-  /// You must provide a [customHeaderBuilder] which returns the widget to be used as the header.
-  /// The builder provides you with the `tapAction` required to trigger the expansion.
   factory ExpandableListTileButton.custom({
     Key? key,
     required Widget expanded,
@@ -431,6 +414,7 @@ class ExpandableListTileButton extends StatefulWidget {
     Alignment headerContentAlignment = Alignment.centerLeft,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
+    bool headerDisabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
     ExpandableController? controller,
   }) {
@@ -458,15 +442,12 @@ class ExpandableListTileButton extends StatefulWidget {
       headerContentAlignment: headerContentAlignment,
       borderRadius: borderRadius,
       disabled: disabled,
+      headerDisabled: headerDisabled,
       bodyAlignment: bodyAlignment,
       controller: controller,
     );
   }
 
-  /// Creates a tile whose expanded content floats in an [Overlay] above other widgets.
-  ///
-  /// This internally uses an [OverlayEntry] and [CompositedTransformFollower] to bind
-  /// the floating menu seamlessly beneath the header, functioning similarly to a native Dropdown.
   factory ExpandableListTileButton.overlayMenu({
     Key? key,
     required Widget expanded,
@@ -492,6 +473,7 @@ class ExpandableListTileButton extends StatefulWidget {
     Alignment headerContentAlignment = Alignment.centerLeft,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
+    bool headerDisabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
     ExpandableController? controller,
     double leadingSizeFactor = 1,
@@ -522,6 +504,7 @@ class ExpandableListTileButton extends StatefulWidget {
       headerContentAlignment: headerContentAlignment,
       borderRadius: borderRadius,
       disabled: disabled,
+      headerDisabled: headerDisabled,
       bodyAlignment: bodyAlignment,
       controller: controller,
       trailingSize: trailingSize,
@@ -558,7 +541,7 @@ class ExpandableListTileButton extends StatefulWidget {
                       color: trailingIconColor,
                     )),
         backgroundColor: Colors.transparent,
-        disabled: isDis,
+        disabled: headerDisabled,
       ),
     );
   }
@@ -644,7 +627,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       }
     }
 
-    // Force close if it suddenly becomes disabled
+    // Force close if expansion suddenly becomes disabled
     if (widget.disabled && !oldWidget.disabled && _isExpanded) {
       _syncExpansionState(false);
     }
@@ -684,7 +667,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
   }
 
   void _toggleExpansion() {
-    if (widget.disabled) return;
+    if (widget.disabled || widget.headerDisabled) return;
 
     if (widget._useOverlay) {
       if (_overlayEntry == null) {
@@ -712,7 +695,10 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
   }
 
   void _showOverlay() {
-    if (_overlayEntry != null || widget.disabled) return;
+    if (_overlayEntry != null || widget.disabled || widget.headerDisabled) {
+      return;
+    }
+
     if (_headerWidth == 0.0 || _headerHeight == 0.0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_headerWidth > 0 && _headerHeight > 0 && _overlayEntry == null) {
@@ -815,8 +801,8 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
   void _syncExpansionState(bool expand) {
     if (!mounted) return;
 
-    // Prevent expanding if disabled
-    if (expand && widget.disabled) return;
+    // Prevent expanding if disabled entirely
+    if (expand && (widget.disabled || widget.headerDisabled)) return;
 
     setState(() {
       _isExpanded = expand;
@@ -861,58 +847,52 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
 
     final placeholderHeight = _headerHeight > 0 ? _headerHeight : 50.0;
 
-    return IgnorePointer(
-      ignoring: widget.disabled,
-      child: Opacity(
-        opacity: widget.disabled ? 0.5 : 1.0,
-        child: Container(
-          margin: widget.margin,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              SizedBox(height: placeholderHeight),
-              if (!widget._useOverlay &&
-                  (_isExpanded || _animationController.isAnimating))
-                Padding(
-                  padding: EdgeInsets.only(top: placeholderHeight / 2),
-                  child: SizeTransition(
-                    sizeFactor: _animation,
-                    axis: Axis.vertical,
-                    axisAlignment: -1.0,
-                    child: Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: effectiveExpandedBodyColor,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: widget.borderRadius.bottomLeft,
-                          bottomRight: widget.borderRadius.bottomRight,
-                        ),
-                      ),
-                      alignment: widget.bodyAlignment,
-                      padding: EdgeInsets.only(top: placeholderHeight / 2),
-                      child: widget.expanded,
+    return Container(
+      margin: widget.margin,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          SizedBox(height: placeholderHeight),
+          if (!widget._useOverlay &&
+              (_isExpanded || _animationController.isAnimating))
+            Padding(
+              padding: EdgeInsets.only(top: placeholderHeight / 2),
+              child: SizeTransition(
+                sizeFactor: _animation,
+                axis: Axis.vertical,
+                axisAlignment: -1.0,
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: effectiveExpandedBodyColor,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: widget.borderRadius.bottomLeft,
+                      bottomRight: widget.borderRadius.bottomRight,
                     ),
                   ),
-                ),
-              CompositedTransformTarget(
-                link: _layerLink,
-                child: Material(
-                  key: _headerKey,
-                  elevation: widget.elevation,
-                  color: effectiveHeaderBgColor,
-                  shape: RemainsRoundedBorder(
-                    topRadius: widget.borderRadius.topLeft.x,
-                    bottomRadius: widget.borderRadius.bottomLeft.x,
-                    borderColor: widget.borderColor,
-                    borderWidth: widget.borderColor != null ? 1.0 : 0.0,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: actualHeaderContent,
+                  alignment: widget.bodyAlignment,
+                  padding: EdgeInsets.only(top: placeholderHeight / 2),
+                  child: widget.expanded,
                 ),
               ),
-            ],
+            ),
+          CompositedTransformTarget(
+            link: _layerLink,
+            child: Material(
+              key: _headerKey,
+              elevation: widget.elevation,
+              color: effectiveHeaderBgColor,
+              shape: RemainsRoundedBorder(
+                topRadius: widget.borderRadius.topLeft.x,
+                bottomRadius: widget.borderRadius.bottomLeft.x,
+                borderColor: widget.borderColor,
+                borderWidth: widget.borderColor != null ? 1.0 : 0.0,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: actualHeaderContent,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -944,7 +924,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
               ),
         onPressed: _toggleExpansion,
         backgroundColor: Colors.transparent,
-        disabled: widget.disabled,
+        disabled: widget.headerDisabled,
       );
     } else if (widget.title != null) {
       return ListTileButton(
@@ -970,7 +950,7 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
                 color: widget.trailingIconColor,
               ),
         backgroundColor: Colors.transparent,
-        disabled: widget.disabled,
+        disabled: widget.headerDisabled,
       );
     } else {
       return const SizedBox.shrink();
