@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:risto_widgets/extensions.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'infinite_snap_list_bloc/infinite_snap_list_bloc.dart';
@@ -74,6 +75,9 @@ class InfiniteSnapList<T> extends StatefulWidget {
   // --- Overlays & Loaders ---
   final Widget Function(BuildContext, double, double)?
   selectedItemOverlayBuilder;
+  final Color? selectedOverlayColor;
+  final BorderRadiusGeometry? selectedOverlayBorderRadius;
+
   final Widget Function(BuildContext, int)? loadingShimmerListBuilder;
   final Widget Function(BuildContext, int)? loadingShimmerItemBuilder;
   final int initialItemsCountForShimmer;
@@ -82,6 +86,7 @@ class InfiniteSnapList<T> extends StatefulWidget {
   final Widget Function(BuildContext, Exception)? errorBuilder;
 
   // --- Behaviors ---
+  final String Function(T item)? semanticLabelBuilder;
   final ScrollPhysics scrollPhysics;
   final Duration snapAnimationDuration;
   final Curve snapAnimationCurve;
@@ -105,12 +110,15 @@ class InfiniteSnapList<T> extends StatefulWidget {
     this.endEdgeDecoration,
     this.edgeDecorationSize = 40.0,
     this.selectedItemOverlayBuilder,
+    this.selectedOverlayColor,
+    this.selectedOverlayBorderRadius,
     this.loadingShimmerListBuilder,
     this.loadingShimmerItemBuilder,
     this.initialItemsCountForShimmer = 7,
     this.loadingIndicatorBuilder,
     this.emptyListBuilder,
     this.errorBuilder,
+    this.semanticLabelBuilder,
     this.scrollPhysics = const BouncingScrollPhysics(),
     this.snapAnimationDuration = const Duration(milliseconds: 300),
     this.snapAnimationCurve = Curves.easeOut,
@@ -327,6 +335,27 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
     });
   }
 
+  /// Default overlay builder used if [selectedItemOverlayBuilder] is null.
+  Widget _defaultSelectedItemOverlayBuilder(
+    BuildContext context,
+    double w,
+    double h,
+  ) {
+    final overlayColor =
+        widget.selectedOverlayColor ??
+        Theme.of(context).colorScheme.secondary.withCustomOpacity(0.2);
+    final borderRadius =
+        widget.selectedOverlayBorderRadius ?? BorderRadius.circular(8.0);
+    return Container(
+      width: w,
+      height: h,
+      decoration: BoxDecoration(
+        color: overlayColor,
+        borderRadius: borderRadius,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<InfiniteSnapListBloc<T>, InfiniteSnapListState<T>>(
@@ -380,15 +409,25 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                   // --- Overlay Layer ---
                   Align(
                     alignment: widget.itemAlignment,
-                    child: widget.selectedItemOverlayBuilder?.call(
-                      context,
-                      widget.scrollDirection == Axis.horizontal
-                          ? itemMainAxisDim
-                          : itemCrossAxisDim,
-                      widget.scrollDirection == Axis.horizontal
-                          ? itemCrossAxisDim
-                          : itemMainAxisDim,
-                    ),
+                    child:
+                        widget.selectedItemOverlayBuilder?.call(
+                          context,
+                          widget.scrollDirection == Axis.horizontal
+                              ? itemMainAxisDim
+                              : itemCrossAxisDim,
+                          widget.scrollDirection == Axis.horizontal
+                              ? itemCrossAxisDim
+                              : itemMainAxisDim,
+                        ) ??
+                        _defaultSelectedItemOverlayBuilder(
+                          context,
+                          widget.scrollDirection == Axis.horizontal
+                              ? itemMainAxisDim
+                              : itemCrossAxisDim,
+                          widget.scrollDirection == Axis.horizontal
+                              ? itemCrossAxisDim
+                              : itemMainAxisDim,
+                        ),
                   ),
 
                   // --- Main List ---
@@ -427,24 +466,28 @@ class _InfiniteSnapListState<T> extends State<InfiniteSnapList<T>> {
                                 ? widget.itemSpacing / 2
                                 : 0,
                           ),
-                          child: InkWell(
-                            onTap: () {
-                              if (!_isSnapping && !isLoading) _snapTo(i);
-                            },
-                            highlightColor: Colors.transparent,
-                            splashColor: Colors.transparent,
-                            child: SizedBox(
-                              width: widget.scrollDirection == Axis.horizontal
-                                  ? itemMainAxisDim
-                                  : itemCrossAxisDim,
-                              height: widget.scrollDirection == Axis.vertical
-                                  ? itemMainAxisDim
-                                  : itemCrossAxisDim,
-                              child: widget.itemBuilder(
-                                context,
-                                items[i],
-                                i,
-                                isSelected,
+                          child: Semantics(
+                            label: widget.semanticLabelBuilder?.call(items[i]),
+                            selected: isSelected,
+                            child: InkWell(
+                              onTap: () {
+                                if (!_isSnapping && !isLoading) _snapTo(i);
+                              },
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              child: SizedBox(
+                                width: widget.scrollDirection == Axis.horizontal
+                                    ? itemMainAxisDim
+                                    : itemCrossAxisDim,
+                                height: widget.scrollDirection == Axis.vertical
+                                    ? itemMainAxisDim
+                                    : itemCrossAxisDim,
+                                child: widget.itemBuilder(
+                                  context,
+                                  items[i],
+                                  i,
+                                  isSelected,
+                                ),
                               ),
                             ),
                           ),
