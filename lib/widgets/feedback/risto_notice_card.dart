@@ -62,6 +62,9 @@ class RistoNoticeCard extends StatelessWidget {
   /// Overrides the default semantic icon.
   final Widget? noticeIcon;
 
+  /// Padding wrapped specifically around the notice icon.
+  final EdgeInsetsGeometry? iconPadding;
+
   /// Background color of the card.
   final Color? backgroundColor;
 
@@ -105,8 +108,14 @@ class RistoNoticeCard extends StatelessWidget {
   /// Vertical alignment of the inner column's children.
   final MainAxisAlignment mainAxisAlignment;
 
-  /// The vertical spacing between the icon, title, subtitle, and footer.
-  final double? runSpacing;
+  /// The vertical spacing immediately below the title (or below the icon if inverted).
+  final double? titleSpacing;
+
+  /// The vertical spacing immediately below the subtitle.
+  final double? subtitleSpacing;
+
+  /// The vertical spacing immediately below the icon (or below the title if inverted).
+  final double? iconSpacing;
 
   const RistoNoticeCard({
     super.key,
@@ -127,6 +136,7 @@ class RistoNoticeCard extends StatelessWidget {
     this.invert = false,
     this.accentColor,
     this.noticeIcon,
+    this.iconPadding,
     this.backgroundColor,
     this.backgroundGradient,
     this.borderColor,
@@ -145,7 +155,9 @@ class RistoNoticeCard extends StatelessWidget {
     this.maxHeight,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.mainAxisAlignment = MainAxisAlignment.center,
-    this.runSpacing,
+    this.titleSpacing,
+    this.subtitleSpacing,
+    this.iconSpacing,
   });
 
   /// Creates a notice card styled for general information (Blue by default).
@@ -162,6 +174,7 @@ class RistoNoticeCard extends StatelessWidget {
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     Widget? noticeIcon,
+    EdgeInsetsGeometry? iconPadding,
     Color? backgroundColor,
     Gradient? backgroundGradient,
     Color? borderColor,
@@ -181,6 +194,9 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     TextStyle? titleStyle,
     TextStyle? subtitleStyle,
+    double? titleSpacing,
+    double? subtitleSpacing,
+    double? iconSpacing,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -196,6 +212,7 @@ class RistoNoticeCard extends StatelessWidget {
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       noticeIcon: noticeIcon,
+      iconPadding: iconPadding,
       backgroundColor: backgroundColor,
       backgroundGradient: backgroundGradient,
       borderColor: borderColor,
@@ -215,6 +232,9 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       titleStyle: titleStyle,
       subtitleStyle: subtitleStyle,
+      titleSpacing: titleSpacing,
+      subtitleSpacing: subtitleSpacing,
+      iconSpacing: iconSpacing,
     );
   }
 
@@ -232,6 +252,7 @@ class RistoNoticeCard extends StatelessWidget {
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     Widget? noticeIcon,
+    EdgeInsetsGeometry? iconPadding,
     Color? backgroundColor,
     Gradient? backgroundGradient,
     Color? borderColor,
@@ -251,6 +272,9 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     TextStyle? titleStyle,
     TextStyle? subtitleStyle,
+    double? titleSpacing,
+    double? subtitleSpacing,
+    double? iconSpacing,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -266,6 +290,7 @@ class RistoNoticeCard extends StatelessWidget {
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       noticeIcon: noticeIcon,
+      iconPadding: iconPadding,
       backgroundColor: backgroundColor,
       backgroundGradient: backgroundGradient,
       borderColor: borderColor,
@@ -285,6 +310,9 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       titleStyle: titleStyle,
       subtitleStyle: subtitleStyle,
+      titleSpacing: titleSpacing,
+      subtitleSpacing: subtitleSpacing,
+      iconSpacing: iconSpacing,
     );
   }
 
@@ -302,6 +330,7 @@ class RistoNoticeCard extends StatelessWidget {
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     Widget? noticeIcon,
+    EdgeInsetsGeometry? iconPadding,
     Color? backgroundColor,
     Gradient? backgroundGradient,
     Color? borderColor,
@@ -321,6 +350,9 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     TextStyle? titleStyle,
     TextStyle? subtitleStyle,
+    double? titleSpacing,
+    double? subtitleSpacing,
+    double? iconSpacing,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -336,6 +368,7 @@ class RistoNoticeCard extends StatelessWidget {
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       noticeIcon: noticeIcon,
+      iconPadding: iconPadding,
       backgroundColor: backgroundColor,
       backgroundGradient: backgroundGradient,
       borderColor: borderColor,
@@ -355,6 +388,9 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       titleStyle: titleStyle,
       subtitleStyle: subtitleStyle,
+      titleSpacing: titleSpacing,
+      subtitleSpacing: subtitleSpacing,
+      iconSpacing: iconSpacing,
     );
   }
 
@@ -372,6 +408,7 @@ class RistoNoticeCard extends StatelessWidget {
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     Widget? noticeIcon,
+    EdgeInsetsGeometry? iconPadding,
     Color? backgroundColor,
     Gradient? backgroundGradient,
     Color? borderColor,
@@ -391,6 +428,9 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     TextStyle? titleStyle,
     TextStyle? subtitleStyle,
+    double? titleSpacing,
+    double? subtitleSpacing,
+    double? iconSpacing,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -406,6 +446,7 @@ class RistoNoticeCard extends StatelessWidget {
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       noticeIcon: noticeIcon,
+      iconPadding: iconPadding,
       backgroundColor: backgroundColor,
       backgroundGradient: backgroundGradient,
       borderColor: borderColor,
@@ -425,6 +466,9 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       titleStyle: titleStyle,
       subtitleStyle: subtitleStyle,
+      titleSpacing: titleSpacing,
+      subtitleSpacing: subtitleSpacing,
+      iconSpacing: iconSpacing,
     );
   }
 
@@ -442,6 +486,7 @@ class RistoNoticeCard extends StatelessWidget {
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     Widget? noticeIcon,
+    EdgeInsetsGeometry? iconPadding,
     Color? backgroundColor,
     Gradient? backgroundGradient,
     Color? borderColor,
@@ -461,6 +506,9 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     TextStyle? titleStyle,
     TextStyle? subtitleStyle,
+    double? titleSpacing,
+    double? subtitleSpacing,
+    double? iconSpacing,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -476,6 +524,7 @@ class RistoNoticeCard extends StatelessWidget {
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       noticeIcon: noticeIcon,
+      iconPadding: iconPadding,
       backgroundColor: backgroundColor,
       backgroundGradient: backgroundGradient,
       borderColor: borderColor,
@@ -495,6 +544,9 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       titleStyle: titleStyle,
       subtitleStyle: subtitleStyle,
+      titleSpacing: titleSpacing,
+      subtitleSpacing: subtitleSpacing,
+      iconSpacing: iconSpacing,
     );
   }
 
@@ -512,6 +564,7 @@ class RistoNoticeCard extends StatelessWidget {
     AlignmentGeometry? footerAlignment,
     EdgeInsetsGeometry? footerPadding,
     Widget? noticeIcon,
+    EdgeInsetsGeometry? iconPadding,
     Color? backgroundColor,
     Gradient? backgroundGradient,
     Color? borderColor,
@@ -531,6 +584,9 @@ class RistoNoticeCard extends StatelessWidget {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     TextStyle? titleStyle,
     TextStyle? subtitleStyle,
+    double? titleSpacing,
+    double? subtitleSpacing,
+    double? iconSpacing,
   }) {
     return RistoNoticeCard(
       key: key,
@@ -546,6 +602,7 @@ class RistoNoticeCard extends StatelessWidget {
       footerAlignment: footerAlignment,
       footerPadding: footerPadding,
       noticeIcon: noticeIcon,
+      iconPadding: iconPadding,
       backgroundColor: backgroundColor,
       backgroundGradient: backgroundGradient,
       borderColor: borderColor,
@@ -565,17 +622,19 @@ class RistoNoticeCard extends StatelessWidget {
       crossAxisAlignment: crossAxisAlignment,
       titleStyle: titleStyle,
       subtitleStyle: subtitleStyle,
+      titleSpacing: titleSpacing,
+      subtitleSpacing: subtitleSpacing,
+      iconSpacing: iconSpacing,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final d = _defaultsForKind(theme, kind);
-    final resolvedAccentColor = accentColor ?? d.accent;
-    final r = borderRadius ?? BorderRadius.circular(16);
-    final resolvedPadding =
-        padding ?? const EdgeInsets.fromLTRB(24, 24, 24, 24);
+    final defaults = _defaultsForKind(theme, kind);
+    final resolvedAccentColor = accentColor ?? defaults.accent;
+    final resolvedRadius = borderRadius ?? BorderRadius.circular(16);
+    final resolvedPadding = padding ?? const EdgeInsets.all(24);
 
     final resolvedTitleStyle =
         theme.textTheme.titleMedium?.merge(titleStyle) ??
@@ -598,17 +657,23 @@ class RistoNoticeCard extends StatelessWidget {
         ? TextAlign.right
         : TextAlign.center;
 
-    final double effectiveRunSpacing = runSpacing ?? (compact ? 12 : 24);
+    final double effectiveTitleSpacing = titleSpacing ?? (compact ? 4 : 12);
+    final double effectiveSubtitleSpacing =
+        subtitleSpacing ?? (compact ? 12 : 24);
+    final double effectiveIconSpacing = iconSpacing ?? (compact ? 12 : 24);
 
-    final Widget? resolvedIcon =
-        noticeIcon ??
-        (d.iconData != null
-            ? Icon(
-                d.iconData,
-                size: compact ? 36 : 56,
-                color: resolvedAccentColor,
-              )
-            : null);
+    Widget? resolvedIcon = noticeIcon;
+    if (resolvedIcon == null && defaults.iconData != null) {
+      resolvedIcon = Icon(
+        defaults.iconData,
+        size: compact ? 36 : 56,
+        color: resolvedAccentColor,
+      );
+    }
+
+    if (resolvedIcon != null && iconPadding != null) {
+      resolvedIcon = Padding(padding: iconPadding!, child: resolvedIcon);
+    }
 
     Widget? headerWidget;
     if (title != null) {
@@ -660,37 +725,38 @@ class RistoNoticeCard extends StatelessWidget {
     if (invert) {
       if (headerWidget != null) bodyContent.add(headerWidget);
       if (headerWidget != null && resolvedIcon != null) {
-        bodyContent.add(SizedBox(height: effectiveRunSpacing));
+        bodyContent.add(SizedBox(height: effectiveTitleSpacing));
       }
       if (resolvedIcon != null) bodyContent.add(resolvedIcon);
     } else {
       if (resolvedIcon != null) bodyContent.add(resolvedIcon);
       if (resolvedIcon != null && headerWidget != null) {
-        bodyContent.add(SizedBox(height: effectiveRunSpacing));
+        bodyContent.add(SizedBox(height: effectiveIconSpacing));
       }
       if (headerWidget != null) bodyContent.add(headerWidget);
     }
 
     if (bodyWidget != null) {
-      if (bodyContent.isNotEmpty) {
-        bodyContent.add(SizedBox(height: effectiveRunSpacing / 2));
+      if (bodyContent.isNotEmpty && !invert) {
+        bodyContent.add(SizedBox(height: effectiveTitleSpacing));
+      } else if (bodyContent.isNotEmpty && invert && resolvedIcon != null) {
+        bodyContent.add(SizedBox(height: effectiveIconSpacing));
       }
       bodyContent.add(bodyWidget);
     }
 
     if (footerWidget != null) {
       if (bodyContent.isNotEmpty) {
-        bodyContent.add(SizedBox(height: effectiveRunSpacing));
+        bodyContent.add(SizedBox(height: effectiveSubtitleSpacing));
       }
       bodyContent.add(footerWidget);
     }
 
-    // Using the RistoDecorator for standard backgrounds and shadows
     final cardShell = RistoDecorator(
       margin: margin,
       backgroundColor: backgroundColor,
       backgroundGradient: backgroundGradient,
-      borderRadius: r,
+      borderRadius: resolvedRadius,
       borderColor: borderColor?.withCustomOpacity(borderOpacity),
       borderWidth: borderWidth,
       elevation: elevation ?? 0.0,

@@ -58,7 +58,6 @@ void main() {
         _wrap(
           const RistoNoticeCard(
             kind: RistoNoticeKind.success,
-            // Success defaults to check_circle_outline
             title: 'Success Title',
           ),
         ),
@@ -112,10 +111,11 @@ void main() {
       expect(subtitleFinder, findsOneWidget);
     });
 
-    testWidgets('applies runSpacing between elements correctly', (
-      tester,
-    ) async {
-      const spacing = 24.0;
+    testWidgets('applies granular spacing correctly', (tester) async {
+      const tSpace = 12.0;
+      const sSpace = 18.0;
+      const iSpace = 24.0;
+
       await tester.pumpWidget(
         _wrap(
           RistoNoticeCard(
@@ -123,7 +123,9 @@ void main() {
             noticeIcon: const Icon(Icons.info),
             title: 'Title',
             subtitle: 'Subtitle',
-            runSpacing: spacing,
+            iconSpacing: iSpace,
+            titleSpacing: tSpace,
+            subtitleSpacing: sSpace,
             footerBuilder: (context, accentColor) => const Text('Footer'),
           ),
         ),
@@ -135,18 +137,23 @@ void main() {
       final children = column.children;
 
       expect(children.length, 7);
+
+      // Icon Spacing
       expect(
         children[1],
-        isA<SizedBox>().having((s) => s.height, 'height', spacing),
+        isA<SizedBox>().having((s) => s.height, 'height', iSpace),
       );
-      // Subtitle space is dynamically halved for a tighter visual cluster
+
+      // Title Spacing
       expect(
         children[3],
-        isA<SizedBox>().having((s) => s.height, 'height', spacing / 2),
+        isA<SizedBox>().having((s) => s.height, 'height', tSpace),
       );
+
+      // Subtitle Spacing
       expect(
         children[5],
-        isA<SizedBox>().having((s) => s.height, 'height', spacing),
+        isA<SizedBox>().having((s) => s.height, 'height', sSpace),
       );
     });
 
@@ -230,10 +237,7 @@ void main() {
       final titleText = tester.widget<Text>(find.text('Merged Title'));
 
       expect(titleText.style?.color, customStyle.color);
-      expect(
-        titleText.style?.fontWeight,
-        isNotNull,
-      ); // Ensures formatting isn't stripped completely
+      expect(titleText.style?.fontWeight, isNotNull);
     });
   });
 }
