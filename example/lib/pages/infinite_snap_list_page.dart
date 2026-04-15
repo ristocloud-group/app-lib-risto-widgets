@@ -3,9 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
-// ===========================================================================
-// DEMO BLOC & DATA
-// ===========================================================================
 class DemoItem {
   final int value;
 
@@ -28,9 +25,7 @@ class DemoSnapBloc extends InfiniteSnapListBloc<DemoItem> {
     required int rightLimit,
     required DemoItem offset,
   }) async {
-    await Future.delayed(
-      const Duration(seconds: 1),
-    ); // Show off the centered loading
+    await Future.delayed(const Duration(seconds: 1));
     List<DemoItem> left = List.generate(
       leftLimit,
       (i) => DemoItem(offset.value - leftLimit + i),
@@ -43,9 +38,6 @@ class DemoSnapBloc extends InfiniteSnapListBloc<DemoItem> {
   }
 }
 
-// ===========================================================================
-// DEMO PAGE
-// ===========================================================================
 class InfiniteSnapDemoPage extends StatefulWidget {
   const InfiniteSnapDemoPage({super.key});
 
@@ -67,6 +59,8 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
   DemoItem? _selectedCarouselItem;
   DemoItem? _selectedPickerItem;
 
+  final _carouselController = InfiniteSnapListController<DemoItem>();
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +72,7 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
   @override
   void dispose() {
     _timelineBloc.close();
+    _carouselController.dispose();
     super.dispose();
   }
 
@@ -91,9 +86,6 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 24),
         children: [
-          // =========================================================
-          // EXAMPLE 1: HORIZONTAL TIMELINE / DATE PICKER (INFINITE)
-          // =========================================================
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
@@ -123,6 +115,7 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
               scrollDirection: Axis.horizontal,
               visibleItemCount: 7.0,
               itemSpacing: 8,
+
               maxFlingVelocity: 1500.0,
               focusRange: 2.0,
               focusedItemScale: 1.15,
@@ -194,9 +187,6 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
           ),
           const SizedBox(height: 32),
 
-          // =========================================================
-          // EXAMPLE 2: CARD CAROUSEL (FINITE) WITH DOT INDICATOR
-          // =========================================================
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
@@ -217,6 +207,7 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
             child: SnapList<DemoItem>.carousel(
               items: _finiteCarouselItems,
               selectedItem: _selectedCarouselItem,
+              controller: _carouselController,
               onItemSelected:
                   (item, idx) => setState(() => _selectedCarouselItem = item),
 
@@ -228,6 +219,7 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                     currentIndex: currentIndex,
                     activeColor: theme.primaryColor,
                     inactiveColor: Colors.grey.withCustomOpacity(0.3),
+                    onTap: (index) => _carouselController.animateTo(index),
                   ),
                 );
               },
@@ -283,9 +275,6 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
           ),
           const SizedBox(height: 32),
 
-          // =========================================================
-          // EXAMPLE 3: VERTICAL WHEEL PICKER (FINITE)
-          // =========================================================
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(

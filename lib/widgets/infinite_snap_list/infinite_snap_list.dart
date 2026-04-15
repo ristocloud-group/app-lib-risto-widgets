@@ -3,13 +3,19 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:risto_widgets/extensions.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../extensions.dart';
 import 'infinite_snap_list_bloc/infinite_snap_list_bloc.dart';
 
 /// Defines how the list behaves when the user swipes.
-enum SnapBehavior { singleItem, freeScroll }
+enum SnapBehavior {
+  /// Swipes snap exactly one item left or right.
+  singleItem,
+
+  /// Allows fast flinging across multiple items, snapping at the end.
+  freeScroll,
+}
 
 /// Custom physics to force the ListView to snap perfectly to individual items,
 /// with clamped velocity to prevent excessive scrolling on strong swipes.
@@ -133,7 +139,7 @@ class SnapListController<T> extends ChangeNotifier {
 
 typedef InfiniteSnapListController<T> = SnapListController<T>;
 
-/// A gracefully animated dot indicator designed for the [SnapList] footer.
+/// A gracefully animated, interactive dot indicator designed for the [SnapList] footer.
 class SnapListDotIndicator extends StatelessWidget {
   final int itemCount;
   final int currentIndex;
@@ -141,6 +147,7 @@ class SnapListDotIndicator extends StatelessWidget {
   final Color inactiveColor;
   final double dotSize;
   final double spacing;
+  final ValueChanged<int>? onTap;
 
   const SnapListDotIndicator({
     super.key,
@@ -150,6 +157,7 @@ class SnapListDotIndicator extends StatelessWidget {
     this.inactiveColor = Colors.grey,
     this.dotSize = 8.0,
     this.spacing = 8.0,
+    this.onTap,
   });
 
   @override
@@ -158,15 +166,19 @@ class SnapListDotIndicator extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
         itemCount,
-        (i) => AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutBack,
-          margin: EdgeInsets.symmetric(horizontal: spacing / 2),
-          width: currentIndex == i ? dotSize * 2.0 : dotSize,
-          height: dotSize,
-          decoration: BoxDecoration(
-            color: currentIndex == i ? activeColor : inactiveColor,
-            borderRadius: BorderRadius.circular(dotSize / 2),
+        (i) => GestureDetector(
+          onTap: () => onTap?.call(i),
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutBack,
+            margin: EdgeInsets.symmetric(horizontal: spacing / 2),
+            width: currentIndex == i ? dotSize * 2.0 : dotSize,
+            height: dotSize,
+            decoration: BoxDecoration(
+              color: currentIndex == i ? activeColor : inactiveColor,
+              borderRadius: BorderRadius.circular(dotSize / 2),
+            ),
           ),
         ),
       ),
@@ -727,10 +739,6 @@ class _SnapListState<T> extends State<SnapList<T>> {
     );
   }
 }
-
-// ===========================================================================
-// 3. INFINITE SNAP LIST (WRAPPER)
-// ===========================================================================
 
 /// A smart wrapper that attaches an [InfiniteSnapListBloc] to a [SnapList]
 /// to provide seamless, bidirectional infinite scrolling.
