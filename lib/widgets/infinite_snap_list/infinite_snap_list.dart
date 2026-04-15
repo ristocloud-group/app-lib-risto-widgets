@@ -3,17 +3,17 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:risto_widgets/extensions.dart';
 
-import '../../extensions.dart';
+import '../indicators/risto_shimmer.dart';
 import 'infinite_snap_list_bloc/infinite_snap_list_bloc.dart';
 
 /// Defines how the list behaves when the user swipes.
 enum SnapBehavior {
-  /// Swipes snap exactly one item left or right.
+  /// Swipes snap exactly one item left or right (Perfect for Carousels).
   singleItem,
 
-  /// Allows fast flinging across multiple items, snapping at the end.
+  /// Allows fast flinging across multiple items, snapping at the end (Perfect for Pickers).
   freeScroll,
 }
 
@@ -139,7 +139,7 @@ class SnapListController<T> extends ChangeNotifier {
 
 typedef InfiniteSnapListController<T> = SnapListController<T>;
 
-/// A gracefully animated, interactive dot indicator designed for the [SnapList] footer.
+/// A gracefully animated dot indicator designed for the [SnapList] footer.
 class SnapListDotIndicator extends StatelessWidget {
   final int itemCount;
   final int currentIndex;
@@ -1014,10 +1014,6 @@ class InfiniteSnapList<T> extends StatelessWidget {
 
     if (loadingItemBuilder != null) return list;
 
-    return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
-      child: list,
-    );
+    return RistoShimmer.fromColor(color: Colors.grey.shade300, child: list);
   }
 }
