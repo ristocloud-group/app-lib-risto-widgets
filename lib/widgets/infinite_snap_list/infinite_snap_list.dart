@@ -10,10 +10,10 @@ import 'infinite_snap_list_bloc/infinite_snap_list_bloc.dart';
 
 /// Defines how the list behaves when the user swipes.
 enum SnapBehavior {
-  /// Swipes snap exactly one item left or right (Perfect for Carousels).
+  /// Swipes snap exactly one item left or right.
   singleItem,
 
-  /// Allows fast flinging across multiple items, snapping at the end (Perfect for Pickers).
+  /// Allows fast flinging across multiple items, snapping at the end.
   freeScroll,
 }
 
@@ -139,7 +139,7 @@ class SnapListController<T> extends ChangeNotifier {
 
 typedef InfiniteSnapListController<T> = SnapListController<T>;
 
-/// A gracefully animated dot indicator designed for the [SnapList] footer.
+/// A gracefully animated, interactive dot indicator designed for the [SnapList] footer.
 class SnapListDotIndicator extends StatelessWidget {
   final int itemCount;
   final int currentIndex;
@@ -214,6 +214,7 @@ class SnapList<T> extends StatefulWidget {
   final double focusedItemScale;
   final double unfocusedItemScale;
   final double unfocusedItemOpacity;
+  final EdgeInsetsGeometry? focusedItemPadding;
   final double focusRange;
   final SnapBehavior snapBehavior;
   final double maxFlingVelocity;
@@ -254,6 +255,7 @@ class SnapList<T> extends StatefulWidget {
     this.focusedItemScale = 1.0,
     this.unfocusedItemScale = 1.0,
     this.unfocusedItemOpacity = 1.0,
+    this.focusedItemPadding,
     this.focusRange = 1.0,
     this.snapBehavior = SnapBehavior.singleItem,
     this.maxFlingVelocity = 2000.0,
@@ -285,6 +287,7 @@ class SnapList<T> extends StatefulWidget {
     double focusedItemScale = 1.0,
     double unfocusedItemScale = 0.9,
     double unfocusedItemOpacity = 0.7,
+    EdgeInsetsGeometry? focusedItemPadding,
     double focusRange = 1.0,
     double maxFlingVelocity = 2000.0,
     SnapBehavior snapBehavior = SnapBehavior.singleItem,
@@ -309,6 +312,7 @@ class SnapList<T> extends StatefulWidget {
       focusedItemScale: focusedItemScale,
       unfocusedItemScale: unfocusedItemScale,
       unfocusedItemOpacity: unfocusedItemOpacity,
+      focusedItemPadding: focusedItemPadding,
       focusRange: focusRange,
       snapBehavior: snapBehavior,
       maxFlingVelocity: maxFlingVelocity,
@@ -333,6 +337,7 @@ class SnapList<T> extends StatefulWidget {
     double focusedItemScale = 1.1,
     double unfocusedItemScale = 0.8,
     double unfocusedItemOpacity = 0.4,
+    EdgeInsetsGeometry? focusedItemPadding,
     double focusRange = 1.0,
     double maxFlingVelocity = 1500.0,
     SnapBehavior snapBehavior = SnapBehavior.freeScroll,
@@ -352,6 +357,7 @@ class SnapList<T> extends StatefulWidget {
       focusedItemScale: focusedItemScale,
       unfocusedItemScale: unfocusedItemScale,
       unfocusedItemOpacity: unfocusedItemOpacity,
+      focusedItemPadding: focusedItemPadding,
       focusRange: focusRange,
       snapBehavior: snapBehavior,
       maxFlingVelocity: maxFlingVelocity,
@@ -613,6 +619,13 @@ class _SnapListState<T> extends State<SnapList<T>> {
                           1.0,
                           progress,
                         )!;
+                        final currentPadding = widget.focusedItemPadding != null
+                            ? EdgeInsetsGeometry.lerp(
+                                EdgeInsets.zero,
+                                widget.focusedItemPadding,
+                                progress,
+                              )!
+                            : EdgeInsets.zero;
 
                         return SizedBox(
                           width: widget.scrollDirection == Axis.horizontal
@@ -630,7 +643,7 @@ class _SnapListState<T> extends State<SnapList<T>> {
                               vertical: widget.scrollDirection == Axis.vertical
                                   ? widget.itemSpacing / 2
                                   : 0,
-                            ),
+                            ).add(currentPadding),
                             child: Transform.scale(
                               scale: currentScale,
                               child: Opacity(
@@ -772,6 +785,7 @@ class InfiniteSnapList<T> extends StatelessWidget {
   final double focusedItemScale;
   final double unfocusedItemScale;
   final double unfocusedItemOpacity;
+  final EdgeInsetsGeometry? focusedItemPadding;
   final double focusRange;
   final SnapBehavior snapBehavior;
   final double maxFlingVelocity;
@@ -818,6 +832,7 @@ class InfiniteSnapList<T> extends StatelessWidget {
     this.focusedItemScale = 1.0,
     this.unfocusedItemScale = 1.0,
     this.unfocusedItemOpacity = 1.0,
+    this.focusedItemPadding,
     this.focusRange = 1.0,
     this.snapBehavior = SnapBehavior.freeScroll,
     this.maxFlingVelocity = 2000.0,
@@ -908,6 +923,7 @@ class InfiniteSnapList<T> extends StatelessWidget {
                   focusedItemScale: focusedItemScale,
                   unfocusedItemScale: unfocusedItemScale,
                   unfocusedItemOpacity: unfocusedItemOpacity,
+                  focusedItemPadding: focusedItemPadding,
                   focusRange: focusRange,
                   snapBehavior: snapBehavior,
                   maxFlingVelocity: maxFlingVelocity,
