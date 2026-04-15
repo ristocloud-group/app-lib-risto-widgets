@@ -1,17 +1,108 @@
-import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:risto_widgets/extensions.dart';
-import 'package:risto_widgets/widgets/indicators/risto_shimmer.dart';
 
+import '../indicators/risto_shimmer.dart';
 import 'infinite_snap_list_bloc/infinite_snap_list_bloc.dart';
 
 // ===========================================================================
-// 1. CONTROLLER & HELPERS
+// 1. SCROLL PHYSICS & CONTROLLER
 // ===========================================================================
+
+/// Defines how the list behaves when the user swipes.
+enum SnapBehavior {
+  /// Swipes snap exactly one item left or right (Perfect for Carousels).
+  singleItem,
+
+  /// Allows fast flinging across multiple items, snapping at the end (Perfect for Pickers).
+  freeScroll,
+}
+
+/// Custom physics to force the ListView to snap perfectly to individual items,
+/// with clamped velocity to prevent excessive scrolling on strong swipes.
+class SnapScrollPhysics extends ScrollPhysics {
+  final double itemSize;
+  final SnapBehavior behavior;
+  @override
+  final double maxFlingVelocity;
+
+  const SnapScrollPhysics({
+    required this.itemSize,
+    this.behavior = SnapBehavior.singleItem,
+    this.maxFlingVelocity = 2000.0,
+    super.parent,
+  });
+
+  @override
+  SnapScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return SnapScrollPhysics(
+      itemSize: itemSize,
+      behavior: behavior,
+      maxFlingVelocity: maxFlingVelocity,
+      parent: buildParent(ancestor),
+    );
+  }
+
+  @override
+  Simulation? createBallisticSimulation(
+    ScrollMetrics position,
+    double velocity,
+  ) {
+    if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) ||
+        (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
+      return super.createBallisticSimulation(position, velocity);
+    }
+
+    final tolerance = toleranceFor(position);
+    final exactIndex = position.pixels / itemSize;
+    double targetIndex;
+
+    // Clamp the velocity to prevent wild over-scrolling
+    final throttledVelocity = velocity.clamp(
+      -maxFlingVelocity,
+      maxFlingVelocity,
+    );
+
+    if (behavior == SnapBehavior.singleItem) {
+      if (throttledVelocity.abs() < tolerance.velocity) {
+        targetIndex = exactIndex.roundToDouble();
+      } else if (throttledVelocity < 0.0) {
+        targetIndex = exactIndex.floorToDouble();
+      } else {
+        targetIndex = exactIndex.ceilToDouble();
+      }
+    } else {
+      final Simulation? naturalSimulation = super.createBallisticSimulation(
+        position,
+        throttledVelocity,
+      );
+      if (naturalSimulation != null) {
+        final naturalDestination = naturalSimulation.x(double.infinity);
+        targetIndex = (naturalDestination / itemSize).roundToDouble();
+      } else {
+        targetIndex = exactIndex.roundToDouble();
+      }
+    }
+
+    final double targetPixels = (targetIndex * itemSize).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+
+    return ScrollSpringSimulation(
+      spring,
+      position.pixels,
+      targetPixels,
+      throttledVelocity,
+      tolerance: tolerance,
+    );
+  }
+
+  @override
+  bool get allowImplicitScrolling => false;
+}
 
 /// Controller for programmatic selection, jump, and scroll control.
 class SnapListController<T> extends ChangeNotifier {
@@ -48,7 +139,7 @@ class SnapListController<T> extends ChangeNotifier {
 
 typedef InfiniteSnapListController<T> = SnapListController<T>;
 
-/// A beautifully animated dot indicator for use with the [SnapList] footer.
+/// A gracefully animated dot indicator designed for the [SnapList] footer.
 class SnapListDotIndicator extends StatelessWidget {
   final int itemCount;
   final int currentIndex;
@@ -121,6 +212,13 @@ class SnapList<T> extends StatefulWidget {
   final double focusedItemScale;
   final double unfocusedItemScale;
   final double unfocusedItemOpacity;
+  final double focusRange;
+  final SnapBehavior snapBehavior;
+  final double maxFlingVelocity;
+
+  final Decoration? startEdgeDecoration;
+  final Decoration? endEdgeDecoration;
+  final double edgeDecorationSize;
 
   final Widget Function(BuildContext, double, double)?
   selectedItemOverlayBuilder;
@@ -134,7 +232,6 @@ class SnapList<T> extends StatefulWidget {
   final ScrollPhysics scrollPhysics;
   final Duration snapAnimationDuration;
   final Curve snapAnimationCurve;
-  final Duration snapTimerDuration;
   final bool enableKeyboardNavigation;
   final bool lockScroll;
 
@@ -155,6 +252,12 @@ class SnapList<T> extends StatefulWidget {
     this.focusedItemScale = 1.0,
     this.unfocusedItemScale = 1.0,
     this.unfocusedItemOpacity = 1.0,
+    this.focusRange = 1.0,
+    this.snapBehavior = SnapBehavior.singleItem,
+    this.maxFlingVelocity = 2000.0,
+    this.startEdgeDecoration,
+    this.endEdgeDecoration,
+    this.edgeDecorationSize = 40.0,
     this.selectedItemOverlayBuilder,
     this.selectedOverlayColor,
     this.selectedOverlayBorderRadius,
@@ -163,7 +266,6 @@ class SnapList<T> extends StatefulWidget {
     this.scrollPhysics = const BouncingScrollPhysics(),
     this.snapAnimationDuration = const Duration(milliseconds: 300),
     this.snapAnimationCurve = Curves.easeOutQuart,
-    this.snapTimerDuration = const Duration(milliseconds: 150),
     this.enableKeyboardNavigation = true,
     this.lockScroll = false,
   });
@@ -181,6 +283,11 @@ class SnapList<T> extends StatefulWidget {
     double focusedItemScale = 1.0,
     double unfocusedItemScale = 0.9,
     double unfocusedItemOpacity = 0.7,
+    double focusRange = 1.0,
+    double maxFlingVelocity = 2000.0,
+    SnapBehavior snapBehavior = SnapBehavior.singleItem,
+    Decoration? startEdgeDecoration,
+    Decoration? endEdgeDecoration,
     EdgeInsetsGeometry listPadding = EdgeInsets.zero,
     Widget Function(BuildContext context, int currentIndex, int totalCount)?
     footerBuilder,
@@ -198,6 +305,11 @@ class SnapList<T> extends StatefulWidget {
       focusedItemScale: focusedItemScale,
       unfocusedItemScale: unfocusedItemScale,
       unfocusedItemOpacity: unfocusedItemOpacity,
+      focusRange: focusRange,
+      snapBehavior: snapBehavior,
+      maxFlingVelocity: maxFlingVelocity,
+      startEdgeDecoration: startEdgeDecoration,
+      endEdgeDecoration: endEdgeDecoration,
       listPadding: listPadding,
       footerBuilder: footerBuilder,
     );
@@ -215,6 +327,9 @@ class SnapList<T> extends StatefulWidget {
     double focusedItemScale = 1.1,
     double unfocusedItemScale = 0.8,
     double unfocusedItemOpacity = 0.4,
+    double focusRange = 1.0,
+    double maxFlingVelocity = 1500.0,
+    SnapBehavior snapBehavior = SnapBehavior.freeScroll,
     Widget Function(BuildContext, double, double)? selectedItemOverlayBuilder,
   }) {
     return SnapList(
@@ -231,6 +346,9 @@ class SnapList<T> extends StatefulWidget {
       focusedItemScale: focusedItemScale,
       unfocusedItemScale: unfocusedItemScale,
       unfocusedItemOpacity: unfocusedItemOpacity,
+      focusRange: focusRange,
+      snapBehavior: snapBehavior,
+      maxFlingVelocity: maxFlingVelocity,
       selectedItemOverlayBuilder: selectedItemOverlayBuilder,
     );
   }
@@ -241,44 +359,19 @@ class SnapList<T> extends StatefulWidget {
 
 class _SnapListState<T> extends State<SnapList<T>> {
   late ScrollController _controller;
-  Timer? _snapTimer;
   bool _isInitializing = true;
   bool _isSnapping = false;
+  int _lastReportedIndex = -1;
   final FocusNode _focusNode = FocusNode();
 
-  double _currentActualMainAxis = 0;
-  double _currentStartEndPadding = 0;
-
-  double _calculatedItemMainAxisDim(double constraintsMainAxis) {
-    if (widget.visibleItemCount != null && widget.visibleItemCount! > 0) {
-      return (constraintsMainAxis / widget.visibleItemCount!) -
-          widget.itemSpacing;
-    }
-    return widget.scrollDirection == Axis.horizontal
-        ? widget.itemWidth
-        : widget.itemHeight;
-  }
-
-  double _calculatedItemCrossAxisDim() {
-    return widget.scrollDirection == Axis.horizontal
-        ? widget.itemHeight
-        : widget.itemWidth;
-  }
-
-  double _totalItemSlotMainAxis(double constraintsMainAxis) =>
-      _calculatedItemMainAxisDim(constraintsMainAxis) + widget.itemSpacing;
+  double _currentMainAxisDim = 0;
+  double _currentSlotSize = 0;
 
   @override
   void initState() {
     super.initState();
-    _controller = ScrollController()..addListener(_onScroll);
-    widget.controller?._attach(
-      selectItem: _selectItem,
-      jumpTo: _jumpTo,
-      animateTo: _animateTo,
-      getSelectedItem: () => widget.selectedItem,
-      getSelectedIndex: () => widget.items.indexOf(widget.selectedItem as T),
-    );
+    _controller = ScrollController();
+    _setupController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -288,17 +381,21 @@ class _SnapListState<T> extends State<SnapList<T>> {
     });
   }
 
+  void _setupController() {
+    widget.controller?._attach(
+      selectItem: _selectItem,
+      jumpTo: _jumpTo,
+      animateTo: _animateTo,
+      getSelectedItem: () => widget.selectedItem,
+      getSelectedIndex: () => widget.items.indexOf(widget.selectedItem as T),
+    );
+  }
+
   @override
   void didUpdateWidget(covariant SnapList<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
-      widget.controller?._attach(
-        selectItem: _selectItem,
-        jumpTo: _jumpTo,
-        animateTo: _animateTo,
-        getSelectedItem: () => widget.selectedItem,
-        getSelectedIndex: () => widget.items.indexOf(widget.selectedItem as T),
-      );
+      _setupController();
     }
 
     if (oldWidget.items != widget.items && widget.selectedItem != null) {
@@ -311,10 +408,7 @@ class _SnapListState<T> extends State<SnapList<T>> {
           !_isSnapping) {
         if (_controller.hasClients) {
           final diff = newIndex - oldIndex;
-          _controller.jumpTo(
-            _controller.offset +
-                (diff * _totalItemSlotMainAxis(_currentActualMainAxis)),
-          );
+          _controller.jumpTo(_controller.offset + (diff * _currentSlotSize));
         }
       } else if (oldWidget.selectedItem != widget.selectedItem &&
           !_isSnapping) {
@@ -325,125 +419,64 @@ class _SnapListState<T> extends State<SnapList<T>> {
 
   @override
   void dispose() {
-    _snapTimer?.cancel();
-    _controller.removeListener(_onScroll);
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
   void _jumpToSelectedItem() {
-    if (widget.selectedItem != null && _controller.hasClients) {
+    if (widget.selectedItem != null &&
+        _controller.hasClients &&
+        _currentSlotSize > 0) {
       final idx = widget.items.indexOf(widget.selectedItem as T);
-      if (idx != -1) _jumpTo(idx);
+      if (idx != -1) _controller.jumpTo(idx * _currentSlotSize);
     }
   }
 
   void _selectItem(T item) {
     final idx = widget.items.indexOf(item);
-    if (idx != -1) _snapTo(idx, animate: true);
+    if (idx != -1) _animateTo(idx);
   }
 
   void _jumpTo(int index) {
     if (!_controller.hasClients || index < 0 || index >= widget.items.length) {
       return;
     }
-    _controller.jumpTo(_calculateTargetOffset(index));
+    _controller.jumpTo(index * _currentSlotSize);
   }
 
   void _animateTo(int index) {
     if (!_controller.hasClients || index < 0 || index >= widget.items.length) {
       return;
     }
-    _controller.animateTo(
-      _calculateTargetOffset(index),
-      duration: widget.snapAnimationDuration,
-      curve: widget.snapAnimationCurve,
-    );
+    _isSnapping = true;
+    _controller
+        .animateTo(
+          index * _currentSlotSize,
+          duration: widget.snapAnimationDuration,
+          curve: widget.snapAnimationCurve,
+        )
+        .whenComplete(() {
+          _isSnapping = false;
+        });
   }
 
-  double _calculateTargetOffset(int index) {
-    final listPaddingStart = widget.scrollDirection == Axis.horizontal
-        ? widget.listPadding.horizontal / 2
-        : widget.listPadding.vertical / 2;
-    return listPaddingStart +
-        _currentStartEndPadding +
-        (index * _totalItemSlotMainAxis(_currentActualMainAxis)) +
-        (widget.itemSpacing / 2) +
-        (_calculatedItemMainAxisDim(_currentActualMainAxis) / 2) -
-        (_currentActualMainAxis / 2);
-  }
-
-  int _getClosestIndex(double mainAxis) {
-    if (!_controller.hasClients || mainAxis == 0 || widget.items.isEmpty) {
-      return widget.items
-          .indexOf(widget.selectedItem as T)
-          .clamp(0, max(0, widget.items.length - 1));
+  bool _onScrollNotification(ScrollNotification notification) {
+    if (_isInitializing || _currentSlotSize == 0 || widget.items.isEmpty) {
+      return false;
     }
-    final listPaddingStart = widget.scrollDirection == Axis.horizontal
-        ? widget.listPadding.horizontal / 2
-        : widget.listPadding.vertical / 2;
-    final viewportCenterInScrollExtent =
-        _controller.offset +
-        (mainAxis / 2) -
-        listPaddingStart -
-        _currentStartEndPadding;
 
-    double minDist = double.infinity;
-    int closestIdx = 0;
-    for (int i = 0; i < widget.items.length; i++) {
-      final itemCenter =
-          (i * _totalItemSlotMainAxis(mainAxis)) +
-          (widget.itemSpacing / 2) +
-          (_calculatedItemMainAxisDim(mainAxis) / 2);
-      final distance = (itemCenter - viewportCenterInScrollExtent).abs();
-      if (distance < minDist) {
-        minDist = distance;
-        closestIdx = i;
+    if (notification is ScrollEndNotification) {
+      final index = (_controller.offset / _currentSlotSize).round().clamp(
+        0,
+        widget.items.length - 1,
+      );
+      if (index != _lastReportedIndex && !_isSnapping) {
+        _lastReportedIndex = index;
+        widget.onItemSelected?.call(widget.items[index], index);
       }
     }
-    return closestIdx;
-  }
-
-  void _onScroll() {
-    if (_isInitializing ||
-        _isSnapping ||
-        _currentActualMainAxis == 0 ||
-        !_controller.position.hasContentDimensions) {
-      return;
-    }
-    if (widget.items.isEmpty) return;
-
-    final closestIdx = _getClosestIndex(_currentActualMainAxis);
-    _snapTimer?.cancel();
-    _snapTimer = Timer(widget.snapTimerDuration, () => _snapTo(closestIdx));
-  }
-
-  void _snapTo(int index, {bool animate = true}) {
-    if (index < 0 ||
-        index >= widget.items.length ||
-        !_controller.hasClients ||
-        _currentActualMainAxis == 0) {
-      return;
-    }
-
-    final clampedTarget = _calculateTargetOffset(
-      index,
-    ).clamp(0.0, _controller.position.maxScrollExtent);
-
-    _isSnapping = true;
-    final snapFuture = animate
-        ? _controller.animateTo(
-            clampedTarget,
-            duration: widget.snapAnimationDuration,
-            curve: widget.snapAnimationCurve,
-          )
-        : Future(() => _controller.jumpTo(clampedTarget));
-
-    snapFuture.whenComplete(() {
-      _isSnapping = false;
-      widget.onItemSelected?.call(widget.items[index], index);
-    });
+    return false;
   }
 
   Widget _defaultSelectedItemOverlayBuilder(
@@ -453,7 +486,7 @@ class _SnapListState<T> extends State<SnapList<T>> {
   ) {
     final overlayColor =
         widget.selectedOverlayColor ??
-        Theme.of(context).colorScheme.secondary.withCustomOpacity(0.2);
+        Theme.of(context).colorScheme.secondary.withOpacity(0.2);
     final borderRadius =
         widget.selectedOverlayBorderRadius ?? BorderRadius.circular(8.0);
     return Container(
@@ -476,18 +509,26 @@ class _SnapListState<T> extends State<SnapList<T>> {
       autofocus: widget.enableKeyboardNavigation,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          _currentActualMainAxis = widget.scrollDirection == Axis.horizontal
+          final mainAxisLength = widget.scrollDirection == Axis.horizontal
               ? constraints.maxWidth
               : constraints.maxHeight;
-          final itemMainAxisDim = _calculatedItemMainAxisDim(
-            _currentActualMainAxis,
-          );
-          final itemCrossAxisDim = _calculatedItemCrossAxisDim();
 
-          _currentStartEndPadding = max(
+          _currentMainAxisDim =
+              widget.visibleItemCount != null && widget.visibleItemCount! > 0
+              ? (mainAxisLength / widget.visibleItemCount!) - widget.itemSpacing
+              : (widget.scrollDirection == Axis.horizontal
+                    ? widget.itemWidth
+                    : widget.itemHeight);
+
+          final crossAxisDim = widget.scrollDirection == Axis.horizontal
+              ? widget.itemHeight
+              : widget.itemWidth;
+
+          _currentSlotSize = _currentMainAxisDim + widget.itemSpacing;
+
+          final startEndPadding = max(
             0.0,
-            (_currentActualMainAxis / 2) -
-                (_totalItemSlotMainAxis(_currentActualMainAxis) / 2),
+            (mainAxisLength / 2) - (_currentSlotSize / 2),
           );
 
           final mainStack = Stack(
@@ -499,129 +540,171 @@ class _SnapListState<T> extends State<SnapList<T>> {
                     widget.selectedItemOverlayBuilder?.call(
                       context,
                       widget.scrollDirection == Axis.horizontal
-                          ? itemMainAxisDim
-                          : itemCrossAxisDim,
+                          ? _currentMainAxisDim
+                          : crossAxisDim,
                       widget.scrollDirection == Axis.horizontal
-                          ? itemCrossAxisDim
-                          : itemMainAxisDim,
+                          ? crossAxisDim
+                          : _currentMainAxisDim,
                     ) ??
                     _defaultSelectedItemOverlayBuilder(
                       context,
                       widget.scrollDirection == Axis.horizontal
-                          ? itemMainAxisDim
-                          : itemCrossAxisDim,
+                          ? _currentMainAxisDim
+                          : crossAxisDim,
                       widget.scrollDirection == Axis.horizontal
-                          ? itemCrossAxisDim
-                          : itemMainAxisDim,
+                          ? crossAxisDim
+                          : _currentMainAxisDim,
                     ),
               ),
 
-              ListView.builder(
-                controller: _controller,
-                scrollDirection: widget.scrollDirection,
-                physics: (_isSnapping || widget.lockScroll)
-                    ? const NeverScrollableScrollPhysics()
-                    : widget.scrollPhysics,
-                padding: widget.listPadding.add(
-                  widget.scrollDirection == Axis.horizontal
-                      ? EdgeInsets.symmetric(
-                          horizontal: _currentStartEndPadding,
-                        )
-                      : EdgeInsets.symmetric(vertical: _currentStartEndPadding),
-                ),
-                itemCount: widget.items.length,
-                itemBuilder: (context, i) {
-                  final isSelected = i == selectedItemIndex;
+              NotificationListener<ScrollNotification>(
+                onNotification: _onScrollNotification,
+                child: ListView.builder(
+                  controller: _controller,
+                  scrollDirection: widget.scrollDirection,
+                  physics: widget.lockScroll
+                      ? const NeverScrollableScrollPhysics()
+                      : SnapScrollPhysics(
+                          itemSize: _currentSlotSize,
+                          behavior: widget.snapBehavior,
+                          maxFlingVelocity: widget.maxFlingVelocity,
+                          parent: widget.scrollPhysics,
+                        ),
+                  padding: widget.listPadding.add(
+                    widget.scrollDirection == Axis.horizontal
+                        ? EdgeInsets.symmetric(horizontal: startEndPadding)
+                        : EdgeInsets.symmetric(vertical: startEndPadding),
+                  ),
+                  itemCount: widget.items.length,
+                  itemBuilder: (context, i) {
+                    final isSelected = i == selectedItemIndex;
 
-                  return AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, child) {
-                      double progress = 0.0;
-                      if (_controller.hasClients &&
-                          _currentActualMainAxis > 0) {
-                        final itemOffset = _calculateTargetOffset(i);
-                        final distance = (_controller.offset - itemOffset)
-                            .abs();
-                        final slotSize = _totalItemSlotMainAxis(
-                          _currentActualMainAxis,
-                        );
-                        progress = 1.0 - (distance / slotSize).clamp(0.0, 1.0);
-                      } else {
-                        progress = isSelected ? 1.0 : 0.0;
-                      }
+                    return AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) {
+                        double progress = 0.0;
+                        if (_controller.hasClients && _currentSlotSize > 0) {
+                          final distance =
+                              (_controller.offset - (i * _currentSlotSize))
+                                  .abs();
+                          final distanceInSlots = distance / _currentSlotSize;
+                          progress =
+                              1.0 -
+                              (distanceInSlots / widget.focusRange).clamp(
+                                0.0,
+                                1.0,
+                              );
+                        } else {
+                          progress = isSelected ? 1.0 : 0.0;
+                        }
 
-                      final currentScale = lerpDouble(
-                        widget.unfocusedItemScale,
-                        widget.focusedItemScale,
-                        progress,
-                      )!;
-                      final currentOpacity = lerpDouble(
-                        widget.unfocusedItemOpacity,
-                        1.0,
-                        progress,
-                      )!;
+                        final currentScale = lerpDouble(
+                          widget.unfocusedItemScale,
+                          widget.focusedItemScale,
+                          progress,
+                        )!;
+                        final currentOpacity = lerpDouble(
+                          widget.unfocusedItemOpacity,
+                          1.0,
+                          progress,
+                        )!;
 
-                      return SizedBox(
-                        width: widget.scrollDirection == Axis.horizontal
-                            ? _totalItemSlotMainAxis(_currentActualMainAxis)
-                            : itemCrossAxisDim,
-                        height: widget.scrollDirection == Axis.vertical
-                            ? _totalItemSlotMainAxis(_currentActualMainAxis)
-                            : itemCrossAxisDim,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal:
-                                widget.scrollDirection == Axis.horizontal
-                                ? widget.itemSpacing / 2
-                                : 0,
-                            vertical: widget.scrollDirection == Axis.vertical
-                                ? widget.itemSpacing / 2
-                                : 0,
-                          ),
-                          child: Transform.scale(
-                            scale: currentScale,
-                            child: Opacity(
-                              opacity: currentOpacity,
-                              child: Semantics(
-                                label: widget.semanticLabelBuilder?.call(
-                                  widget.items[i],
-                                ),
-                                selected: isSelected,
-                                child: GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    if (!_isSnapping && !widget.lockScroll) {
-                                      _snapTo(i);
-                                    }
-                                  },
-                                  child: SizedBox(
-                                    width:
-                                        widget.scrollDirection ==
-                                            Axis.horizontal
-                                        ? itemMainAxisDim
-                                        : itemCrossAxisDim,
-                                    height:
-                                        widget.scrollDirection == Axis.vertical
-                                        ? itemMainAxisDim
-                                        : itemCrossAxisDim,
-                                    child: widget.itemBuilder(
-                                      context,
-                                      widget.items[i],
-                                      i,
-                                      isSelected,
-                                      progress,
+                        return SizedBox(
+                          width: widget.scrollDirection == Axis.horizontal
+                              ? _currentSlotSize
+                              : crossAxisDim,
+                          height: widget.scrollDirection == Axis.vertical
+                              ? _currentSlotSize
+                              : crossAxisDim,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  widget.scrollDirection == Axis.horizontal
+                                  ? widget.itemSpacing / 2
+                                  : 0,
+                              vertical: widget.scrollDirection == Axis.vertical
+                                  ? widget.itemSpacing / 2
+                                  : 0,
+                            ),
+                            child: Transform.scale(
+                              scale: currentScale,
+                              child: Opacity(
+                                opacity: currentOpacity,
+                                child: Semantics(
+                                  label: widget.semanticLabelBuilder?.call(
+                                    widget.items[i],
+                                  ),
+                                  selected: isSelected,
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () {
+                                      if (!_isSnapping && !widget.lockScroll) {
+                                        _animateTo(i);
+                                      }
+                                    },
+                                    child: SizedBox(
+                                      width:
+                                          widget.scrollDirection ==
+                                              Axis.horizontal
+                                          ? _currentMainAxisDim
+                                          : crossAxisDim,
+                                      height:
+                                          widget.scrollDirection ==
+                                              Axis.vertical
+                                          ? _currentMainAxisDim
+                                          : crossAxisDim,
+                                      child: widget.itemBuilder(
+                                        context,
+                                        widget.items[i],
+                                        i,
+                                        isSelected,
+                                        progress,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
+
+              if (widget.startEdgeDecoration != null)
+                Positioned(
+                  left: widget.scrollDirection == Axis.horizontal ? 0 : null,
+                  right: widget.scrollDirection == Axis.horizontal ? null : 0,
+                  top: widget.scrollDirection == Axis.vertical ? 0 : null,
+                  bottom: widget.scrollDirection == Axis.vertical ? null : 0,
+                  width: widget.scrollDirection == Axis.horizontal
+                      ? widget.edgeDecorationSize
+                      : double.infinity,
+                  height: widget.scrollDirection == Axis.vertical
+                      ? widget.edgeDecorationSize
+                      : double.infinity,
+                  child: IgnorePointer(
+                    child: Container(decoration: widget.startEdgeDecoration),
+                  ),
+                ),
+              if (widget.endEdgeDecoration != null)
+                Positioned(
+                  left: widget.scrollDirection == Axis.horizontal ? null : 0,
+                  right: widget.scrollDirection == Axis.horizontal ? 0 : null,
+                  top: widget.scrollDirection == Axis.vertical ? null : 0,
+                  bottom: widget.scrollDirection == Axis.vertical ? 0 : null,
+                  width: widget.scrollDirection == Axis.horizontal
+                      ? widget.edgeDecorationSize
+                      : double.infinity,
+                  height: widget.scrollDirection == Axis.vertical
+                      ? widget.edgeDecorationSize
+                      : double.infinity,
+                  child: IgnorePointer(
+                    child: Container(decoration: widget.endEdgeDecoration),
+                  ),
+                ),
             ],
           );
 
@@ -633,9 +716,12 @@ class _SnapListState<T> extends State<SnapList<T>> {
                 AnimatedBuilder(
                   animation: _controller,
                   builder: (context, _) {
-                    final currentIndex = _getClosestIndex(
-                      _currentActualMainAxis,
-                    );
+                    final currentIndex = _controller.hasClients
+                        ? (_controller.offset / _currentSlotSize).round().clamp(
+                            0,
+                            widget.items.length - 1,
+                          )
+                        : 0;
                     return widget.footerBuilder!(
                       context,
                       currentIndex,
@@ -686,6 +772,13 @@ class InfiniteSnapList<T> extends StatelessWidget {
   final double focusedItemScale;
   final double unfocusedItemScale;
   final double unfocusedItemOpacity;
+  final double focusRange;
+  final SnapBehavior snapBehavior;
+  final double maxFlingVelocity;
+
+  final Decoration? startEdgeDecoration;
+  final Decoration? endEdgeDecoration;
+  final double edgeDecorationSize;
 
   final Widget Function(BuildContext, double, double)?
   selectedItemOverlayBuilder;
@@ -695,8 +788,7 @@ class InfiniteSnapList<T> extends StatelessWidget {
   final Widget Function(BuildContext context, int currentIndex, int totalCount)?
   footerBuilder;
 
-  /// A builder for providing an individual loading/shimmer element.
-  /// Receives the exact calculated dimensions of the element.
+  /// A builder for providing an individual loading/RistoShimmer element.
   final Widget Function(BuildContext context, double width, double height)?
   loadingItemBuilder;
 
@@ -709,7 +801,6 @@ class InfiniteSnapList<T> extends StatelessWidget {
   final ScrollPhysics scrollPhysics;
   final Duration snapAnimationDuration;
   final Curve snapAnimationCurve;
-  final Duration snapTimerDuration;
   final bool enableKeyboardNavigation;
 
   const InfiniteSnapList({
@@ -728,6 +819,12 @@ class InfiniteSnapList<T> extends StatelessWidget {
     this.focusedItemScale = 1.0,
     this.unfocusedItemScale = 1.0,
     this.unfocusedItemOpacity = 1.0,
+    this.focusRange = 1.0,
+    this.snapBehavior = SnapBehavior.freeScroll,
+    this.maxFlingVelocity = 2000.0,
+    this.startEdgeDecoration,
+    this.endEdgeDecoration,
+    this.edgeDecorationSize = 40.0,
     this.selectedItemOverlayBuilder,
     this.selectedOverlayColor,
     this.selectedOverlayBorderRadius,
@@ -741,7 +838,6 @@ class InfiniteSnapList<T> extends StatelessWidget {
     this.scrollPhysics = const BouncingScrollPhysics(),
     this.snapAnimationDuration = const Duration(milliseconds: 300),
     this.snapAnimationCurve = Curves.easeOutQuart,
-    this.snapTimerDuration = const Duration(milliseconds: 150),
     this.enableKeyboardNavigation = true,
   });
 
@@ -755,108 +851,117 @@ class InfiniteSnapList<T> extends StatelessWidget {
         final isLoading = state is ISLLoadingState<T>;
         final loadingDir = state.state.loadingDirection;
 
-        if (state is ISLInitialState<T> ||
-            (isLoading && loadingDir == LoadingDirection.initial)) {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final mainAxis = scrollDirection == Axis.horizontal
-                  ? constraints.maxWidth
-                  : constraints.maxHeight;
-              final crossAxis = scrollDirection == Axis.horizontal
-                  ? itemHeight
-                  : itemWidth;
-              double mainDim = itemWidth;
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final mainAxis = scrollDirection == Axis.horizontal
+                ? constraints.maxWidth
+                : constraints.maxHeight;
+            final crossAxis = scrollDirection == Axis.horizontal
+                ? itemHeight
+                : itemWidth;
+            double mainDim = itemWidth;
 
-              if (visibleItemCount != null && visibleItemCount! > 0) {
-                mainDim = (mainAxis / visibleItemCount!) - itemSpacing;
-              }
+            if (visibleItemCount != null && visibleItemCount! > 0) {
+              mainDim = (mainAxis / visibleItemCount!) - itemSpacing;
+            }
 
-              final startEndPadding = max(
-                0.0,
-                (mainAxis / 2) - ((mainDim + itemSpacing) / 2),
-              );
+            final slotSize = mainDim + itemSpacing;
+            final startEndPadding = max(0.0, (mainAxis / 2) - (slotSize / 2));
 
+            if (state is ISLInitialState<T> ||
+                (isLoading && loadingDir == LoadingDirection.initial)) {
               return _buildShimmerList(
                 context,
                 initialItemsCountForShimmer,
                 mainDim,
                 crossAxis,
+                slotSize,
                 startEndPadding,
               );
-            },
-          );
-        }
+            }
 
-        if (state is ISLErrorState<T>) {
-          return errorBuilder?.call(context, state.error) ??
-              const SizedBox.shrink();
-        }
-        if (items.isEmpty) {
-          return emptyListBuilder?.call(context) ?? const SizedBox.shrink();
-        }
+            if (state is ISLErrorState<T>) {
+              return errorBuilder?.call(context, state.error) ??
+                  const SizedBox.shrink();
+            }
+            if (items.isEmpty) {
+              return emptyListBuilder?.call(context) ?? const SizedBox.shrink();
+            }
 
-        return Stack(
-          children: [
-            SnapList<T>(
-              items: items,
-              selectedItem: selected,
-              controller: controller,
-              itemBuilder: itemBuilder,
-              onItemSelected: (item, index) {
-                bloc.add(SelectItemEvent<T>(item));
-                onItemSelected?.call(item, index);
-              },
-              scrollDirection: scrollDirection,
-              itemAlignment: itemAlignment,
-              listPadding: listPadding,
-              visibleItemCount: visibleItemCount,
-              itemWidth: itemWidth,
-              itemHeight: itemHeight,
-              itemSpacing: itemSpacing,
-              focusedItemScale: focusedItemScale,
-              unfocusedItemScale: unfocusedItemScale,
-              unfocusedItemOpacity: unfocusedItemOpacity,
-              selectedItemOverlayBuilder: selectedItemOverlayBuilder,
-              selectedOverlayColor: selectedOverlayColor,
-              selectedOverlayBorderRadius: selectedOverlayBorderRadius,
-              footerBuilder: footerBuilder,
-              semanticLabelBuilder: semanticLabelBuilder,
-              scrollPhysics: scrollPhysics,
-              snapAnimationDuration: snapAnimationDuration,
-              snapAnimationCurve: snapAnimationCurve,
-              snapTimerDuration: snapTimerDuration,
-              enableKeyboardNavigation: enableKeyboardNavigation,
-              lockScroll: isLoading && items.isNotEmpty,
-            ),
-
-            if (isLoading && items.isNotEmpty && loadingDir != null)
-              Positioned(
-                left:
-                    scrollDirection == Axis.horizontal &&
-                        loadingDir == LoadingDirection.left
-                    ? 0
-                    : null,
-                right:
-                    scrollDirection == Axis.horizontal &&
-                        loadingDir == LoadingDirection.right
-                    ? 0
-                    : null,
-                top: scrollDirection == Axis.horizontal
-                    ? 0
-                    : (loadingDir == LoadingDirection.left ? 0 : null),
-                bottom: scrollDirection == Axis.horizontal
-                    ? 0
-                    : (loadingDir == LoadingDirection.right ? 0 : null),
-                child: Container(
-                  width: scrollDirection == Axis.horizontal ? 40.0 : null,
-                  height: scrollDirection == Axis.vertical ? 40.0 : null,
-                  alignment: Alignment.center,
-                  child:
-                      loadingIndicatorBuilder?.call(context) ??
-                      const CircularProgressIndicator.adaptive(),
+            return Stack(
+              children: [
+                SnapList<T>(
+                  items: items,
+                  selectedItem: selected,
+                  controller: controller,
+                  itemBuilder: itemBuilder,
+                  onItemSelected: (item, index) {
+                    bloc.add(SelectItemEvent<T>(item));
+                    onItemSelected?.call(item, index);
+                  },
+                  scrollDirection: scrollDirection,
+                  itemAlignment: itemAlignment,
+                  listPadding: listPadding,
+                  visibleItemCount: visibleItemCount,
+                  itemWidth: itemWidth,
+                  itemHeight: itemHeight,
+                  itemSpacing: itemSpacing,
+                  focusedItemScale: focusedItemScale,
+                  unfocusedItemScale: unfocusedItemScale,
+                  unfocusedItemOpacity: unfocusedItemOpacity,
+                  focusRange: focusRange,
+                  snapBehavior: snapBehavior,
+                  maxFlingVelocity: maxFlingVelocity,
+                  startEdgeDecoration: startEdgeDecoration,
+                  endEdgeDecoration: endEdgeDecoration,
+                  edgeDecorationSize: edgeDecorationSize,
+                  selectedItemOverlayBuilder: selectedItemOverlayBuilder,
+                  selectedOverlayColor: selectedOverlayColor,
+                  selectedOverlayBorderRadius: selectedOverlayBorderRadius,
+                  footerBuilder: footerBuilder,
+                  semanticLabelBuilder: semanticLabelBuilder,
+                  scrollPhysics: scrollPhysics,
+                  snapAnimationDuration: snapAnimationDuration,
+                  snapAnimationCurve: snapAnimationCurve,
+                  enableKeyboardNavigation: enableKeyboardNavigation,
+                  lockScroll: false, // Explicitly unlocked!
                 ),
-              ),
-          ],
+
+                if (isLoading && items.isNotEmpty && loadingDir != null)
+                  Positioned(
+                    left:
+                        scrollDirection == Axis.horizontal &&
+                            loadingDir == LoadingDirection.left
+                        ? 0
+                        : null,
+                    right:
+                        scrollDirection == Axis.horizontal &&
+                            loadingDir == LoadingDirection.right
+                        ? 0
+                        : null,
+                    top: scrollDirection == Axis.horizontal
+                        ? 0
+                        : (loadingDir == LoadingDirection.left ? 0 : null),
+                    bottom: scrollDirection == Axis.horizontal
+                        ? 0
+                        : (loadingDir == LoadingDirection.right ? 0 : null),
+                    child: SizedBox(
+                      width: scrollDirection == Axis.horizontal
+                          ? startEndPadding
+                          : double.infinity,
+                      height: scrollDirection == Axis.vertical
+                          ? startEndPadding
+                          : double.infinity,
+                      child: Center(
+                        child:
+                            loadingIndicatorBuilder?.call(context) ??
+                            const CircularProgressIndicator.adaptive(),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
         );
       },
     );
@@ -867,29 +972,54 @@ class InfiniteSnapList<T> extends StatelessWidget {
     int count,
     double mainDim,
     double crossDim,
+    double slotSize,
     double startEndPadding,
   ) {
-    final width = scrollDirection == Axis.horizontal ? mainDim : crossDim;
-    final height = scrollDirection == Axis.vertical ? mainDim : crossDim;
+    final initialOffset = ((count - 1) / 2) * slotSize;
 
-    // Use a basic Row instead of a scrolling ListView for the shimmer
-    // to ensure it perfectly aligns in the center of the viewport,
-    // exactly like the main list content.
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(count, (index) {
-        if (loadingItemBuilder != null) {
-          return loadingItemBuilder!(context, width, height);
-        }
-        return RistoShimmer.block(
-          width: width,
-          height: height,
-          margin: EdgeInsets.symmetric(
-            horizontal: itemSpacing / 2,
-            vertical: itemSpacing / 2,
+    final list = ListView.builder(
+      controller: ScrollController(initialScrollOffset: initialOffset),
+      scrollDirection: scrollDirection,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: listPadding.add(
+        scrollDirection == Axis.horizontal
+            ? EdgeInsets.symmetric(horizontal: startEndPadding)
+            : EdgeInsets.symmetric(vertical: startEndPadding),
+      ),
+      itemCount: count,
+      itemBuilder: (context, index) {
+        final width = scrollDirection == Axis.horizontal ? mainDim : crossDim;
+        final height = scrollDirection == Axis.vertical ? mainDim : crossDim;
+
+        final core = loadingItemBuilder != null
+            ? loadingItemBuilder!(context, width, height)
+            : Container(
+                width: width,
+                height: height,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              );
+
+        return SizedBox(
+          width: scrollDirection == Axis.horizontal ? slotSize : crossDim,
+          height: scrollDirection == Axis.vertical ? slotSize : crossDim,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: scrollDirection == Axis.horizontal
+                  ? itemSpacing / 2
+                  : 0,
+              vertical: scrollDirection == Axis.vertical ? itemSpacing / 2 : 0,
+            ),
+            child: core,
           ),
         );
-      }),
+      },
     );
+
+    if (loadingItemBuilder != null) return list;
+
+    return RistoShimmer.fromColor(color: Colors.grey.shade300, child: list);
   }
 }

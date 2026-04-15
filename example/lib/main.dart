@@ -154,38 +154,43 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Risto Component Library')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: _routes.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final route = _routes[index];
+      body: SafeArea(
+        child: ListView.separated(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: _routes.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final route = _routes[index];
 
-          // Using your own component to build the menu!
-          return IconListTileButton(
-            icon: route.icon,
-            title: Text(
-              route.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            subtitle: Text(
-              route.subtitle,
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-            iconColor: Theme.of(context).primaryColor,
-            backgroundColor: Colors.white,
-            elevation: 2.0,
-            borderRadius: 12.0,
-            leadingSizeFactor: 1.2,
-            trailing: Icon(Icons.chevron_right, color: Colors.grey.shade400),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => route.page),
-              );
-            },
-          );
-        },
+            // Using your own component to build the menu!
+            return IconListTileButton(
+              icon: route.icon,
+              title: Text(
+                route.title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              subtitle: Text(
+                route.subtitle,
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
+              iconColor: Theme.of(context).primaryColor,
+              backgroundColor: Colors.white,
+              elevation: 2.0,
+              borderRadius: 12.0,
+              leadingSizeFactor: 1.2,
+              trailing: Icon(Icons.chevron_right, color: Colors.grey.shade400),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => route.page),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

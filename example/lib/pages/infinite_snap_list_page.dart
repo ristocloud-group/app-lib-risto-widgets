@@ -28,7 +28,9 @@ class DemoSnapBloc extends InfiniteSnapListBloc<DemoItem> {
     required int rightLimit,
     required DemoItem offset,
   }) async {
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(
+      const Duration(seconds: 1),
+    ); // Show off the centered loading
     List<DemoItem> left = List.generate(
       leftLimit,
       (i) => DemoItem(offset.value - leftLimit + i),
@@ -54,7 +56,6 @@ class InfiniteSnapDemoPage extends StatefulWidget {
 class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
   late final DemoSnapBloc _timelineBloc;
 
-  // Finite Lists Data
   final List<DemoItem> _finiteCarouselItems = List.generate(
     5,
     (i) => DemoItem(i + 1),
@@ -103,7 +104,7 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Text(
-              '7 slots visible. Center overlay is artificially scaled up to spill over the bounds, just like the mockup.',
+              'With maxFlingVelocity: 1500 to keep the scrolling smooth and precise!',
               style: theme.textTheme.bodyMedium,
             ),
           ),
@@ -121,17 +122,18 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
               bloc: _timelineBloc,
               scrollDirection: Axis.horizontal,
               visibleItemCount: 7.0,
-              // High density slots
               itemSpacing: 8,
-              focusedItemScale: 1.15,
-              unfocusedItemScale: 0.9,
-              unfocusedItemOpacity: 0.5,
 
-              // Artificially inflate the overlay to spill over the strict slot boundary
+              maxFlingVelocity: 1500.0,
+              focusRange: 2.0,
+              focusedItemScale: 1.15,
+              unfocusedItemScale: 0.85,
+              unfocusedItemOpacity: 0.3,
+
               selectedItemOverlayBuilder: (context, w, h) {
                 return Container(
-                  width: w * 1.4, // Overinflate width
-                  height: h * 1.3, // Overinflate height
+                  width: w * 1.4,
+                  height: h * 1.3,
                   decoration: BoxDecoration(
                     color: theme.primaryColor,
                     borderRadius: BorderRadius.circular(16),
@@ -146,8 +148,6 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                 );
               },
 
-              // FIX IS HERE: Use RistoShimmer.block to define the shape and size,
-              // and tell it to apply the shimmer effect.
               loadingItemBuilder:
                   (context, width, height) => RistoShimmer.block(
                     width: width,
@@ -157,8 +157,6 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
 
               itemBuilder: (ctx, item, idx, isSelected, progress) {
                 int day = ((item.value % 31) + 31) % 31 + 1;
-
-                // Seamless color transition
                 final topColor = Color.lerp(
                   Colors.grey.shade500,
                   Colors.white70,
@@ -210,7 +208,7 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Text(
-              'Uses SnapList.carousel for a simple list of cards. Includes a footer dot indicator.',
+              'Uses SnapScrollPhysics to swipe exactly one card at a time.',
               style: theme.textTheme.bodyMedium,
             ),
           ),
