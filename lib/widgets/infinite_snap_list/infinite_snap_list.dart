@@ -5,9 +5,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:risto_widgets/extensions.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:risto_widgets/widgets/indicators/risto_shimmer.dart';
 
 import 'infinite_snap_list_bloc/infinite_snap_list_bloc.dart';
+
+// ===========================================================================
+// 1. CONTROLLER & HELPERS
+// ===========================================================================
 
 /// Controller for programmatic selection, jump, and scroll control.
 class SnapListController<T> extends ChangeNotifier {
@@ -44,7 +48,7 @@ class SnapListController<T> extends ChangeNotifier {
 
 typedef InfiniteSnapListController<T> = SnapListController<T>;
 
-/// A gracefully animated dot indicator designed for the [SnapList] footer.
+/// A beautifully animated dot indicator for use with the [SnapList] footer.
 class SnapListDotIndicator extends StatelessWidget {
   final int itemCount;
   final int currentIndex;
@@ -85,6 +89,10 @@ class SnapListDotIndicator extends StatelessWidget {
   }
 }
 
+// ===========================================================================
+// 2. CORE SNAP LIST (FINITE)
+// ===========================================================================
+
 /// A highly customizable, finite snap-scrolling list.
 class SnapList<T> extends StatefulWidget {
   final List<T> items;
@@ -113,10 +121,6 @@ class SnapList<T> extends StatefulWidget {
   final double focusedItemScale;
   final double unfocusedItemScale;
   final double unfocusedItemOpacity;
-
-  final Decoration? startEdgeDecoration;
-  final Decoration? endEdgeDecoration;
-  final double edgeDecorationSize;
 
   final Widget Function(BuildContext, double, double)?
   selectedItemOverlayBuilder;
@@ -151,9 +155,6 @@ class SnapList<T> extends StatefulWidget {
     this.focusedItemScale = 1.0,
     this.unfocusedItemScale = 1.0,
     this.unfocusedItemOpacity = 1.0,
-    this.startEdgeDecoration,
-    this.endEdgeDecoration,
-    this.edgeDecorationSize = 40.0,
     this.selectedItemOverlayBuilder,
     this.selectedOverlayColor,
     this.selectedOverlayBorderRadius,
@@ -180,8 +181,6 @@ class SnapList<T> extends StatefulWidget {
     double focusedItemScale = 1.0,
     double unfocusedItemScale = 0.9,
     double unfocusedItemOpacity = 0.7,
-    Decoration? startEdgeDecoration,
-    Decoration? endEdgeDecoration,
     EdgeInsetsGeometry listPadding = EdgeInsets.zero,
     Widget Function(BuildContext context, int currentIndex, int totalCount)?
     footerBuilder,
@@ -199,8 +198,6 @@ class SnapList<T> extends StatefulWidget {
       focusedItemScale: focusedItemScale,
       unfocusedItemScale: unfocusedItemScale,
       unfocusedItemOpacity: unfocusedItemOpacity,
-      startEdgeDecoration: startEdgeDecoration,
-      endEdgeDecoration: endEdgeDecoration,
       listPadding: listPadding,
       footerBuilder: footerBuilder,
     );
@@ -625,39 +622,6 @@ class _SnapListState<T> extends State<SnapList<T>> {
                   );
                 },
               ),
-
-              if (widget.startEdgeDecoration != null)
-                Positioned(
-                  left: widget.scrollDirection == Axis.horizontal ? 0 : 0,
-                  right: widget.scrollDirection == Axis.horizontal ? null : 0,
-                  top: widget.scrollDirection == Axis.vertical ? 0 : 0,
-                  bottom: widget.scrollDirection == Axis.vertical ? null : 0,
-                  width: widget.scrollDirection == Axis.horizontal
-                      ? widget.edgeDecorationSize
-                      : null,
-                  height: widget.scrollDirection == Axis.vertical
-                      ? widget.edgeDecorationSize
-                      : null,
-                  child: IgnorePointer(
-                    child: Container(decoration: widget.startEdgeDecoration),
-                  ),
-                ),
-              if (widget.endEdgeDecoration != null)
-                Positioned(
-                  left: widget.scrollDirection == Axis.horizontal ? null : 0,
-                  right: widget.scrollDirection == Axis.horizontal ? 0 : 0,
-                  top: widget.scrollDirection == Axis.vertical ? null : 0,
-                  bottom: widget.scrollDirection == Axis.vertical ? 0 : 0,
-                  width: widget.scrollDirection == Axis.horizontal
-                      ? widget.edgeDecorationSize
-                      : null,
-                  height: widget.scrollDirection == Axis.vertical
-                      ? widget.edgeDecorationSize
-                      : null,
-                  child: IgnorePointer(
-                    child: Container(decoration: widget.endEdgeDecoration),
-                  ),
-                ),
             ],
           );
 
@@ -723,10 +687,6 @@ class InfiniteSnapList<T> extends StatelessWidget {
   final double unfocusedItemScale;
   final double unfocusedItemOpacity;
 
-  final Decoration? startEdgeDecoration;
-  final Decoration? endEdgeDecoration;
-  final double edgeDecorationSize;
-
   final Widget Function(BuildContext, double, double)?
   selectedItemOverlayBuilder;
   final Color? selectedOverlayColor;
@@ -736,6 +696,7 @@ class InfiniteSnapList<T> extends StatelessWidget {
   footerBuilder;
 
   /// A builder for providing an individual loading/shimmer element.
+  /// Receives the exact calculated dimensions of the element.
   final Widget Function(BuildContext context, double width, double height)?
   loadingItemBuilder;
 
@@ -767,9 +728,6 @@ class InfiniteSnapList<T> extends StatelessWidget {
     this.focusedItemScale = 1.0,
     this.unfocusedItemScale = 1.0,
     this.unfocusedItemOpacity = 1.0,
-    this.startEdgeDecoration,
-    this.endEdgeDecoration,
-    this.edgeDecorationSize = 40.0,
     this.selectedItemOverlayBuilder,
     this.selectedOverlayColor,
     this.selectedOverlayBorderRadius,
@@ -858,9 +816,6 @@ class InfiniteSnapList<T> extends StatelessWidget {
               focusedItemScale: focusedItemScale,
               unfocusedItemScale: unfocusedItemScale,
               unfocusedItemOpacity: unfocusedItemOpacity,
-              startEdgeDecoration: startEdgeDecoration,
-              endEdgeDecoration: endEdgeDecoration,
-              edgeDecorationSize: edgeDecorationSize,
               selectedItemOverlayBuilder: selectedItemOverlayBuilder,
               selectedOverlayColor: selectedOverlayColor,
               selectedOverlayBorderRadius: selectedOverlayBorderRadius,
@@ -893,12 +848,8 @@ class InfiniteSnapList<T> extends StatelessWidget {
                     ? 0
                     : (loadingDir == LoadingDirection.right ? 0 : null),
                 child: Container(
-                  width: scrollDirection == Axis.horizontal
-                      ? edgeDecorationSize
-                      : null,
-                  height: scrollDirection == Axis.vertical
-                      ? edgeDecorationSize
-                      : null,
+                  width: scrollDirection == Axis.horizontal ? 40.0 : null,
+                  height: scrollDirection == Axis.vertical ? 40.0 : null,
                   alignment: Alignment.center,
                   child:
                       loadingIndicatorBuilder?.call(context) ??
@@ -921,42 +872,24 @@ class InfiniteSnapList<T> extends StatelessWidget {
     final width = scrollDirection == Axis.horizontal ? mainDim : crossDim;
     final height = scrollDirection == Axis.vertical ? mainDim : crossDim;
 
-    final list = ListView.separated(
-      scrollDirection: scrollDirection,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: listPadding.add(
-        scrollDirection == Axis.horizontal
-            ? EdgeInsets.symmetric(horizontal: startEndPadding)
-            : EdgeInsets.symmetric(vertical: startEndPadding),
-      ),
-      itemCount: count,
-      separatorBuilder: (_, _) => SizedBox(
-        width: scrollDirection == Axis.horizontal ? itemSpacing : 0,
-        height: scrollDirection == Axis.vertical ? itemSpacing : 0,
-      ),
-      itemBuilder: (context, index) {
+    // Use a basic Row instead of a scrolling ListView for the shimmer
+    // to ensure it perfectly aligns in the center of the viewport,
+    // exactly like the main list content.
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: List.generate(count, (index) {
         if (loadingItemBuilder != null) {
           return loadingItemBuilder!(context, width, height);
         }
-        return Container(
+        return RistoShimmer.block(
           width: width,
           height: height,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.0),
+          margin: EdgeInsets.symmetric(
+            horizontal: itemSpacing / 2,
+            vertical: itemSpacing / 2,
           ),
         );
-      },
-    );
-
-    if (loadingItemBuilder != null) {
-      return list;
-    }
-
-    return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
-      child: list,
+      }),
     );
   }
 }

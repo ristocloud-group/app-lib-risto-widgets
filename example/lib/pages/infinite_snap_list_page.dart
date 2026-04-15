@@ -28,7 +28,7 @@ class DemoSnapBloc extends InfiniteSnapListBloc<DemoItem> {
     required int rightLimit,
     required DemoItem offset,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(seconds: 2));
     List<DemoItem> left = List.generate(
       leftLimit,
       (i) => DemoItem(offset.value - leftLimit + i),
@@ -146,6 +146,15 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                 );
               },
 
+              // FIX IS HERE: Use RistoShimmer.block to define the shape and size,
+              // and tell it to apply the shimmer effect.
+              loadingItemBuilder:
+                  (context, width, height) => RistoShimmer.block(
+                    width: width,
+                    height: height,
+                    baseColor: Colors.grey.shade300,
+                  ),
+
               itemBuilder: (ctx, item, idx, isSelected, progress) {
                 int day = ((item.value % 31) + 31) % 31 + 1;
 
@@ -213,27 +222,6 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
               selectedItem: _selectedCarouselItem,
               onItemSelected:
                   (item, idx) => setState(() => _selectedCarouselItem = item),
-
-              startEdgeDecoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.grey.shade100,
-                    Colors.grey.shade100.withCustomOpacity(0.0),
-                  ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-              endEdgeDecoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.grey.shade100,
-                    Colors.grey.shade100.withCustomOpacity(0.0),
-                  ],
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                ),
-              ),
 
               footerBuilder: (context, currentIndex, totalCount) {
                 return Padding(

@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extensions.dart'; // Ensure this points to your extensions
 
-/// A wrapper that applies a beautifully smooth, continuous shimmering gradient
-/// effect to its child. This does not use an external package; it uses an
-/// animated ShaderMask with optimized translation math.
+/// A unified widget that applies a smooth shimmering gradient effect.
+/// It acts as a wrapper for custom children, or can generate pre-built
+/// skeleton shapes (blocks, circles, text lines) via its static methods.
 class RistoShimmer extends StatefulWidget {
-  /// The widget to apply the shimmer effect to.
   final Widget child;
-
-  /// The base color of the shimmer (the darkest part).
   final Color? baseColor;
-
-  /// The highlight color of the shimmer (the lightest part that sweeps across).
   final Color? highlightColor;
-
-  /// The duration of one complete shimmer cycle.
   final Duration duration;
 
   const RistoShimmer({
@@ -23,6 +17,301 @@ class RistoShimmer extends StatefulWidget {
     this.highlightColor,
     this.duration = const Duration(milliseconds: 1500),
   });
+
+  // ===========================================================================
+  // 1. SHIMMER WRAPPER FACTORIES (Custom Colors)
+  // ===========================================================================
+
+  /// A pre-configured shimmer for light-themed interfaces.
+  factory RistoShimmer.light({
+    Key? key,
+    required Widget child,
+    Duration duration = const Duration(milliseconds: 1500),
+  }) {
+    return RistoShimmer(
+      key: key,
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.white,
+      duration: duration,
+      child: child,
+    );
+  }
+
+  /// A pre-configured shimmer for dark-themed interfaces.
+  factory RistoShimmer.dark({
+    Key? key,
+    required Widget child,
+    Duration duration = const Duration(milliseconds: 1500),
+  }) {
+    return RistoShimmer(
+      key: key,
+      baseColor: Colors.grey.shade800,
+      highlightColor: Colors.grey.shade600,
+      duration: duration,
+      child: child,
+    );
+  }
+
+  /// Automatically generates the highlight sweeping color based on a single base color.
+  factory RistoShimmer.fromColor({
+    Key? key,
+    required Widget child,
+    required Color color,
+    double lightnessFactor = 0.4,
+    Duration duration = const Duration(milliseconds: 1500),
+  }) {
+    return RistoShimmer(
+      key: key,
+      baseColor: color,
+      highlightColor: color.lighter(lightnessFactor),
+      duration: duration,
+      child: child,
+    );
+  }
+
+  // ===========================================================================
+  // 2. PRE-BUILT SKELETON SHAPE FACTORIES
+  // ===========================================================================
+
+  /// Internal helper to generate the physical solid shapes
+  static Widget _buildShape({
+    double? width,
+    double? height,
+    double borderRadius = 8.0,
+    BoxShape shape = BoxShape.rectangle,
+    EdgeInsetsGeometry? margin,
+    Color? color,
+  }) {
+    return Container(
+      width: width,
+      height: height,
+      margin: margin,
+      decoration: BoxDecoration(
+        color: color ?? Colors.white,
+        shape: shape,
+        borderRadius: shape == BoxShape.circle
+            ? null
+            : BorderRadius.circular(borderRadius),
+      ),
+    );
+  }
+
+  /// Generates a standard rectangular skeleton block, automatically shimmering.
+  static Widget block({
+    double? width,
+    double? height,
+    double borderRadius = 8.0,
+    EdgeInsetsGeometry? margin,
+    Color? staticColor,
+    bool animated = true,
+    Color? baseColor,
+    Color? highlightColor,
+  }) {
+    final shape = _buildShape(
+      width: width,
+      height: height,
+      borderRadius: borderRadius,
+      margin: margin,
+      color: staticColor,
+    );
+    if (!animated) return shape;
+    return RistoShimmer(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: shape,
+    );
+  }
+
+  /// Generates a large card skeleton block.
+  static Widget card({
+    double? width,
+    double? height,
+    double borderRadius = 16.0,
+    EdgeInsetsGeometry? margin,
+    Color? staticColor,
+    bool animated = true,
+    Color? baseColor,
+    Color? highlightColor,
+  }) {
+    final shape = _buildShape(
+      width: width,
+      height: height,
+      borderRadius: borderRadius,
+      margin: margin,
+      color: staticColor,
+    );
+    if (!animated) return shape;
+    return RistoShimmer(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: shape,
+    );
+  }
+
+  /// Generates a skeleton block styled like a standard button.
+  static Widget button({
+    double? width,
+    double height = 48.0,
+    double borderRadius = 12.0,
+    EdgeInsetsGeometry? margin,
+    Color? staticColor,
+    bool animated = true,
+    Color? baseColor,
+    Color? highlightColor,
+  }) {
+    final shape = _buildShape(
+      width: width,
+      height: height,
+      borderRadius: borderRadius,
+      margin: margin,
+      color: staticColor,
+    );
+    if (!animated) return shape;
+    return RistoShimmer(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: shape,
+    );
+  }
+
+  /// Generates a circular skeleton block (e.g., for avatars).
+  static Widget circle({
+    required double size,
+    EdgeInsetsGeometry? margin,
+    Color? staticColor,
+    bool animated = true,
+    Color? baseColor,
+    Color? highlightColor,
+  }) {
+    final shape = _buildShape(
+      width: size,
+      height: size,
+      shape: BoxShape.circle,
+      margin: margin,
+      color: staticColor,
+    );
+    if (!animated) return shape;
+    return RistoShimmer(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: shape,
+    );
+  }
+
+  /// Generates a layout of multiple skeleton text lines.
+  /// Wraps all lines in a SINGLE shimmer so the sweep effect travels across them seamlessly.
+  static Widget textLines({
+    int lines = 2,
+    double lineHeight = 14.0,
+    double spacing = 8.0,
+    bool lastLineShort = true,
+    Color? staticColor,
+    bool animated = true,
+    Color? baseColor,
+    Color? highlightColor,
+  }) {
+    Widget content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(lines, (index) {
+        final isLast = index == lines - 1;
+        return _buildShape(
+          width: (isLast && lastLineShort) ? 120.0 : double.infinity,
+          height: lineHeight,
+          borderRadius: lineHeight / 2,
+          color: staticColor,
+          margin: EdgeInsets.only(bottom: isLast ? 0 : spacing),
+        );
+      }),
+    );
+
+    if (!animated) return content;
+    return RistoShimmer(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: content,
+    );
+  }
+
+  // ===========================================================================
+  // 3. COMPLEX PRE-BUILT LAYOUTS
+  // ===========================================================================
+
+  /// Replicates a complex layout with split top action buttons and a horizontal scrolling list of cards.
+  static Widget layoutButtonsAndCards({
+    double buttonHeight = 54.0,
+    double cardWidth = 140.0,
+    double cardHeight = 160.0,
+    double horizontalPadding = 16.0,
+    double spacing = 12.0,
+    int cardCount = 4,
+    Color? staticColor,
+    bool animated = true,
+    Color? baseColor,
+    Color? highlightColor,
+  }) {
+    Widget content = Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildShape(
+                      height: buttonHeight,
+                      borderRadius: 12,
+                      color: staticColor,
+                    ),
+                  ),
+                  SizedBox(width: spacing),
+                  Expanded(
+                    child: _buildShape(
+                      height: buttonHeight,
+                      borderRadius: 12,
+                      color: staticColor,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: spacing),
+              _buildShape(
+                width: double.infinity,
+                height: buttonHeight,
+                borderRadius: 12,
+                color: staticColor,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: spacing * 2),
+        SizedBox(
+          height: cardHeight,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            itemCount: cardCount,
+            separatorBuilder: (_, _) => SizedBox(width: spacing),
+            itemBuilder: (_, _) => _buildShape(
+              width: cardWidth,
+              height: cardHeight,
+              borderRadius: 16,
+              color: staticColor,
+            ),
+          ),
+        ),
+      ],
+    );
+
+    if (!animated) return content;
+    return RistoShimmer(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: content,
+    );
+  }
 
   @override
   State<RistoShimmer> createState() => _RistoShimmerState();
@@ -35,7 +324,6 @@ class _RistoShimmerState extends State<RistoShimmer>
   @override
   void initState() {
     super.initState();
-    // Using linear animation to ensure a constant velocity.
     _controller = AnimationController(vsync: this, duration: widget.duration)
       ..repeat();
   }
@@ -58,17 +346,9 @@ class _RistoShimmerState extends State<RistoShimmer>
         return ShaderMask(
           blendMode: BlendMode.srcATop,
           shaderCallback: (bounds) {
-            // OPTIMIZED MATH:
-            // We map the 0.0 -> 1.0 animation value to an offset of -1.2 to 1.2.
-            // This ensures the gradient starts just off-screen to the left, sweeps
-            // across, and ends just off-screen to the right.
-            // This eliminates the long "stuck" pause between loops.
             final offset = -1.2 + (_controller.value * 2.4);
-
             return LinearGradient(
               colors: [base, highlight, base],
-              // Tighter stops concentrate the light beam so the edges remain pure
-              // baseColor. This prevents hard lines when the loop restarts.
               stops: const [0.35, 0.5, 0.65],
               begin: const Alignment(-1.0, -0.3),
               end: const Alignment(1.0, 0.3),
@@ -90,175 +370,6 @@ class _SlidingGradientTransform extends GradientTransform {
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    // Translates the gradient horizontally across the bounds.
     return Matrix4.translationValues(bounds.width * slidePercent, 0.0, 0.0);
-  }
-}
-
-// ===========================================================================
-// PRE-BUILT SKELETON BLOCKS & LAYOUTS
-// ===========================================================================
-
-/// A set of pre-configured skeleton shapes and full-page layouts designed to be used inside a [RistoShimmer].
-class RistoSkeleton extends StatelessWidget {
-  final double? width;
-  final double? height;
-  final double borderRadius;
-  final BoxShape shape;
-  final EdgeInsetsGeometry? margin;
-
-  const RistoSkeleton._({
-    this.width,
-    this.height,
-    this.borderRadius = 8.0,
-    this.shape = BoxShape.rectangle,
-    this.margin,
-  });
-
-  /// A generic rectangular block.
-  factory RistoSkeleton.block({
-    double? width,
-    double? height,
-    double borderRadius = 8.0,
-    EdgeInsetsGeometry? margin,
-  }) {
-    return RistoSkeleton._(
-      width: width,
-      height: height,
-      borderRadius: borderRadius,
-      margin: margin,
-    );
-  }
-
-  /// A generic card block.
-  factory RistoSkeleton.card({
-    double? width,
-    double? height,
-    double borderRadius = 16.0,
-    EdgeInsetsGeometry? margin,
-  }) {
-    return RistoSkeleton._(
-      width: width,
-      height: height,
-      borderRadius: borderRadius,
-      margin: margin,
-    );
-  }
-
-  /// A generic button block.
-  factory RistoSkeleton.button({
-    double? width,
-    double height = 48.0,
-    double borderRadius = 12.0,
-    EdgeInsetsGeometry? margin,
-  }) {
-    return RistoSkeleton._(
-      width: width,
-      height: height,
-      borderRadius: borderRadius,
-      margin: margin,
-    );
-  }
-
-  /// A circular block, typically used for avatars or leading icons.
-  factory RistoSkeleton.circle({
-    required double size,
-    EdgeInsetsGeometry? margin,
-  }) {
-    return RistoSkeleton._(
-      width: size,
-      height: size,
-      shape: BoxShape.circle,
-      margin: margin,
-    );
-  }
-
-  /// Generates a column of text-like lines.
-  static Widget textLines({
-    int lines = 2,
-    double lineHeight = 14.0,
-    double spacing = 8.0,
-    bool lastLineShort = true,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(lines, (index) {
-        final isLast = index == lines - 1;
-        return RistoSkeleton._(
-          width: (isLast && lastLineShort) ? 120.0 : double.infinity,
-          height: lineHeight,
-          borderRadius: lineHeight / 2,
-          margin: EdgeInsets.only(bottom: isLast ? 0 : spacing),
-        );
-      }),
-    );
-  }
-
-  // --- FULL LAYOUT FACTORIES ---
-
-  /// Replicates a complex layout with split top action buttons and a horizontal scrolling list of cards.
-  static Widget buttonsAndHorizontalCards({
-    double buttonHeight = 54.0,
-    double cardWidth = 140.0,
-    double cardHeight = 160.0,
-    double horizontalPadding = 16.0,
-    double spacing = 12.0,
-    int cardCount = 4,
-  }) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(child: RistoSkeleton.button(height: buttonHeight)),
-                  SizedBox(width: spacing),
-                  Expanded(child: RistoSkeleton.button(height: buttonHeight)),
-                ],
-              ),
-              SizedBox(height: spacing),
-              RistoSkeleton.button(
-                width: double.infinity,
-                height: buttonHeight,
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: spacing * 2),
-        SizedBox(
-          height: cardHeight,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            itemCount: cardCount,
-            separatorBuilder: (_, _) => SizedBox(width: spacing),
-            itemBuilder: (_, _) =>
-                RistoSkeleton.card(width: cardWidth, height: cardHeight),
-          ),
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // The color here doesn't matter much as long as it's solid,
-    // because RistoShimmer (ShaderMask) overrides it completely with srcATop.
-    return Container(
-      width: width,
-      height: height,
-      margin: margin,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: shape,
-        borderRadius: shape == BoxShape.circle
-            ? null
-            : BorderRadius.circular(borderRadius),
-      ),
-    );
   }
 }
