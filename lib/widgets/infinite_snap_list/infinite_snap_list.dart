@@ -293,6 +293,8 @@ class SnapList<T> extends StatefulWidget {
     EdgeInsetsGeometry listPadding = EdgeInsets.zero,
     Widget Function(BuildContext context, int currentIndex, int totalCount)?
     footerBuilder,
+    Color? selectedOverlayColor,
+    BorderRadiusGeometry? selectedOverlayBorderRadius,
   }) {
     return SnapList(
       key: key,
@@ -314,6 +316,8 @@ class SnapList<T> extends StatefulWidget {
       endEdgeDecoration: endEdgeDecoration,
       listPadding: listPadding,
       footerBuilder: footerBuilder,
+      selectedOverlayColor: selectedOverlayColor,
+      selectedOverlayBorderRadius: selectedOverlayBorderRadius,
     );
   }
 
