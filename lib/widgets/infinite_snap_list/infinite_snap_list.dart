@@ -3,22 +3,13 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:risto_widgets/extensions.dart';
+import 'package:shimmer/shimmer.dart';
 
-import '../indicators/risto_shimmer.dart';
 import 'infinite_snap_list_bloc/infinite_snap_list_bloc.dart';
 
-// ===========================================================================
-// 1. SCROLL PHYSICS & CONTROLLER
-// ===========================================================================
-
 /// Defines how the list behaves when the user swipes.
-enum SnapBehavior {
-  /// Swipes snap exactly one item left or right (Perfect for Carousels).
-  singleItem,
-
-  /// Allows fast flinging across multiple items, snapping at the end (Perfect for Pickers).
-  freeScroll,
-}
+enum SnapBehavior { singleItem, freeScroll }
 
 /// Custom physics to force the ListView to snap perfectly to individual items,
 /// with clamped velocity to prevent excessive scrolling on strong swipes.
@@ -50,8 +41,7 @@ class SnapScrollPhysics extends ScrollPhysics {
     ScrollMetrics position,
     double velocity,
   ) {
-    if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) ||
-        (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
+    if (position.outOfRange) {
       return super.createBallisticSimulation(position, velocity);
     }
 
@@ -59,7 +49,6 @@ class SnapScrollPhysics extends ScrollPhysics {
     final exactIndex = position.pixels / itemSize;
     double targetIndex;
 
-    // Clamp the velocity to prevent wild over-scrolling
     final throttledVelocity = velocity.clamp(
       -maxFlingVelocity,
       maxFlingVelocity,
@@ -90,6 +79,11 @@ class SnapScrollPhysics extends ScrollPhysics {
       position.minScrollExtent,
       position.maxScrollExtent,
     );
+
+    if ((targetPixels - position.pixels).abs() < tolerance.distance &&
+        velocity.abs() < tolerance.velocity) {
+      return null;
+    }
 
     return ScrollSpringSimulation(
       spring,
@@ -179,10 +173,6 @@ class SnapListDotIndicator extends StatelessWidget {
     );
   }
 }
-
-// ===========================================================================
-// 2. CORE SNAP LIST (FINITE)
-// ===========================================================================
 
 /// A highly customizable, finite snap-scrolling list.
 class SnapList<T> extends StatefulWidget {
@@ -486,7 +476,7 @@ class _SnapListState<T> extends State<SnapList<T>> {
   ) {
     final overlayColor =
         widget.selectedOverlayColor ??
-        Theme.of(context).colorScheme.secondary.withOpacity(0.2);
+        Theme.of(context).colorScheme.secondary.withCustomOpacity(0.2);
     final borderRadius =
         widget.selectedOverlayBorderRadius ?? BorderRadius.circular(8.0);
     return Container(
@@ -556,7 +546,6 @@ class _SnapListState<T> extends State<SnapList<T>> {
                           : _currentMainAxisDim,
                     ),
               ),
-
               NotificationListener<ScrollNotification>(
                 onNotification: _onScrollNotification,
                 child: ListView.builder(
@@ -672,7 +661,6 @@ class _SnapListState<T> extends State<SnapList<T>> {
                   },
                 ),
               ),
-
               if (widget.startEdgeDecoration != null)
                 Positioned(
                   left: widget.scrollDirection == Axis.horizontal ? 0 : null,
@@ -788,7 +776,6 @@ class InfiniteSnapList<T> extends StatelessWidget {
   final Widget Function(BuildContext context, int currentIndex, int totalCount)?
   footerBuilder;
 
-  /// A builder for providing an individual loading/RistoShimmer element.
   final Widget Function(BuildContext context, double width, double height)?
   loadingItemBuilder;
 
@@ -924,9 +911,8 @@ class InfiniteSnapList<T> extends StatelessWidget {
                   snapAnimationDuration: snapAnimationDuration,
                   snapAnimationCurve: snapAnimationCurve,
                   enableKeyboardNavigation: enableKeyboardNavigation,
-                  lockScroll: false, // Explicitly unlocked!
+                  lockScroll: false,
                 ),
-
                 if (isLoading && items.isNotEmpty && loadingDir != null)
                   Positioned(
                     left:
@@ -1020,6 +1006,10 @@ class InfiniteSnapList<T> extends StatelessWidget {
 
     if (loadingItemBuilder != null) return list;
 
-    return RistoShimmer.fromColor(color: Colors.grey.shade300, child: list);
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: list,
+    );
   }
 }

@@ -123,7 +123,6 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
               scrollDirection: Axis.horizontal,
               visibleItemCount: 7.0,
               itemSpacing: 8,
-
               maxFlingVelocity: 1500.0,
               focusRange: 2.0,
               focusedItemScale: 1.15,
