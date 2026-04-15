@@ -9,10 +9,6 @@ import 'package:shimmer/shimmer.dart';
 
 import 'infinite_snap_list_bloc/infinite_snap_list_bloc.dart';
 
-// ===========================================================================
-// 1. CONTROLLER & HELPERS
-// ===========================================================================
-
 /// Controller for programmatic selection, jump, and scroll control.
 class SnapListController<T> extends ChangeNotifier {
   void Function(T item)? _selectItem;
@@ -48,7 +44,7 @@ class SnapListController<T> extends ChangeNotifier {
 
 typedef InfiniteSnapListController<T> = SnapListController<T>;
 
-/// A beautifully animated dot indicator for use with the [SnapList] footer.
+/// A gracefully animated dot indicator designed for the [SnapList] footer.
 class SnapListDotIndicator extends StatelessWidget {
   final int itemCount;
   final int currentIndex;
@@ -89,10 +85,7 @@ class SnapListDotIndicator extends StatelessWidget {
   }
 }
 
-// ===========================================================================
-// 2. CORE SNAP LIST (FINITE)
-// ===========================================================================
-
+/// A highly customizable, finite snap-scrolling list.
 class SnapList<T> extends StatefulWidget {
   final List<T> items;
   final T? selectedItem;
@@ -125,8 +118,6 @@ class SnapList<T> extends StatefulWidget {
   final Decoration? endEdgeDecoration;
   final double edgeDecorationSize;
 
-  /// The builder now receives the raw calculated slot size. If you want the overlay
-  /// to be larger (spillover effect), simply apply a scaling/padding internally.
   final Widget Function(BuildContext, double, double)?
   selectedItemOverlayBuilder;
   final Color? selectedOverlayColor;
@@ -503,10 +494,8 @@ class _SnapListState<T> extends State<SnapList<T>> {
           );
 
           final mainStack = Stack(
-            // Use Clip.none to allow the overlay (pill) to bleed out slightly over its strict slot bounds if requested.
             clipBehavior: Clip.none,
             children: [
-              // 1. Fixed Overlay (Below list items)
               Align(
                 alignment: widget.itemAlignment,
                 child:
@@ -530,7 +519,6 @@ class _SnapListState<T> extends State<SnapList<T>> {
                     ),
               ),
 
-              // 2. The Scrolling List
               ListView.builder(
                 controller: _controller,
                 scrollDirection: widget.scrollDirection,
@@ -638,7 +626,6 @@ class _SnapListState<T> extends State<SnapList<T>> {
                 },
               ),
 
-              // 3. Edge Fades
               if (widget.startEdgeDecoration != null)
                 Positioned(
                   left: widget.scrollDirection == Axis.horizontal ? 0 : 0,
@@ -707,6 +694,8 @@ class _SnapListState<T> extends State<SnapList<T>> {
 // 3. INFINITE SNAP LIST (WRAPPER)
 // ===========================================================================
 
+/// A smart wrapper that attaches an [InfiniteSnapListBloc] to a [SnapList]
+/// to provide seamless, bidirectional infinite scrolling.
 class InfiniteSnapList<T> extends StatelessWidget {
   final InfiniteSnapListBloc<T> bloc;
   final InfiniteSnapListController<T>? controller;
@@ -745,8 +734,11 @@ class InfiniteSnapList<T> extends StatelessWidget {
 
   final Widget Function(BuildContext context, int currentIndex, int totalCount)?
   footerBuilder;
-  final Widget Function(BuildContext, int)? loadingShimmerListBuilder;
-  final Widget Function(BuildContext, int)? loadingShimmerItemBuilder;
+
+  /// A builder for providing an individual loading/shimmer element.
+  final Widget Function(BuildContext context, double width, double height)?
+  loadingItemBuilder;
+
   final int initialItemsCountForShimmer;
   final Widget Function(BuildContext)? loadingIndicatorBuilder;
   final Widget Function(BuildContext)? emptyListBuilder;
@@ -782,8 +774,7 @@ class InfiniteSnapList<T> extends StatelessWidget {
     this.selectedOverlayColor,
     this.selectedOverlayBorderRadius,
     this.footerBuilder,
-    this.loadingShimmerListBuilder,
-    this.loadingShimmerItemBuilder,
+    this.loadingItemBuilder,
     this.initialItemsCountForShimmer = 7,
     this.loadingIndicatorBuilder,
     this.emptyListBuilder,
@@ -817,14 +808,22 @@ class InfiniteSnapList<T> extends StatelessWidget {
                   ? itemHeight
                   : itemWidth;
               double mainDim = itemWidth;
+
               if (visibleItemCount != null && visibleItemCount! > 0) {
                 mainDim = (mainAxis / visibleItemCount!) - itemSpacing;
               }
+
+              final startEndPadding = max(
+                0.0,
+                (mainAxis / 2) - ((mainDim + itemSpacing) / 2),
+              );
+
               return _buildShimmerList(
                 context,
                 initialItemsCountForShimmer,
                 mainDim,
                 crossAxis,
+                startEndPadding,
               );
             },
           );
@@ -917,36 +916,47 @@ class InfiniteSnapList<T> extends StatelessWidget {
     int count,
     double mainDim,
     double crossDim,
+    double startEndPadding,
   ) {
-    if (loadingShimmerListBuilder != null) {
-      return loadingShimmerListBuilder!(context, count);
+    final width = scrollDirection == Axis.horizontal ? mainDim : crossDim;
+    final height = scrollDirection == Axis.vertical ? mainDim : crossDim;
+
+    final list = ListView.separated(
+      scrollDirection: scrollDirection,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: listPadding.add(
+        scrollDirection == Axis.horizontal
+            ? EdgeInsets.symmetric(horizontal: startEndPadding)
+            : EdgeInsets.symmetric(vertical: startEndPadding),
+      ),
+      itemCount: count,
+      separatorBuilder: (_, _) => SizedBox(
+        width: scrollDirection == Axis.horizontal ? itemSpacing : 0,
+        height: scrollDirection == Axis.vertical ? itemSpacing : 0,
+      ),
+      itemBuilder: (context, index) {
+        if (loadingItemBuilder != null) {
+          return loadingItemBuilder!(context, width, height);
+        }
+        return Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        );
+      },
+    );
+
+    if (loadingItemBuilder != null) {
+      return list;
     }
 
     return Shimmer.fromColors(
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,
-      child: ListView.separated(
-        scrollDirection: scrollDirection,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: count,
-        separatorBuilder: (_, _) => SizedBox(
-          width: scrollDirection == Axis.horizontal ? itemSpacing : 0,
-          height: scrollDirection == Axis.vertical ? itemSpacing : 0,
-        ),
-        itemBuilder: (context, index) {
-          if (loadingShimmerItemBuilder != null) {
-            return loadingShimmerItemBuilder!(context, index);
-          }
-          return Container(
-            width: scrollDirection == Axis.horizontal ? mainDim : crossDim,
-            height: scrollDirection == Axis.vertical ? mainDim : crossDim,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-          );
-        },
-      ),
+      child: list,
     );
   }
 }
