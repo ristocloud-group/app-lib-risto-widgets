@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
@@ -26,9 +28,7 @@ class DemoSnapBloc extends InfiniteSnapListBloc<DemoItem> {
     required int rightLimit,
     required DemoItem offset,
   }) async {
-    await Future.delayed(
-      const Duration(milliseconds: 300),
-    ); // Fake network delay
+    await Future.delayed(const Duration(milliseconds: 300));
     List<DemoItem> left = List.generate(
       leftLimit,
       (i) => DemoItem(offset.value - leftLimit + i),
@@ -52,31 +52,31 @@ class InfiniteSnapDemoPage extends StatefulWidget {
 }
 
 class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
-  // We initialize 3 distinct blocs for 3 completely different UI paradigms
   late final DemoSnapBloc _timelineBloc;
-  late final DemoSnapBloc _carouselBloc;
-  late final DemoSnapBloc _pickerBloc;
 
-  final _timelineController = InfiniteSnapListController<DemoItem>();
-  final _carouselController = InfiniteSnapListController<DemoItem>();
-  final _pickerController = InfiniteSnapListController<DemoItem>();
+  // Finite Lists Data
+  final List<DemoItem> _finiteCarouselItems = List.generate(
+    5,
+    (i) => DemoItem(i + 1),
+  );
+  final List<DemoItem> _finitePickerItems = List.generate(
+    20,
+    (i) => DemoItem(i * 5),
+  );
+  DemoItem? _selectedCarouselItem;
+  DemoItem? _selectedPickerItem;
 
   @override
   void initState() {
     super.initState();
-    _timelineBloc = DemoSnapBloc(14); // Start on the 14th (like a date)
-    _carouselBloc = DemoSnapBloc(1);
-    _pickerBloc = DemoSnapBloc(25);
+    _timelineBloc = DemoSnapBloc(14);
+    _selectedCarouselItem = _finiteCarouselItems[0];
+    _selectedPickerItem = _finitePickerItems[0];
   }
 
   @override
   void dispose() {
     _timelineBloc.close();
-    _carouselBloc.close();
-    _pickerBloc.close();
-    _timelineController.dispose();
-    _carouselController.dispose();
-    _pickerController.dispose();
     super.dispose();
   }
 
@@ -86,30 +86,30 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(title: const Text('Infinite Snap Lists')),
+      appBar: AppBar(title: const Text('Snap Lists')),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 24),
         children: [
           // =========================================================
-          // EXAMPLE 1: HORIZONTAL TIMELINE / DATE PICKER
+          // EXAMPLE 1: HORIZONTAL TIMELINE / DATE PICKER (INFINITE)
           // =========================================================
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              '1. The Date Picker',
+              '1. Infinite Date Picker',
               style: theme.textTheme.titleLarge,
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Text(
-              'Uses a soft pill overlay and visibleItemCount: 5 to perfectly center a week timeline.',
+              '7 slots visible. Center overlay is artificially scaled up to spill over the bounds, just like the mockup.',
               style: theme.textTheme.bodyMedium,
             ),
           ),
 
           Container(
-            height: 100,
+            height: 90,
             margin: const EdgeInsets.symmetric(vertical: 16),
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -119,51 +119,65 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
             ),
             child: InfiniteSnapList<DemoItem>(
               bloc: _timelineBloc,
-              controller: _timelineController,
               scrollDirection: Axis.horizontal,
-              visibleItemCount: 5.0,
-              // Exactly 5 days visible at once!
+              visibleItemCount: 7.0,
+              // High density slots
               itemSpacing: 8,
+              focusedItemScale: 1.15,
+              unfocusedItemScale: 0.9,
+              unfocusedItemOpacity: 0.5,
 
-              // Custom Circular Overlay
-              selectedItemOverlayBuilder:
-                  (context, w, h) => Container(
-                    width: w,
-                    height: h,
-                    decoration: BoxDecoration(
-                      color: theme.primaryColor,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.primaryColor.withCustomOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
+              // Artificially inflate the overlay to spill over the strict slot boundary
+              selectedItemOverlayBuilder: (context, w, h) {
+                return Container(
+                  width: w * 1.4, // Overinflate width
+                  height: h * 1.3, // Overinflate height
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.primaryColor.withCustomOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
+                );
+              },
 
-              itemBuilder: (ctx, item, idx, isSelected) {
-                // Map the integer to a day of the month (1-31)
+              itemBuilder: (ctx, item, idx, isSelected, progress) {
                 int day = ((item.value % 31) + 31) % 31 + 1;
+
+                // Seamless color transition
+                final topColor = Color.lerp(
+                  Colors.grey.shade500,
+                  Colors.white70,
+                  progress,
+                );
+                final bottomColor = Color.lerp(
+                  Colors.black87,
+                  Colors.white,
+                  progress,
+                );
+
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'SEP',
                       style: TextStyle(
-                        color:
-                            isSelected ? Colors.white70 : Colors.grey.shade500,
-                        fontSize: 12,
+                        color: topColor,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       day.toString(),
                       style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black87,
-                        fontSize: 24,
+                        color: bottomColor,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -175,35 +189,31 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
           const SizedBox(height: 32),
 
           // =========================================================
-          // EXAMPLE 2: CARD CAROUSEL (NETFLIX STYLE)
+          // EXAMPLE 2: CARD CAROUSEL (FINITE) WITH DOT INDICATOR
           // =========================================================
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              '2. The Card Carousel',
+              '2. Finite Card Carousel',
               style: theme.textTheme.titleLarge,
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Text(
-              'Uses visibleItemCount: 1.2 to "peek" the next cards, combined with gradient Edge Fades.',
+              'Uses SnapList.carousel for a simple list of cards. Includes a footer dot indicator.',
               style: theme.textTheme.bodyMedium,
             ),
           ),
 
           SizedBox(
-            height: 220,
-            child: InfiniteSnapList<DemoItem>(
-              bloc: _carouselBloc,
-              controller: _carouselController,
-              scrollDirection: Axis.horizontal,
-              visibleItemCount: 1.2,
-              // Show 1 full card, peek 10% of left/right cards!
-              itemSpacing: 16,
+            height: 250,
+            child: SnapList<DemoItem>.carousel(
+              items: _finiteCarouselItems,
+              selectedItem: _selectedCarouselItem,
+              onItemSelected:
+                  (item, idx) => setState(() => _selectedCarouselItem = item),
 
-              // Edge Shadows so items fade beautifully off-screen
-              edgeDecorationSize: 30,
               startEdgeDecoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -225,60 +235,63 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                 ),
               ),
 
-              itemBuilder: (ctx, item, idx, isSelected) {
-                // Using our new RistoDecorator for the cards!
-                return TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.9, end: isSelected ? 1.0 : 0.9),
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOutBack,
-                  builder: (context, scale, child) {
-                    return Transform.scale(
-                      scale: scale,
-                      child: RistoDecorator(
-                        backgroundColor: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        elevation: isSelected ? 6.0 : 1.0,
-                        shadowColor: Colors.blueGrey,
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.shade50,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                'Course ${item.value}',
-                                style: TextStyle(
-                                  color: Colors.blue.shade800,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              'Advanced UI Patterns',
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Explore interactive elements.',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+              footerBuilder: (context, currentIndex, totalCount) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: SnapListDotIndicator(
+                    itemCount: totalCount,
+                    currentIndex: currentIndex,
+                    activeColor: theme.primaryColor,
+                    inactiveColor: Colors.grey.withCustomOpacity(0.3),
+                  ),
+                );
+              },
+
+              itemBuilder: (ctx, item, idx, isSelected, progress) {
+                final elevation = lerpDouble(1.0, 6.0, progress)!;
+
+                return RistoDecorator(
+                  backgroundColor: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  elevation: elevation,
+                  shadowColor: Colors.blueGrey,
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Course ${item.value}',
+                          style: TextStyle(
+                            color: Colors.blue.shade800,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    );
-                  },
+                      const Spacer(),
+                      Text(
+                        'Advanced UI Patterns',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Explore interactive elements.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
@@ -286,19 +299,19 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
           const SizedBox(height: 32),
 
           // =========================================================
-          // EXAMPLE 3: VERTICAL WHEEL PICKER (iOS STYLE)
+          // EXAMPLE 3: VERTICAL WHEEL PICKER (FINITE)
           // =========================================================
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              '3. The Vertical Wheel Picker',
+              '3. Vertical Wheel Picker',
               style: theme.textTheme.titleLarge,
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Text(
-              'Vertical scrolling with a border-only overlay and visibleItemCount: 3.',
+              'Uses SnapList.picker to create a classic 3-item wheel selector.',
               style: theme.textTheme.bodyMedium,
             ),
           ),
@@ -319,15 +332,12 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                   ),
                 ],
               ),
-              child: InfiniteSnapList<DemoItem>(
-                bloc: _pickerBloc,
-                controller: _pickerController,
-                scrollDirection: Axis.vertical,
-                visibleItemCount: 3.0,
-                // Exactly 3 items high
-                itemSpacing: 0,
+              child: SnapList<DemoItem>.picker(
+                items: _finitePickerItems,
+                selectedItem: _selectedPickerItem,
+                onItemSelected:
+                    (item, idx) => setState(() => _selectedPickerItem = item),
 
-                // Border Overlay
                 selectedItemOverlayBuilder:
                     (context, w, h) => Container(
                       width: w,
@@ -339,20 +349,23 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
                       ),
                     ),
 
-                itemBuilder: (ctx, item, idx, isSelected) {
+                itemBuilder: (ctx, item, idx, isSelected, progress) {
+                  final color = Color.lerp(
+                    Colors.grey.shade400,
+                    Colors.blue.shade900,
+                    progress,
+                  );
+                  final fontWeight =
+                      progress > 0.5 ? FontWeight.bold : FontWeight.normal;
+
                   return Center(
-                    child: AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 200),
+                    child: Text(
+                      '${item.value} kg',
                       style: TextStyle(
-                        fontSize: isSelected ? 32 : 24,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
-                        color:
-                            isSelected
-                                ? Colors.blue.shade900
-                                : Colors.grey.shade400,
+                        fontSize: 24,
+                        fontWeight: fontWeight,
+                        color: color,
                       ),
-                      child: Text('${item.value} kg'),
                     ),
                   );
                 },
