@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:risto_widgets/widgets/buttons/custom_action_button.dart';
 import 'package:risto_widgets/widgets/feedback/risto_notice_card.dart';
 
-// Helper to wrap a widget in a MaterialApp for testing.
 Widget _wrap(Widget child, {ThemeData? theme}) => MaterialApp(
   theme: theme ?? ThemeData.light(),
   home: Scaffold(
@@ -111,11 +110,10 @@ void main() {
       expect(subtitleFinder, findsOneWidget);
     });
 
-    testWidgets('applies granular spacing correctly', (tester) async {
-      const tSpace = 12.0;
-      const sSpace = 18.0;
-      const iSpace = 24.0;
-
+    testWidgets('applies runSpacing between elements correctly', (
+      tester,
+    ) async {
+      const spacing = 24.0;
       await tester.pumpWidget(
         _wrap(
           RistoNoticeCard(
@@ -123,9 +121,7 @@ void main() {
             noticeIcon: const Icon(Icons.info),
             title: 'Title',
             subtitle: 'Subtitle',
-            iconSpacing: iSpace,
-            titleSpacing: tSpace,
-            subtitleSpacing: sSpace,
+            runSpacing: spacing,
             footerBuilder: (context, accentColor) => const Text('Footer'),
           ),
         ),
@@ -137,23 +133,17 @@ void main() {
       final children = column.children;
 
       expect(children.length, 7);
-
-      // Icon Spacing
       expect(
         children[1],
-        isA<SizedBox>().having((s) => s.height, 'height', iSpace),
+        isA<SizedBox>().having((s) => s.height, 'height', spacing),
       );
-
-      // Title Spacing
       expect(
         children[3],
-        isA<SizedBox>().having((s) => s.height, 'height', tSpace),
+        isA<SizedBox>().having((s) => s.height, 'height', spacing / 2),
       );
-
-      // Subtitle Spacing
       expect(
         children[5],
-        isA<SizedBox>().having((s) => s.height, 'height', sSpace),
+        isA<SizedBox>().having((s) => s.height, 'height', spacing),
       );
     });
 

@@ -278,15 +278,15 @@ class RistoNoticeCardPage extends StatelessWidget {
 
             RistoNoticeCard(
               kind: RistoNoticeKind.neutral,
-              title: 'Granular Custom Spacing',
-              subtitle: 'This card has totally custom vertical gaps.',
+              title: 'Custom Content Padding & RunSpacing',
+              subtitle:
+                  'padding controls the edges. runSpacing controls the gaps.',
               crossAxisAlignment: CrossAxisAlignment.start,
-              titleSpacing: 8,
-              iconSpacing: 40,
-              subtitleSpacing: 40,
+              padding: const EdgeInsets.all(32),
+              runSpacing: 32,
               footerBuilder:
                   (context, accentColor) =>
-                      const Text('Notice the precise gaps above!'),
+                      const Text('Notice the huge padding and gaps!'),
             ),
           ],
         ),
