@@ -15,7 +15,7 @@ class NavBarsPage extends StatelessWidget {
             context,
             title: '1. Bubble NavBar (Split Grouping)',
             subtitle:
-                'Matching your screenshots with distinct, floating pills.',
+                'Matching your screenshots with distinct, floating pills & animated menu.',
             icon: Icons.bubble_chart,
             destination: const BubbleSplitNavBarDemo(),
           ),
@@ -110,34 +110,64 @@ class BubbleSplitNavBarDemo extends StatelessWidget {
           ],
         ),
 
-        // GROUP 2: Action Button (Circular Shape)
+        // =========================================================
+        // GROUP 2: Action Button (Using ExpandableAnimatedCard.menu)
+        // =========================================================
         BubbleGroup(
           borderRadius: BorderRadius.circular(50), // Force perfect circle
           items: [
             BubbleNavItem(
-              label: 'Menu',
-              icon: const Icon(Icons.menu),
-              page: null, // No page, acts purely as a trigger
-              onPress: () async {
-                showModalBottomSheet(
-                  context: context,
-                  builder:
-                      (ctx) => Container(
-                        height: 300,
-                        padding: const EdgeInsets.all(24),
-                        child: const Center(
-                          child: Text(
-                            "Custom Menu Action Triggered!",
+              page: null,
+              customWidget: ExpandableAnimatedCard.menu(
+                menuWidth: 240,
+                menuHeight: 300,
+                menuOffset: 24.0,
+                // Float slightly above the nav bar
+                backgroundColor: Colors.pink.shade100,
+                // Match your screenshot
+                corner: 24.0,
+                elevation: 12.0,
+                // A subtle background dim behind the menu
+                overlayBackgroundColor: Colors.black26,
+                collapsedBuilder:
+                    (context) => const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: Icon(Icons.menu, color: Colors.grey, size: 28),
+                    ),
+                expandedBuilder:
+                    (context) => Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Quick Menu",
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 22,
                               fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                          ListTile(
+                            leading: const Icon(Icons.settings),
+                            title: const Text('Settings'),
+                            onTap: () => Navigator.pop(context),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.person),
+                            title: const Text('Profile'),
+                            onTap: () => Navigator.pop(context),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.help_outline),
+                            title: const Text('Help & Support'),
+                            onTap: () => Navigator.pop(context),
+                          ),
+                        ],
                       ),
-                );
-                return false; // Prevent page navigation
-              },
+                    ),
+              ),
             ),
           ],
         ),
@@ -221,7 +251,6 @@ class ClassicNavBarDemo extends StatelessWidget {
         NavigationItem(
           label: 'Post',
           icon: const Icon(Icons.add_box),
-          // Example of a conditional action in the classic navbar
           onPress: () async {
             bool? proceed = await showDialog<bool>(
               context: context,
@@ -243,7 +272,7 @@ class ClassicNavBarDemo extends StatelessWidget {
                     ],
                   ),
             );
-            return proceed; // Navigates only if the user pressed 'Proceed'
+            return proceed;
           },
           page: _buildMockPage(context, Colors.purple.shade100, 'Create Post'),
         ),

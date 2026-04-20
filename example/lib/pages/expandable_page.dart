@@ -188,10 +188,7 @@ class ExpandablePage extends StatelessWidget {
             expandedBodyColor: Colors.blueGrey[400],
             elevation: 2.0,
             borderRadius: BorderRadius.circular(10),
-
-            // This disables expansion, but LEAVES the header active!
             disabled: true,
-
             expanded: const Padding(
               padding: EdgeInsets.all(16.0),
               child: Text('This content should not be reachable.'),
@@ -213,10 +210,7 @@ class ExpandablePage extends StatelessWidget {
             expandedBodyColor: Colors.blueGrey[400],
             elevation: 2.0,
             borderRadius: BorderRadius.circular(10),
-
-            // This disables EVERYTHING.
             headerDisabled: true,
-
             expanded: const Padding(
               padding: EdgeInsets.all(16.0),
               child: Text('This content should not be reachable.'),
@@ -287,7 +281,6 @@ class ExpandablePage extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             elevation: 8.0,
             blurSigma: 6.0,
-            // <-- Glassmorphism Blur applied!
             overlayBackgroundColor: Colors.black.withCustomOpacity(0.4),
             expandedMargin: EdgeInsets.fromLTRB(
               16,
@@ -307,8 +300,6 @@ class ExpandablePage extends StatelessWidget {
                         color: Colors.black87,
                         iconSize: 18,
                         onPressed: close,
-                        tooltip:
-                            MaterialLocalizations.of(ctx).closeButtonTooltip,
                       ),
                       const SizedBox(width: 8),
                       const Expanded(
@@ -334,9 +325,6 @@ class ExpandablePage extends StatelessWidget {
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
-            onOpened: () => debugPrint('Default: opened'),
-            onClosed: () => debugPrint('Default: closed'),
-            onStateChanged: (open) => debugPrint('Default: state=$open'),
           ),
 
           const SizedBox(height: 24),
@@ -346,7 +334,6 @@ class ExpandablePage extends StatelessWidget {
             barrierColor: Colors.blue.withCustomOpacity(0.5),
             overlayBackgroundColor: Colors.black.withCustomOpacity(0.8),
             blurSigma: 8.0,
-            // <-- Glassmorphism Blur applied!
             collapsedBuilder:
                 (_) => const _DemoTile(
                   color: Color(0xFF303F9F),
@@ -373,7 +360,6 @@ class ExpandablePage extends StatelessWidget {
             dragDismissThresholdFraction: 0.20,
             overlayBackgroundColor: Colors.blue.withCustomOpacity(0.6),
             blurSigma: 12.0,
-            // Heavy blur for the sheet
             elevation: 12.0,
             dragToClose: true,
             backgroundColor: Colors.brown.shade700,
@@ -392,7 +378,75 @@ class ExpandablePage extends StatelessWidget {
                 ),
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
+
+          // --- Animated Card 4: Action Menu ---
+          Text(
+            '8. Bubble Menu Style',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ExpandableAnimatedCard.menu(
+              menuWidth: 220,
+              menuHeight: 280,
+              menuOffset: 24.0,
+              // Floating slightly above the button
+              backgroundColor: Colors.pink.shade100,
+              // Matching your screenshot
+              corner: 24.0,
+              elevation: 12.0,
+              overlayBackgroundColor: Colors.black12,
+              collapsedBuilder:
+                  (context) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.indigo.shade100,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.menu, color: Colors.indigo),
+                  ),
+              expandedBuilder:
+                  (context) => Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Quick Menu',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ListTile(
+                          leading: const Icon(Icons.settings),
+                          title: const Text('Settings'),
+                          onTap: () => Navigator.pop(context),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.person),
+                          title: const Text('Profile'),
+                          onTap: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+            ),
+          ),
+          const SizedBox(height: 40),
         ],
       ),
     );
