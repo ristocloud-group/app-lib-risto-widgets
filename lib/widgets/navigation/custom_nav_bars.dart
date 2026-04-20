@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 typedef NavigationActionCallback = Future<bool?> Function();
 
 // ===========================================================================
-// 1. CLASSIC CUSTOM BOTTOM NAV BAR (Original Implementation)
+// CLASSIC CUSTOM BOTTOM NAV BAR (Original Implementation)
 // ===========================================================================
 
 class NavigationItem {
@@ -172,10 +172,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   }
 }
 
+/// ===========================================================================
+// BUBBLE BOTTOM NAV BAR (Split / Multiple Groups)
 // ===========================================================================
-// 2. NEW BUBBLE FLOATING NAV BAR
-// ===========================================================================
-
 class BubbleNavItem {
   /// The page to display. If null, this item acts purely as a trigger button (e.g. open a menu).
   final Widget? page;
