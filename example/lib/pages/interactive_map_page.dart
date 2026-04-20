@@ -32,18 +32,60 @@ class InteractiveMapPage extends StatefulWidget {
 }
 
 class _InteractiveMapPageState extends State<InteractiveMapPage> {
-  // Generiamo un po' di dati finti sparsi per Milano
   final List<MapLocationModel> _mockLocations = [
-    MapLocationModel(id: '1', name: 'Duomo', address: 'Piazza del Duomo', lat: 45.4642, lng: 9.1900),
-    MapLocationModel(id: '2', name: 'Castello', address: 'Piazza Castello', lat: 45.4705, lng: 9.1793),
-    MapLocationModel(id: '3', name: 'Navigli', address: 'Ripa di Porta Ticinese', lat: 45.4523, lng: 9.1729),
-    MapLocationModel(id: '4', name: 'Brera', address: 'Via Brera', lat: 45.4720, lng: 9.1878),
-    MapLocationModel(id: '5', name: 'CityLife', address: 'Piazza Tre Torri', lat: 45.4782, lng: 9.1561),
-    MapLocationModel(id: '6', name: 'Centrale', address: 'Piazza Duca d\'Aosta', lat: 45.4848, lng: 9.2038),
-    MapLocationModel(id: '7', name: 'Porta Nuova', address: 'Piazza Gae Aulenti', lat: 45.4835, lng: 9.1899),
+    MapLocationModel(
+      id: '1',
+      name: 'Duomo',
+      address: 'Piazza del Duomo',
+      lat: 45.4642,
+      lng: 9.1900,
+    ),
+    MapLocationModel(
+      id: '2',
+      name: 'Castello',
+      address: 'Piazza Castello',
+      lat: 45.4705,
+      lng: 9.1793,
+    ),
+    MapLocationModel(
+      id: '3',
+      name: 'Navigli',
+      address: 'Ripa di Porta Ticinese',
+      lat: 45.4523,
+      lng: 9.1729,
+    ),
+    MapLocationModel(
+      id: '4',
+      name: 'Brera',
+      address: 'Via Brera',
+      lat: 45.4720,
+      lng: 9.1878,
+    ),
+    MapLocationModel(
+      id: '5',
+      name: 'CityLife',
+      address: 'Piazza Tre Torri',
+      lat: 45.4782,
+      lng: 9.1561,
+    ),
+    MapLocationModel(
+      id: '6',
+      name: 'Centrale',
+      address: 'Piazza Duca d\'Aosta',
+      lat: 45.4848,
+      lng: 9.2038,
+    ),
+    MapLocationModel(
+      id: '7',
+      name: 'Porta Nuova',
+      address: 'Piazza Gae Aulenti',
+      lat: 45.4835,
+      lng: 9.1899,
+    ),
   ];
 
   late final InteractiveMapController<MapLocationModel> _mapController;
+  MapLocationModel? _selectedLocation;
 
   @override
   void initState() {
@@ -51,51 +93,16 @@ class _InteractiveMapPageState extends State<InteractiveMapPage> {
     _mapController = InteractiveMapController<MapLocationModel>();
   }
 
-  void _showLocationDetails(BuildContext context, MapLocationModel item) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.location_on, color: Colors.blue, size: 28),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    item.name,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              item.address,
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Vai al Dettaglio", style: TextStyle(fontSize: 16)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void _handleLocationTap(MapLocationModel item) {
+    setState(() {
+      _selectedLocation = item;
+    });
+  }
+
+  void _closeDetails() {
+    setState(() {
+      _selectedLocation = null;
+    });
   }
 
   @override
@@ -107,24 +114,21 @@ class _InteractiveMapPageState extends State<InteractiveMapPage> {
           title: const Text('Interactive Map Demo'),
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.local_shipping), text: 'Delivery (Clustered)'),
-              Tab(icon: Icon(Icons.storefront), text: 'Store Locator'),
+              Tab(icon: Icon(Icons.local_shipping), text: 'Delivery'),
+              Tab(icon: Icon(Icons.storefront), text: 'Locator'),
             ],
           ),
         ),
         body: TabBarView(
-          physics: const NeverScrollableScrollPhysics(), // Evita conflitti con il pan della mappa
-          children: [
-            _buildDeliveryTab(),
-            _buildLocatorTab(),
-          ],
+          physics: const NeverScrollableScrollPhysics(),
+          children: [_buildDeliveryTab(), _buildLocatorTab()],
         ),
       ),
     );
   }
 
   // ===========================================================================
-  // TAB 1: DELIVERY (CLUSTERING)
+  // TAB 1: DELIVERY (CLUSTERING + FOCUSED ZOOM)
   // ===========================================================================
   Widget _buildDeliveryTab() {
     return Stack(
@@ -134,81 +138,190 @@ class _InteractiveMapPageState extends State<InteractiveMapPage> {
           items: _mockLocations,
           positionMapper: (item) => LatLng(item.lat, item.lng),
           clusterColor: Colors.orange,
-          onDeliveryTapped: (item, index) {
-            _showLocationDetails(context, item);
-          },
+          focusedZoom: 17.0,
+          zoomConfig: const MapControlConfig(
+            backgroundColor: Colors.black87,
+            iconColor: Colors.white,
+          ),
+          // CORRECTED: Grouped the button config inside UserLocationConfig
+          userLocation: const MapUserLocationConfig(
+            showUserLocationButton: true,
+            buttonConfig: MapControlConfig(
+              backgroundColor: Colors.white,
+              iconColor: Colors.blue,
+            ),
+          ),
+          onDeliveryTapped: (item, index) => _handleLocationTap(item),
           markerBuilder: (context, item, index) {
-            // Un custom pin a goccia arancione con il numero
-            return Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))
-                    ],
+            final isSelected = _selectedLocation?.id == item.id;
+            return SizedBox(
+              width: 80,
+              height: 80,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.red : Colors.orange,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: Text(
+                      '${index + 1}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    '${index + 1}',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    color: isSelected ? Colors.red : Colors.orange,
                   ),
-                ),
-                const Icon(Icons.arrow_drop_down, color: Colors.orange, size: 24),
-              ],
+                ],
+              ),
             );
           },
         ),
 
-        // Tasti Floating per testare il controller
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FloatingActionButton.small(
-                heroTag: 'btn1',
-                onPressed: () {
-                  // Salta al primo elemento
-                  if (_mockLocations.isNotEmpty) {
-                    _mapController.jumpToItem(_mockLocations.first, zoom: 16);
-                  }
-                },
-                child: const Icon(Icons.filter_center_focus),
-              ),
-            ],
+        if (_selectedLocation != null)
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 24,
+            child: _buildDetailsCard(),
           ),
-        ),
       ],
     );
   }
 
   // ===========================================================================
-  // TAB 2: STORE LOCATOR (USER TRACKING)
+  // TAB 2: STORE LOCATOR (ROTATION + COMPASS)
   // ===========================================================================
   Widget _buildLocatorTab() {
-    return InteractiveMap<MapLocationModel>.locator(
-      items: _mockLocations,
-      positionMapper: (item) => LatLng(item.lat, item.lng),
-      onStoreTapped: (item, index) {
-        _showLocationDetails(context, item);
-      },
-      onMapTapped: (tapPosition, point) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Mappa cliccata a: ${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)}")),
+    return Stack(
+      children: [
+        InteractiveMap<MapLocationModel>.locator(
+          items: _mockLocations,
+          positionMapper: (item) => LatLng(item.lat, item.lng),
+          focusedZoom: 18.0,
+          onStoreTapped: (item, index) => _handleLocationTap(item),
+          onMapTapped: (tapPosition, point) => _closeDetails(),
+          compassConfig: const MapControlConfig(
+            backgroundColor: Colors.white,
+            iconColor: Colors.redAccent,
+          ),
+          zoomConfig: const MapControlConfig(
+            backgroundColor: Colors.white,
+            iconColor: Colors.black87,
+          ),
+          markerBuilder: (context, item, index) {
+            return const Icon(Icons.location_pin, color: Colors.blue, size: 45);
+          },
+        ),
+
+        const Positioned(
+          top: 10,
+          left: 10,
+          child: IgnorePointer(
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  "Rotate with two fingers\nto see the Compass",
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        if (_selectedLocation != null)
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 80,
+            child: _buildDetailsCard(),
+          ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // UI DETAILS CARD
+  // ===========================================================================
+  Widget _buildDetailsCard() {
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      tween: Tween(begin: 1.0, end: 0.0),
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, value * 50),
+          child: Opacity(opacity: 1.0 - value, child: child),
         );
       },
-      markerBuilder: (context, item, index) {
-        // Pin classico blu per gli store
-        return const Icon(
-          Icons.location_pin,
-          color: Colors.blue,
-          size: 40,
-        );
-      },
+      child: Card(
+        elevation: 12,
+        shadowColor: Colors.black45,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  const CircleAvatar(
+                    backgroundColor: Colors.blueGrey,
+                    child: Icon(Icons.store, color: Colors.white),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _selectedLocation!.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          _selectedLocation!.address,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: _closeDetails,
+                  ),
+                ],
+              ),
+              const Divider(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.directions),
+                  label: const Text("Ottieni Indicazioni"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

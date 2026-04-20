@@ -17,6 +17,8 @@ dependencies:
 
   cupertino_icons: ^1.0.9
 
+  latlong2: ^0.9.1
+
 dependency_overrides:
   package_info_plus:
     path: ../packages/package_info_plus
