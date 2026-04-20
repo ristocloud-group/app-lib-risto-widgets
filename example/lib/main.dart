@@ -8,6 +8,7 @@ import 'pages/expandable_page.dart';
 import 'pages/increment_decrement_page.dart';
 import 'pages/infinite_snap_list_page.dart';
 import 'pages/inputs_page.dart';
+import 'pages/interactive_map_page.dart'; // <--- Nuovo Import
 import 'pages/list_tile_button_page.dart';
 import 'pages/loading_overlay_page.dart';
 import 'pages/navigation_widget_page.dart';
@@ -58,6 +59,12 @@ class HomePage extends StatelessWidget {
 
   // Centralized list of all demo routes. Infinitely scalable!
   static const List<_DemoRoute> _routes = [
+    _DemoRoute(
+      title: 'Interactive Map', // <--- Nuova Route Mappa
+      subtitle: 'Navigable map with clustering & tracking',
+      icon: Icons.map_outlined,
+      page: InteractiveMapPage(),
+    ),
     _DemoRoute(
       title: 'Inputs',
       subtitle: 'RistoTextField forms and layouts',
@@ -162,7 +169,6 @@ class HomePage extends StatelessWidget {
           itemBuilder: (context, index) {
             final route = _routes[index];
 
-            // Using your own component to build the menu!
             return IconListTileButton(
               icon: route.icon,
               title: Text(

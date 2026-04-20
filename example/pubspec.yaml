@@ -17,6 +17,13 @@ dependencies:
 
   cupertino_icons: ^1.0.9
 
+dependency_overrides:
+  package_info_plus:
+    path: ../packages/package_info_plus
+
+  geolocator_linux:
+    path: ../packages/geolocator_linux
+
 dev_dependencies:
   integration_test:
     sdk: flutter
