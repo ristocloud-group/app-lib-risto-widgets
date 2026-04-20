@@ -22,7 +22,7 @@ export 'widgets/layouts/padded_widgets.dart';
 export 'widgets/layouts/risto_decorator.dart';
 export 'widgets/layouts/risto_status_switcher.dart';
 export 'widgets/map/interactive_map.dart';
-export 'widgets/navigation/custom_bottom_navbar.dart';
+export 'widgets/navigation/custom_nav_bars.dart';
 export 'widgets/navigation/section_switcher.dart';
 export 'widgets/popup/open_custom_dialog.dart';
 export 'widgets/popup/open_custom_sheet.dart';

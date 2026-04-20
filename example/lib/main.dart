@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
+import 'package:risto_widgets_example/pages/nav_bars_page.dart';
 
 import 'pages/action_button_page.dart';
 import 'pages/custom_dialog_page.dart';
@@ -60,10 +61,16 @@ class HomePage extends StatelessWidget {
   // Centralized list of all demo routes. Infinitely scalable!
   static const List<_DemoRoute> _routes = [
     _DemoRoute(
-      title: 'Interactive Map', // <--- Nuova Route Mappa
+      title: 'Interactive Map',
       subtitle: 'Navigable map with clustering & tracking',
       icon: Icons.map_outlined,
       page: InteractiveMapPage(),
+    ),
+    _DemoRoute(
+      title: 'Navigation bars',
+      subtitle: 'Navigable pages throw element bar',
+      icon: Icons.tab,
+      page: NavBarsPage(),
     ),
     _DemoRoute(
       title: 'Inputs',

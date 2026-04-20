@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:risto_widgets/widgets/navigation/custom_bottom_navbar.dart';
+import 'package:risto_widgets/widgets/navigation/custom_nav_bars.dart';
 import 'package:risto_widgets/widgets/navigation/section_switcher.dart';
 
 void main() {
