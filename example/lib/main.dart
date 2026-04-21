@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
+import 'package:risto_widgets_example/pages/expandable_page.dart';
 import 'package:risto_widgets_example/pages/nav_bars_page.dart';
 
 import 'pages/action_button_page.dart';
 import 'pages/custom_dialog_page.dart';
 import 'pages/custom_sheet_page.dart';
-import 'pages/expandable_page.dart';
 import 'pages/increment_decrement_page.dart';
 import 'pages/infinite_snap_list_page.dart';
 import 'pages/inputs_page.dart';

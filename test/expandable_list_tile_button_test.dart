@@ -11,7 +11,7 @@ void main() {
     const Key customHeaderKey = Key('customHeader');
     const Key customExpandedContentKey = Key('customExpandedContent');
 
-    // New keys for scoping the overlay tests
+    // Keys for scoping the overlay tests
     const Key overlayContainerKey = Key('overlayContainer');
     const Key rebuildTestContainerKey = Key('rebuildTestContainer');
     const Key scrollableContainerKey = Key('scrollableContainer');
@@ -70,15 +70,17 @@ void main() {
                   padding: const EdgeInsets.all(16.0),
                   child: const Text('Expanded content goes here'),
                 ),
-                customHeaderBuilder: (tapAction, isExpanded, isDisabled) =>
-                    GestureDetector(
-                      onTap: tapAction,
-                      child: Container(
-                        key: customHeaderKey,
-                        padding: const EdgeInsets.all(16.0),
-                        child: const Text('Custom Header'),
-                      ),
-                    ),
+                // FIXED: Added the newly required animValue parameter
+                customHeaderBuilder:
+                    (tapAction, isExpanded, isDisabled, animValue) =>
+                        GestureDetector(
+                          onTap: tapAction,
+                          child: Container(
+                            key: customHeaderKey,
+                            padding: const EdgeInsets.all(16.0),
+                            child: const Text('Custom Header'),
+                          ),
+                        ),
               ),
             ),
           ),
@@ -106,10 +108,10 @@ void main() {
                   key: overlayContainerKey,
                   child: ExpandableListTileButton.overlayMenu(
                     title: const Text('Overlay Header', key: overlayHeaderKey),
-                    expanded: SizedBox(
+                    expanded: const SizedBox(
                       key: overlayExpandedContentKey,
                       height: 100,
-                      child: const Text('Overlay expanded content'),
+                      child: Text('Overlay expanded content'),
                     ),
                   ),
                 ),
@@ -151,10 +153,10 @@ void main() {
                           'Scrollable Overlay Header',
                           key: scrollableOverlayHeaderKey,
                         ),
-                        expanded: SizedBox(
+                        expanded: const SizedBox(
                           key: scrollableOverlayExpandedContentKey,
                           height: 100,
-                          child: const Text('Overlay expanded content'),
+                          child: Text('Overlay expanded content'),
                         ),
                       ),
                     ),
@@ -178,7 +180,8 @@ void main() {
         );
 
         // Act 2: Scroll the list using dragFrom to avoid hit-test warnings.
-        final safeDragStartPoint = const Offset(100, 100);
+        // This triggers the TapRegion's onTapOutside which closes the overlay.
+        const safeDragStartPoint = Offset(100, 100);
         await tester.dragFrom(safeDragStartPoint, const Offset(0, -50));
         await tester.pumpAndSettle();
 

@@ -125,7 +125,7 @@ class BubbleSplitNavBarDemo extends StatelessWidget {
                 // Float slightly above the nav bar
                 backgroundColor: Colors.pink.shade100,
                 // Match your screenshot
-                corner: 24.0,
+                borderRadius: BorderRadius.all(Radius.circular(24.0)),
                 elevation: 12.0,
                 // A subtle background dim behind the menu
                 overlayBackgroundColor: Colors.black26,
