@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
-// Assuming you import RistoToast and CustomIconText from your project files
-// import 'path/to/risto_toast.dart';
-// import 'path/to/custom_icon_text.dart';
-
 class CustomDialogPage extends StatelessWidget {
   const CustomDialogPage({super.key});
 
@@ -18,7 +14,7 @@ class CustomDialogPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const _SectionTitle('Standard Dialogs'),
+            const _SectionTitle('Standard Dialogs (With Blur!)'),
 
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
@@ -26,10 +22,11 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.success(
                   context,
+                  blurSigma: 6.0,
+                  // <-- ADDED: Beautiful glass blur!
                   title: 'Operation Successful!',
                   subtitle:
-                      'This dialog has no footer by default. It will auto-dismiss or can be closed with the X.',
-
+                      'This dialog has no footer and blurs the background. It will auto-dismiss or can be closed with the X.',
                   noticeIcon: const Icon(
                     Icons.task_alt_rounded,
                     size: 48,
@@ -42,7 +39,7 @@ class CustomDialogPage extends StatelessWidget {
                       ),
                 ).show(context);
               },
-              child: const Text('Open Success Dialog (No Footer)'),
+              child: const Text('Open Success Dialog (Blurred Background)'),
             ),
 
             CustomActionButton.elevated(
@@ -51,8 +48,11 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.info(
                   context,
+                  blurSigma: 10.0,
+                  // <-- ADDED: Heavy glass blur!
                   title: 'Information',
-                  subtitle: 'This dialog has a custom confirmation button.',
+                  subtitle:
+                      'This dialog has a heavy background blur and a custom confirmation button.',
                   confirmButtonText: 'Got it!',
                   onClose:
                       (result) => RistoToast.info(
@@ -61,7 +61,7 @@ class CustomDialogPage extends StatelessWidget {
                       ),
                 ).show(context);
               },
-              child: const Text('Open Info Dialog (With Button)'),
+              child: const Text('Open Info Dialog (Heavy Blur)'),
             ),
 
             CustomActionButton.elevated(
@@ -70,6 +70,7 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.warning(
                   context,
+                  blurSigma: 3.0, // Light blur
                   title: 'Unsaved Changes',
                   subtitle:
                       'If you leave now, your changes will be lost. Are you sure?',
@@ -91,6 +92,7 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.confirm(
                   context,
+                  // No blur here, just to show standard barrier
                   title: 'Confirm Deletion',
                   subtitle:
                       'Are you sure you want to permanently delete this item?',
@@ -108,11 +110,11 @@ class CustomDialogPage extends StatelessWidget {
                   },
                 ).show(context);
               },
-              child: const Text('Open Confirm Dialog'),
+              child: const Text('Open Confirm Dialog (No Blur)'),
             ),
 
             const SizedBox(height: 24),
-            const _SectionTitle('Customized Dialogs'),
+            const _SectionTitle('Layout & Personalization Examples'),
 
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
@@ -120,55 +122,112 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.error(
                   context,
-                  title: 'Connection Failed',
+                  blurSigma: 8.0,
+                  title: 'Strict Error',
                   subtitle:
-                      'Please check your internet connection and try again.',
-                  accentColor: Colors.deepOrange.shade700,
-                  backgroundColor: Colors.orange.shade50,
+                      'You cannot dismiss this by tapping outside or using the X. You must click the button.',
                   confirmButtonText: 'Understood',
-                  onClose:
-                      (result) => RistoToast.info(
-                        context,
-                        message: 'Error dialog dismissed.',
-                      ),
+                  showClose: false,
+                  barrierDismissible: false,
                 ).show(context);
               },
-              child: const Text('Open Error Dialog (Custom Colors)'),
+              child: const Text('Force Action (No X, Not Dismissible)'),
             ),
 
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
               minHeight: 0,
               onPressed: () {
-                OpenCustomDialog.info(
+                OpenCustomDialog.confirm(
                   context,
-                  confirmButtonText: 'OK',
-                  title: 'Left-Aligned Dialog',
-                  subtitle: 'This dialog has its content aligned to the left.',
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                ).show(context);
-              },
-              child: const Text('Open Left-Aligned Dialog'),
-            ),
-
-            CustomActionButton.elevated(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              minHeight: 0,
-              onPressed: () {
-                OpenCustomDialog.info(
-                  context,
-                  confirmButtonText: 'OK',
-                  title: 'Compact Dialog',
+                  blurSigma: 4.0,
+                  title: 'Aligned Buttons',
                   subtitle:
-                      'This dialog uses the compact flag for reduced spacing.',
-                  compact: true,
+                      'These buttons are aligned to the right and shrink-wrapped instead of expanded.',
+                  confirmButtonText: 'Yes',
+                  cancelButtonText: 'No',
+                  expandButtons: false,
+                  footerAlignment: MainAxisAlignment.end,
+                  confirmButtonBackgroundColor: Colors.blueAccent,
+                  confirmButtonForegroundColor: Colors.white,
+                  cancelButtonForegroundColor: Colors.blueAccent,
                 ).show(context);
               },
-              child: const Text('Open Compact Dialog'),
+              child: const Text('Shrink-wrapped & Right-Aligned Buttons'),
+            ),
+
+            CustomActionButton.elevated(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              minHeight: 0,
+              onPressed: () {
+                OpenCustomDialog.warning(
+                  context,
+                  title: 'Space Between Layout',
+                  subtitle: 'Buttons are pushed to the opposite edges.',
+                  confirmButtonText: 'Proceed',
+                  cancelButtonText: 'Go Back',
+                  expandButtons: false,
+                  footerAlignment: MainAxisAlignment.spaceBetween,
+                ).show(context);
+              },
+              child: const Text('Space-Between Footer Alignment'),
+            ),
+
+            CustomActionButton.elevated(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              minHeight: 0,
+              onPressed: () {
+                OpenCustomDialog.info(
+                  context,
+                  title: 'Full Screen Edge Dialog',
+                  subtitle:
+                      'This dialog ignores safe area insets (useful for edge-to-edge custom designs).',
+                  confirmButtonText: 'Close',
+                  useSafeArea: false,
+                ).show(context);
+              },
+              child: const Text('Ignore Safe Area'),
             ),
 
             const SizedBox(height: 24),
             const _SectionTitle('Advanced Usage'),
+
+            CustomActionButton.elevated(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              minHeight: 0,
+              onPressed: () {
+                OpenCustomDialog.info(
+                  context,
+                  blurSigma: 12.0, // Awesome heavy blur sliding up!
+                  title: 'Custom Animation Overlay',
+                  subtitle:
+                      'This dialog and its blur slide up from the bottom instead of using the default scale transition.',
+                  confirmButtonText: 'Awesome',
+                ).show(
+                  context,
+                  transitionDuration: const Duration(milliseconds: 400),
+                  transitionBuilder: (
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                  ) {
+                    final tween = Tween(
+                      begin: const Offset(0.0, 0.2),
+                      end: Offset.zero,
+                    ).chain(CurveTween(curve: Curves.easeOutCubic));
+
+                    // Notice how we just apply the SlideTransition to the child,
+                    // and OpenCustomDialog handles the blur layer below it!
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: FadeTransition(opacity: animation, child: child),
+                    );
+                  },
+                );
+              },
+              child: const Text('Open with Slide-Up Animation & Blur'),
+            ),
 
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
@@ -192,6 +251,7 @@ class CustomDialogPage extends StatelessWidget {
 
                 OpenCustomDialog.notice(
                   context,
+                  blurSigma: 5.0,
                   notice: customNotice,
                   onClose: (result) {
                     RistoToast.info(
@@ -203,27 +263,6 @@ class CustomDialogPage extends StatelessWidget {
               },
               child: const Text('Open with Pre-built Notice Card'),
             ),
-
-            CustomActionButton.elevated(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              minHeight: 0,
-              onPressed: () {
-                OpenCustomDialog.success(
-                  context,
-                  title: 'Custom Footer',
-                  subtitle:
-                      'This success dialog has its default footer completely replaced.',
-                  footerBuilder: (context, accentColor) {
-                    return CustomActionButton.flat(
-                      minHeight: 0,
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('This is a custom footer!'),
-                    );
-                  },
-                ).show(context);
-              },
-              child: const Text('Open with Custom Footer Override'),
-            ),
           ],
         ),
       ),
@@ -231,7 +270,6 @@ class CustomDialogPage extends StatelessWidget {
   }
 }
 
-/// A simple helper widget to create section titles for the example page.
 class _SectionTitle extends StatelessWidget {
   final String title;
 

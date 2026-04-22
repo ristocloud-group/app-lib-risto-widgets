@@ -3,118 +3,53 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/extensions.dart';
 
+import '../layouts/risto_decorator.dart';
+
 /// Types of buttons available in [CustomActionButton].
 enum ButtonType { elevated, flat, minimal, longPress, rounded }
 
-/// A customizable button widget that can be configured as elevated, flat,
-/// minimal, or long-press button types. Provides a flexible API to adjust
-/// styles, colors, shapes, and behaviors.
-///
-/// The [CustomActionButton] supports different visual styles through the
-/// [ButtonType] enum and offers factory constructors for convenience.
-///
-/// Example usage:
-/// ```dart
-/// CustomActionButton.elevated(
-///   onPressed: () {},
-///   child: Text('Elevated Button'),
-/// );
-///
-/// CustomActionButton.icon(
-///   onPressed: () {},
-///   icon: Icon(Icons.add),
-///   label: Text('Add Item'),
-/// );
-/// ```
+/// A highly customizable, unified button widget that leverages [RistoDecorator]
+/// to provide perfectly consistent backgrounds, gradients, borders, and shadows.
 class CustomActionButton extends StatefulWidget {
-  /// The callback that is called when the button is tapped.
   final VoidCallback? onPressed;
-
-  /// The callback that is called when the button is long-pressed.
-  /// Only used when [buttonType] is [ButtonType.longPress].
   final VoidCallback? onLongPress;
-
-  /// The child widget to display inside the button.
-  /// If [icon] is also provided, this will be treated as the label.
   final Widget child;
-
-  /// An optional icon to display before the child.
   final Widget? icon;
-
-  /// The spacing between the icon and the child. Defaults to 8.0.
   final double iconSpacing;
-
-  /// The type of button to display.
   final ButtonType? buttonType;
 
-  /// Background gradients for the button.
-  ///
-  /// - [backgroundGradient]: The active gradient when the button is enabled.
-  ///   Overrides [backgroundColor] if provided.
-  /// - [disabledBackgroundGradient]: The gradient when the button is disabled.
-  ///   If null, a lighter/faded version of [backgroundGradient] is generated
-  ///   automatically. If both are null, falls back to
-  ///   [disabledBackgroundColor] or a lightened [backgroundColor].
+  /// Explicitly disables the button, rendering it in a greyed-out state and blocking interactions.
+  final bool disabled;
+
+  /// Swaps the child for a loading indicator and blocks interactions,
+  /// but maintains the active button styling.
+  final bool isLoading;
+
+  /// A custom loading indicator. Defaults to an adaptive [CircularProgressIndicator].
+  final Widget? loadingIndicator;
+
   final Gradient? backgroundGradient;
   final Gradient? disabledBackgroundGradient;
-
-  /// The background color of the button.
   final Color? backgroundColor;
-
-  /// The foreground color (text/icon color) of the button.
   final Color? foregroundColor;
-
-  /// The shadow color of the button.
   final Color? shadowColor;
-
-  /// The splash color of the button when tapped.
   final Color? splashColor;
-
-  /// The background color of the button when it is disabled.
   final Color? disabledBackgroundColor;
-
-  /// The border color of the button when it is disabled.
   final Color? disabledBorderColor;
-
-  /// The text color of the button when it is disabled.
   final Color? disabledForegroundColor;
-
-  /// The border color of the button.
   final Color? borderColor;
-
-  /// The elevation of the button.
+  final double borderWidth;
   final double? elevation;
-
-  /// The border radius of the button.
   final double? borderRadius;
-
-  /// The width of the button.
   final double? width;
-
-  /// The height of the button.
   final double? height;
-
-  /// The minimum height of the button. Defaults to 60.0.
-  /// If set to 0, the button will adapt to the minimum possible height
-  /// required by its content.
   final double minHeight;
-
-  /// The shape of the button's material.
   final OutlinedBorder? shape;
-
-  /// The amount of space to surround the child inside the button.
   final EdgeInsetsGeometry? padding;
-
-  /// The external margin around the button.
   final EdgeInsetsGeometry? margin;
-
-  /// The splash factory to define interaction effects.
   final InteractiveInkFeatureFactory? splashFactory;
-
-  /// Configures the minimum size of the tap target.
   final MaterialTapTargetSize? tapTargetSize;
 
-  /// Creates a [CustomActionButton] with the given parameters.
   const CustomActionButton({
     super.key,
     required this.child,
@@ -123,6 +58,9 @@ class CustomActionButton extends StatefulWidget {
     this.buttonType,
     this.onPressed,
     this.onLongPress,
+    this.disabled = false,
+    this.isLoading = false,
+    this.loadingIndicator,
     this.backgroundColor,
     this.foregroundColor,
     this.shadowColor,
@@ -131,6 +69,7 @@ class CustomActionButton extends StatefulWidget {
     this.disabledBorderColor,
     this.disabledForegroundColor,
     this.borderColor,
+    this.borderWidth = 1.0,
     this.elevation,
     this.borderRadius,
     this.width,
@@ -145,13 +84,15 @@ class CustomActionButton extends StatefulWidget {
     this.tapTargetSize,
   });
 
-  /// Creates an elevated button.
   factory CustomActionButton.elevated({
     Key? key,
-    required VoidCallback? onPressed,
+    VoidCallback? onPressed,
     required Widget child,
     Widget? icon,
     double iconSpacing = 8.0,
+    bool disabled = false,
+    bool isLoading = false,
+    Widget? loadingIndicator,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -160,9 +101,9 @@ class CustomActionButton extends StatefulWidget {
     Color? disabledForegroundColor,
     Color? disabledBorderColor,
     Color? borderColor,
+    double borderWidth = 1.0,
     double elevation = 2.0,
     double borderRadius = 8.0,
-    BorderSide? side,
     OutlinedBorder? shape,
     double? width,
     double? height,
@@ -178,6 +119,9 @@ class CustomActionButton extends StatefulWidget {
       key: key,
       buttonType: ButtonType.elevated,
       onPressed: onPressed,
+      disabled: disabled,
+      isLoading: isLoading,
+      loadingIndicator: loadingIndicator,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
       shadowColor: shadowColor,
@@ -186,6 +130,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBorderColor: disabledBorderColor,
       disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
+      borderWidth: borderWidth,
       elevation: elevation,
       borderRadius: borderRadius,
       shape: shape,
@@ -204,13 +149,15 @@ class CustomActionButton extends StatefulWidget {
     );
   }
 
-  /// Creates a flat button.
   factory CustomActionButton.flat({
     Key? key,
-    required VoidCallback? onPressed,
+    VoidCallback? onPressed,
     required Widget child,
     Widget? icon,
     double iconSpacing = 8.0,
+    bool disabled = false,
+    bool isLoading = false,
+    Widget? loadingIndicator,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -219,8 +166,8 @@ class CustomActionButton extends StatefulWidget {
     Color? disabledBorderColor,
     Color? disabledForegroundColor,
     Color? borderColor,
+    double borderWidth = 1.0,
     double borderRadius = 8.0,
-    BorderSide? side,
     OutlinedBorder? shape,
     double? width,
     double? height,
@@ -236,6 +183,9 @@ class CustomActionButton extends StatefulWidget {
       key: key,
       buttonType: ButtonType.flat,
       onPressed: onPressed,
+      disabled: disabled,
+      isLoading: isLoading,
+      loadingIndicator: loadingIndicator,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
       shadowColor: shadowColor,
@@ -244,6 +194,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBorderColor: disabledBorderColor,
       disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
+      borderWidth: borderWidth,
       borderRadius: borderRadius,
       shape: shape,
       width: width,
@@ -261,14 +212,17 @@ class CustomActionButton extends StatefulWidget {
     );
   }
 
-  /// Creates a minimal button.
   factory CustomActionButton.minimal({
     Key? key,
-    required VoidCallback? onPressed,
+    VoidCallback? onPressed,
     required Widget child,
     Widget? icon,
     double iconSpacing = 8.0,
+    bool disabled = false,
+    bool isLoading = false,
+    Widget? loadingIndicator,
     Color? borderColor,
+    double borderWidth = 1.0,
     Color? foregroundColor,
     Color? disabledBorderColor,
     Color? disabledForegroundColor,
@@ -286,10 +240,14 @@ class CustomActionButton extends StatefulWidget {
       key: key,
       buttonType: ButtonType.minimal,
       onPressed: onPressed,
+      disabled: disabled,
+      isLoading: isLoading,
+      loadingIndicator: loadingIndicator,
       foregroundColor: foregroundColor,
       disabledBorderColor: disabledBorderColor,
       disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
+      borderWidth: borderWidth,
       shadowColor: shadowColor,
       width: width,
       height: height,
@@ -305,14 +263,16 @@ class CustomActionButton extends StatefulWidget {
     );
   }
 
-  /// Creates a long-press button.
   factory CustomActionButton.longPress({
     Key? key,
-    required VoidCallback? onPressed,
-    required VoidCallback? onLongPress,
+    VoidCallback? onPressed,
+    VoidCallback? onLongPress,
     required Widget child,
     Widget? icon,
     double iconSpacing = 8.0,
+    bool disabled = false,
+    bool isLoading = false,
+    Widget? loadingIndicator,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -321,9 +281,9 @@ class CustomActionButton extends StatefulWidget {
     Color? disabledBorderColor,
     Color? disabledForegroundColor,
     Color? borderColor,
+    double borderWidth = 1.0,
     double elevation = 2.0,
     double borderRadius = 8.0,
-    BorderSide? side,
     OutlinedBorder? shape,
     double? width,
     double? height,
@@ -340,6 +300,9 @@ class CustomActionButton extends StatefulWidget {
       buttonType: ButtonType.longPress,
       onPressed: onPressed,
       onLongPress: onLongPress,
+      disabled: disabled,
+      isLoading: isLoading,
+      loadingIndicator: loadingIndicator,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
       shadowColor: shadowColor,
@@ -348,6 +311,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBorderColor: disabledBorderColor,
       disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
+      borderWidth: borderWidth,
       elevation: elevation,
       borderRadius: borderRadius,
       shape: shape,
@@ -366,13 +330,15 @@ class CustomActionButton extends StatefulWidget {
     );
   }
 
-  /// Creates a fully rounded button.
   factory CustomActionButton.rounded({
     Key? key,
-    required VoidCallback? onPressed,
+    VoidCallback? onPressed,
     required Widget child,
     Widget? icon,
     double iconSpacing = 8.0,
+    bool disabled = false,
+    bool isLoading = false,
+    Widget? loadingIndicator,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -381,6 +347,7 @@ class CustomActionButton extends StatefulWidget {
     Color? disabledBorderColor,
     Color? disabledForegroundColor,
     Color? borderColor,
+    double borderWidth = 1.0,
     double? width,
     double? height,
     double minHeight = 60.0,
@@ -396,6 +363,9 @@ class CustomActionButton extends StatefulWidget {
       key: key,
       buttonType: ButtonType.rounded,
       onPressed: onPressed,
+      disabled: disabled,
+      isLoading: isLoading,
+      loadingIndicator: loadingIndicator,
       backgroundColor: backgroundColor,
       foregroundColor: foregroundColor,
       shadowColor: shadowColor,
@@ -404,6 +374,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBorderColor: disabledBorderColor,
       disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
+      borderWidth: borderWidth,
       elevation: elevation,
       width: width,
       height: height,
@@ -420,16 +391,16 @@ class CustomActionButton extends StatefulWidget {
     );
   }
 
-  /// Creates a button with an icon and a label.
-  ///
-  /// - [baseType] controls the underlying button style (e.g., elevated, flat).
   factory CustomActionButton.icon({
     Key? key,
-    required VoidCallback? onPressed,
+    VoidCallback? onPressed,
     required Widget icon,
     required Widget label,
     ButtonType baseType = ButtonType.elevated,
     double iconSpacing = 8.0,
+    bool disabled = false,
+    bool isLoading = false,
+    Widget? loadingIndicator,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -438,6 +409,7 @@ class CustomActionButton extends StatefulWidget {
     Color? disabledBorderColor,
     Color? disabledForegroundColor,
     Color? borderColor,
+    double borderWidth = 1.0,
     double? elevation,
     double? borderRadius,
     double? width,
@@ -455,6 +427,9 @@ class CustomActionButton extends StatefulWidget {
       key: key,
       buttonType: baseType,
       onPressed: onPressed,
+      disabled: disabled,
+      isLoading: isLoading,
+      loadingIndicator: loadingIndicator,
       icon: icon,
       iconSpacing: iconSpacing,
       backgroundColor: backgroundColor,
@@ -465,6 +440,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBorderColor: disabledBorderColor,
       disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
+      borderWidth: borderWidth,
       elevation: elevation,
       borderRadius: borderRadius,
       width: width,
@@ -481,15 +457,14 @@ class CustomActionButton extends StatefulWidget {
     );
   }
 
-  /// Creates a circular button that displays only an icon.
-  ///
-  /// This factory is designed to behave like [IconButton], with a circular
-  /// shape and a larger tap target by default.
   factory CustomActionButton.iconOnly({
     Key? key,
-    required VoidCallback? onPressed,
+    VoidCallback? onPressed,
     required Widget icon,
     ButtonType baseType = ButtonType.elevated,
+    bool disabled = false,
+    bool isLoading = false,
+    Widget? loadingIndicator,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? shadowColor,
@@ -498,6 +473,7 @@ class CustomActionButton extends StatefulWidget {
     Color? disabledBorderColor,
     Color? disabledForegroundColor,
     Color? borderColor,
+    double borderWidth = 1.0,
     Gradient? backgroundGradient,
     Gradient? disabledBackgroundGradient,
     double? size = 48.0,
@@ -517,6 +493,9 @@ class CustomActionButton extends StatefulWidget {
       key: key,
       buttonType: baseType,
       onPressed: onPressed,
+      disabled: disabled,
+      isLoading: isLoading,
+      loadingIndicator: loadingIndicator,
       backgroundColor: backgroundColor,
       foregroundColor: foregroundColor,
       shadowColor: shadowColor,
@@ -525,6 +504,7 @@ class CustomActionButton extends StatefulWidget {
       disabledBorderColor: disabledBorderColor,
       disabledForegroundColor: disabledForegroundColor,
       borderColor: borderColor,
+      borderWidth: borderWidth,
       backgroundGradient: backgroundGradient,
       disabledBackgroundGradient: disabledBackgroundGradient,
       width: size,
@@ -547,6 +527,10 @@ class CustomActionButton extends StatefulWidget {
 class _CustomActionButtonState extends State<CustomActionButton> {
   Timer? _longPressTimer;
 
+  bool get _isEffectivelyDisabled =>
+      widget.disabled ||
+      (widget.onPressed == null && widget.buttonType != ButtonType.longPress);
+
   OutlinedBorder _resolveShapeFor({
     required ButtonType? type,
     required BuildContext context,
@@ -560,63 +544,13 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     );
   }
 
-  Widget _decoratedShell({
-    required BuildContext context,
-    required OutlinedBorder shape,
-    required Widget child,
-    required Color? solidColor,
-    required Gradient? gradient,
-    required double? elevation,
-    required Color? shadowColor,
-    required EdgeInsetsGeometry? margin,
-    required double? width,
-    required double? height,
-    Color? borderColor,
-    double borderWidth = 1,
-  }) {
-    final baseShape = shape;
-    final core = Material(
-      shape: baseShape,
-      clipBehavior: Clip.antiAlias,
-      elevation: elevation ?? 0,
-      shadowColor: shadowColor,
-      color: Colors.transparent,
-      child: Ink(
-        decoration: ShapeDecoration(
-          shape: baseShape,
-          color: gradient == null ? solidColor : null,
-          gradient: gradient,
-        ),
-        child: child,
-      ),
-    );
-
-    return Container(
-      margin: margin,
-      width: width,
-      height: height,
-      foregroundDecoration: borderColor != null
-          ? ShapeDecoration(
-              shape: _shapeWithSide(
-                baseShape,
-                BorderSide(color: borderColor, width: borderWidth),
-              ),
-            )
-          : null,
-      child: core,
-    );
-  }
-
-  OutlinedBorder _shapeWithSide(OutlinedBorder shape, BorderSide side) {
-    if (shape is StadiumBorder) {
-      return StadiumBorder(side: side);
-    } else if (shape is RoundedRectangleBorder) {
-      return RoundedRectangleBorder(
-        borderRadius: shape.borderRadius,
-        side: side,
-      );
-    }
-    return shape;
+  /// Extracts the radius correctly from specialized borders to ensure RistoDecorator
+  /// draws shadows perfectly aligned with pills and circles.
+  BorderRadiusGeometry? _extractBorderRadius(OutlinedBorder? shape) {
+    if (shape is RoundedRectangleBorder) return shape.borderRadius;
+    if (shape is StadiumBorder) return BorderRadius.circular(1000);
+    if (shape is CircleBorder) return BorderRadius.circular(1000);
+    return null;
   }
 
   ButtonStyle _transparentifyBackground(ButtonStyle style) {
@@ -698,6 +632,8 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _wrapChild(BuildContext context, {required bool disabled}) {
+    final textStyle = _effectiveTextStyle(context, disabled: disabled);
+
     Widget content = widget.child;
 
     if (widget.icon != null) {
@@ -713,14 +649,30 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       );
     }
 
-    return DefaultTextStyle(
-      style: _effectiveTextStyle(context, disabled: disabled),
-      child: content,
+    content = DefaultTextStyle(style: textStyle, child: content);
+
+    // Seamless animated transition to the loading indicator
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      child: widget.isLoading
+          ? (widget.loadingIndicator ??
+                SizedBox(
+                  key: const ValueKey('loader'),
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      textStyle.color ?? Colors.white,
+                    ),
+                  ),
+                ))
+          : KeyedSubtree(key: const ValueKey('content'), child: content),
     );
   }
 
   void _handleLongPress() {
-    if (widget.onLongPress != null) {
+    if (widget.onLongPress != null && !widget.isLoading) {
       _longPressTimer = Timer.periodic(const Duration(milliseconds: 100), (
         timer,
       ) {
@@ -743,21 +695,17 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     }
   }
 
-  Color? _effectiveBorderColorEnabled() => widget.borderColor;
-
   Color? _effectiveBorderColorDisabled(BuildContext context) {
-    if (widget.disabledBorderColor != null) {
-      return widget.disabledBorderColor;
-    }
-    if (widget.borderColor != null) {
-      return widget.borderColor!.lighter(0.5);
-    }
+    if (widget.disabledBorderColor != null) return widget.disabledBorderColor;
+    if (widget.borderColor != null) return widget.borderColor!.lighter(0.5);
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.onPressed == null && widget.buttonType != ButtonType.longPress) {
+    // If it's disabled, we render the greyed-out state.
+    // If it's loading, we render the ACTIVE state, but absorb pointers.
+    if (_isEffectivelyDisabled && !widget.isLoading) {
       return _buildDisabledButton(context);
     }
 
@@ -779,13 +727,12 @@ class _CustomActionButtonState extends State<CustomActionButton> {
 
   Widget _buildDisabledButton(BuildContext context) {
     final shape = _resolveShapeFor(type: widget.buttonType, context: context);
+    final isMinimal = widget.buttonType == ButtonType.minimal;
 
     final disabledSolid = _disabledColor(
       widget.disabledBackgroundColor,
       widget.backgroundColor,
-      widget.buttonType == ButtonType.minimal
-          ? Colors.transparent
-          : Theme.of(context).disabledColor,
+      isMinimal ? Colors.transparent : Theme.of(context).disabledColor,
     );
 
     final disabledGrad = _disabledGradient(
@@ -809,25 +756,28 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       minimumSize: _getEffectiveMinimumSize(),
     );
 
-    return _decoratedShell(
-      context: context,
-      shape: shape,
-      child: AbsorbPointer(
-        absorbing: true,
-        child: ElevatedButton(
-          style: _transparentifyBackground(style),
-          onPressed: () {},
-          child: _wrapChild(context, disabled: true),
+    return RistoDecorator(
+      margin: widget.margin,
+      backgroundColor: disabledGrad == null ? disabledSolid : null,
+      backgroundGradient: disabledGrad,
+      borderColor: _effectiveBorderColorDisabled(context),
+      borderWidth: widget.borderWidth,
+      elevation: isMinimal ? 0 : (widget.elevation ?? 0),
+      shadowColor: widget.shadowColor ?? Colors.black,
+      shape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
+      borderRadius: _extractBorderRadius(shape),
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: AbsorbPointer(
+          absorbing: true,
+          child: ElevatedButton(
+            style: _transparentifyBackground(style),
+            onPressed: () {},
+            child: _wrapChild(context, disabled: true),
+          ),
         ),
       ),
-      solidColor: disabledGrad == null ? disabledSolid : null,
-      gradient: disabledGrad,
-      elevation: widget.elevation,
-      shadowColor: widget.shadowColor ?? Colors.black,
-      margin: widget.margin,
-      width: widget.width,
-      height: widget.height,
-      borderColor: _effectiveBorderColorDisabled(context),
     );
   }
 
@@ -847,22 +797,29 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       minimumSize: _getEffectiveMinimumSize(),
     );
 
-    return _decoratedShell(
-      context: context,
-      shape: shape,
-      child: ElevatedButton(
-        style: _transparentifyBackground(style),
-        onPressed: widget.onPressed,
-        child: _wrapChild(context, disabled: false),
-      ),
-      solidColor: widget.backgroundGradient == null ? solid : null,
-      gradient: widget.backgroundGradient,
+    return RistoDecorator(
+      margin: widget.margin,
+      backgroundColor: widget.backgroundGradient == null ? solid : null,
+      backgroundGradient: widget.backgroundGradient,
+      borderColor: widget.borderColor,
+      borderWidth: widget.borderWidth,
       elevation: widget.elevation ?? 2.0,
       shadowColor: widget.shadowColor,
-      margin: widget.margin,
-      width: widget.width,
-      height: widget.height,
-      borderColor: _effectiveBorderColorEnabled(),
+      shape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
+      borderRadius: _extractBorderRadius(shape),
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: AbsorbPointer(
+          absorbing: widget.isLoading,
+          child: ElevatedButton(
+            style: _transparentifyBackground(style),
+            // Dummy function when loading so Flutter keeps it 'enabled' visually
+            onPressed: widget.isLoading ? () {} : widget.onPressed,
+            child: _wrapChild(context, disabled: false),
+          ),
+        ),
+      ),
     );
   }
 
@@ -882,27 +839,34 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       minimumSize: _getEffectiveMinimumSize(),
     );
 
-    return _decoratedShell(
-      context: context,
-      shape: shape,
-      child: TextButton(
-        style: _transparentifyBackground(style),
-        onPressed: widget.onPressed,
-        child: _wrapChild(context, disabled: false),
-      ),
-      solidColor: widget.backgroundGradient == null ? solid : null,
-      gradient: widget.backgroundGradient,
-      elevation: widget.elevation,
-      shadowColor: widget.shadowColor ?? Colors.transparent,
+    return RistoDecorator(
       margin: widget.margin,
-      width: widget.width,
-      height: widget.height,
-      borderColor: _effectiveBorderColorEnabled(),
+      backgroundColor: widget.backgroundGradient == null ? solid : null,
+      backgroundGradient: widget.backgroundGradient,
+      borderColor: widget.borderColor,
+      borderWidth: widget.borderWidth,
+      elevation: widget.elevation ?? 0.0,
+      shadowColor: widget.shadowColor ?? Colors.transparent,
+      shape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
+      borderRadius: _extractBorderRadius(shape),
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: AbsorbPointer(
+          absorbing: widget.isLoading,
+          child: TextButton(
+            style: _transparentifyBackground(style),
+            onPressed: widget.isLoading ? () {} : widget.onPressed,
+            child: _wrapChild(context, disabled: false),
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildMinimalButton(BuildContext context) {
     final shape = _resolveShapeFor(type: ButtonType.minimal, context: context);
+    final solid = widget.backgroundColor ?? Colors.transparent;
 
     final style =
         TextButton.styleFrom(
@@ -919,24 +883,28 @@ class _CustomActionButtonState extends State<CustomActionButton> {
           splashFactory: NoSplash.splashFactory,
         );
 
-    final solid = widget.backgroundColor ?? Colors.transparent;
-
-    return _decoratedShell(
-      context: context,
-      shape: shape,
-      child: TextButton(
-        style: _transparentifyBackground(style),
-        onPressed: widget.onPressed,
-        child: _wrapChild(context, disabled: false),
-      ),
-      solidColor: widget.backgroundGradient == null ? solid : null,
-      gradient: widget.backgroundGradient,
-      elevation: widget.elevation ?? 0,
-      shadowColor: widget.shadowColor ?? Colors.transparent,
+    return RistoDecorator(
       margin: widget.margin,
-      width: widget.width,
-      height: widget.height,
-      borderColor: _effectiveBorderColorEnabled(),
+      backgroundColor: widget.backgroundGradient == null ? solid : null,
+      backgroundGradient: widget.backgroundGradient,
+      borderColor: widget.borderColor,
+      borderWidth: widget.borderWidth,
+      elevation: widget.elevation ?? 0.0,
+      shadowColor: widget.shadowColor ?? Colors.transparent,
+      shape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
+      borderRadius: _extractBorderRadius(shape),
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: AbsorbPointer(
+          absorbing: widget.isLoading,
+          child: TextButton(
+            style: _transparentifyBackground(style),
+            onPressed: widget.isLoading ? () {} : widget.onPressed,
+            child: _wrapChild(context, disabled: false),
+          ),
+        ),
+      ),
     );
   }
 
@@ -965,28 +933,30 @@ class _CustomActionButtonState extends State<CustomActionButton> {
         );
 
     final btn = GestureDetector(
-      onTap: widget.onPressed,
-      onLongPressStart: (_) => _handleLongPress(),
-      onLongPressEnd: (_) => _cancelLongPress(),
-      child: ElevatedButton(
-        style: _transparentifyBackground(style),
-        onPressed: widget.onPressed,
-        child: _wrapChild(context, disabled: false),
+      onTap: widget.isLoading ? null : widget.onPressed,
+      onLongPressStart: widget.isLoading ? null : (_) => _handleLongPress(),
+      onLongPressEnd: widget.isLoading ? null : (_) => _cancelLongPress(),
+      child: AbsorbPointer(
+        absorbing: widget.isLoading,
+        child: ElevatedButton(
+          style: _transparentifyBackground(style),
+          onPressed: widget.isLoading ? () {} : widget.onPressed,
+          child: _wrapChild(context, disabled: false),
+        ),
       ),
     );
 
-    return _decoratedShell(
-      context: context,
-      shape: shape,
-      child: btn,
-      solidColor: widget.backgroundGradient == null ? solid : null,
-      gradient: widget.backgroundGradient,
+    return RistoDecorator(
+      margin: widget.margin,
+      backgroundColor: widget.backgroundGradient == null ? solid : null,
+      backgroundGradient: widget.backgroundGradient,
+      borderColor: widget.borderColor,
+      borderWidth: widget.borderWidth,
       elevation: widget.elevation ?? 2.0,
       shadowColor: widget.shadowColor,
-      margin: widget.margin,
-      width: widget.width,
-      height: widget.height,
-      borderColor: _effectiveBorderColorEnabled(),
+      shape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
+      borderRadius: _extractBorderRadius(shape),
+      child: SizedBox(width: widget.width, height: widget.height, child: btn),
     );
   }
 
@@ -1006,28 +976,32 @@ class _CustomActionButtonState extends State<CustomActionButton> {
       minimumSize: _getEffectiveMinimumSize(),
     );
 
-    final buttonShell = _decoratedShell(
-      context: context,
-      shape: shape,
-      child: ElevatedButton(
-        style: _transparentifyBackground(style),
-        onPressed: widget.onPressed,
-        child: _wrapChild(context, disabled: false),
-      ),
-      solidColor: widget.backgroundGradient == null ? solid : null,
-      gradient: widget.backgroundGradient,
+    final buttonShell = RistoDecorator(
+      margin: widget.margin,
+      backgroundColor: widget.backgroundGradient == null ? solid : null,
+      backgroundGradient: widget.backgroundGradient,
+      borderColor: widget.borderColor,
+      borderWidth: widget.borderWidth,
       elevation: widget.elevation ?? 2.0,
       shadowColor: widget.shadowColor,
-      margin: widget.margin,
-      width: widget.width,
-      height: widget.height,
-      borderColor: _effectiveBorderColorEnabled(),
+      borderRadius: BorderRadius.circular(100),
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: AbsorbPointer(
+          absorbing: widget.isLoading,
+          child: ElevatedButton(
+            style: _transparentifyBackground(style),
+            onPressed: widget.isLoading ? () {} : widget.onPressed,
+            child: _wrapChild(context, disabled: false),
+          ),
+        ),
+      ),
     );
 
     if (widget.width == null) {
       return Row(mainAxisSize: MainAxisSize.min, children: [buttonShell]);
     }
-
     return buttonShell;
   }
 

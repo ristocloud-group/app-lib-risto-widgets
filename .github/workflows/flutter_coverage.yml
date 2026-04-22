@@ -3,7 +3,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JAVA_VERSION: "17.0"
-      FLUTTER_VERSION: '3.35.5'
+      FLUTTER_VERSION: '3.41.7'
     permissions:
       contents: write        # Required to create a PR
       pull-requests: write # Required to create a PR

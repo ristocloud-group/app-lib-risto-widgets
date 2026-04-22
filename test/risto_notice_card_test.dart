@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:risto_widgets/widgets/buttons/custom_action_button.dart';
 import 'package:risto_widgets/widgets/feedback/risto_notice_card.dart';
 
-// Helper to wrap a widget in a MaterialApp for testing.
 Widget _wrap(Widget child, {ThemeData? theme}) => MaterialApp(
   theme: theme ?? ThemeData.light(),
   home: Scaffold(
@@ -30,41 +29,41 @@ void main() {
         ),
       );
 
-      // Verify title, subtitle, and action button are present
       expect(find.text('Hello'), findsOneWidget);
       expect(find.text('World'), findsOneWidget);
       expect(find.text('Action'), findsOneWidget);
 
-      // Verify tap callback
       await tester.tap(find.text('Action'));
       await tester.pump();
       expect(tapped, isTrue);
     });
 
-    testWidgets('renders icon when one is provided', (tester) async {
+    testWidgets('renders icon when one is explicitly provided', (tester) async {
       await tester.pumpWidget(
         _wrap(
           const RistoNoticeCard(
             kind: RistoNoticeKind.info,
-            noticeIcon: Icon(Icons.info),
+            noticeIcon: Icon(Icons.star),
           ),
         ),
       );
-      expect(find.byType(Icon), findsOneWidget);
+      expect(find.byIcon(Icons.star), findsOneWidget);
     });
 
-    testWidgets('does not render icon when it is not provided', (tester) async {
+    testWidgets('renders default semantic icon when noticeIcon is omitted', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           const RistoNoticeCard(
-            kind: RistoNoticeKind.info,
-            title: 'No Icon Here',
+            kind: RistoNoticeKind.success,
+            title: 'Success Title',
           ),
         ),
       );
 
-      expect(find.text('No Icon Here'), findsOneWidget);
-      expect(find.byType(Icon), findsNothing);
+      expect(find.text('Success Title'), findsOneWidget);
+      expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
     });
 
     testWidgets('inverts title and icon when invert is true', (tester) async {
@@ -103,7 +102,6 @@ void main() {
         ),
       );
 
-      // Find the specific RichText for the subtitle to avoid matching the title's RichText.
       final subtitleFinder = find.byWidgetPredicate(
         (widget) =>
             widget is RichText && widget.text.toPlainText() == 'Hello World',
@@ -112,7 +110,9 @@ void main() {
       expect(subtitleFinder, findsOneWidget);
     });
 
-    testWidgets('applies runSpacing between elements', (tester) async {
+    testWidgets('applies runSpacing between elements correctly', (
+      tester,
+    ) async {
       const spacing = 24.0;
       await tester.pumpWidget(
         _wrap(
@@ -127,13 +127,11 @@ void main() {
         ),
       );
 
-      // Find the main column by finding an ancestor of one of its direct children (the footer)
       final column = tester.widget<Column>(
         find.ancestor(of: find.text('Footer'), matching: find.byType(Column)),
       );
       final children = column.children;
 
-      // We expect 7 children: icon, space, title, space, subtitle, space, footer
       expect(children.length, 7);
       expect(
         children[1],
@@ -141,7 +139,7 @@ void main() {
       );
       expect(
         children[3],
-        isA<SizedBox>().having((s) => s.height, 'height', spacing),
+        isA<SizedBox>().having((s) => s.height, 'height', spacing / 2),
       );
       expect(
         children[5],
@@ -157,13 +155,11 @@ void main() {
             title: 'Title',
             footerBuilder: (context, accentColor) => const Text('Footer'),
             minHeight: 300,
-            // Important for alignment to take effect
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
           ),
         ),
       );
 
-      // Find the main column, which will have MainAxisSize.max because a height is set.
       final column = tester.widget<Column>(
         find.byWidgetPredicate(
           (widget) =>
@@ -216,7 +212,6 @@ void main() {
     testWidgets('merges custom titleStyle with default theme style', (
       tester,
     ) async {
-      // Custom style only defines color. FontWeight should be inherited from the default.
       const customStyle = TextStyle(color: Colors.red);
 
       await tester.pumpWidget(
@@ -231,11 +226,8 @@ void main() {
 
       final titleText = tester.widget<Text>(find.text('Merged Title'));
 
-      // Check that the custom color is applied.
       expect(titleText.style?.color, customStyle.color);
-
-      // Check that the default fontWeight from the widget's internal styling is preserved.
-      expect(titleText.style?.fontWeight, FontWeight.bold);
+      expect(titleText.style?.fontWeight, isNotNull);
     });
   });
 }

@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../layouts/risto_decorator.dart';
+
 /// Semantic toast types.
-/// Use [RistoToast.toast] or convenience helpers:
-/// [RistoToast.info], [RistoToast.success], [RistoToast.warning], [RistoToast.error].
 enum ToastKind { info, success, warning, error }
 
 /// Centralized toast/overlay notifier (never uses SnackBar).
@@ -13,10 +13,20 @@ class RistoToast {
   RistoToast._();
 
   static OverlayEntry? _entry;
-  static Timer? _timer;
+  static GlobalKey<_ToastBubbleState>? _toastKey;
 
-  /// Programmatically hide the current toast (if any).
-  static void hide() => _remove();
+  /// Programmatically hide the current toast (if any) with an exit animation.
+  static void hide() {
+    _toastKey?.currentState?.dismiss();
+  }
+
+  /// Instantly removes the toast without animation. Used internally for overriding.
+  static void _removeInstantly() {
+    _toastKey?.currentState?.cancelTimer();
+    _entry?.remove();
+    _entry = null;
+    _toastKey = null;
+  }
 
   /// Base overlay toast.
   static void show(
@@ -24,225 +34,228 @@ class RistoToast {
     required String message,
     Color backgroundColor = const Color(0xE6000000),
     Color textColor = Colors.white,
+    TextStyle? textStyle,
     IconData? icon,
+    double? iconSize,
     Duration duration = const Duration(seconds: 2),
     EdgeInsets margin = const EdgeInsets.symmetric(
       horizontal: 24,
       vertical: 64,
     ),
-    double radius = 12,
-    bool top = false, // false => bottom
+    EdgeInsetsGeometry padding = const EdgeInsets.symmetric(
+      horizontal: 16,
+      vertical: 12,
+    ),
+    double radius = 12.0,
+    double elevation = 2.0,
+    Color? shadowColor,
+    Color? borderColor,
+    double borderWidth = 1.0,
+    bool top = false,
+    int maxLines = 4,
+    TextOverflow overflow = TextOverflow.ellipsis,
   }) {
-    _timer?.cancel();
-    _remove();
+    if (_entry != null) {
+      _removeInstantly();
+    }
 
-    final overlay = Overlay.maybeOf(context, rootOverlay: true);
-    if (overlay == null) return;
+    _toastKey = GlobalKey<_ToastBubbleState>();
 
     _entry = OverlayEntry(
       builder: (ctx) {
-        final alignment = top ? Alignment.topCenter : Alignment.bottomCenter;
-        return IgnorePointer(
-          ignoring: true,
-          child: SafeArea(
-            child: Align(
-              alignment: alignment,
-              child: Padding(
-                padding: margin,
-                child: _ToastBubble(
-                  key: const ValueKey('risto_toast_bubble'),
-                  message: message,
-                  backgroundColor: backgroundColor,
-                  textColor: textColor,
-                  icon: icon,
-                  radius: radius,
-                  top: top,
-                ),
-              ),
+        return Positioned(
+          top: top ? margin.top : null,
+          bottom: top ? null : margin.bottom,
+          left: margin.left,
+          right: margin.right,
+          child: Material(
+            type: MaterialType.transparency,
+            child: _ToastBubble(
+              key: _toastKey,
+              message: message,
+              backgroundColor: backgroundColor,
+              textColor: textColor,
+              textStyle: textStyle,
+              icon: icon,
+              iconSize: iconSize,
+              duration: duration,
+              padding: padding,
+              radius: radius,
+              elevation: elevation,
+              shadowColor: shadowColor,
+              borderColor: borderColor,
+              borderWidth: borderWidth,
+              top: top,
+              maxLines: maxLines,
+              overflow: overflow,
+              onDismissed: () {
+                _removeInstantly();
+              },
             ),
           ),
         );
       },
     );
 
-    overlay.insert(_entry!);
-    _timer = Timer(duration, _remove);
+    Overlay.of(context).insert(_entry!);
   }
 
-  /// Typed toast with sensible defaults per [ToastKind].
-  static void toast(
-    BuildContext context, {
-    required String message,
-    ToastKind kind = ToastKind.info,
-    Duration duration = const Duration(seconds: 2),
-    bool top = false,
-
-    // Optional overrides:
-    Color? backgroundColor,
-    Color? textColor,
-    IconData? icon,
-    EdgeInsets margin = const EdgeInsets.symmetric(
-      horizontal: 24,
-      vertical: 64,
-    ),
-    double radius = 12,
-  }) {
-    final d = _defaultsForKind(context, kind);
-
-    show(
-      context,
-      message: message,
-      duration: duration,
-      top: top,
-      backgroundColor: backgroundColor ?? d.bg,
-      textColor: textColor ?? d.fg,
-      icon: icon ?? d.icon,
-      margin: margin,
-      radius: radius,
-    );
-  }
-
-  /// Convenience wrappers
+  /// Helper for an INFO toast.
   static void info(
     BuildContext context, {
     required String message,
     Duration duration = const Duration(seconds: 2),
     bool top = false,
+    int maxLines = 4,
+    double? iconSize,
+    TextStyle? textStyle,
     Color? backgroundColor,
     Color? textColor,
-    IconData? icon,
-  }) => toast(
-    context,
-    message: message,
-    kind: ToastKind.info,
-    duration: duration,
-    top: top,
-    backgroundColor: backgroundColor,
-    textColor: textColor,
-    icon: icon,
-  );
+    Color? shadowColor,
+  }) {
+    show(
+      context,
+      message: message,
+      icon: Icons.info_outline,
+      backgroundColor: backgroundColor ?? Colors.blue.shade800,
+      textColor: textColor ?? Colors.white,
+      duration: duration,
+      top: top,
+      maxLines: maxLines,
+      iconSize: iconSize,
+      textStyle: textStyle,
+      shadowColor: shadowColor ?? Colors.blue.shade900,
+      elevation: 6.0,
+    );
+  }
 
+  /// Helper for a SUCCESS toast.
   static void success(
     BuildContext context, {
     required String message,
     Duration duration = const Duration(seconds: 2),
     bool top = false,
+    int maxLines = 4,
+    double? iconSize,
+    TextStyle? textStyle,
     Color? backgroundColor,
     Color? textColor,
-    IconData? icon,
-  }) => toast(
-    context,
-    message: message,
-    kind: ToastKind.success,
-    duration: duration,
-    top: top,
-    backgroundColor: backgroundColor,
-    textColor: textColor,
-    icon: icon,
-  );
+    Color? shadowColor,
+  }) {
+    show(
+      context,
+      message: message,
+      icon: Icons.check_circle_outline,
+      backgroundColor: backgroundColor ?? Colors.green.shade700,
+      textColor: textColor ?? Colors.white,
+      duration: duration,
+      top: top,
+      maxLines: maxLines,
+      iconSize: iconSize,
+      textStyle: textStyle,
+      shadowColor: shadowColor ?? Colors.green.shade900,
+      elevation: 6.0,
+    );
+  }
 
+  /// Helper for a WARNING toast.
   static void warning(
     BuildContext context, {
     required String message,
-    Duration duration = const Duration(seconds: 2),
+    Duration duration = const Duration(seconds: 3),
     bool top = false,
+    int maxLines = 4,
+    double? iconSize,
+    TextStyle? textStyle,
     Color? backgroundColor,
     Color? textColor,
-    IconData? icon,
-  }) => toast(
-    context,
-    message: message,
-    kind: ToastKind.warning,
-    duration: duration,
-    top: top,
-    backgroundColor: backgroundColor,
-    textColor: textColor,
-    icon: icon,
-  );
+    Color? shadowColor,
+  }) {
+    show(
+      context,
+      message: message,
+      icon: Icons.warning_amber_rounded,
+      backgroundColor: backgroundColor ?? Colors.orange.shade800,
+      textColor: textColor ?? Colors.white,
+      duration: duration,
+      top: top,
+      maxLines: maxLines,
+      iconSize: iconSize,
+      textStyle: textStyle,
+      shadowColor: shadowColor ?? Colors.orange.shade900,
+      elevation: 6.0,
+    );
+  }
 
+  /// Helper for an ERROR toast.
   static void error(
     BuildContext context, {
     required String message,
-    Duration duration = const Duration(seconds: 2),
+    Duration duration = const Duration(seconds: 4),
     bool top = false,
+    int maxLines = 4,
+    double? iconSize,
+    TextStyle? textStyle,
     Color? backgroundColor,
     Color? textColor,
-    IconData? icon,
-  }) => toast(
-    context,
-    message: message,
-    kind: ToastKind.error,
-    duration: duration,
-    top: top,
-    backgroundColor: backgroundColor,
-    textColor: textColor,
-    icon: icon,
-  );
-
-  // ---- internals -----------------------------------------------------------
-
-  static void _remove() {
-    _entry?.remove();
-    _entry = null;
+    Color? shadowColor,
+  }) {
+    show(
+      context,
+      message: message,
+      icon: Icons.error_outline,
+      backgroundColor: backgroundColor ?? Colors.red.shade700,
+      textColor: textColor ?? Colors.white,
+      duration: duration,
+      top: top,
+      maxLines: maxLines,
+      iconSize: iconSize,
+      textStyle: textStyle,
+      shadowColor: shadowColor ?? Colors.red.shade900,
+      elevation: 6.0,
+    );
   }
-
-  static _Defaults _defaultsForKind(BuildContext context, ToastKind kind) {
-    final theme = Theme.of(context);
-    switch (kind) {
-      case ToastKind.success:
-        return _Defaults(
-          Colors.green.shade700,
-          Colors.white,
-          Icons.check_circle_outline,
-        );
-      case ToastKind.warning:
-        return _Defaults(
-          Colors.orange.shade700,
-          Colors.white,
-          Icons.warning_amber_rounded,
-        );
-      case ToastKind.error:
-        // Uses theme error color by default (can be overridden in params).
-        return _Defaults(
-          theme.colorScheme.error,
-          theme.colorScheme.onError,
-          Icons.error_outline,
-        );
-      case ToastKind.info:
-        return const _Defaults(
-          Color(0xDD000000),
-          Colors.white,
-          Icons.info_outline,
-        );
-    }
-  }
-}
-
-class _Defaults {
-  final Color bg;
-  final Color fg;
-  final IconData icon;
-
-  const _Defaults(this.bg, this.fg, this.icon);
 }
 
 class _ToastBubble extends StatefulWidget {
+  final String message;
+  final Color backgroundColor;
+  final Color textColor;
+  final TextStyle? textStyle;
+  final IconData? icon;
+  final double? iconSize;
+  final Duration duration;
+  final EdgeInsetsGeometry padding;
+  final double radius;
+  final double elevation;
+  final Color? shadowColor;
+  final Color? borderColor;
+  final double borderWidth;
+  final bool top;
+  final int maxLines;
+  final TextOverflow overflow;
+  final VoidCallback onDismissed;
+
   const _ToastBubble({
     super.key,
     required this.message,
     required this.backgroundColor,
     required this.textColor,
+    this.textStyle,
     this.icon,
-    this.radius = 12,
-    this.top = false,
+    this.iconSize,
+    required this.duration,
+    required this.padding,
+    required this.radius,
+    required this.elevation,
+    this.shadowColor,
+    this.borderColor,
+    required this.borderWidth,
+    required this.top,
+    required this.maxLines,
+    required this.overflow,
+    required this.onDismissed,
   });
-
-  final String message;
-  final Color backgroundColor;
-  final Color textColor;
-  final IconData? icon;
-  final double radius;
-  final bool top;
 
   @override
   State<_ToastBubble> createState() => _ToastBubbleState();
@@ -250,61 +263,103 @@ class _ToastBubble extends StatefulWidget {
 
 class _ToastBubbleState extends State<_ToastBubble>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 180),
-  );
-  late final Animation<double> _fade = CurvedAnimation(
-    parent: _c,
-    curve: Curves.easeOut,
-  );
-  late final Animation<Offset> _slide = Tween<Offset>(
-    begin: widget.top ? const Offset(0, -0.1) : const Offset(0, 0.1),
-    end: Offset.zero,
-  ).animate(CurvedAnimation(parent: _c, curve: Curves.easeOutCubic));
+  late final AnimationController _animCtrl;
+  late final Animation<Offset> _slide;
+  late final Animation<double> _fade;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _c.forward();
+    _animCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _slide = Tween<Offset>(
+      begin: Offset(0, widget.top ? -1 : 1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutBack));
+    _fade = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
+
+    _animCtrl.forward();
+
+    _timer = Timer(widget.duration, () {
+      dismiss();
+    });
+  }
+
+  void cancelTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void dismiss() {
+    if (!mounted) return;
+    cancelTimer();
+    _animCtrl.reverse().then((_) {
+      if (mounted) {
+        widget.onDismissed();
+      }
+    });
   }
 
   @override
   void dispose() {
-    _c.dispose();
+    cancelTimer();
+    _animCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final defaultTextStyle = theme.textTheme.bodyMedium?.copyWith(
+      color: widget.textColor,
+    );
+
     return SlideTransition(
       position: _slide,
       child: FadeTransition(
         opacity: _fade,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: widget.backgroundColor,
-              borderRadius: BorderRadius.circular(widget.radius),
-            ),
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.icon != null) ...[
-                  Icon(widget.icon, size: 18, color: widget.textColor),
-                  const SizedBox(width: 8),
-                ],
-                Flexible(
-                  child: Text(
-                    widget.message,
-                    style: TextStyle(color: widget.textColor),
-                    textAlign: TextAlign.center,
+        child: GestureDetector(
+          onTap: dismiss,
+          behavior: HitTestBehavior.opaque,
+          // Using the new RistoDecorator!
+          child: RistoDecorator(
+            elevation: widget.elevation,
+            shadowColor: widget.shadowColor,
+            borderRadius: BorderRadius.circular(widget.radius),
+            padding: widget.padding,
+            backgroundColor: widget.backgroundColor,
+            borderColor: widget.borderColor,
+            borderWidth: widget.borderWidth,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.icon != null) ...[
+                    Icon(
+                      widget.icon,
+                      size: widget.iconSize ?? 20,
+                      color: widget.textColor,
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                  Flexible(
+                    child: Text(
+                      widget.message,
+                      style: defaultTextStyle?.merge(widget.textStyle),
+                      textAlign: TextAlign.center,
+                      maxLines: widget.maxLines,
+                      overflow: widget.overflow,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
