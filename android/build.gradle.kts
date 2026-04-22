@@ -1,33 +1,13 @@
+import com.android.build.api.dsl.LibraryExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 group = "com.ristocloudgroup.lib.risto_widgets"
 version = "1.0-SNAPSHOT"
 
-buildscript {
-    val kotlinVersion = "2.2.20"
-    repositories {
-        google()
-        mavenCentral()
-    }
+apply(plugin = "com.android.library")
 
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.11.1")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-plugins {
-    id("com.android.library")
-}
-
-android {
+configure<LibraryExtension> {
     namespace = "com.ristocloudgroup.lib.risto_widgets"
-
     compileSdk = 36
 
     compileOptions {
@@ -35,19 +15,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
-        }
-    }
-
     sourceSets {
-        getByName("main") {
-            java.srcDirs("src/main/kotlin")
-        }
-        getByName("test") {
-            java.srcDirs("src/test/kotlin")
-        }
+        getByName("main").java.srcDir("src/main/kotlin")
+        getByName("test").java.srcDir("src/test/kotlin")
     }
 
     defaultConfig {
@@ -57,21 +27,26 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
-            all {
-                it.useJUnitPlatform()
-
-                it.outputs.upToDateWhen { false }
-
-                it.testLogging {
-                    events("passed", "skipped", "failed", "standardOut", "standardError")
-                    showStandardStreams = true
-                }
-            }
         }
     }
 }
 
+tasks.withType<KotlinCompile> {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    outputs.upToDateWhen { false }
+    testLogging {
+        events("passed", "skipped", "failed", "standardOut", "standardError")
+        showStandardStreams = true
+    }
+}
+
 dependencies {
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.mockito:mockito-core:5.0.0")
+    add("testImplementation", "org.jetbrains.kotlin:kotlin-test")
+    add("testImplementation", "org.mockito:mockito-core:5.0.0")
 }
