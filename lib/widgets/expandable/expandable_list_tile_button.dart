@@ -2,138 +2,147 @@ import 'dart:ui';
 
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:risto_widgets/extensions.dart';
 
 import '../buttons/list_tile_button.dart';
 
-/// A widget that provides an expandable list tile button with customizable headers and content.
-///
-/// The [ExpandableListTileButton] can be used to create a list tile that expands to reveal
-/// additional content when tapped. It supports custom headers, icons, expanded content,
-/// elevation for the combined widget, disabled state, and external control via [ExpandableController].
-///
-/// Uses a Stack layout to ensure the header remains fully rounded and the body expands smoothly beneath it.
-/// Background colors for the header and expanded body areas are specified separately using
-/// [headerBackgroundColor] and [expandedBodyColor]. For backward compatibility,
-/// [backgroundColor] and [expandedColor] can also be used, but the newer names are preferred.
-///
-/// Example usage:
-/// ```dart
-/// ExpandableController _controller = ExpandableController();
-/// ExpandableListTileButton.listTile(
-///   controller: _controller,
-///   title: Text('Tap to expand'),
-///   expanded: Padding(
-///     padding: const EdgeInsets.all(16.0),
-///     child: Text('Expanded content goes here.'),
-///   ),
-///   margin: EdgeInsets.all(8),
-///   elevation: 4,
-///   headerBackgroundColor: Colors.blue[100],
-///   expandedBodyColor: Colors.blue[50],
-///   borderRadius: BorderRadius.circular(12),
-/// );
-/// ```
+/// A wrapper that manages multiple [ExpandableListTileButton]s, ensuring
+/// that only one tile can be expanded at any given time.
+class ExpandableAccordionGroup extends StatefulWidget {
+  final List<Widget> children;
+
+  const ExpandableAccordionGroup({super.key, required this.children});
+
+  @override
+  State<ExpandableAccordionGroup> createState() =>
+      _ExpandableAccordionGroupState();
+}
+
+class _ExpandableAccordionGroupState extends State<ExpandableAccordionGroup> {
+  late List<ExpandableController> _controllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = List.generate(
+      widget.children.length,
+      (_) => ExpandableController(),
+    );
+
+    for (int i = 0; i < _controllers.length; i++) {
+      _controllers[i].addListener(() {
+        if (_controllers[i].expanded) {
+          for (int j = 0; j < _controllers.length; j++) {
+            if (i != j && _controllers[j].expanded) {
+              _controllers[j].expanded = false;
+            }
+          }
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(widget.children.length, (index) {
+        final child = widget.children[index];
+
+        if (child is ExpandableListTileButton) {
+          return child._copyWithController(_controllers[index]);
+        }
+        return child;
+      }),
+    );
+  }
+}
+
+/// A versatile, animated, expandable list tile button.
 class ExpandableListTileButton extends StatefulWidget {
-  /// The content to display when the tile is expanded.
   final Widget expanded;
-
-  /// The primary content of the tile when collapsed (used by default headers).
   final Widget? title;
-
-  /// Additional content displayed below the [title] when collapsed (used by default headers).
   final Widget? subtitle;
 
-  /// The background color of the header area.
-  /// If null, [backgroundColor] is used. If both are null, theme default is used.
-  /// Using [headerBackgroundColor] is preferred for clarity.
   final Color? headerBackgroundColor;
-
-  /// The background color of the expanded content area.
-  /// If null, [expandedColor] is used. If both are null, theme default is used.
-  /// Using [expandedBodyColor] is preferred for clarity.
   final Color? expandedBodyColor;
-
-  /// An alternative way to set the header background color for backward compatibility.
-  /// [headerBackgroundColor] takes priority if both are provided.
   final Color? backgroundColor;
-
-  /// An alternative way to set the expanded body background color for backward compatibility.
-  /// [expandedBodyColor] takes priority if both are provided.
   final Color? expandedColor;
 
-  /// The color of the leading icon (used by default `.iconListTile` header).
   final Color? iconColor;
-
-  /// The color of the trailing expand/collapse icon (used by default headers).
   final Color? trailingIconColor;
-
-  /// The color of the border around the combined widget. Applied to the header Material shape.
   final Color? borderColor;
+  final Color? shadowColor;
 
-  /// The elevation of the header's shadow.
   final double elevation;
-
-  /// The external margin around the widget.
   final EdgeInsetsGeometry? margin;
-
-  /// The internal padding applied to the default header container.
-  /// If using a custom header builder, you should handle padding within the custom widget itself.
+  final double expandedBottomMargin; // NEW: Ensures shadows are never clipped
   final EdgeInsetsGeometry? headerPadding;
-
-  /// The internal padding applied specifically around the title and subtitle block.
   final EdgeInsetsGeometry? headerBodyPadding;
+  final EdgeInsetsGeometry? leadingPadding;
+  final EdgeInsetsGeometry? trailingPadding;
 
-  /// Factor to scale the size of the leading icon (used by default `.iconListTile` header).
+  final double? headerWidth;
+  final double? headerHeight;
+  final double? headerMinWidth;
+  final double? headerMaxWidth;
+  final double? headerMinHeight;
+  final double? headerMaxHeight;
+  final Alignment headerContentAlignment;
+
   final double? leadingSizeFactor;
-
-  /// The leading widget of the tile (used by default `.listTile` header).
   final Widget? leading;
-
-  /// The icon data for the leading icon (used by default `.iconListTile` header).
   final IconData? icon;
 
-  /// A builder function to create a custom header widget.
-  ///
-  /// The function provides a `tapAction` callback, an `isExpanded` boolean,
-  /// and a `isDisabled` boolean. The custom header should handle its own internal layout.
-  final Widget Function(Function() tapAction, bool isExpanded, bool isDisabled)?
+  final IconData trailingExpandedIcon;
+  final IconData trailingCollapsedIcon;
+
+  final Widget Function(
+    Function() tapAction,
+    bool isExpanded,
+    bool isDisabled,
+    double animationValue,
+  )?
   customHeaderBuilder;
 
-  /// Controls the radius of the corners for the header and the overall shape.
+  final Widget Function(bool isExpanded, bool isDisabled)? trailingBuilder;
+
   final BorderRadius borderRadius;
-
-  /// Whether the tile is interactive. If true, the tile cannot be expanded or collapsed
-  /// by user tap, and its appearance is dimmed.
   final bool disabled;
-
-  /// Alignment of the [expanded] widget within the body container.
+  final bool headerDisabled;
   final AlignmentGeometry bodyAlignment;
-
-  /// An optional controller to manage the expansion state externally.
-  /// If provided, the widget's state will synchronize with the controller.
-  /// If null, the widget manages its own expansion state internally.
   final ExpandableController? controller;
-
-  /// The final resolved background color for the header, prioritizing [headerBackgroundColor].
-  final Color? _finalHeaderBackgroundColor;
-
-  /// The final resolved background color for the expanded body, prioritizing [expandedBodyColor].
-  final Color? _finalExpandedBodyColor;
-
-  /// If non-null, constrains the trailing widget to this size.
   final Size? trailingSize;
 
-  /// When true, expanded content is shown via an OverlayEntry.
+  final Duration animationDuration;
+  final Curve animationCurve;
+
+  final bool enableHaptics;
+  final MouseCursor mouseCursor;
+  final String? semanticsLabel;
+
+  /// Determines the expansion style.
+  /// `true` (Continuous): Header's bottom corners flatten to merge with the body.
+  /// `false` (Layered): Header remains fully rounded, body spawns from half-way underneath it.
+  final bool continuous;
+
+  final Future<Widget> Function()? fetchExpandedContent;
+  final Widget? loadingWidget;
+  final Widget? errorWidget;
+
+  final Color? _finalHeaderBackgroundColor;
+  final Color? _finalExpandedBodyColor;
   final bool _useOverlay;
 
-  /// Creates an [ExpandableListTileButton] with the given properties.
-  ///
-  /// Use this constructor when providing a [customHeaderBuilder].
-  /// At least one of [customHeaderBuilder] or [title] must be non-null.
-  ///
-  /// Accepts both [headerBackgroundColor]/[expandedBodyColor] (preferred) and
-  /// [backgroundColor]/[expandedColor] (for backward compatibility).
   const ExpandableListTileButton({
     super.key,
     required this.expanded,
@@ -147,18 +156,42 @@ class ExpandableListTileButton extends StatefulWidget {
     this.iconColor,
     this.trailingIconColor,
     this.borderColor,
+    this.shadowColor,
     this.elevation = 1,
     this.margin,
+    this.expandedBottomMargin = 16.0,
     this.headerPadding,
     this.headerBodyPadding,
+    this.leadingPadding,
+    this.trailingPadding,
+    this.headerWidth,
+    this.headerHeight,
+    this.headerMinWidth,
+    this.headerMaxWidth,
+    this.headerMinHeight,
+    this.headerMaxHeight,
+    this.headerContentAlignment = Alignment.centerLeft,
     this.leadingSizeFactor,
     this.leading,
     this.icon,
+    this.trailingExpandedIcon = Icons.expand_less,
+    this.trailingCollapsedIcon = Icons.expand_more,
+    this.trailingBuilder,
     this.borderRadius = const BorderRadius.all(Radius.circular(10)),
     this.disabled = false,
-    this.bodyAlignment = Alignment.center,
+    this.headerDisabled = false,
+    this.bodyAlignment = Alignment.topCenter,
     this.controller,
     this.trailingSize,
+    this.animationDuration = const Duration(milliseconds: 300),
+    this.animationCurve = Curves.easeInOutCubic,
+    this.enableHaptics = true,
+    this.mouseCursor = SystemMouseCursors.click,
+    this.semanticsLabel,
+    this.continuous = true,
+    this.fetchExpandedContent,
+    this.loadingWidget,
+    this.errorWidget,
     bool overlay = false,
   }) : _finalHeaderBackgroundColor = headerBackgroundColor ?? backgroundColor,
        _finalExpandedBodyColor = expandedBodyColor ?? expandedColor,
@@ -168,10 +201,62 @@ class ExpandableListTileButton extends StatefulWidget {
          'Either customHeaderBuilder or title must be provided for the header.',
        );
 
-  /// Creates an [ExpandableListTileButton] with a default header based on [ListTile].
-  ///
-  /// Accepts both [headerBackgroundColor]/[expandedBodyColor] (preferred) and
-  /// [backgroundColor]/[expandedColor] (for backward compatibility).
+  ExpandableListTileButton _copyWithController(
+    ExpandableController newController,
+  ) {
+    return ExpandableListTileButton(
+      key: key,
+      expanded: expanded,
+      customHeaderBuilder: customHeaderBuilder,
+      title: title,
+      subtitle: subtitle,
+      headerBackgroundColor: headerBackgroundColor,
+      expandedBodyColor: expandedBodyColor,
+      backgroundColor: backgroundColor,
+      expandedColor: expandedColor,
+      iconColor: iconColor,
+      trailingIconColor: trailingIconColor,
+      borderColor: borderColor,
+      shadowColor: shadowColor,
+      elevation: elevation,
+      margin: margin,
+      expandedBottomMargin: expandedBottomMargin,
+      headerPadding: headerPadding,
+      headerBodyPadding: headerBodyPadding,
+      leadingPadding: leadingPadding,
+      trailingPadding: trailingPadding,
+      headerWidth: headerWidth,
+      headerHeight: headerHeight,
+      headerMinWidth: headerMinWidth,
+      headerMaxWidth: headerMaxWidth,
+      headerMinHeight: headerMinHeight,
+      headerMaxHeight: headerMaxHeight,
+      headerContentAlignment: headerContentAlignment,
+      leadingSizeFactor: leadingSizeFactor,
+      leading: leading,
+      icon: icon,
+      trailingExpandedIcon: trailingExpandedIcon,
+      trailingCollapsedIcon: trailingCollapsedIcon,
+      trailingBuilder: trailingBuilder,
+      borderRadius: borderRadius,
+      disabled: disabled,
+      headerDisabled: headerDisabled,
+      bodyAlignment: bodyAlignment,
+      controller: newController,
+      trailingSize: trailingSize,
+      animationDuration: animationDuration,
+      animationCurve: animationCurve,
+      enableHaptics: enableHaptics,
+      mouseCursor: mouseCursor,
+      semanticsLabel: semanticsLabel,
+      continuous: continuous,
+      fetchExpandedContent: fetchExpandedContent,
+      loadingWidget: loadingWidget,
+      errorWidget: errorWidget,
+      overlay: _useOverlay,
+    );
+  }
+
   factory ExpandableListTileButton.listTile({
     Key? key,
     required Widget expanded,
@@ -183,15 +268,36 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? expandedColor,
     Color? trailingIconColor,
     Color? borderColor,
+    Color? shadowColor,
     double elevation = 1,
     Widget? leading,
     EdgeInsetsGeometry? margin,
+    double expandedBottomMargin = 16.0,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? headerBodyPadding,
+    EdgeInsetsGeometry? leadingPadding,
+    EdgeInsetsGeometry? trailingPadding,
+    double? headerWidth,
+    double? headerHeight,
+    double? headerMinWidth,
+    double? headerMaxWidth,
+    double? headerMinHeight,
+    double? headerMaxHeight,
+    Alignment headerContentAlignment = Alignment.centerLeft,
+    IconData trailingExpandedIcon = Icons.expand_less,
+    IconData trailingCollapsedIcon = Icons.expand_more,
+    Widget Function(bool isExpanded, bool isDisabled)? trailingBuilder,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
-    AlignmentGeometry bodyAlignment = Alignment.center,
+    bool headerDisabled = false,
+    AlignmentGeometry bodyAlignment = Alignment.topCenter,
     ExpandableController? controller,
+    Duration animationDuration = const Duration(milliseconds: 300),
+    Curve animationCurve = Curves.easeInOutCubic,
+    bool enableHaptics = true,
+    MouseCursor mouseCursor = SystemMouseCursors.click,
+    String? semanticsLabel,
+    bool continuous = true,
   }) {
     return ExpandableListTileButton(
       key: key,
@@ -204,37 +310,71 @@ class ExpandableListTileButton extends StatefulWidget {
       expandedColor: expandedColor,
       trailingIconColor: trailingIconColor,
       borderColor: borderColor,
+      shadowColor: shadowColor,
       elevation: elevation,
       margin: margin,
+      expandedBottomMargin: expandedBottomMargin,
       headerPadding: headerPadding,
       headerBodyPadding: headerBodyPadding,
+      leadingPadding: leadingPadding,
+      trailingPadding: trailingPadding,
+      headerWidth: headerWidth,
+      headerHeight: headerHeight,
+      headerMinWidth: headerMinWidth,
+      headerMaxWidth: headerMaxWidth,
+      headerMinHeight: headerMinHeight,
+      headerMaxHeight: headerMaxHeight,
+      headerContentAlignment: headerContentAlignment,
       leading: leading,
+      trailingExpandedIcon: trailingExpandedIcon,
+      trailingCollapsedIcon: trailingCollapsedIcon,
+      trailingBuilder: trailingBuilder,
       borderRadius: borderRadius,
       disabled: disabled,
+      headerDisabled: headerDisabled,
       bodyAlignment: bodyAlignment,
       controller: controller,
-      customHeaderBuilder: (toggleExpansion, isExpanded, isDisabled) =>
-          ListTileButton(
-            padding: headerPadding,
-            bodyPadding: headerBodyPadding,
-            onPressed: toggleExpansion,
-            leading: leading,
-            body: title,
-            subtitle: subtitle,
-            trailing: Icon(
-              isExpanded ? Icons.expand_less : Icons.expand_more,
-              color: trailingIconColor,
-            ),
-            backgroundColor: Colors.transparent,
-            disabled: isDisabled,
-          ),
+      animationDuration: animationDuration,
+      animationCurve: animationCurve,
+      enableHaptics: enableHaptics,
+      mouseCursor: mouseCursor,
+      semanticsLabel: semanticsLabel,
+      continuous: continuous,
+      customHeaderBuilder:
+          (toggleExpansion, isExpanded, isDisabled, animValue) =>
+              ListTileButton(
+                padding: headerPadding,
+                bodyPadding: headerBodyPadding,
+                leadingPadding: leadingPadding,
+                trailingPadding: trailingPadding,
+                width: headerWidth,
+                height: headerHeight,
+                minWidth: headerMinWidth,
+                maxWidth: headerMaxWidth,
+                minHeight: headerMinHeight ?? 60.0,
+                maxHeight: headerMaxHeight,
+                contentAlignment: headerContentAlignment,
+                onPressed: toggleExpansion,
+                leading: leading,
+                body: title,
+                subtitle: subtitle,
+                trailing: isDisabled
+                    ? null
+                    : trailingBuilder != null
+                    ? trailingBuilder(isExpanded, isDisabled)
+                    : RotationTransition(
+                        turns: AlwaysStoppedAnimation(animValue * 0.5),
+                        child: Icon(
+                          trailingCollapsedIcon,
+                          color: trailingIconColor,
+                        ),
+                      ),
+                backgroundColor: Colors.transparent,
+                disabled: headerDisabled,
+              ),
     );
   }
 
-  /// Creates an [ExpandableListTileButton] with a default header using an icon on the left.
-  ///
-  /// Accepts both [headerBackgroundColor]/[expandedBodyColor] (preferred) and
-  /// [backgroundColor]/[expandedColor] (for backward compatibility).
   factory ExpandableListTileButton.iconListTile({
     Key? key,
     required Widget expanded,
@@ -246,18 +386,38 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? backgroundColor,
     Color? expandedColor,
     EdgeInsetsGeometry? leadingPadding,
+    EdgeInsetsGeometry? trailingPadding,
     Color? iconColor,
     Color? trailingIconColor,
     Color? borderColor,
+    Color? shadowColor,
     double elevation = 1,
     double? leadingSizeFactor,
     EdgeInsetsGeometry? margin,
+    double expandedBottomMargin = 16.0,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? headerBodyPadding,
+    double? headerWidth,
+    double? headerHeight,
+    double? headerMinWidth,
+    double? headerMaxWidth,
+    double? headerMinHeight,
+    double? headerMaxHeight,
+    Alignment headerContentAlignment = Alignment.centerLeft,
+    IconData trailingExpandedIcon = Icons.expand_less,
+    IconData trailingCollapsedIcon = Icons.expand_more,
+    Widget Function(bool isExpanded, bool isDisabled)? trailingBuilder,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
-    AlignmentGeometry bodyAlignment = Alignment.center,
+    bool headerDisabled = false,
+    AlignmentGeometry bodyAlignment = Alignment.topCenter,
     ExpandableController? controller,
+    Duration animationDuration = const Duration(milliseconds: 300),
+    Curve animationCurve = Curves.easeInOutCubic,
+    bool enableHaptics = true,
+    MouseCursor mouseCursor = SystemMouseCursors.click,
+    String? semanticsLabel,
+    bool continuous = true,
   }) {
     return ExpandableListTileButton(
       key: key,
@@ -272,40 +432,138 @@ class ExpandableListTileButton extends StatefulWidget {
       iconColor: iconColor,
       trailingIconColor: trailingIconColor,
       borderColor: borderColor,
+      shadowColor: shadowColor,
       elevation: elevation,
       margin: margin,
+      expandedBottomMargin: expandedBottomMargin,
       headerPadding: headerPadding,
       headerBodyPadding: headerBodyPadding,
+      leadingPadding: leadingPadding,
+      trailingPadding: trailingPadding,
+      headerWidth: headerWidth,
+      headerHeight: headerHeight,
+      headerMinWidth: headerMinWidth,
+      headerMaxWidth: headerMaxWidth,
+      headerMinHeight: headerMinHeight,
+      headerMaxHeight: headerMaxHeight,
+      headerContentAlignment: headerContentAlignment,
       leadingSizeFactor: leadingSizeFactor,
+      trailingExpandedIcon: trailingExpandedIcon,
+      trailingCollapsedIcon: trailingCollapsedIcon,
+      trailingBuilder: trailingBuilder,
       borderRadius: borderRadius,
       disabled: disabled,
+      headerDisabled: headerDisabled,
       bodyAlignment: bodyAlignment,
       controller: controller,
-      customHeaderBuilder: (toggleExpansion, isExpanded, isDisabled) =>
-          IconListTileButton(
-            padding: headerPadding,
-            bodyPadding: headerBodyPadding,
-            icon: icon,
-            iconColor: iconColor,
-            leadingSizeFactor: leadingSizeFactor ?? 1.0,
-            leadingPadding: leadingPadding,
-            title: title,
-            subtitle: subtitle,
-            trailing: Icon(
-              isExpanded ? Icons.expand_less : Icons.expand_more,
-              color: trailingIconColor,
-            ),
-            onPressed: toggleExpansion,
-            backgroundColor: Colors.transparent,
-            disabled: isDisabled,
-          ),
+      animationDuration: animationDuration,
+      animationCurve: animationCurve,
+      enableHaptics: enableHaptics,
+      mouseCursor: mouseCursor,
+      semanticsLabel: semanticsLabel,
+      continuous: continuous,
+      customHeaderBuilder:
+          (toggleExpansion, isExpanded, isDisabled, animValue) =>
+              IconListTileButton(
+                padding: headerPadding,
+                bodyPadding: headerBodyPadding,
+                leadingPadding: leadingPadding,
+                trailingPadding: trailingPadding,
+                width: headerWidth,
+                height: headerHeight,
+                minWidth: headerMinWidth,
+                maxWidth: headerMaxWidth,
+                minHeight: headerMinHeight ?? 60.0,
+                maxHeight: headerMaxHeight,
+                contentAlignment: headerContentAlignment,
+                icon: icon,
+                iconColor: iconColor,
+                leadingSizeFactor: leadingSizeFactor ?? 1.0,
+                title: title,
+                subtitle: subtitle,
+                trailing: isDisabled
+                    ? null
+                    : trailingBuilder != null
+                    ? trailingBuilder(isExpanded, isDisabled)
+                    : RotationTransition(
+                        turns: AlwaysStoppedAnimation(animValue * 0.5),
+                        child: Icon(
+                          trailingCollapsedIcon,
+                          color: trailingIconColor,
+                        ),
+                      ),
+                onPressed: toggleExpansion,
+                backgroundColor: Colors.transparent,
+                disabled: headerDisabled,
+              ),
     );
   }
 
-  /// Creates an [ExpandableListTileButton] with a completely custom header provided by [customHeaderBuilder].
-  ///
-  /// Accepts both [headerBackgroundColor]/[expandedBodyColor] (preferred) and
-  /// [backgroundColor]/[expandedColor] (for backward compatibility).
+  factory ExpandableListTileButton.async({
+    Key? key,
+    required Future<Widget> Function() fetchExpandedContent,
+    required Widget title,
+    Widget? loadingWidget,
+    Widget? errorWidget,
+    Widget? subtitle,
+    Color? headerBackgroundColor,
+    Color? expandedBodyColor,
+    Color? trailingIconColor,
+    double elevation = 1,
+    Widget? leading,
+    EdgeInsetsGeometry? margin,
+    double expandedBottomMargin = 16.0,
+    IconData trailingExpandedIcon = Icons.expand_less,
+    IconData trailingCollapsedIcon = Icons.expand_more,
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
+    ExpandableController? controller,
+    Duration animationDuration = const Duration(milliseconds: 300),
+    bool continuous = true,
+  }) {
+    return ExpandableListTileButton.listTile(
+      key: key,
+      title: title,
+      subtitle: subtitle,
+      leading: leading,
+      headerBackgroundColor: headerBackgroundColor,
+      expandedBodyColor: expandedBodyColor,
+      trailingIconColor: trailingIconColor,
+      elevation: elevation,
+      margin: margin,
+      expandedBottomMargin: expandedBottomMargin,
+      borderRadius: borderRadius,
+      trailingExpandedIcon: trailingExpandedIcon,
+      trailingCollapsedIcon: trailingCollapsedIcon,
+      controller: controller,
+      animationDuration: animationDuration,
+      continuous: continuous,
+      expanded: FutureBuilder<Widget>(
+        future: fetchExpandedContent(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+              padding: const EdgeInsets.all(32),
+              alignment: Alignment.center,
+              child: loadingWidget ?? const CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Container(
+              padding: const EdgeInsets.all(32),
+              alignment: Alignment.center,
+              child:
+                  errorWidget ??
+                  const Text(
+                    "Failed to load content.",
+                    style: TextStyle(color: Colors.red),
+                  ),
+            );
+          }
+          return snapshot.data ?? const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
   factory ExpandableListTileButton.custom({
     Key? key,
     required Widget expanded,
@@ -313,6 +571,7 @@ class ExpandableListTileButton extends StatefulWidget {
       Function() tapAction,
       bool isExpanded,
       bool isDisabled,
+      double animValue,
     )
     customHeaderBuilder,
     Color? headerBackgroundColor,
@@ -320,14 +579,32 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? backgroundColor,
     Color? expandedColor,
     Color? borderColor,
+    Color? shadowColor,
     double elevation = 1,
     EdgeInsetsGeometry? margin,
+    double expandedBottomMargin = 16.0,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? headerBodyPadding,
+    EdgeInsetsGeometry? leadingPadding,
+    EdgeInsetsGeometry? trailingPadding,
+    double? headerWidth,
+    double? headerHeight,
+    double? headerMinWidth,
+    double? headerMaxWidth,
+    double? headerMinHeight,
+    double? headerMaxHeight,
+    Alignment headerContentAlignment = Alignment.centerLeft,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
-    AlignmentGeometry bodyAlignment = Alignment.center,
+    bool headerDisabled = false,
+    AlignmentGeometry bodyAlignment = Alignment.topCenter,
     ExpandableController? controller,
+    Duration animationDuration = const Duration(milliseconds: 300),
+    Curve animationCurve = Curves.easeInOutCubic,
+    bool enableHaptics = true,
+    MouseCursor mouseCursor = SystemMouseCursors.click,
+    String? semanticsLabel,
+    bool continuous = true,
   }) {
     return ExpandableListTileButton(
       key: key,
@@ -338,18 +615,35 @@ class ExpandableListTileButton extends StatefulWidget {
       expandedBodyColor: expandedBodyColor,
       expandedColor: expandedColor,
       borderColor: borderColor,
+      shadowColor: shadowColor,
       elevation: elevation,
       margin: margin,
+      expandedBottomMargin: expandedBottomMargin,
       headerPadding: headerPadding,
       headerBodyPadding: headerBodyPadding,
+      leadingPadding: leadingPadding,
+      trailingPadding: trailingPadding,
+      headerWidth: headerWidth,
+      headerHeight: headerHeight,
+      headerMinWidth: headerMinWidth,
+      headerMaxWidth: headerMaxWidth,
+      headerMinHeight: headerMinHeight,
+      headerMaxHeight: headerMaxHeight,
+      headerContentAlignment: headerContentAlignment,
       borderRadius: borderRadius,
       disabled: disabled,
+      headerDisabled: headerDisabled,
       bodyAlignment: bodyAlignment,
       controller: controller,
+      animationDuration: animationDuration,
+      animationCurve: animationCurve,
+      enableHaptics: enableHaptics,
+      mouseCursor: mouseCursor,
+      semanticsLabel: semanticsLabel,
+      continuous: continuous,
     );
   }
 
-  /// Creates a tile whose expanded content floats in an [Overlay] above other widgets.
   factory ExpandableListTileButton.overlayMenu({
     Key? key,
     required Widget expanded,
@@ -360,16 +654,37 @@ class ExpandableListTileButton extends StatefulWidget {
     Color? expandedBodyColor,
     Color? trailingIconColor,
     Color? borderColor,
+    Color? shadowColor,
     double elevation = 1,
     EdgeInsetsGeometry? margin,
+    double expandedBottomMargin = 16.0,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? headerBodyPadding,
+    EdgeInsetsGeometry? leadingPadding,
+    EdgeInsetsGeometry? trailingPadding,
+    double? headerWidth,
+    double? headerHeight,
+    double? headerMinWidth,
+    double? headerMaxWidth,
+    double? headerMinHeight,
+    double? headerMaxHeight,
+    Alignment headerContentAlignment = Alignment.centerLeft,
+    IconData trailingExpandedIcon = Icons.expand_less,
+    IconData trailingCollapsedIcon = Icons.expand_more,
+    Widget Function(bool isExpanded, bool isDisabled)? trailingBuilder,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(10)),
     bool disabled = false,
+    bool headerDisabled = false,
     AlignmentGeometry bodyAlignment = Alignment.center,
     ExpandableController? controller,
     double leadingSizeFactor = 1,
     Size? trailingSize,
+    Duration animationDuration = const Duration(milliseconds: 300),
+    Curve animationCurve = Curves.easeInOutCubic,
+    bool enableHaptics = true,
+    MouseCursor mouseCursor = SystemMouseCursors.click,
+    String? semanticsLabel,
+    bool continuous = true,
   }) {
     return ExpandableListTileButton(
       key: key,
@@ -381,38 +696,78 @@ class ExpandableListTileButton extends StatefulWidget {
       expandedBodyColor: expandedBodyColor,
       trailingIconColor: trailingIconColor,
       borderColor: borderColor,
+      shadowColor: shadowColor,
       elevation: elevation,
       margin: margin,
+      expandedBottomMargin: expandedBottomMargin,
       headerPadding: headerPadding,
       headerBodyPadding: headerBodyPadding,
+      leadingPadding: leadingPadding,
+      trailingPadding: trailingPadding,
+      headerWidth: headerWidth,
+      headerHeight: headerHeight,
+      headerMinWidth: headerMinWidth,
+      headerMaxWidth: headerMaxWidth,
+      headerMinHeight: headerMinHeight,
+      headerMaxHeight: headerMaxHeight,
+      headerContentAlignment: headerContentAlignment,
+      trailingExpandedIcon: trailingExpandedIcon,
+      trailingCollapsedIcon: trailingCollapsedIcon,
+      trailingBuilder: trailingBuilder,
       borderRadius: borderRadius,
       disabled: disabled,
+      headerDisabled: headerDisabled,
       bodyAlignment: bodyAlignment,
       controller: controller,
       trailingSize: trailingSize,
+      animationDuration: animationDuration,
+      animationCurve: animationCurve,
+      enableHaptics: enableHaptics,
+      mouseCursor: mouseCursor,
+      semanticsLabel: semanticsLabel,
+      continuous: continuous,
       overlay: true,
-      customHeaderBuilder: (toggle, isExp, isDis) => ListTileButton(
+      customHeaderBuilder: (toggle, isExp, isDis, animValue) => ListTileButton(
         padding: headerPadding,
         bodyPadding: headerBodyPadding,
+        leadingPadding: leadingPadding,
+        trailingPadding: trailingPadding,
+        width: headerWidth,
+        height: headerHeight,
+        minWidth: headerMinWidth,
+        maxWidth: headerMaxWidth,
+        minHeight: headerMinHeight ?? 60.0,
+        maxHeight: headerMaxHeight,
+        contentAlignment: headerContentAlignment,
         onPressed: toggle,
         leading: leading,
         leadingSizeFactor: leadingSizeFactor,
         body: title,
         subtitle: subtitle,
-        trailing: trailingSize != null
-            ? SizedBox.fromSize(
-                size: trailingSize,
-                child: Icon(
-                  isExp ? Icons.expand_less : Icons.expand_more,
-                  color: trailingIconColor,
-                ),
-              )
-            : Icon(
-                isExp ? Icons.expand_less : Icons.expand_more,
-                color: trailingIconColor,
-              ),
+        trailing: isDis
+            ? null
+            : trailingBuilder != null
+            ? trailingBuilder(isExp, isDis)
+            : (trailingSize != null
+                  ? SizedBox.fromSize(
+                      size: trailingSize,
+                      child: RotationTransition(
+                        turns: AlwaysStoppedAnimation(animValue * 0.5),
+                        child: Icon(
+                          trailingCollapsedIcon,
+                          color: trailingIconColor,
+                        ),
+                      ),
+                    )
+                  : RotationTransition(
+                      turns: AlwaysStoppedAnimation(animValue * 0.5),
+                      child: Icon(
+                        trailingCollapsedIcon,
+                        color: trailingIconColor,
+                      ),
+                    )),
         backgroundColor: Colors.transparent,
-        disabled: isDis,
+        disabled: headerDisabled,
       ),
     );
   }
@@ -424,32 +779,18 @@ class ExpandableListTileButton extends StatefulWidget {
 
 class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     with SingleTickerProviderStateMixin {
-  /// Tracks the logical expansion state of the tile.
   late bool _isExpanded;
-
-  /// Controls the animation for the expand/collapse transition.
   late AnimationController _animationController;
-
-  /// Defines the curve and value of the size animation.
   late Animation<double> _animation;
-
-  /// Flag indicating if the expansion state is controlled externally via [widget.controller].
   bool _isStateManagedExternally = false;
-
-  /// Key to access the header widget's context and size.
   final GlobalKey _headerKey = GlobalKey();
 
-  /// Stores the measured height of the header.
   double _headerHeight = 0.0;
   double _headerWidth = 0.0;
 
-  /// Link used to connect the header (target) to the overlay (follower).
   final LayerLink _layerLink = LayerLink();
-
-  /// The overlay entry used when [_useOverlay] is true.
   OverlayEntry? _overlayEntry;
 
-  /// Initializes the state, animation controller, listeners, and measures header height.
   @override
   void initState() {
     super.initState();
@@ -460,15 +801,14 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
 
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: widget.animationDuration,
     );
-
     _animation = CurvedAnimation(
       parent: _animationController,
-      curve: Curves.easeInOutCubic,
+      curve: widget.animationCurve,
     );
 
-    if (_isExpanded) {
+    if (_isExpanded && !widget.disabled) {
       _animationController.value = 1.0;
     }
 
@@ -490,17 +830,19 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateHeaderSize());
   }
 
-  /// Callback function invoked when the external [ExpandableController] notifies changes.
   void _handleControllerChanged() {
     if (widget.controller?.expanded != _isExpanded && mounted) {
       _syncExpansionState(widget.controller!.expanded);
     }
   }
 
-  /// Called when the widget configuration changes. Handles controller updates and height measurement.
   @override
   void didUpdateWidget(covariant ExpandableListTileButton oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (widget.animationDuration != oldWidget.animationDuration) {
+      _animationController.duration = widget.animationDuration;
+    }
 
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller?.removeListener(_handleControllerChanged);
@@ -513,10 +855,14 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
         }
       }
     }
+
+    if (widget.disabled && !oldWidget.disabled && _isExpanded) {
+      _syncExpansionState(false);
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateHeaderSize());
   }
 
-  /// Cleans up resources, primarily the animation controller and controller listener.
   @override
   void dispose() {
     _removeOverlay();
@@ -525,7 +871,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     super.dispose();
   }
 
-  /// Measures the header's height and width using its [GlobalKey].
   void _updateHeaderSize() {
     final RenderBox? headerRenderBox =
         _headerKey.currentContext?.findRenderObject() as RenderBox?;
@@ -544,28 +889,27 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     } else if (_headerHeight == 0.0 && mounted) {
       setState(() {
         _headerHeight = 50.0;
-        _headerWidth = MediaQuery.of(context).size.width;
+        _headerWidth = MediaQuery.sizeOf(context).width;
       });
     }
   }
 
-  /// Toggles the expansion state, either by telling the controller or managing internally.
   void _toggleExpansion() {
-    if (widget.disabled) return;
+    if (widget.disabled || widget.headerDisabled) return;
+
+    if (widget.enableHaptics) {
+      HapticFeedback.lightImpact();
+    }
 
     if (widget._useOverlay) {
       if (_overlayEntry == null) {
-        setState(() {
-          _isExpanded = true;
-        });
+        setState(() => _isExpanded = true);
         _showOverlay();
         _animationController.forward();
       } else {
         _animationController.reverse().whenComplete(() {
           _removeOverlay();
-          if (mounted) {
-            setState(() => _isExpanded = false);
-          }
+          if (mounted) setState(() => _isExpanded = false);
         });
       }
       return;
@@ -578,9 +922,11 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     }
   }
 
-  /// Shows the expanded content as an [OverlayEntry].
   void _showOverlay() {
-    if (_overlayEntry != null) return;
+    if (_overlayEntry != null || widget.disabled || widget.headerDisabled) {
+      return;
+    }
+
     if (_headerWidth == 0.0 || _headerHeight == 0.0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_headerWidth > 0 && _headerHeight > 0 && _overlayEntry == null) {
@@ -590,14 +936,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
       return;
     }
 
-    Widget actualHeaderContentForOverlay = widget.customHeaderBuilder != null
-        ? widget.customHeaderBuilder!(
-            _toggleExpansion,
-            _isExpanded,
-            widget.disabled,
-          )
-        : _buildDefaultHeader(context, Theme.of(context));
-
     _overlayEntry = OverlayEntry(
       builder: (context) {
         final theme = Theme.of(context);
@@ -605,102 +943,129 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
             widget._finalExpandedBodyColor ??
             theme.colorScheme.secondary.withCustomOpacity(0.1);
 
-        return TapRegion(
-          onTapOutside: (event) {
-            if (_isExpanded) {
-              _toggleExpansion();
-            }
-          },
-          child: CompositedTransformFollower(
-            link: _layerLink,
-            showWhenUnlinked: false,
-            offset: Offset(0.0, 0.0),
-            targetAnchor: Alignment.topLeft,
-            followerAnchor: Alignment.topLeft,
-            child: Stack(
-              children: [
-                Positioned(
-                  top: _headerHeight - widget.borderRadius.bottomLeft.y,
-                  left: 0,
-                  width: _headerWidth,
-                  child: Material(
-                    elevation: widget.elevation,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: widget.borderRadius.bottomLeft,
-                      bottomRight: widget.borderRadius.bottomRight,
-                    ),
-                    color: effectiveExpandedBodyColor,
-                    clipBehavior: Clip.antiAlias,
-                    child: SizeTransition(
-                      sizeFactor: _animation,
-                      axis: Axis.vertical,
-                      axisAlignment: -1.0,
-                      child: IntrinsicHeight(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            top: widget.borderRadius.bottomLeft.y,
-                          ),
-                          child: Align(
-                            alignment: widget.bodyAlignment,
-                            child: widget.expanded,
+        return AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            Widget actualHeaderContentForOverlay =
+                widget.customHeaderBuilder != null
+                ? widget.customHeaderBuilder!(
+                    _toggleExpansion,
+                    _isExpanded,
+                    widget.disabled,
+                    _animationController.value,
+                  )
+                : _buildDefaultHeader(context, theme);
+
+            final double animValue = _animation.value.clamp(0.0, 1.0);
+
+            // Continuous flattens the bottom of the header. Layered keeps it fully rounded.
+            final double currentBottomRadius = widget.continuous
+                ? widget.borderRadius.bottomLeft.x * (1.0 - animValue)
+                : widget.borderRadius.bottomLeft.x;
+
+            // In continuous mode, overlap is minimal. In layered mode, overlap spawns body from halfway up the header.
+            final double overlap = widget.continuous
+                ? 1.0
+                : (_headerHeight / 2).clamp(0.0, 40.0);
+
+            return TapRegion(
+              onTapOutside: (event) {
+                if (_isExpanded) _toggleExpansion();
+              },
+              child: CompositedTransformFollower(
+                link: _layerLink,
+                showWhenUnlinked: false,
+                offset: const Offset(0.0, 0.0),
+                targetAnchor: Alignment.topLeft,
+                followerAnchor: Alignment.topLeft,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // Expanded Body
+                    Positioned(
+                      top: _headerHeight - overlap,
+                      left: 0,
+                      width: _headerWidth,
+                      child: Material(
+                        elevation: widget.elevation,
+                        shadowColor: widget.shadowColor,
+                        color: effectiveExpandedBodyColor,
+                        shape: RemainsRoundedBorder(
+                          topRadius: widget.continuous
+                              ? currentBottomRadius
+                              : 0.0,
+                          bottomRadius: widget.borderRadius.bottomLeft.x,
+                          borderColor: widget.borderColor,
+                          borderWidth: widget.borderColor != null ? 1.0 : 0.0,
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: SizeTransition(
+                          sizeFactor: _animation,
+                          axis: Axis.vertical,
+                          axisAlignment: -1.0,
+                          child: IntrinsicHeight(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                top: overlap,
+                                bottom: widget.expandedBottomMargin,
+                              ),
+                              child: Align(
+                                alignment: widget.bodyAlignment,
+                                child: widget.expanded,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                    // Header
+                    Material(
+                      elevation: widget.elevation,
+                      shadowColor: widget.shadowColor,
+                      color:
+                          (widget._finalHeaderBackgroundColor ??
+                          theme.cardColor),
+                      shape: RemainsRoundedBorder(
+                        topRadius: widget.borderRadius.topLeft.x,
+                        bottomRadius: currentBottomRadius,
+                        borderColor: widget.borderColor,
+                        borderWidth: widget.borderColor != null ? 1.0 : 0.0,
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: SizedBox(
+                        height: _headerHeight,
+                        width: _headerWidth,
+                        child: actualHeaderContentForOverlay,
+                      ),
+                    ),
+                  ],
                 ),
-                Material(
-                  elevation: widget.elevation,
-                  color:
-                      (widget._finalHeaderBackgroundColor ?? theme.cardColor),
-                  shape: RemainsRoundedBorder(
-                    topRadius: widget.borderRadius.topLeft.x,
-                    bottomRadius: widget.borderRadius.bottomLeft.x,
-                    borderColor: widget.borderColor,
-                    borderWidth: widget.borderColor != null ? 1.0 : 0.0,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: SizedBox(
-                    height: _headerHeight,
-                    width: _headerWidth,
-                    child: actualHeaderContentForOverlay,
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  /// Removes the current [OverlayEntry].
   void _removeOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
   }
 
-  /// Updates the internal `_isExpanded` state and triggers the animation.
-  ///
-  /// This is the single point of truth for changing the visual expansion state.
   void _syncExpansionState(bool expand) {
     if (!mounted) return;
+    if (expand && (widget.disabled || widget.headerDisabled)) return;
 
-    setState(() {
-      _isExpanded = expand;
-    });
+    setState(() => _isExpanded = expand);
 
     if (widget._useOverlay) {
       if (expand) {
-        if (_overlayEntry == null) {
-          _showOverlay();
-        }
+        if (_overlayEntry == null) _showOverlay();
         _animationController.forward();
       } else {
-        _animationController.reverse().whenComplete(() {
-          _removeOverlay();
-        });
+        _animationController.reverse().whenComplete(() => _removeOverlay());
       }
     } else {
       if (expand) {
@@ -711,7 +1076,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
     }
   }
 
-  /// Builds the visual structure of the widget using the revised Stack layout.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -721,106 +1085,184 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
         widget._finalExpandedBodyColor ??
         theme.colorScheme.secondary.withCustomOpacity(0.1);
 
-    Widget actualHeaderContent = widget.customHeaderBuilder != null
-        ? widget.customHeaderBuilder!(
-            _toggleExpansion,
-            _isExpanded,
-            widget.disabled,
-          )
-        : _buildDefaultHeader(context, theme);
+    final MouseCursor effectiveCursor =
+        (widget.disabled || widget.headerDisabled)
+        ? SystemMouseCursors.forbidden
+        : widget.mouseCursor;
 
-    final placeholderHeight = _headerHeight > 0 ? _headerHeight : 50.0;
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        Widget actualHeaderContent = widget.customHeaderBuilder != null
+            ? widget.customHeaderBuilder!(
+                _toggleExpansion,
+                _isExpanded,
+                widget.disabled,
+                _animationController.value,
+              )
+            : _buildDefaultHeader(context, theme);
 
-    return IgnorePointer(
-      ignoring: widget.disabled,
-      child: Opacity(
-        opacity: widget.disabled ? 0.5 : 1.0,
-        child: Container(
+        final placeholderHeight = _headerHeight > 0 ? _headerHeight : 50.0;
+        final double animValue = _animation.value.clamp(0.0, 1.0);
+
+        final double currentBottomRadius = widget.continuous
+            ? widget.borderRadius.bottomLeft.x * (1.0 - animValue)
+            : widget.borderRadius.bottomLeft.x;
+
+        final double overlap = widget.continuous
+            ? 1.0
+            : (_headerHeight / 2).clamp(0.0, 40.0);
+
+        return Container(
           margin: widget.margin,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              SizedBox(height: placeholderHeight),
-              if (!widget._useOverlay &&
-                  (_isExpanded || _animationController.isAnimating))
-                Padding(
-                  padding: EdgeInsets.only(top: placeholderHeight / 2),
-                  child: SizeTransition(
-                    sizeFactor: _animation,
-                    axis: Axis.vertical,
-                    axisAlignment: -1.0,
-                    child: Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
+              // 1. Render Body
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: placeholderHeight),
+                  if (!widget._useOverlay &&
+                      (_isExpanded || _animationController.isAnimating))
+                    Transform.translate(
+                      offset: Offset(0, -overlap),
+                      child: Material(
+                        elevation: widget.elevation,
+                        shadowColor: widget.shadowColor,
                         color: effectiveExpandedBodyColor,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: widget.borderRadius.bottomLeft,
-                          bottomRight: widget.borderRadius.bottomRight,
+                        shape: RemainsRoundedBorder(
+                          topRadius: widget.continuous
+                              ? currentBottomRadius
+                              : 0.0,
+                          // Top corners hide behind header in layered mode
+                          bottomRadius: widget.borderRadius.bottomLeft.x,
+                          borderColor: widget.borderColor,
+                          borderWidth: widget.borderColor != null ? 1.0 : 0.0,
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: SizeTransition(
+                          sizeFactor: _animation,
+                          axis: Axis.vertical,
+                          axisAlignment: -1.0,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              top: overlap,
+                              bottom: widget.expandedBottomMargin,
+                            ),
+                            child: Align(
+                              alignment: widget.bodyAlignment,
+                              child: widget.expanded,
+                            ),
+                          ),
                         ),
                       ),
-                      alignment: widget.bodyAlignment,
-                      padding: EdgeInsets.only(top: placeholderHeight / 2),
-                      child: widget.expanded,
+                    ),
+                ],
+              ),
+
+              // 2. Render Header
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: CompositedTransformTarget(
+                  link: _layerLink,
+                  child: Semantics(
+                    label:
+                        widget.semanticsLabel ??
+                        (widget.title is Text
+                            ? (widget.title as Text).data
+                            : 'Expandable Tile'),
+                    button: true,
+                    expanded: _isExpanded,
+                    child: MouseRegion(
+                      cursor: effectiveCursor,
+                      child: Material(
+                        key: _headerKey,
+                        elevation: widget.elevation,
+                        shadowColor: widget.shadowColor,
+                        color: effectiveHeaderBgColor,
+                        shape: RemainsRoundedBorder(
+                          topRadius: widget.borderRadius.topLeft.x,
+                          bottomRadius: currentBottomRadius,
+                          borderColor: widget.borderColor,
+                          borderWidth: widget.borderColor != null ? 1.0 : 0.0,
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: actualHeaderContent,
+                      ),
                     ),
                   ),
-                ),
-              CompositedTransformTarget(
-                link: _layerLink,
-                child: Material(
-                  key: _headerKey,
-                  elevation: widget.elevation,
-                  color: effectiveHeaderBgColor,
-                  shape: RemainsRoundedBorder(
-                    topRadius: widget.borderRadius.topLeft.x,
-                    bottomRadius: widget.borderRadius.bottomLeft.x,
-                    borderColor: widget.borderColor,
-                    borderWidth: widget.borderColor != null ? 1.0 : 0.0,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: actualHeaderContent,
                 ),
               ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  /// Builds the appropriate default header ([ListTileButton] or [IconListTileButton] style)
-  /// if a [customHeaderBuilder] was not provided.
   Widget _buildDefaultHeader(BuildContext context, ThemeData theme) {
+    Widget? trailingWidget;
+    if (!widget.disabled) {
+      if (widget.trailingBuilder != null) {
+        trailingWidget = widget.trailingBuilder!(_isExpanded, widget.disabled);
+      } else {
+        trailingWidget = RotationTransition(
+          turns: AlwaysStoppedAnimation(_animationController.value * 0.5),
+          child: Icon(
+            widget.trailingCollapsedIcon,
+            color: widget.trailingIconColor,
+          ),
+        );
+      }
+    }
+
     if (widget.icon != null && widget.title != null) {
       return IconListTileButton(
         padding: widget.headerPadding,
         bodyPadding: widget.headerBodyPadding,
+        leadingPadding: widget.leadingPadding,
+        trailingPadding: widget.trailingPadding,
+        width: widget.headerWidth,
+        height: widget.headerHeight,
+        minWidth: widget.headerMinWidth,
+        maxWidth: widget.headerMaxWidth,
+        minHeight: widget.headerMinHeight ?? 60.0,
+        maxHeight: widget.headerMaxHeight,
+        contentAlignment: widget.headerContentAlignment,
         icon: widget.icon!,
         iconColor: widget.iconColor,
         leadingSizeFactor: widget.leadingSizeFactor ?? 1.0,
         title: widget.title!,
         subtitle: widget.subtitle,
-        trailing: Icon(
-          _isExpanded ? Icons.expand_less : Icons.expand_more,
-          color: widget.trailingIconColor,
-        ),
+        trailing: trailingWidget,
         onPressed: _toggleExpansion,
         backgroundColor: Colors.transparent,
-        disabled: widget.disabled,
+        disabled: widget.headerDisabled,
       );
     } else if (widget.title != null) {
       return ListTileButton(
         padding: widget.headerPadding,
         bodyPadding: widget.headerBodyPadding,
+        leadingPadding: widget.leadingPadding,
+        trailingPadding: widget.trailingPadding,
+        width: widget.headerWidth,
+        height: widget.headerHeight,
+        minWidth: widget.headerMinWidth,
+        maxWidth: widget.headerMaxWidth,
+        minHeight: widget.headerMinHeight ?? 60.0,
+        maxHeight: widget.headerMaxHeight,
+        contentAlignment: widget.headerContentAlignment,
         onPressed: _toggleExpansion,
         leading: widget.leading,
         body: widget.title!,
         subtitle: widget.subtitle,
-        trailing: Icon(
-          _isExpanded ? Icons.expand_less : Icons.expand_more,
-          color: widget.trailingIconColor,
-        ),
+        trailing: trailingWidget,
         backgroundColor: Colors.transparent,
-        disabled: widget.disabled,
+        disabled: widget.headerDisabled,
       );
     } else {
       return const SizedBox.shrink();
@@ -828,9 +1270,6 @@ class _ExpandableListTileButtonState extends State<ExpandableListTileButton>
   }
 }
 
-/// A custom [ShapeBorder] that allows specifying different top and bottom radii.
-/// Useful for ensuring the top of a card remains rounded while the bottom
-/// can be square or have separate rounding, and also correctly drawing a border.
 class RemainsRoundedBorder extends RoundedRectangleBorder {
   final double topRadius;
   final double bottomRadius;

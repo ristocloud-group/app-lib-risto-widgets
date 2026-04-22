@@ -1,9 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
-/// Example data type for the infinite snap list demo.
-/// Should implement == and hashCode for correct comparison.
 class DemoItem {
   final int value;
 
@@ -11,37 +10,22 @@ class DemoItem {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is DemoItem &&
-          runtimeType == other.runtimeType &&
-          value == other.value;
+      identical(this, other) || other is DemoItem && value == other.value;
 
   @override
   int get hashCode => value.hashCode;
-
-  @override
-  String toString() => 'Item $value';
 }
 
-/// Simple InfiniteListBloc implementation for demonstration purposes.
-/// Generates synthetic values based on the offset item.
 class DemoSnapBloc extends InfiniteSnapListBloc<DemoItem> {
-  // Initializes the BLoC with an initial state containing a selected item.
-  // This will trigger the initial fetching logic in InfiniteListBloc.
-  DemoSnapBloc() : super(initValue: DemoItem(0));
+  DemoSnapBloc(int initialValue) : super(initValue: DemoItem(initialValue));
 
-  /// Simulate async fetching of more items to the left and right.
-  /// This method is called by the InfiniteListBloc superclass.
   @override
   Future<(List<DemoItem>, List<DemoItem>)> fetchItems({
     required int leftLimit,
     required int rightLimit,
     required DemoItem offset,
   }) async {
-    await Future.delayed(
-      const Duration(milliseconds: 600),
-    ); // Simulate network delay
-    // Example: fetches values left/right of the current offset
+    await Future.delayed(const Duration(seconds: 1));
     List<DemoItem> left = List.generate(
       leftLimit,
       (i) => DemoItem(offset.value - leftLimit + i),
@@ -49,9 +33,6 @@ class DemoSnapBloc extends InfiniteSnapListBloc<DemoItem> {
     List<DemoItem> right = List.generate(
       rightLimit,
       (i) => DemoItem(offset.value + 1 + i),
-    );
-    debugPrint(
-      'Fetched around ${offset.value}: Left ${left.length} items, Right ${right.length} items',
     );
     return (left, right);
   }
@@ -65,286 +46,309 @@ class InfiniteSnapDemoPage extends StatefulWidget {
 }
 
 class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
-  late final DemoSnapBloc _bloc; // Initialize with `late` and in `initState`
-  final _controller = InfiniteSnapListController<DemoItem>();
+  late final DemoSnapBloc _timelineBloc;
 
-  Axis _direction = Axis.horizontal;
-  bool _showCustomShimmer = false;
-  bool _showCustomOverlay = false;
+  final List<DemoItem> _finiteCarouselItems = List.generate(
+    5,
+    (i) => DemoItem(i + 1),
+  );
+  final List<DemoItem> _finitePickerItems = List.generate(
+    20,
+    (i) => DemoItem(i * 5),
+  );
+  DemoItem? _selectedCarouselItem;
+  DemoItem? _selectedPickerItem;
+
+  final _carouselController = InfiniteSnapListController<DemoItem>();
 
   @override
   void initState() {
     super.initState();
-    _bloc = DemoSnapBloc(); // Create the BLoC here
+    _timelineBloc = DemoSnapBloc(14);
+    _selectedCarouselItem = _finiteCarouselItems[0];
+    _selectedPickerItem = _finitePickerItems[0];
   }
 
   @override
   void dispose() {
-    _bloc.close();
-    _controller.dispose();
+    _timelineBloc.close();
+    _carouselController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _bloc,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('InfiniteSnapList DEMO'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.rotate_90_degrees_ccw),
-              tooltip: 'Switch direction',
-              onPressed:
-                  () => setState(() {
-                    _direction =
-                        _direction == Axis.horizontal
-                            ? Axis.vertical
-                            : Axis.horizontal;
-                  }),
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(title: const Text('Snap Lists')),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              '1. Infinite Date Picker',
+              style: theme.textTheme.titleLarge,
             ),
-            IconButton(
-              icon: const Icon(Icons.nightlight),
-              tooltip: 'Custom shimmer',
-              onPressed:
-                  () =>
-                      setState(() => _showCustomShimmer = !_showCustomShimmer),
-              color: _showCustomShimmer ? Colors.amber : null,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: Text(
+              'With maxFlingVelocity: 1500 to keep the scrolling smooth and precise!',
+              style: theme.textTheme.bodyMedium,
             ),
-            IconButton(
-              icon: const Icon(Icons.rectangle),
-              tooltip: 'Custom overlay',
-              onPressed:
-                  () =>
-                      setState(() => _showCustomOverlay = !_showCustomOverlay),
-              color: _showCustomOverlay ? Colors.red : null,
+          ),
+
+          Container(
+            height: 90,
+            margin: const EdgeInsets.symmetric(vertical: 16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border.symmetric(
+                horizontal: BorderSide(color: Colors.black12),
+              ),
             ),
-          ],
-        ),
-        backgroundColor: Colors.grey[100],
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Horizontal scrollable control bar
-              BlocBuilder<DemoSnapBloc, InfiniteSnapListState<DemoItem>>(
-                // Wrap the buttons in a BlocBuilder to access the BLoC's state
-                builder: (context, state) {
-                  final items = state.state.items;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _demoButton(
-                        'Go to Start', // Rename for clarity
-                        () {
-                          if (items.isNotEmpty) {
-                            _controller.jumpTo(
-                              0,
-                            ); // Go to the start of the loaded list
-                          }
-                        },
-                      ),
-                      _demoButton(
-                        'Go to 0',
-                        () => _controller.selectItem(
-                          DemoItem(0),
-                        ), // Continue to select item 0
-                      ),
-                      _demoButton(
-                        'Go to End', // Rename for clarity
-                        () {
-                          if (items.isNotEmpty) {
-                            _controller.jumpTo(
-                              items.length - 1,
-                            ); // Go to the end of the loaded list
-                          }
-                        },
+            child: InfiniteSnapList<DemoItem>(
+              onItemSelected: (item, index) => debugPrint("Selected item ${item.value} - idx: $index"),
+              bloc: _timelineBloc,
+              scrollDirection: Axis.horizontal,
+              visibleItemCount: 7.0,
+              itemSpacing: 8,
+
+              maxFlingVelocity: 1500.0,
+              focusRange: 2.0,
+              focusedItemScale: 1.15,
+              unfocusedItemScale: 0.85,
+              unfocusedItemOpacity: 0.3,
+
+              selectedItemOverlayBuilder: (context, w, h) {
+                return Container(
+                  width: w * 1.4,
+                  height: h * 1.3,
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.primaryColor.withCustomOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
                     ],
-                  );
-                },
-              ),
-              // Selected item indicator
-              BlocBuilder<DemoSnapBloc, InfiniteSnapListState<DemoItem>>(
-                builder: (context, state) {
-                  final selected = _controller.selectedItem?.value ?? 0;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      'Selected: $selected',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  );
-                },
-              ),
-              // Main list demo in a card
-              // We use a Flexible to wrap the Card.
-              // This ensures a consistent widget type in the Column,
-              // preventing the recreation of the InfiniteSnapList state on orientation change.
-              Flexible(
-                child: Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 12,
                   ),
-                  elevation: 3,
-                  color: Colors.grey[50],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18.0,
-                      vertical: 12.0,
-                    ),
-                    child: InfiniteSnapList<DemoItem>(
-                      bloc: _bloc,
-                      controller: _controller,
-                      scrollDirection: _direction,
-                      itemWidth: 80,
-                      itemHeight: 80,
-                      itemSpacing: 16,
-                      // listPadding here is the padding *inside* the ListView.
-                      // The height/width constraints for the entire InfiniteSnapList are given by the parent (Flexible/Card).
-                      listPadding: const EdgeInsets.symmetric(horizontal: 12),
-                      // Make sure this is correct for both orientations if you don't want different vertical padding
-                      itemAlignment: Alignment.center,
-                      enableKeyboardNavigation: true,
-                      semanticLabelBuilder: (item) => 'Item ${item.value}',
-                      onItemSelected: (item, idx) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Selected ${item.value} at $idx'),
-                          ),
-                        );
-                      },
-                      // Item visual
-                      itemBuilder:
-                          (ctx, item, idx, isSelected) => AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            // `width` and `height` of the AnimatedContainer should be fixed like the widget's `itemWidth` and `itemHeight`
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              color:
-                                  isSelected ? Colors.blue[50] : Colors.white,
-                              borderRadius: BorderRadius.circular(18),
-                              boxShadow:
-                                  isSelected
-                                      ? [
-                                        BoxShadow(
-                                          color: Colors.blue.withCustomOpacity(
-                                            0.15,
-                                          ),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ]
-                                      : [],
-                              border: Border.all(
-                                color:
-                                    isSelected
-                                        ? Colors.blueAccent
-                                        : Colors.grey.shade300,
-                                width: isSelected ? 2.4 : 1,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              item.value.toString(),
-                              style: TextStyle(
-                                fontSize: isSelected ? 32 : 22,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    isSelected
-                                        ? Colors.blue[900]
-                                        : Colors.grey[800],
-                                letterSpacing: 1.1,
-                              ),
-                            ),
-                          ),
-                      // Custom shimmer for loading state (optional, toggle as you wish)
-                      loadingShimmerItemBuilder:
-                          _showCustomShimmer
-                              ? (ctx, i) => Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Colors.purple, Colors.orange],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                              )
-                              : null,
-                      // Custom overlay for selected item (optional, toggle as you wish)
-                      selectedItemOverlayBuilder:
-                          _showCustomOverlay
-                              ? (ctx, w, h) => IgnorePointer(
-                                child: Container(
-                                  width: w,
-                                  height: h,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.red,
-                                      width: 3,
-                                    ),
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.check,
-                                      color: Colors.red,
-                                      size: 34,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              : null,
-                      // Loader while fetching more items (edge)
-                      loadingIndicatorBuilder:
-                          (ctx) => Center(
-                            child: const CircularProgressIndicator.adaptive(),
-                          ),
-                      // Empty state
-                      emptyListBuilder:
-                          (ctx) =>
-                              const Center(child: Text('No items available!')),
-                      // Error state
-                      errorBuilder:
-                          (ctx, err) => Center(
-                            child: Text(
-                              'Error: ${err.toString()}',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+                );
+              },
 
-  // Helper for compact, rounded demo buttons
-  Widget _demoButton(String label, VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          shape: StadiumBorder(),
-          side: BorderSide(color: Colors.blue.shade100),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.deepPurple,
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        ),
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+              loadingItemBuilder:
+                  (context, width, height) => RistoShimmer.block(
+                    width: width,
+                    height: height,
+                    baseColor: Colors.grey.shade300,
+                  ),
+
+              itemBuilder: (ctx, item, idx, isSelected, progress) {
+                int day = ((item.value % 31) + 31) % 31 + 1;
+                final topColor = Color.lerp(
+                  Colors.grey.shade500,
+                  Colors.white70,
+                  progress,
+                );
+                final bottomColor = Color.lerp(
+                  Colors.black87,
+                  Colors.white,
+                  progress,
+                );
+
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'SEP',
+                      style: TextStyle(
+                        color: topColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      day.toString(),
+                      style: TextStyle(
+                        color: bottomColor,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              '2. Finite Card Carousel',
+              style: theme.textTheme.titleLarge,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: Text(
+              'Uses SnapScrollPhysics to swipe exactly one card at a time.',
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
+
+          SizedBox(
+            height: 250,
+            child: SnapList<DemoItem>.carousel(
+              items: _finiteCarouselItems,
+              selectedItem: _selectedCarouselItem,
+              controller: _carouselController,
+              onItemSelected:
+                  (item, idx) => setState(() => _selectedCarouselItem = item),
+
+              footerBuilder: (context, currentIndex, totalCount) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: SnapListDotIndicator(
+                    itemCount: totalCount,
+                    currentIndex: currentIndex,
+                    activeColor: theme.primaryColor,
+                    inactiveColor: Colors.grey.withCustomOpacity(0.3),
+                    onTap: (index) => _carouselController.animateTo(index),
+                  ),
+                );
+              },
+
+              itemBuilder: (ctx, item, idx, isSelected, progress) {
+                final elevation = lerpDouble(1.0, 6.0, progress)!;
+
+                return RistoDecorator(
+                  backgroundColor: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  elevation: elevation,
+                  shadowColor: Colors.blueGrey,
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Course ${item.value}',
+                          style: TextStyle(
+                            color: Colors.blue.shade800,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'Advanced UI Patterns',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Explore interactive elements.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              '3. Vertical Wheel Picker',
+              style: theme.textTheme.titleLarge,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: Text(
+              'Uses SnapList.picker to create a classic 3-item wheel selector.',
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
+
+          Center(
+            child: Container(
+              height: 180,
+              width: 150,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.black12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: SnapList<DemoItem>.picker(
+                items: _finitePickerItems,
+                selectedItem: _selectedPickerItem,
+                onItemSelected:
+                    (item, idx) => setState(() => _selectedPickerItem = item),
+
+                selectedItemOverlayBuilder:
+                    (context, w, h) => Container(
+                      width: w,
+                      height: h,
+                      decoration: const BoxDecoration(
+                        border: Border.symmetric(
+                          horizontal: BorderSide(color: Colors.blue, width: 2),
+                        ),
+                      ),
+                    ),
+
+                itemBuilder: (ctx, item, idx, isSelected, progress) {
+                  final color = Color.lerp(
+                    Colors.grey.shade400,
+                    Colors.blue.shade900,
+                    progress,
+                  );
+                  final fontWeight =
+                      progress > 0.5 ? FontWeight.bold : FontWeight.normal;
+
+                  return Center(
+                    child: Text(
+                      '${item.value} kg',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: fontWeight,
+                        color: color,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 64),
+        ],
       ),
     );
   }

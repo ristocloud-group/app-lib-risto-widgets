@@ -1,13 +1,20 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
 /// A class responsible for displaying a customized modal dialog
-/// that acts as a container for a notice card.
+/// that acts as a container for a notice card or custom content.
 class OpenCustomDialog {
   final WidgetBuilder _bodyBuilder;
   final Function(dynamic)? onClose;
   final bool barrierDismissible;
   final Color barrierColor;
+
+  /// The amount of background blur to apply behind the dialog.
+  /// Defaults to 0.0 (no blur).
+  final double blurSigma;
+
   final bool useRootNavigator;
   final bool useSafeArea;
 
@@ -16,6 +23,7 @@ class OpenCustomDialog {
     this.onClose,
     this.barrierDismissible = true,
     this.barrierColor = const Color(0x80000000),
+    this.blurSigma = 0.0,
     this.useRootNavigator = true,
     this.useSafeArea = true,
   }) : _bodyBuilder = bodyBuilder;
@@ -31,6 +39,7 @@ class OpenCustomDialog {
     Function(dynamic)? onClose,
     bool barrierDismissible = true,
     Color barrierColor = const Color(0x80000000),
+    double blurSigma = 0.0,
     bool useRootNavigator = true,
     bool useSafeArea = true,
   }) {
@@ -40,6 +49,7 @@ class OpenCustomDialog {
       onClose: onClose,
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
+      blurSigma: blurSigma,
       useRootNavigator: useRootNavigator,
       useSafeArea: useSafeArea,
     );
@@ -52,6 +62,7 @@ class OpenCustomDialog {
     Function(dynamic)? onClose,
     bool barrierDismissible = true,
     Color barrierColor = const Color(0x80000000),
+    double blurSigma = 0.0,
     bool useRootNavigator = true,
     bool useSafeArea = true,
   }) {
@@ -60,6 +71,7 @@ class OpenCustomDialog {
       onClose: onClose,
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
+      blurSigma: blurSigma,
       useRootNavigator: useRootNavigator,
       useSafeArea: useSafeArea,
     );
@@ -75,6 +87,7 @@ class OpenCustomDialog {
     Function(dynamic)? onClose,
     bool barrierDismissible = true,
     Color barrierColor = const Color(0x80000000),
+    double blurSigma = 0.0,
     bool useRootNavigator = true,
     bool useSafeArea = true,
     bool showClose = true,
@@ -86,7 +99,6 @@ class OpenCustomDialog {
     RistoFooterBuilder? footerBuilder,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     bool compact = false,
-    Color? accentColor,
     Color? backgroundColor,
     double? minHeight,
     double? maxWidth,
@@ -94,6 +106,7 @@ class OpenCustomDialog {
     return OpenCustomDialog._internal(
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
+      blurSigma: blurSigma,
       useRootNavigator: useRootNavigator,
       useSafeArea: useSafeArea,
       bodyBuilder: (ctx) {
@@ -105,7 +118,6 @@ class OpenCustomDialog {
           noticeIcon: noticeIcon,
           crossAxisAlignment: crossAxisAlignment,
           compact: compact,
-          accentColor: accentColor,
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
@@ -116,7 +128,7 @@ class OpenCustomDialog {
                 onConfirm: onConfirm,
                 alignment: footerAlignment,
                 expand: expandButtons,
-                bgColor: confirmButtonBackgroundColor ?? accentColor,
+                bgColor: confirmButtonBackgroundColor,
                 fgColor: confirmButtonForegroundColor,
               ),
         );
@@ -135,6 +147,7 @@ class OpenCustomDialog {
     Function(dynamic)? onClose,
     bool barrierDismissible = true,
     Color barrierColor = const Color(0x80000000),
+    double blurSigma = 0.0,
     bool useRootNavigator = true,
     bool useSafeArea = true,
     bool showClose = true,
@@ -146,7 +159,6 @@ class OpenCustomDialog {
     RistoFooterBuilder? footerBuilder,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     bool compact = false,
-    Color? accentColor,
     Color? backgroundColor,
     double? minHeight,
     double? maxWidth,
@@ -154,6 +166,7 @@ class OpenCustomDialog {
     return OpenCustomDialog._internal(
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
+      blurSigma: blurSigma,
       useRootNavigator: useRootNavigator,
       useSafeArea: useSafeArea,
       bodyBuilder: (ctx) {
@@ -165,7 +178,6 @@ class OpenCustomDialog {
           noticeIcon: noticeIcon,
           crossAxisAlignment: crossAxisAlignment,
           compact: compact,
-          accentColor: accentColor,
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
@@ -176,7 +188,7 @@ class OpenCustomDialog {
                 onConfirm: onConfirm,
                 alignment: footerAlignment,
                 expand: expandButtons,
-                bgColor: confirmButtonBackgroundColor ?? accentColor,
+                bgColor: confirmButtonBackgroundColor,
                 fgColor: confirmButtonForegroundColor,
               ),
         );
@@ -195,6 +207,7 @@ class OpenCustomDialog {
     Function(dynamic)? onClose,
     bool barrierDismissible = true,
     Color barrierColor = const Color(0x80000000),
+    double blurSigma = 0.0,
     bool useRootNavigator = true,
     bool useSafeArea = true,
     bool showClose = true,
@@ -206,7 +219,6 @@ class OpenCustomDialog {
     RistoFooterBuilder? footerBuilder,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     bool compact = false,
-    Color? accentColor,
     Color? backgroundColor,
     double? minHeight,
     double? maxWidth,
@@ -214,6 +226,7 @@ class OpenCustomDialog {
     return OpenCustomDialog._internal(
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
+      blurSigma: blurSigma,
       useRootNavigator: useRootNavigator,
       useSafeArea: useSafeArea,
       bodyBuilder: (ctx) {
@@ -225,7 +238,6 @@ class OpenCustomDialog {
           noticeIcon: noticeIcon,
           crossAxisAlignment: crossAxisAlignment,
           compact: compact,
-          accentColor: accentColor,
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
@@ -236,7 +248,7 @@ class OpenCustomDialog {
                 onConfirm: onConfirm,
                 alignment: footerAlignment,
                 expand: expandButtons,
-                bgColor: confirmButtonBackgroundColor ?? accentColor,
+                bgColor: confirmButtonBackgroundColor,
                 fgColor: confirmButtonForegroundColor,
               ),
         );
@@ -257,6 +269,7 @@ class OpenCustomDialog {
     Function(dynamic)? onClose,
     bool barrierDismissible = true,
     Color barrierColor = const Color(0x80000000),
+    double blurSigma = 0.0,
     bool useRootNavigator = true,
     bool useSafeArea = true,
     bool showClose = true,
@@ -269,7 +282,6 @@ class OpenCustomDialog {
     RistoFooterBuilder? footerBuilder,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     bool compact = false,
-    Color? accentColor,
     Color? backgroundColor,
     double? minHeight,
     double? maxWidth,
@@ -277,6 +289,7 @@ class OpenCustomDialog {
     return OpenCustomDialog._internal(
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
+      blurSigma: blurSigma,
       useRootNavigator: useRootNavigator,
       useSafeArea: useSafeArea,
       bodyBuilder: (ctx) {
@@ -288,7 +301,6 @@ class OpenCustomDialog {
           noticeIcon: noticeIcon,
           crossAxisAlignment: crossAxisAlignment,
           compact: compact,
-          accentColor: accentColor,
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
@@ -301,7 +313,7 @@ class OpenCustomDialog {
                 onCancel: onCancel,
                 alignment: footerAlignment,
                 expand: expandButtons,
-                confirmBgColor: confirmButtonBackgroundColor ?? accentColor,
+                confirmBgColor: confirmButtonBackgroundColor,
                 confirmFgColor: confirmButtonForegroundColor,
                 cancelFgColor: cancelButtonForegroundColor,
               ),
@@ -323,6 +335,7 @@ class OpenCustomDialog {
     Function(dynamic)? onClose,
     bool barrierDismissible = false,
     Color barrierColor = const Color(0x80000000),
+    double blurSigma = 0.0,
     bool useRootNavigator = true,
     bool useSafeArea = true,
     bool showClose = true,
@@ -335,7 +348,6 @@ class OpenCustomDialog {
     RistoFooterBuilder? footerBuilder,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     bool compact = false,
-    Color? accentColor,
     Color? backgroundColor,
     double? minHeight,
     double? maxWidth,
@@ -343,6 +355,7 @@ class OpenCustomDialog {
     return OpenCustomDialog._internal(
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
+      blurSigma: blurSigma,
       useRootNavigator: useRootNavigator,
       useSafeArea: useSafeArea,
       bodyBuilder: (ctx) {
@@ -354,7 +367,6 @@ class OpenCustomDialog {
           noticeIcon: noticeIcon,
           crossAxisAlignment: crossAxisAlignment,
           compact: compact,
-          accentColor: accentColor,
           backgroundColor: backgroundColor,
           minHeight: minHeight,
           maxWidth: maxWidth,
@@ -430,7 +442,7 @@ class OpenCustomDialog {
       transitionBuilder:
           transitionBuilder ??
           (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
+            Widget animatedChild = FadeTransition(
               opacity: animation,
               child: ScaleTransition(
                 scale: Tween<double>(begin: 0.95, end: 1.0).animate(
@@ -439,6 +451,19 @@ class OpenCustomDialog {
                 child: child,
               ),
             );
+
+            // Apply a perfectly smooth animated blur if blurSigma is provided!
+            if (blurSigma > 0) {
+              animatedChild = BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: blurSigma * animation.value,
+                  sigmaY: blurSigma * animation.value,
+                ),
+                child: animatedChild,
+              );
+            }
+
+            return animatedChild;
           },
     ).then((value) => onClose?.call(value));
   }
@@ -473,6 +498,8 @@ class OpenCustomDialog {
             minHeight: 0,
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
             backgroundColor: bgColor ?? defaultAccent,
+            // Note: If onConfirm is passed, you must handle popping the dialog within that callback
+            // if you wish for the dialog to close. Otherwise, it defaults to pop(true).
             onPressed: onConfirm ?? () => Navigator.pop(context, true),
             child: Text(
               confirmText,

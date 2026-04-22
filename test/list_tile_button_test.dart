@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:risto_widgets/widgets/buttons/list_tile_button.dart';
+import 'package:risto_widgets/widgets/layouts/risto_decorator.dart';
 
 void main() {
   group('ListTileButton Tests', () {
@@ -24,20 +25,18 @@ void main() {
         ),
       );
 
-      // Verify the ListTileButton is present.
       expect(find.text('ListTileButton'), findsOneWidget);
       expect(find.byIcon(Icons.list), findsOneWidget);
 
-      // Verify the margin is applied by checking RoundedContainer.
-      final roundedContainerFinder = find.byType(RoundedContainer);
-      expect(roundedContainerFinder, findsOneWidget);
+      // Verify the margin is applied by checking RistoDecorator.
+      final ristoDecoratorFinder = find.byType(RistoDecorator);
+      expect(ristoDecoratorFinder, findsOneWidget);
 
-      final RoundedContainer roundedContainer = tester.widget<RoundedContainer>(
-        roundedContainerFinder,
+      final RistoDecorator ristoDecorator = tester.widget<RistoDecorator>(
+        ristoDecoratorFinder,
       );
-      expect(roundedContainer.margin, const EdgeInsets.all(16.0));
+      expect(ristoDecorator.margin, const EdgeInsets.all(16.0));
 
-      // Tap the ListTileButton and verify it triggers the onPressed callback.
       await tester.tap(find.byType(ListTileButton));
       await tester.pump();
 
@@ -61,7 +60,6 @@ void main() {
         ),
       );
 
-      // Verify the body, subtitle, and trailing widgets are present.
       expect(find.text('ListTileButton'), findsOneWidget);
       expect(find.text('Subtitle Text'), findsOneWidget);
       expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
@@ -82,15 +80,14 @@ void main() {
         ),
       );
 
-      // Find the RoundedContainer and verify margin.
-      final roundedContainerFinder = find.byType(RoundedContainer);
-      expect(roundedContainerFinder, findsOneWidget);
+      final ristoDecoratorFinder = find.byType(RistoDecorator);
+      expect(ristoDecoratorFinder, findsOneWidget);
 
-      final RoundedContainer roundedContainer = tester.widget<RoundedContainer>(
-        roundedContainerFinder,
+      final RistoDecorator ristoDecorator = tester.widget<RistoDecorator>(
+        ristoDecoratorFinder,
       );
       expect(
-        roundedContainer.margin,
+        ristoDecorator.margin,
         const EdgeInsets.only(left: 20.0, right: 20.0),
       );
     });
@@ -114,21 +111,17 @@ void main() {
         ),
       );
 
-      // Find the leading Icon.
       final iconFinder = find.byIcon(Icons.access_alarm);
       expect(iconFinder, findsOneWidget);
 
-      // Find the SizedBox ancestor wrapping the leading icon.
-      final sizedBoxFinder = find.ancestor(
-        of: iconFinder,
-        matching: find.byType(SizedBox),
+      // Find the exact wrapping sizing box
+      final sizedBoxFinder = find.byWidgetPredicate(
+        (w) =>
+            w is SizedBox &&
+            w.width == 24.0 * sizeFactor &&
+            w.height == 24.0 * sizeFactor,
       );
       expect(sizedBoxFinder, findsOneWidget);
-
-      // Retrieve the size of the wrapper SizedBox.
-      final Size boxSize = tester.getSize(sizedBoxFinder);
-      expect(boxSize.width, 24.0 * sizeFactor);
-      expect(boxSize.height, 24.0 * sizeFactor);
     });
   });
 
@@ -152,33 +145,27 @@ void main() {
           ),
         );
 
-        // Verify the IconListTileButton is present.
         expect(find.text('Icon ListTileButton'), findsOneWidget);
         expect(find.byIcon(Icons.star), findsOneWidget);
 
-        // Verify the margin is applied by checking RoundedContainer.
-        final roundedContainerFinder = find.byType(RoundedContainer);
-        expect(roundedContainerFinder, findsOneWidget);
+        final ristoDecoratorFinder = find.byType(RistoDecorator);
+        expect(ristoDecoratorFinder, findsOneWidget);
 
-        final RoundedContainer roundedContainer = tester
-            .widget<RoundedContainer>(roundedContainerFinder);
-        expect(roundedContainer.margin, const EdgeInsets.all(10.0));
+        final RistoDecorator ristoDecorator = tester.widget<RistoDecorator>(
+          ristoDecoratorFinder,
+        );
+        expect(ristoDecorator.margin, const EdgeInsets.all(10.0));
 
-        // Find the leading Icon.
         final iconFinder = find.byIcon(Icons.star);
         expect(iconFinder, findsOneWidget);
 
-        // Find the SizedBox ancestor wrapping the leading icon.
-        final sizedBoxFinder = find.ancestor(
-          of: iconFinder,
-          matching: find.byType(SizedBox),
+        final sizedBoxFinder = find.byWidgetPredicate(
+          (w) =>
+              w is SizedBox &&
+              w.width == 24.0 * sizeFactor &&
+              w.height == 24.0 * sizeFactor,
         );
         expect(sizedBoxFinder, findsOneWidget);
-
-        // Retrieve the size of the wrapper SizedBox.
-        final Size boxSize = tester.getSize(sizedBoxFinder);
-        expect(boxSize.width, 24.0 * sizeFactor);
-        expect(boxSize.height, 24.0 * sizeFactor);
       },
     );
 
@@ -202,7 +189,6 @@ void main() {
         ),
       );
 
-      // Tap the IconListTileButton and verify it triggers the onPressed callback.
       await tester.tap(find.byType(IconListTileButton));
       await tester.pump();
 
@@ -225,15 +211,14 @@ void main() {
         ),
       );
 
-      // Find the RoundedContainer and verify margin.
-      final roundedContainerFinder = find.byType(RoundedContainer);
-      expect(roundedContainerFinder, findsOneWidget);
+      final ristoDecoratorFinder = find.byType(RistoDecorator);
+      expect(ristoDecoratorFinder, findsOneWidget);
 
-      final RoundedContainer roundedContainer = tester.widget<RoundedContainer>(
-        roundedContainerFinder,
+      final RistoDecorator ristoDecorator = tester.widget<RistoDecorator>(
+        ristoDecoratorFinder,
       );
       expect(
-        roundedContainer.margin,
+        ristoDecorator.margin,
         const EdgeInsets.only(top: 10.0, bottom: 10.0),
       );
     });
@@ -257,21 +242,16 @@ void main() {
         ),
       );
 
-      // Find the leading Icon.
       final iconFinder = find.byIcon(Icons.thumb_up);
       expect(iconFinder, findsOneWidget);
 
-      // Find the SizedBox ancestor wrapping the leading icon.
-      final sizedBoxFinder = find.ancestor(
-        of: iconFinder,
-        matching: find.byType(SizedBox),
+      final sizedBoxFinder = find.byWidgetPredicate(
+        (w) =>
+            w is SizedBox &&
+            w.width == 24.0 * sizeFactor &&
+            w.height == 24.0 * sizeFactor,
       );
       expect(sizedBoxFinder, findsOneWidget);
-
-      // Retrieve the size of the wrapper SizedBox.
-      final Size boxSize = tester.getSize(sizedBoxFinder);
-      expect(boxSize.width, 24.0 * sizeFactor);
-      expect(boxSize.height, 24.0 * sizeFactor);
     });
   });
 
@@ -300,11 +280,9 @@ void main() {
         ),
       );
 
-      // Verify both buttons are present.
       expect(find.text('First Button'), findsOneWidget);
       expect(find.text('Second Button'), findsOneWidget);
 
-      // Verify the padding is applied to DoubleListTileButtons.
       final doubleListTileButtonsFinder = find.byType(DoubleListTileButtons);
       expect(doubleListTileButtonsFinder, findsOneWidget);
 
@@ -312,14 +290,10 @@ void main() {
           .widget<DoubleListTileButtons>(doubleListTileButtonsFinder);
       expect(doubleListTileButtons.padding, const EdgeInsets.all(12.0));
 
-      // Verify the spacing between buttons.
-      final sizedBoxFinder = find.descendant(
-        of: doubleListTileButtonsFinder,
-        matching: find.byType(SizedBox),
+      final sizedBoxFinder = find.byWidgetPredicate(
+        (w) => w is SizedBox && w.width == 16.0,
       );
       expect(sizedBoxFinder, findsOneWidget);
-      final SizedBox sizedBox = tester.widget<SizedBox>(sizedBoxFinder);
-      expect(sizedBox.width, 16.0);
     });
 
     testWidgets('DoubleListTileButtons applies padding and spacing correctly', (
@@ -346,7 +320,6 @@ void main() {
         ),
       );
 
-      // Verify the padding is applied to DoubleListTileButtons.
       final doubleListTileButtonsFinder = find.byType(DoubleListTileButtons);
       expect(doubleListTileButtonsFinder, findsOneWidget);
 
@@ -355,16 +328,12 @@ void main() {
       expect(
         doubleListTileButtons.padding,
         const EdgeInsets.symmetric(horizontal: 20.0),
-      ); // Verify horizontal padding
+      );
 
-      // Verify the spacing between buttons.
-      final sizedBoxFinder = find.descendant(
-        of: doubleListTileButtonsFinder,
-        matching: find.byType(SizedBox),
+      final sizedBoxFinder = find.byWidgetPredicate(
+        (w) => w is SizedBox && w.width == 24.0,
       );
       expect(sizedBoxFinder, findsOneWidget);
-      final SizedBox sizedBox = tester.widget<SizedBox>(sizedBoxFinder);
-      expect(sizedBox.width, 24.0);
     });
   });
 }

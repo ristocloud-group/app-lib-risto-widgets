@@ -8,7 +8,7 @@ class RistoNoticeCardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
-      appBar: AppBar(title: const Text('Risto Notice Card Examples')),
+      appBar: AppBar(title: const Text('Risto Notice Cards')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -16,12 +16,10 @@ class RistoNoticeCardPage extends StatelessWidget {
           children: [
             const _SectionTitle('Default Styles'),
 
-            // Using .rounded for a softer look, and minHeight: 0 for proper sizing.
             RistoNoticeCard.success(
               title: 'Operation Successful',
               subtitle:
                   'Your operation completed successfully and the data was saved.',
-
               footerBuilder: (context, accentColor) {
                 return CustomActionButton.rounded(
                   minHeight: 0,
@@ -38,7 +36,6 @@ class RistoNoticeCardPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // A combination of .minimal and .rounded in a two-button layout.
             RistoNoticeCard.warning(
               title: 'Warning',
               subtitle:
@@ -48,7 +45,7 @@ class RistoNoticeCardPage extends StatelessWidget {
                   children: [
                     Expanded(
                       child: CustomActionButton.minimal(
-                        minHeight: 0, // Let button size to its content
+                        minHeight: 0,
                         padding: const EdgeInsets.symmetric(
                           vertical: 10,
                           horizontal: 24,
@@ -65,7 +62,6 @@ class RistoNoticeCardPage extends StatelessWidget {
                     Expanded(
                       child: CustomActionButton.rounded(
                         minHeight: 0,
-                        // Let button size to its content
                         padding: const EdgeInsets.symmetric(
                           vertical: 10,
                           horizontal: 24,
@@ -197,7 +193,6 @@ class RistoNoticeCardPage extends StatelessWidget {
                       horizontal: 24,
                       vertical: 8,
                     ),
-                    // Smaller padding for compact
                     onPressed:
                         () => RistoToast.info(context, message: 'OK tapped'),
                     child: const Text('OK'),
@@ -281,16 +276,17 @@ class RistoNoticeCardPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Using the main constructor to access fine-grained spacing controls.
             RistoNoticeCard(
               kind: RistoNoticeKind.neutral,
-              title: 'Custom Spacing',
-              subtitle: 'This card has custom spacing between its elements.',
+              title: 'Custom Content Padding & RunSpacing',
+              subtitle:
+                  'padding controls the edges. runSpacing controls the gaps.',
               crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.all(32),
               runSpacing: 32,
               footerBuilder:
                   (context, accentColor) =>
-                      const Text('Notice the large gaps above!'),
+                      const Text('Notice the huge padding and gaps!'),
             ),
           ],
         ),
@@ -299,7 +295,6 @@ class RistoNoticeCardPage extends StatelessWidget {
   }
 }
 
-/// A simple helper widget to create section titles for the example page.
 class _SectionTitle extends StatelessWidget {
   final String title;
 

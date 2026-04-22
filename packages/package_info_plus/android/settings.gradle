@@ -1,0 +1,3 @@
+package packages.package_info_plus.android
+
+rootProject.name = 'package_info_plus'

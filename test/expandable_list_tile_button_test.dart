@@ -11,7 +11,7 @@ void main() {
     const Key customHeaderKey = Key('customHeader');
     const Key customExpandedContentKey = Key('customExpandedContent');
 
-    // New keys for scoping the overlay tests
+    // Keys for scoping the overlay tests
     const Key overlayContainerKey = Key('overlayContainer');
     const Key rebuildTestContainerKey = Key('rebuildTestContainer');
     const Key scrollableContainerKey = Key('scrollableContainer');
@@ -46,10 +46,13 @@ void main() {
 
         expect(find.byKey(listTileHeaderKey), findsOneWidget);
         expect(find.byKey(listTileExpandedContentKey), findsNothing);
-        await tester.tap(find.byKey(listTileHeaderKey));
+
+        // Tap the actual hit-testable Material surface
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(listTileExpandedContentKey), findsOneWidget);
-        await tester.tap(find.byKey(listTileHeaderKey));
+
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(listTileExpandedContentKey), findsNothing);
       },
@@ -67,15 +70,17 @@ void main() {
                   padding: const EdgeInsets.all(16.0),
                   child: const Text('Expanded content goes here'),
                 ),
-                customHeaderBuilder: (tapAction, isExpanded, isDisabled) =>
-                    GestureDetector(
-                      onTap: tapAction,
-                      child: Container(
-                        key: customHeaderKey,
-                        padding: const EdgeInsets.all(16.0),
-                        child: const Text('Custom Header'),
-                      ),
-                    ),
+                // FIXED: Added the newly required animValue parameter
+                customHeaderBuilder:
+                    (tapAction, isExpanded, isDisabled, animValue) =>
+                        GestureDetector(
+                          onTap: tapAction,
+                          child: Container(
+                            key: customHeaderKey,
+                            padding: const EdgeInsets.all(16.0),
+                            child: const Text('Custom Header'),
+                          ),
+                        ),
               ),
             ),
           ),
@@ -103,10 +108,10 @@ void main() {
                   key: overlayContainerKey,
                   child: ExpandableListTileButton.overlayMenu(
                     title: const Text('Overlay Header', key: overlayHeaderKey),
-                    expanded: SizedBox(
+                    expanded: const SizedBox(
                       key: overlayExpandedContentKey,
                       height: 100,
-                      child: const Text('Overlay expanded content'),
+                      child: Text('Overlay expanded content'),
                     ),
                   ),
                 ),
@@ -115,20 +120,16 @@ void main() {
           ),
         );
 
-        // Use a descendant finder to ensure we only find the header in the main tree
-        final headerFinder = find.descendant(
-          of: find.byKey(overlayContainerKey),
-          matching: find.byKey(overlayHeaderKey),
-        );
-
-        expect(headerFinder, findsOneWidget);
+        expect(find.byKey(overlayHeaderKey), findsOneWidget);
         expect(find.byKey(overlayExpandedContentKey), findsNothing);
 
-        await tester.tap(headerFinder);
+        // Tap the ListTileButton itself to avoid hit-test offset issues
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(overlayExpandedContentKey), findsOneWidget);
 
-        await tester.tap(headerFinder);
+        // When overlay is active, tap the background (TapRegion) or the tile again to close
+        await tester.tap(find.byType(ListTileButton).last);
         await tester.pumpAndSettle();
         expect(find.byKey(overlayExpandedContentKey), findsNothing);
       },
@@ -152,10 +153,10 @@ void main() {
                           'Scrollable Overlay Header',
                           key: scrollableOverlayHeaderKey,
                         ),
-                        expanded: SizedBox(
+                        expanded: const SizedBox(
                           key: scrollableOverlayExpandedContentKey,
                           height: 100,
-                          child: const Text('Overlay expanded content'),
+                          child: Text('Overlay expanded content'),
                         ),
                       ),
                     ),
@@ -167,13 +168,8 @@ void main() {
           ),
         );
 
-        final headerFinder = find.descendant(
-          of: find.byKey(scrollableContainerKey),
-          matching: find.byKey(scrollableOverlayHeaderKey),
-        );
-
         // Act 1: Tap the header to expand the overlay.
-        await tester.tap(headerFinder);
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
 
         // Assert 1: Verify the overlay is visible.
@@ -184,7 +180,8 @@ void main() {
         );
 
         // Act 2: Scroll the list using dragFrom to avoid hit-test warnings.
-        final safeDragStartPoint = const Offset(100, 100);
+        // This triggers the TapRegion's onTapOutside which closes the overlay.
+        const safeDragStartPoint = Offset(100, 100);
         await tester.dragFrom(safeDragStartPoint, const Offset(0, -50));
         await tester.pumpAndSettle();
 
@@ -223,14 +220,9 @@ void main() {
           ),
         );
 
-        final headerFinder = find.descendant(
-          of: find.byKey(rebuildTestContainerKey),
-          matching: find.byKey(overlayHeaderKey),
-        );
-
         // 1. Expand the tile and verify the overlay is shown.
         expect(find.byKey(overlayExpandedContentKey), findsNothing);
-        await tester.tap(headerFinder);
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(overlayExpandedContentKey), findsOneWidget);
 
@@ -242,14 +234,14 @@ void main() {
         expect(find.byKey(overlayExpandedContentKey), findsOneWidget);
 
         // 3. Collapse the tile.
-        await tester.tap(headerFinder);
+        await tester.tap(find.byType(ListTileButton).last);
         await tester.pumpAndSettle();
 
         // Assert: Verify the overlay is now gone.
         expect(find.byKey(overlayExpandedContentKey), findsNothing);
 
         // 4. Re-expand the tile to check if it's still functional.
-        await tester.tap(headerFinder);
+        await tester.tap(find.byType(ListTileButton).first);
         await tester.pumpAndSettle();
         expect(find.byKey(overlayExpandedContentKey), findsOneWidget);
       },

@@ -14,7 +14,7 @@ class CustomDialogPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const _SectionTitle('Standard Dialogs'),
+            const _SectionTitle('Standard Dialogs (With Blur!)'),
 
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
@@ -22,9 +22,11 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.success(
                   context,
+                  blurSigma: 6.0,
+                  // <-- ADDED: Beautiful glass blur!
                   title: 'Operation Successful!',
                   subtitle:
-                      'This dialog has no footer by default. It will auto-dismiss or can be closed with the X.',
+                      'This dialog has no footer and blurs the background. It will auto-dismiss or can be closed with the X.',
                   noticeIcon: const Icon(
                     Icons.task_alt_rounded,
                     size: 48,
@@ -37,7 +39,7 @@ class CustomDialogPage extends StatelessWidget {
                       ),
                 ).show(context);
               },
-              child: const Text('Open Success Dialog (No Footer)'),
+              child: const Text('Open Success Dialog (Blurred Background)'),
             ),
 
             CustomActionButton.elevated(
@@ -46,8 +48,11 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.info(
                   context,
+                  blurSigma: 10.0,
+                  // <-- ADDED: Heavy glass blur!
                   title: 'Information',
-                  subtitle: 'This dialog has a custom confirmation button.',
+                  subtitle:
+                      'This dialog has a heavy background blur and a custom confirmation button.',
                   confirmButtonText: 'Got it!',
                   onClose:
                       (result) => RistoToast.info(
@@ -56,7 +61,7 @@ class CustomDialogPage extends StatelessWidget {
                       ),
                 ).show(context);
               },
-              child: const Text('Open Info Dialog (With Button)'),
+              child: const Text('Open Info Dialog (Heavy Blur)'),
             ),
 
             CustomActionButton.elevated(
@@ -65,6 +70,7 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.warning(
                   context,
+                  blurSigma: 3.0, // Light blur
                   title: 'Unsaved Changes',
                   subtitle:
                       'If you leave now, your changes will be lost. Are you sure?',
@@ -86,6 +92,7 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.confirm(
                   context,
+                  // No blur here, just to show standard barrier
                   title: 'Confirm Deletion',
                   subtitle:
                       'Are you sure you want to permanently delete this item?',
@@ -103,7 +110,7 @@ class CustomDialogPage extends StatelessWidget {
                   },
                 ).show(context);
               },
-              child: const Text('Open Confirm Dialog'),
+              child: const Text('Open Confirm Dialog (No Blur)'),
             ),
 
             const SizedBox(height: 24),
@@ -115,6 +122,7 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.error(
                   context,
+                  blurSigma: 8.0,
                   title: 'Strict Error',
                   subtitle:
                       'You cannot dismiss this by tapping outside or using the X. You must click the button.',
@@ -132,6 +140,7 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.confirm(
                   context,
+                  blurSigma: 4.0,
                   title: 'Aligned Buttons',
                   subtitle:
                       'These buttons are aligned to the right and shrink-wrapped instead of expanded.',
@@ -189,9 +198,10 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.info(
                   context,
+                  blurSigma: 12.0, // Awesome heavy blur sliding up!
                   title: 'Custom Animation Overlay',
                   subtitle:
-                      'This dialog slides up from the bottom instead of using the default scale transition.',
+                      'This dialog and its blur slide up from the bottom instead of using the default scale transition.',
                   confirmButtonText: 'Awesome',
                 ).show(
                   context,
@@ -206,6 +216,9 @@ class CustomDialogPage extends StatelessWidget {
                       begin: const Offset(0.0, 0.2),
                       end: Offset.zero,
                     ).chain(CurveTween(curve: Curves.easeOutCubic));
+
+                    // Notice how we just apply the SlideTransition to the child,
+                    // and OpenCustomDialog handles the blur layer below it!
                     return SlideTransition(
                       position: animation.drive(tween),
                       child: FadeTransition(opacity: animation, child: child),
@@ -213,7 +226,7 @@ class CustomDialogPage extends StatelessWidget {
                   },
                 );
               },
-              child: const Text('Open with Slide-Up Animation'),
+              child: const Text('Open with Slide-Up Animation & Blur'),
             ),
 
             CustomActionButton.elevated(
@@ -238,6 +251,7 @@ class CustomDialogPage extends StatelessWidget {
 
                 OpenCustomDialog.notice(
                   context,
+                  blurSigma: 5.0,
                   notice: customNotice,
                   onClose: (result) {
                     RistoToast.info(
