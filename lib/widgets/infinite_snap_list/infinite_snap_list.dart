@@ -410,7 +410,10 @@ class _SnapListState<T> extends State<SnapList<T>> {
       _setupController();
     }
 
-    if (oldWidget.items != widget.items && widget.selectedItem != null) {
+    final bool itemsChanged = oldWidget.items != widget.items;
+    final bool selectionChanged = oldWidget.selectedItem != widget.selectedItem;
+
+    if (itemsChanged && widget.selectedItem != null) {
       final oldIndex = oldWidget.items.indexOf(widget.selectedItem as T);
       final newIndex = widget.items.indexOf(widget.selectedItem as T);
 
@@ -422,9 +425,14 @@ class _SnapListState<T> extends State<SnapList<T>> {
           final diff = newIndex - oldIndex;
           _controller.jumpTo(_controller.offset + (diff * _currentSlotSize));
         }
-      } else if (oldWidget.selectedItem != widget.selectedItem &&
-          !_isSnapping) {
-        _animateTo(newIndex);
+      }
+    }
+
+    if (selectionChanged && !_isSnapping) {
+      final newIndex = widget.items.indexOf(widget.selectedItem as T);
+      if (newIndex != -1) {
+        _lastReportedIndex = newIndex;
+        _animateTo(newIndex, fromDidUpdateWidget: true);
       }
     }
   }
@@ -454,13 +462,24 @@ class _SnapListState<T> extends State<SnapList<T>> {
     if (!_controller.hasClients || index < 0 || index >= widget.items.length) {
       return;
     }
+
+    if (index != _lastReportedIndex) {
+      _lastReportedIndex = index;
+      widget.onItemSelected?.call(widget.items[index], index);
+    }
     _controller.jumpTo(index * _currentSlotSize);
   }
 
-  void _animateTo(int index) {
+  void _animateTo(int index, {bool fromDidUpdateWidget = false}) {
     if (!_controller.hasClients || index < 0 || index >= widget.items.length) {
       return;
     }
+
+    if (!fromDidUpdateWidget && index != _lastReportedIndex) {
+      _lastReportedIndex = index;
+      widget.onItemSelected?.call(widget.items[index], index);
+    }
+
     _isSnapping = true;
     _controller
         .animateTo(
@@ -470,6 +489,16 @@ class _SnapListState<T> extends State<SnapList<T>> {
         )
         .whenComplete(() {
           _isSnapping = false;
+          // Catch-up in case the scroll physics landed slightly off
+          if (_controller.hasClients && _currentSlotSize > 0) {
+            final finalIndex = (_controller.offset / _currentSlotSize)
+                .round()
+                .clamp(0, widget.items.length - 1);
+            if (finalIndex != _lastReportedIndex) {
+              _lastReportedIndex = finalIndex;
+              widget.onItemSelected?.call(widget.items[finalIndex], finalIndex);
+            }
+          }
         });
   }
 

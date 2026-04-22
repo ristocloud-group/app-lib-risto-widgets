@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+// Replace with the correct path to your widget file.
 import 'package:risto_widgets/risto_widgets.dart';
 
 void main() {
@@ -135,9 +136,7 @@ void main() {
                 bottom: 16,
               ),
               maxHeightFraction: 0.60,
-              // clamp to 480 on 800h
               dragDismissThresholdFraction: 0.20,
-              // 20% of 480 = 96
               dragToClose: true,
               collapsedBuilder: (_) => Container(
                 padding: const EdgeInsets.all(16),
@@ -171,7 +170,7 @@ void main() {
       // EXPECT 304, not 320: the key is on the child Container itself;
       // its own padding is internal, so its global top equals the card's top.
       final topLeft = tester.getTopLeft(sheet);
-      expect(topLeft.dy, moreOrLessEquals(304, epsilon: 1.0)); // <-- fixed
+      expect(topLeft.dy, moreOrLessEquals(304, epsilon: 1.0));
 
       // Drag down enough to dismiss (>= 96)
       await tester.drag(sheet, const Offset(0, 300));
@@ -236,7 +235,7 @@ void main() {
       final navigatorState = tester.state<NavigatorState>(
         find.byType(Navigator),
       );
-      navigatorState.pop(); // <-- fixed
+      navigatorState.pop();
       await tester.pumpAndSettle();
 
       expect(full, findsNothing);

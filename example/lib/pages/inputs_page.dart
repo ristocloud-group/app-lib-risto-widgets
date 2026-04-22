@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:risto_widgets/risto_widgets.dart';
+import 'package:risto_widgets/risto_widgets.dart'; // Adjust path
 
 class InputsPage extends StatefulWidget {
   const InputsPage({super.key});
@@ -14,116 +14,193 @@ class _InputsPageState extends State<InputsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    const double targetInputHeight = 54.0; // The unified height baseline
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Risto Text Fields & Decorator')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Standalone RistoDecorator',
-                style: theme.textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'The new universal decoration wrapper. You can wrap ANY widget in this to apply standardized Risto backgrounds, borders, and shadows.',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 16),
-
-              RistoDecorator(
-                elevation: 6,
-                borderRadius: BorderRadius.circular(16),
-                // Fixed to use BorderRadius
-                backgroundColor: Colors.white,
-                shadowColor: Colors.deepPurple,
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Icon(Icons.palette, color: Colors.deepPurple),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        'I am a completely standard Flutter Row, but I look like a beautiful card because I am wrapped in a RistoDecorator!',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
+      backgroundColor: Colors.grey.shade50,
+      appBar: AppBar(title: const Text('Text Fields & Inputs')),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Advanced Search Layouts',
+                  style: theme.textTheme.titleLarge,
                 ),
-              ),
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 24),
-
-              Text(
-                'Advanced Outer Layouts (Decorated)',
-                style: theme.textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'By combining RistoTextField with RistoDecorator, we can create incredibly custom, perfectly aligned search bars.',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 24),
-
-              RistoTextField.search(
-                hint: 'Search users ...',
-                fillColor: Colors.white,
-                borderColor: Colors.blueGrey.shade200,
-                focusedBorderColor: Colors.blue,
-                prefixIcon: const Icon(
-                  Icons.account_circle_outlined,
-                  color: Colors.blueGrey,
+                const SizedBox(height: 8),
+                Text(
+                  'Combine RistoTextField with CustomActionButton for perfectly sized, side-by-side action buttons.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.black54,
+                  ),
                 ),
-                margin: const EdgeInsets.only(bottom: 32),
-                fieldHeight: 54,
-                // Locks the row height perfectly
+                const SizedBox(height: 24),
 
-                // --- Outer Leading using RistoDecorator ---
-                outerLeading: RistoDecorator(
-                  backgroundColor: Colors.white,
+                RistoTextField.search(
+                  hint: 'Search users ...',
+                  fillColor: Colors.white,
                   borderColor: Colors.blueGrey.shade200,
-                  borderRadius: BorderRadius.circular(15),
-                  // Fixed to use BorderRadius
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Colors.blue,
-                    ),
-                    onPressed:
-                        () =>
-                            RistoToast.info(context, message: 'Go back tapped'),
+                  focusedBorderColor: Colors.blue,
+                  innerLeading: const Icon(
+                    Icons.account_circle_outlined,
+                    color: Colors.blueGrey,
                   ),
-                ),
+                  margin: const EdgeInsets.only(bottom: 32),
 
-                // --- Outer Trailing using RistoDecorator with Shadow ---
-                outerTrailing: RistoDecorator(
-                  backgroundColor: Colors.blue,
-                  shadowColor: Colors.blue,
-                  elevation: 4.0,
-                  borderRadius: BorderRadius.circular(15),
-                  // Fixed to use BorderRadius
-                  child: IconButton(
-                    icon: const Icon(Icons.search, color: Colors.white),
+                  validator:
+                      (val) =>
+                          val == null || val.length < 3
+                              ? 'Error: Please enter at least 3 characters'
+                              : null,
+
+                  fieldHeight: targetInputHeight,
+
+                  // --- Outer Leading using CustomActionButton ---
+                  outerLeading: CustomActionButton.iconOnly(
                     onPressed:
-                        () => RistoToast.success(
-                          context,
-                          message: 'Search Triggered',
+                        () => ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Back tapped')),
                         ),
+                    icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+                    foregroundColor: Colors.blue,
+                    backgroundColor: Colors.white,
+                    baseType: ButtonType.elevated,
+                    size: targetInputHeight,
+                    // Exact visual match
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      side: BorderSide(color: Colors.blueGrey.shade200),
+                    ),
+                  ),
+
+                  // --- Outer Trailing using CustomActionButton ---
+                  outerTrailing: CustomActionButton.iconOnly(
+                    onPressed:
+                        () => ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Search Triggered')),
+                        ),
+                    icon: const Icon(Icons.search),
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue,
+                    baseType: ButtonType.elevated,
+                    elevation: 4.0,
+                    shadowColor: Colors.blue.shade200,
+                    size: targetInputHeight,
+                    // Exact visual match
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                 ),
 
-                onSubmitted:
-                    (value) => RistoToast.success(
-                      context,
-                      message: 'Submitted: $value',
+                const Divider(height: 48),
+
+                Text(
+                  'Specialized Factories',
+                  style: theme.textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Pre-configured setups for standard data inputs.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Standard Input
+                RistoTextField(
+                  title: 'Full Name',
+                  hint: 'John Doe',
+                  innerLeading: const Icon(Icons.person_outline),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  fillColor: Colors.white,
+                  validator:
+                      (val) =>
+                          val == null || val.isEmpty
+                              ? 'Name is strictly required'
+                              : null,
+                ),
+
+                // Email Factory
+                RistoTextField.email(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  fillColor: Colors.white,
+                  validator:
+                      (val) =>
+                          val == null || !val.contains('@')
+                              ? 'Invalid email address'
+                              : null,
+                ),
+
+                // Password Factory
+                RistoTextField.password(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  fillColor: Colors.white,
+                ),
+
+                // Number Factory
+                RistoTextField.number(
+                  title: 'Amount (Optional decimals)',
+                  hint: '0.00',
+                  margin: const EdgeInsets.only(bottom: 16),
+                  fillColor: Colors.white,
+                  innerLeading: const Icon(Icons.attach_money),
+                ),
+
+                const Divider(height: 48),
+
+                Text('Horizontal Forms', style: theme.textTheme.titleLarge),
+                const SizedBox(height: 8),
+                Text(
+                  'Ideal for desktop apps or wide tablet screens.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                RistoTextField(
+                  title: 'Username',
+                  hint: '@username',
+                  horizontalLayout: true,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  fillColor: Colors.white,
+                ),
+
+                RistoTextField.password(
+                  title: 'Confirm',
+                  horizontalLayout: true,
+                  margin: const EdgeInsets.only(bottom: 32),
+                  fillColor: Colors.white,
+                ),
+
+                Center(
+                  child: CustomActionButton.elevated(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Form Validated!')),
+                        );
+                      }
+                    },
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check),
+                        SizedBox(width: 8),
+                        Text('Validate Inputs'),
+                      ],
                     ),
-              ),
-            ],
+                  ),
+                ),
+                const SizedBox(height: 80),
+              ],
+            ),
           ),
         ),
       ),

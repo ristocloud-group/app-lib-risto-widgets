@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:risto_widgets/extensions.dart';
 
 /// A standardized text input field matching the Risto design language.
@@ -12,34 +13,28 @@ class RistoTextField extends StatefulWidget {
   final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
   final FocusNode? focusNode;
+  final List<TextInputFormatter>? inputFormatters;
 
   final EdgeInsetsGeometry? margin;
   final double borderRadius;
   final Color? borderColor;
   final Color? fillColor;
   final Color? focusedBorderColor;
+  final Color? errorBorderColor;
 
   final TextStyle? textStyle;
   final TextStyle? titleStyle;
   final TextStyle? hintStyle;
   final TextStyle? errorStyle;
 
-  final Widget? prefixIcon;
-  final Widget? suffixIcon;
-
-  /// A widget displayed outside the text field, to its left.
-  /// Wrap this in a `RistoDecorator` to easily add backgrounds and shadows.
+  final Widget? innerLeading;
+  final Widget? innerTrailing;
   final Widget? outerLeading;
-
-  /// A widget displayed outside the text field, to its right.
-  /// Wrap this in a `RistoDecorator` to easily add backgrounds and shadows.
   final Widget? outerTrailing;
 
-  /// Spacing between the text field and the [outerLeading] / [outerTrailing] widgets.
   final double outerSpacing;
 
-  /// If provided, explicitly sets the height of the TextField.
-  /// If [outerLeading] or [outerTrailing] are also used, they will beautifully stretch to match this exact height.
+  /// The visual height of the outer action buttons. Defaults to 54.0.
   final double? fieldHeight;
 
   final EdgeInsetsGeometry? contentPadding;
@@ -62,17 +57,19 @@ class RistoTextField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.focusNode,
+    this.inputFormatters,
     this.margin,
     this.borderRadius = 12.0,
     this.borderColor,
     this.fillColor,
     this.focusedBorderColor,
+    this.errorBorderColor,
     this.textStyle,
     this.titleStyle,
     this.hintStyle,
     this.errorStyle,
-    this.prefixIcon,
-    this.suffixIcon,
+    this.innerLeading,
+    this.innerTrailing,
     this.outerLeading,
     this.outerTrailing,
     this.outerSpacing = 10.0,
@@ -87,10 +84,15 @@ class RistoTextField extends StatefulWidget {
     this.horizontalLayout = false,
   });
 
+  // ===========================================================================
+  // FACTORIES
+  // ===========================================================================
+
   factory RistoTextField.search({
     Key? key,
     TextEditingController? controller,
     String? hint,
+    String? Function(String?)? validator,
     void Function(String)? onChanged,
     void Function(String)? onSubmitted,
     FocusNode? focusNode,
@@ -102,9 +104,11 @@ class RistoTextField extends StatefulWidget {
     Color? fillColor,
     Color? borderColor,
     Color? focusedBorderColor,
+    Color? errorBorderColor,
     EdgeInsetsGeometry? margin,
     double borderRadius = 15.0,
-    Widget? prefixIcon,
+    Widget? innerLeading,
+    Widget? innerTrailing,
     int? maxLength,
     bool isDense = true,
   }) {
@@ -112,8 +116,10 @@ class RistoTextField extends StatefulWidget {
       key: key,
       controller: controller,
       hint: hint ?? 'Search...',
-      prefixIcon: prefixIcon ?? const Icon(Icons.search),
+      innerLeading: innerLeading ?? const Icon(Icons.search),
+      innerTrailing: innerTrailing,
       keyboardType: TextInputType.text,
+      validator: validator,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       focusNode: focusNode,
@@ -125,10 +131,144 @@ class RistoTextField extends StatefulWidget {
       fillColor: fillColor,
       borderColor: borderColor,
       focusedBorderColor: focusedBorderColor,
+      errorBorderColor: errorBorderColor,
       isDense: isDense,
       margin: margin,
       borderRadius: borderRadius,
       maxLength: maxLength,
+      counterText: '',
+    );
+  }
+
+  factory RistoTextField.password({
+    Key? key,
+    TextEditingController? controller,
+    String? title,
+    String? hint,
+    String? Function(String?)? validator,
+    void Function(String)? onChanged,
+    void Function(String)? onSubmitted,
+    FocusNode? focusNode,
+    EdgeInsetsGeometry? margin,
+    double borderRadius = 12.0,
+    Widget? innerLeading,
+    bool horizontalLayout = false,
+    Color? fillColor,
+    Color? borderColor,
+    Color? focusedBorderColor,
+    EdgeInsetsGeometry? contentPadding,
+    double? fieldHeight,
+  }) {
+    return RistoTextField(
+      key: key,
+      controller: controller,
+      title: title ?? 'Password',
+      hint: hint ?? '••••••••',
+      isSecret: true,
+      innerLeading: innerLeading ?? const Icon(Icons.lock_outline),
+      validator: validator,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      focusNode: focusNode,
+      margin: margin,
+      borderRadius: borderRadius,
+      horizontalLayout: horizontalLayout,
+      fillColor: fillColor,
+      borderColor: borderColor,
+      focusedBorderColor: focusedBorderColor,
+      contentPadding: contentPadding,
+      fieldHeight: fieldHeight,
+      counterText: '',
+    );
+  }
+
+  factory RistoTextField.email({
+    Key? key,
+    TextEditingController? controller,
+    String? title,
+    String? hint,
+    String? Function(String?)? validator,
+    void Function(String)? onChanged,
+    void Function(String)? onSubmitted,
+    FocusNode? focusNode,
+    EdgeInsetsGeometry? margin,
+    double borderRadius = 12.0,
+    bool horizontalLayout = false,
+    Color? fillColor,
+    Color? borderColor,
+    Color? focusedBorderColor,
+    EdgeInsetsGeometry? contentPadding,
+    double? fieldHeight,
+  }) {
+    return RistoTextField(
+      key: key,
+      controller: controller,
+      title: title ?? 'Email',
+      hint: hint ?? 'example@email.com',
+      keyboardType: TextInputType.emailAddress,
+      innerLeading: const Icon(Icons.email_outlined),
+      validator: validator,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      focusNode: focusNode,
+      margin: margin,
+      borderRadius: borderRadius,
+      horizontalLayout: horizontalLayout,
+      fillColor: fillColor,
+      borderColor: borderColor,
+      focusedBorderColor: focusedBorderColor,
+      contentPadding: contentPadding,
+      fieldHeight: fieldHeight,
+      counterText: '',
+    );
+  }
+
+  factory RistoTextField.number({
+    Key? key,
+    TextEditingController? controller,
+    String? title,
+    String? hint,
+    String? Function(String?)? validator,
+    void Function(String)? onChanged,
+    void Function(String)? onSubmitted,
+    FocusNode? focusNode,
+    EdgeInsetsGeometry? margin,
+    double borderRadius = 12.0,
+    Widget? innerLeading,
+    Widget? innerTrailing,
+    bool horizontalLayout = false,
+    bool allowDecimals = true,
+    Color? fillColor,
+    Color? borderColor,
+    Color? focusedBorderColor,
+    EdgeInsetsGeometry? contentPadding,
+    double? fieldHeight,
+  }) {
+    return RistoTextField(
+      key: key,
+      controller: controller,
+      title: title,
+      hint: hint ?? '0',
+      keyboardType: TextInputType.numberWithOptions(decimal: allowDecimals),
+      inputFormatters: [
+        allowDecimals
+            ? FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))
+            : FilteringTextInputFormatter.digitsOnly,
+      ],
+      innerLeading: innerLeading ?? const Icon(Icons.numbers),
+      innerTrailing: innerTrailing,
+      validator: validator,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      focusNode: focusNode,
+      margin: margin,
+      borderRadius: borderRadius,
+      horizontalLayout: horizontalLayout,
+      fillColor: fillColor,
+      borderColor: borderColor,
+      focusedBorderColor: focusedBorderColor,
+      contentPadding: contentPadding,
+      fieldHeight: fieldHeight,
       counterText: '',
     );
   }
@@ -149,10 +289,12 @@ class _RistoTextFieldState extends State<RistoTextField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final borderCol = widget.borderColor ?? theme.colorScheme.outline;
+    final borderCol =
+        widget.borderColor ?? theme.colorScheme.outline.withCustomOpacity(0.5);
     final focusCol = widget.focusedBorderColor ?? theme.primaryColor;
+    final errorCol = widget.errorBorderColor ?? theme.colorScheme.error;
 
-    final resolvedSuffix = widget.isSecret
+    final resolvedInnerTrailing = widget.isSecret
         ? IconButton(
             icon: Icon(
               _obscureText ? Icons.visibility_off : Icons.visibility,
@@ -160,19 +302,24 @@ class _RistoTextFieldState extends State<RistoTextField> {
             ),
             onPressed: () => setState(() => _obscureText = !_obscureText),
           )
-        : widget.suffixIcon;
+        : widget.innerTrailing;
 
     final inputDecoration = InputDecoration(
       filled: true,
       fillColor: widget.fillColor ?? theme.cardColor,
+
+      // THE FIX: No constraints! A vertical padding of 15 perfectly yields a 54px high
+      // visual box with standard Flutter fonts. The text stays centered, and the box
+      // doesn't squish when errors appear.
       contentPadding:
           widget.contentPadding ??
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+
       hintText: widget.hint,
       hintStyle: widget.hintStyle ?? TextStyle(color: theme.hintColor),
       errorStyle: widget.errorStyle,
-      prefixIcon: widget.prefixIcon,
-      suffixIcon: resolvedSuffix,
+      prefixIcon: widget.innerLeading,
+      suffixIcon: resolvedInnerTrailing,
       counterText: widget.counterText,
       isDense: widget.isDense,
       border: OutlineInputBorder(
@@ -189,7 +336,11 @@ class _RistoTextFieldState extends State<RistoTextField> {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(widget.borderRadius),
-        borderSide: BorderSide(color: theme.colorScheme.error),
+        borderSide: BorderSide(color: errorCol),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        borderSide: BorderSide(color: errorCol, width: 2),
       ),
     );
 
@@ -203,6 +354,7 @@ class _RistoTextFieldState extends State<RistoTextField> {
           (widget.isSecret
               ? TextInputType.visiblePassword
               : TextInputType.text),
+      inputFormatters: widget.inputFormatters,
       validator: widget.validator,
       onChanged: widget.onChanged,
       onFieldSubmitted: widget.onSubmitted,
@@ -216,32 +368,26 @@ class _RistoTextFieldState extends State<RistoTextField> {
 
     // Apply outer leading/trailing widgets
     if (widget.outerLeading != null || widget.outerTrailing != null) {
+      final double targetHeight = widget.fieldHeight ?? 54.0;
+
       textFieldWidget = Row(
-        crossAxisAlignment: widget.fieldHeight != null
-            ? CrossAxisAlignment.stretch
-            : CrossAxisAlignment.center,
+        // THE FIX 2: CrossAxisAlignment.start locks the outer buttons to the top
+        // of the TextField. When the error text appears below, it won't move the buttons!
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (widget.outerLeading != null) ...[
-            widget.outerLeading!,
+            SizedBox(height: targetHeight, child: widget.outerLeading!),
             SizedBox(width: widget.outerSpacing),
           ],
+
           Expanded(child: textFieldWidget),
+
+          // Allowed to grow downwards organically
           if (widget.outerTrailing != null) ...[
             SizedBox(width: widget.outerSpacing),
-            widget.outerTrailing!,
+            SizedBox(height: targetHeight, child: widget.outerTrailing!),
           ],
         ],
-      );
-
-      if (widget.fieldHeight == null) {
-        textFieldWidget = IntrinsicHeight(child: textFieldWidget);
-      }
-    }
-
-    if (widget.fieldHeight != null) {
-      textFieldWidget = SizedBox(
-        height: widget.fieldHeight,
-        child: textFieldWidget,
       );
     }
 
