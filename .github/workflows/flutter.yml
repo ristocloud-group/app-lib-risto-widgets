@@ -39,5 +39,8 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{env.FLUTTER_VERSION}}
-      - run: flutter pub get
-      - run: flutter analyze
+      - name: Install dependencies recursively
+        run: find . -name "pubspec.yaml" -execdir flutter pub get \;
+
+      - name: Analyze Dart Code
+        run: flutter analyze
