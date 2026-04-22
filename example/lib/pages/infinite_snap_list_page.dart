@@ -111,6 +111,7 @@ class _InfiniteSnapDemoPageState extends State<InfiniteSnapDemoPage> {
               ),
             ),
             child: InfiniteSnapList<DemoItem>(
+              onItemSelected: (item, index) => debugPrint("Selected item ${item.value} - idx: $index"),
               bloc: _timelineBloc,
               scrollDirection: Axis.horizontal,
               visibleItemCount: 7.0,
