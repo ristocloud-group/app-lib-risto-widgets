@@ -164,11 +164,7 @@ class ListTileButton extends StatelessWidget {
 
     final Widget row = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        ?leadingWidget,
-        textBlock,
-        ?trailingWidget,
-      ],
+      children: [?leadingWidget, textBlock, ?trailingWidget],
     );
 
     final Gradient? effectiveGradient = disabled
