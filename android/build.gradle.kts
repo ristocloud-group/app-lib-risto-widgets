@@ -5,6 +5,7 @@ group = "com.ristocloudgroup.lib.risto_widgets"
 version = "1.0-SNAPSHOT"
 
 apply(plugin = "com.android.library")
+apply(plugin = "org.jetbrains.kotlin.android")
 
 configure<LibraryExtension> {
     namespace = "com.ristocloudgroup.lib.risto_widgets"

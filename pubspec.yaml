@@ -37,12 +37,3 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-
-flutter:
-  plugin:
-    platforms:
-      android:
-        package: com.ristocloudgroup.lib.risto_widgets
-        pluginClass: RistoWidgetsPlugin
-      ios:
-        pluginClass: RistoWidgetsPlugin
