@@ -23,7 +23,6 @@ class CustomDialogPage extends StatelessWidget {
                 OpenCustomDialog.success(
                   context,
                   blurSigma: 6.0,
-                  // <-- ADDED: Beautiful glass blur!
                   title: 'Operation Successful!',
                   subtitle:
                       'This dialog has no footer and blurs the background. It will auto-dismiss or can be closed with the X.',
@@ -49,7 +48,6 @@ class CustomDialogPage extends StatelessWidget {
                 OpenCustomDialog.info(
                   context,
                   blurSigma: 10.0,
-                  // <-- ADDED: Heavy glass blur!
                   title: 'Information',
                   subtitle:
                       'This dialog has a heavy background blur and a custom confirmation button.',
@@ -70,10 +68,13 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.warning(
                   context,
-                  blurSigma: 3.0, // Light blur
+                  blurSigma: 3.0,
+                  // Light blur
                   title: 'Unsaved Changes',
                   subtitle:
                       'If you leave now, your changes will be lost. Are you sure?',
+                  confirmButtonText: 'Continue',
+                  cancelButtonText: 'Cancel',
                   onClose: (confirmed) {
                     if (confirmed == true) {
                       RistoToast.success(context, message: 'Action continued.');
@@ -86,35 +87,30 @@ class CustomDialogPage extends StatelessWidget {
               child: const Text('Open Warning Dialog'),
             ),
 
+            const SizedBox(height: 24),
+            const _SectionTitle('Layout & Personalization Examples'),
+
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
               minHeight: 0,
               onPressed: () {
-                OpenCustomDialog.confirm(
+                OpenCustomDialog.error(
                   context,
-                  // No blur here, just to show standard barrier
-                  title: 'Confirm Deletion',
+                  blurSigma: 8.0,
+                  title: 'Custom Themed Error',
                   subtitle:
-                      'Are you sure you want to permanently delete this item?',
-                  confirmButtonText: 'Delete',
-                  cancelButtonText: 'Keep',
-                  onClose: (confirmed) {
-                    if (confirmed == true) {
-                      RistoToast.error(
-                        context,
-                        message: 'Item has been deleted.',
-                      );
-                    } else if (confirmed == false) {
-                      RistoToast.info(context, message: 'Deletion cancelled.');
-                    }
-                  },
+                      'This error dialog uses a custom purple accent color instead of the default red, and aligns content to the bottom!',
+                  confirmButtonText: 'Understood',
+                  accentColor: Colors.deepPurple,
+                  // Overrides the default red!
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  minHeight: 300,
                 ).show(context);
               },
-              child: const Text('Open Confirm Dialog (No Blur)'),
+              child: const Text(
+                'Open Error Dialog (Custom Accent Color & Alignment)',
+              ),
             ),
-
-            const SizedBox(height: 24),
-            const _SectionTitle('Layout & Personalization Examples'),
 
             CustomActionButton.elevated(
               margin: const EdgeInsets.symmetric(vertical: 8),
@@ -198,7 +194,7 @@ class CustomDialogPage extends StatelessWidget {
               onPressed: () {
                 OpenCustomDialog.info(
                   context,
-                  blurSigma: 12.0, // Awesome heavy blur sliding up!
+                  blurSigma: 12.0,
                   title: 'Custom Animation Overlay',
                   subtitle:
                       'This dialog and its blur slide up from the bottom instead of using the default scale transition.',
@@ -217,8 +213,7 @@ class CustomDialogPage extends StatelessWidget {
                       end: Offset.zero,
                     ).chain(CurveTween(curve: Curves.easeOutCubic));
 
-                    // Notice how we just apply the SlideTransition to the child,
-                    // and OpenCustomDialog handles the blur layer below it!
+                    // OpenCustomDialog handles the blur layer below it!
                     return SlideTransition(
                       position: animation.drive(tween),
                       child: FadeTransition(opacity: animation, child: child),

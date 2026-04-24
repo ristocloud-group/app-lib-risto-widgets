@@ -79,6 +79,31 @@ class RistoNoticeCardPage extends StatelessWidget {
             ),
             const SizedBox(height: 48),
 
+            const _SectionTitle('Custom Accent Color & Main Alignment'),
+
+            RistoNoticeCard.error(
+              title: 'Custom Purple Error',
+              subtitle:
+                  'Notice how the icon and button dynamically inherit the deep purple accent color instead of the standard error red! Also, it is aligned to the bottom.',
+              accentColor: Colors.deepPurple,
+              minHeight: 250,
+              mainAxisAlignment: MainAxisAlignment.end,
+              footerBuilder: (context, accentColor) {
+                return CustomActionButton.rounded(
+                  minHeight: 0,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 24,
+                  ),
+                  backgroundColor: accentColor,
+                  onPressed:
+                      () => RistoToast.error(context, message: 'Retrying...'),
+                  child: const Text('Retry'),
+                );
+              },
+            ),
+            const SizedBox(height: 48),
+
             const _SectionTitle('Custom Text & Border Styles'),
 
             RistoNoticeCard.info(
@@ -117,7 +142,7 @@ class RistoNoticeCardPage extends StatelessWidget {
             ),
             const SizedBox(height: 48),
 
-            const _SectionTitle('Alignment & Padding'),
+            const _SectionTitle('Cross Alignment & Padding'),
 
             RistoNoticeCard.info(
               title: 'Left-Aligned Content',
@@ -288,6 +313,7 @@ class RistoNoticeCardPage extends StatelessWidget {
                   (context, accentColor) =>
                       const Text('Notice the huge padding and gaps!'),
             ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
