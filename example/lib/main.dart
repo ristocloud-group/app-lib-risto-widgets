@@ -9,7 +9,6 @@ import 'pages/custom_sheet_page.dart';
 import 'pages/increment_decrement_page.dart';
 import 'pages/infinite_snap_list_page.dart';
 import 'pages/inputs_page.dart';
-import 'pages/interactive_map_page.dart'; // <--- Nuovo Import
 import 'pages/list_tile_button_page.dart';
 import 'pages/loading_overlay_page.dart';
 import 'pages/navigation_widget_page.dart';
@@ -60,12 +59,6 @@ class HomePage extends StatelessWidget {
 
   // Centralized list of all demo routes. Infinitely scalable!
   static const List<_DemoRoute> _routes = [
-    _DemoRoute(
-      title: 'Interactive Map',
-      subtitle: 'Navigable map with clustering & tracking',
-      icon: Icons.map_outlined,
-      page: InteractiveMapPage(),
-    ),
     _DemoRoute(
       title: 'Navigation bars',
       subtitle: 'Navigable pages throw element bar',
