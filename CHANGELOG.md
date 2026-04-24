@@ -1,3 +1,11 @@
+## 0.3.1
+
+**Fixes & Enhancements**
+- **RistoNoticeCard:** Added `accentColor` override support to all semantic factories (`.info`, `.success`, `.warning`, `.error`, `.neutral`, `.empty`), allowing for advanced custom theming while maintaining semantic layouts.
+- **RistoTextField:** Fixed layout constraints so validation error text renders organically below the input box without stretching, clipping, or misaligning outer action buttons.
+- **SnapList & InfiniteSnapList:** Fixed `onItemSelected` callbacks to ensure they fire eagerly during programmatic navigation (`animateTo`/`jumpTo`), vastly improving UI responsiveness.
+- **ExpandableAnimatedCard:** Improved overlay bounds and padding calculations to prevent clipping on heavily styled menus.
+- 
 ## 0.3.0
 
 **New Widgets & Features**
