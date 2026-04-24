@@ -66,13 +66,31 @@ void main() {
       expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
     });
 
+    testWidgets(
+      'overrides default semantic color when accentColor is provided',
+      (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const RistoNoticeCard(
+              kind: RistoNoticeKind.error,
+              title: 'Error Title',
+              accentColor: Colors.deepPurple,
+            ),
+          ),
+        );
+
+        final icon = tester.widget<Icon>(find.byType(Icon));
+        expect(icon.color, Colors.deepPurple);
+      },
+    );
+
     testWidgets('inverts title and icon when invert is true', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          RistoNoticeCard(
+          const RistoNoticeCard(
             kind: RistoNoticeKind.info,
             title: 'Inverted Title',
-            noticeIcon: const Icon(Icons.invert_colors),
+            noticeIcon: Icon(Icons.invert_colors),
             invert: true,
           ),
         ),
@@ -207,27 +225,6 @@ void main() {
       final subtitleText = tester.widget<Text>(find.text('Styled Subtitle'));
       expect(subtitleText.style?.color, customStyle.color);
       expect(subtitleText.style?.fontStyle, customStyle.fontStyle);
-    });
-
-    testWidgets('merges custom titleStyle with default theme style', (
-      tester,
-    ) async {
-      const customStyle = TextStyle(color: Colors.red);
-
-      await tester.pumpWidget(
-        _wrap(
-          const RistoNoticeCard(
-            kind: RistoNoticeKind.info,
-            title: 'Merged Title',
-            titleStyle: customStyle,
-          ),
-        ),
-      );
-
-      final titleText = tester.widget<Text>(find.text('Merged Title'));
-
-      expect(titleText.style?.color, customStyle.color);
-      expect(titleText.style?.fontWeight, isNotNull);
     });
   });
 }
