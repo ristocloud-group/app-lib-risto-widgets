@@ -293,20 +293,9 @@ class OpenCustomSheet {
                           if (showDragHandle &&
                               handleColor != Colors.transparent)
                             _buildHandle(handleColor),
-                          if (expand)
-                            Expanded(
-                              child: Padding(
-                                padding:
-                                    sheetPadding ??
-                                    const EdgeInsets.symmetric(
-                                      horizontal: 30,
-                                      vertical: 20,
-                                    ),
-                                child: _standardBody!(scrollController: null),
-                              ),
-                            )
-                          else
-                            Padding(
+                          Flexible(
+                            fit: expand ? FlexFit.tight : FlexFit.loose,
+                            child: SingleChildScrollView(
                               padding:
                                   sheetPadding ??
                                   const EdgeInsets.symmetric(
@@ -315,6 +304,7 @@ class OpenCustomSheet {
                                   ),
                               child: _standardBody!(scrollController: null),
                             ),
+                          ),
                           if (showDefaultButtons)
                             _buildButtons(
                               context,
@@ -357,23 +347,10 @@ class OpenCustomSheet {
                           if (showDragHandle &&
                               handleColor != Colors.transparent)
                             _buildHandle(handleColor),
-                          if (expand)
-                            Expanded(
-                              child: SingleChildScrollView(
-                                controller: scrollController,
-                                padding:
-                                    sheetPadding ??
-                                    const EdgeInsets.symmetric(
-                                      horizontal: 30,
-                                      vertical: 20,
-                                    ),
-                                child: _standardBody!(
-                                  scrollController: scrollController,
-                                ),
-                              ),
-                            )
-                          else
-                            Padding(
+                          Flexible(
+                            fit: expand ? FlexFit.tight : FlexFit.loose,
+                            child: SingleChildScrollView(
+                              controller: scrollController,
                               padding:
                                   sheetPadding ??
                                   const EdgeInsets.symmetric(
@@ -384,6 +361,7 @@ class OpenCustomSheet {
                                 scrollController: scrollController,
                               ),
                             ),
+                          ),
                         ],
                       ),
                     ),
@@ -460,22 +438,15 @@ class OpenCustomSheet {
                       children: [
                         if (handleColor != Colors.transparent)
                           _buildHandle(handleColor),
-                        if (expand)
-                          Expanded(
-                            child: Padding(
-                              padding: sheetPadding ?? EdgeInsets.zero,
-                              child: _standardBody!(
-                                scrollController: scrollController,
-                              ),
-                            ),
-                          )
-                        else
-                          Padding(
+                        Flexible(
+                          fit: expand ? FlexFit.tight : FlexFit.loose,
+                          child: Padding(
                             padding: sheetPadding ?? EdgeInsets.zero,
                             child: _standardBody!(
                               scrollController: scrollController,
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ),

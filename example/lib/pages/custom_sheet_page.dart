@@ -105,20 +105,21 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                 child: const Text('Open Custom Form Sheet'),
               ),
 
-              // 4. Draggable Planner Sheet
+              // 4. Draggable Planner Sheet with Footer Pinned
               CustomActionButton(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 onPressed: () {
-                  OpenCustomSheet(
+                  OpenCustomSheet.scrollableSheet(
+                    context,
                     enableDrag: true,
-                    expand: false,
+                    expand: true,
                     initialChildSize: 0.85,
                     minChildSize: 0.8,
                     maxChildSize: 0.95,
                     sheetPadding: EdgeInsets.zero,
                     body: ({scrollController}) {
                       return Column(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisSize: MainAxisSize.max,
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -139,27 +140,37 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                           ),
                           const Divider(height: 1),
 
-                          // Simulated mock content replacing the calendar
-                          ...List.generate(7, (index) {
-                            final date = DateTime.now().add(
-                              Duration(days: index),
-                            );
-                            return CheckboxListTile(
-                              value: index == 3,
-                              onChanged: (val) {},
-                              title: Text('Giorno ${date.day}/${date.month}'),
-                              subtitle: const Text('Disponibile per assenza'),
-                              secondary: const Icon(
-                                Icons.calendar_month,
-                                color: Colors.blueGrey,
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                              ),
-                            );
-                          }),
+                          Expanded(
+                            child: ListView(
+                              controller: scrollController,
+                              padding: EdgeInsets.zero,
+                              children: [
+                                ...List.generate(7, (index) {
+                                  final date = DateTime.now().add(
+                                    Duration(days: index),
+                                  );
+                                  return CheckboxListTile(
+                                    value: index == 3,
+                                    onChanged: (val) {},
+                                    title: Text(
+                                      'Giorno ${date.day}/${date.month}',
+                                    ),
+                                    subtitle: const Text(
+                                      'Disponibile per assenza',
+                                    ),
+                                    secondary: const Icon(
+                                      Icons.calendar_month,
+                                      color: Colors.blueGrey,
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
 
-                          // Footer Message
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 12.0),
                             child: Text(
@@ -169,7 +180,6 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                             ),
                           ),
 
-                          // Action Buttons
                           Padding(
                             padding: const EdgeInsets.only(
                               left: 24.0,
@@ -214,7 +224,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                     },
                   ).show(context);
                 },
-                child: const Text('Open Absence Planner (Fixed Shrink-Wrap)'),
+                child: const Text('Open Absence Planner (Pinned Footer)'),
               ),
 
               // 5. Expandable overlay trigger
@@ -254,7 +264,6 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
             ],
           ),
 
-          // Expandable overlay rendered in the same route using the new factory
           if (_isOverlayVisible)
             Align(
               alignment: Alignment.bottomCenter,
