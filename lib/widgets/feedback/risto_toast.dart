@@ -113,18 +113,19 @@ class RistoToast {
     Color? textColor,
     Color? shadowColor,
   }) {
+    final defaults = _defaultsForKind(context, ToastKind.info);
     show(
       context,
       message: message,
       icon: Icons.info_outline,
-      backgroundColor: backgroundColor ?? Colors.blue.shade800,
-      textColor: textColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? defaults.backgroundColor,
+      textColor: textColor ?? defaults.textColor,
       duration: duration,
       top: top,
       maxLines: maxLines,
       iconSize: iconSize,
       textStyle: textStyle,
-      shadowColor: shadowColor ?? Colors.blue.shade900,
+      shadowColor: shadowColor ?? defaults.shadowColor,
       elevation: 6.0,
     );
   }
@@ -142,18 +143,19 @@ class RistoToast {
     Color? textColor,
     Color? shadowColor,
   }) {
+    final defaults = _defaultsForKind(context, ToastKind.success);
     show(
       context,
       message: message,
       icon: Icons.check_circle_outline,
-      backgroundColor: backgroundColor ?? Colors.green.shade700,
-      textColor: textColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? defaults.backgroundColor,
+      textColor: textColor ?? defaults.textColor,
       duration: duration,
       top: top,
       maxLines: maxLines,
       iconSize: iconSize,
       textStyle: textStyle,
-      shadowColor: shadowColor ?? Colors.green.shade900,
+      shadowColor: shadowColor ?? defaults.shadowColor,
       elevation: 6.0,
     );
   }
@@ -171,18 +173,19 @@ class RistoToast {
     Color? textColor,
     Color? shadowColor,
   }) {
+    final defaults = _defaultsForKind(context, ToastKind.warning);
     show(
       context,
       message: message,
       icon: Icons.warning_amber_rounded,
-      backgroundColor: backgroundColor ?? Colors.orange.shade800,
-      textColor: textColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? defaults.backgroundColor,
+      textColor: textColor ?? defaults.textColor,
       duration: duration,
       top: top,
       maxLines: maxLines,
       iconSize: iconSize,
       textStyle: textStyle,
-      shadowColor: shadowColor ?? Colors.orange.shade900,
+      shadowColor: shadowColor ?? defaults.shadowColor,
       elevation: 6.0,
     );
   }
@@ -200,21 +203,66 @@ class RistoToast {
     Color? textColor,
     Color? shadowColor,
   }) {
+    final defaults = _defaultsForKind(context, ToastKind.error);
     show(
       context,
       message: message,
       icon: Icons.error_outline,
-      backgroundColor: backgroundColor ?? Colors.red.shade700,
-      textColor: textColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? defaults.backgroundColor,
+      textColor: textColor ?? defaults.textColor,
       duration: duration,
       top: top,
       maxLines: maxLines,
       iconSize: iconSize,
       textStyle: textStyle,
-      shadowColor: shadowColor ?? Colors.red.shade900,
+      shadowColor: shadowColor ?? defaults.shadowColor,
       elevation: 6.0,
     );
   }
+
+  static _ToastDefaults _defaultsForKind(BuildContext context, ToastKind kind) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    switch (kind) {
+      case ToastKind.info:
+        return _ToastDefaults(
+          backgroundColor: cs.primaryContainer,
+          textColor: cs.onPrimaryContainer,
+          shadowColor: cs.shadow.withCustomOpacity(0.2),
+        );
+      case ToastKind.success:
+        return _ToastDefaults(
+          backgroundColor: Colors.green.shade600,
+          textColor: Colors.white,
+          shadowColor: Colors.green.shade900.withCustomOpacity(0.3),
+        );
+      case ToastKind.warning:
+        return _ToastDefaults(
+          backgroundColor: Colors.orange.shade700,
+          textColor: Colors.white,
+          shadowColor: Colors.orange.shade900.withCustomOpacity(0.3),
+        );
+      case ToastKind.error:
+        return _ToastDefaults(
+          backgroundColor: cs.error,
+          textColor: cs.onError,
+          shadowColor: cs.shadow.withCustomOpacity(0.2),
+        );
+    }
+  }
+}
+
+class _ToastDefaults {
+  final Color backgroundColor;
+  final Color textColor;
+  final Color shadowColor;
+
+  _ToastDefaults({
+    required this.backgroundColor,
+    required this.textColor,
+    required this.shadowColor,
+  });
 }
 
 class _ToastBubble extends StatefulWidget {

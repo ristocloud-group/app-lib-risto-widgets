@@ -613,25 +613,42 @@ class _CustomActionButtonState extends State<CustomActionButton> {
     BuildContext context, {
     required bool disabled,
   }) {
+    final theme = Theme.of(context);
     if (disabled) {
       return TextStyle(
         color: _disabledColor(
           widget.disabledForegroundColor,
           widget.foregroundColor,
-          Theme.of(context).disabledColor,
+          theme.disabledColor,
         ),
       );
     } else {
+      Color? fallback;
+      switch (widget.buttonType) {
+        case ButtonType.elevated:
+        case ButtonType.rounded:
+        case ButtonType.longPress:
+          fallback = theme.colorScheme.onPrimary;
+          break;
+        case ButtonType.flat:
+        case ButtonType.minimal:
+          fallback = theme.colorScheme.primary;
+          break;
+        default:
+          fallback = theme.colorScheme.onPrimary;
+      }
+
       return TextStyle(
         color:
             widget.foregroundColor ??
-            Theme.of(context).textTheme.labelLarge?.color ??
-            Colors.white,
+            theme.textTheme.labelLarge?.color ??
+            fallback,
       );
     }
   }
 
   Widget _wrapChild(BuildContext context, {required bool disabled}) {
+    final theme = Theme.of(context);
     final textStyle = _effectiveTextStyle(context, disabled: disabled);
 
     Widget content = widget.child;
@@ -663,7 +680,7 @@ class _CustomActionButtonState extends State<CustomActionButton> {
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      textStyle.color ?? Colors.white,
+                      textStyle.color ?? theme.colorScheme.onPrimary,
                     ),
                   ),
                 ))
