@@ -252,27 +252,14 @@ class ClassicNavBarDemo extends StatelessWidget {
           label: 'Post',
           icon: const Icon(Icons.add_box),
           onPress: () async {
-            bool? proceed = await showDialog<bool>(
-              context: context,
-              builder:
-                  (ctx) => AlertDialog(
-                    title: const Text('Create Post?'),
-                    content: const Text(
-                      'Do you want to proceed to the creation screen?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Proceed'),
-                      ),
-                    ],
-                  ),
-            );
-            return proceed;
+            OpenCustomDialog.confirm(
+              context,
+              title: 'Create Post?',
+              subtitle: 'Do you want to proceed to the creation screen?',
+              confirmButtonText: 'Proceed',
+              cancelButtonText: 'Cancel',
+            ).show(context);
+            return true;
           },
           page: _buildMockPage(context, Colors.purple.shade100, 'Create Post'),
         ),

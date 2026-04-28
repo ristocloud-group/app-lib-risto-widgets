@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:risto_widgets/extensions.dart';
 
 // ===========================================================================
 // SHARED TYPES
@@ -239,10 +240,10 @@ class BubbleBottomNavBar extends StatefulWidget {
   const BubbleBottomNavBar({
     super.key,
     required this.groups,
-    this.activeIconColor = Colors.white,
-    this.inactiveIconColor = Colors.grey,
-    this.activeBackgroundColor = const Color(0xFF155FA0), // Standard deep blue
-    this.defaultGroupBackgroundColor = Colors.white,
+    this.activeIconColor,
+    this.inactiveIconColor,
+    this.activeBackgroundColor,
+    this.defaultGroupBackgroundColor,
     this.initialIndex = 0,
     this.extendBody = true,
   });
@@ -334,19 +335,22 @@ class _BubbleBottomNavBarState extends State<BubbleBottomNavBar> {
   }
 
   Widget _buildGroup(BubbleGroup group, int startIndex) {
+    final theme = Theme.of(context);
     return Container(
       margin: group.margin,
       padding: group.padding,
       decoration: BoxDecoration(
-        color: group.backgroundColor ?? widget.defaultGroupBackgroundColor,
+        color: group.backgroundColor ??
+            widget.defaultGroupBackgroundColor ??
+            theme.colorScheme.surface,
         borderRadius: group.borderRadius ?? BorderRadius.circular(40),
         boxShadow:
             group.shadows ??
             [
-              const BoxShadow(
-                color: Colors.black12,
+              BoxShadow(
+                color: theme.colorScheme.shadow.withCustomOpacity(0.12),
                 blurRadius: 12,
-                offset: Offset(0, 6),
+                offset: const Offset(0, 6),
               ),
             ],
       ),
@@ -361,6 +365,7 @@ class _BubbleBottomNavBarState extends State<BubbleBottomNavBar> {
   }
 
   Widget _buildItem(BubbleNavItem item, int globalIndex) {
+    final theme = Theme.of(context);
     if (item.customWidget != null) {
       return GestureDetector(
         onTap: () => _onItemTapped(globalIndex),
@@ -374,12 +379,16 @@ class _BubbleBottomNavBarState extends State<BubbleBottomNavBar> {
       duration: const Duration(milliseconds: 200),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: isSelected ? widget.activeBackgroundColor : Colors.transparent,
+        color: isSelected
+            ? (widget.activeBackgroundColor ?? theme.colorScheme.primary)
+            : Colors.transparent,
         shape: BoxShape.circle,
       ),
       child: IconTheme(
         data: IconThemeData(
-          color: isSelected ? widget.activeIconColor : widget.inactiveIconColor,
+          color: isSelected
+              ? (widget.activeIconColor ?? theme.colorScheme.onPrimary)
+              : (widget.inactiveIconColor ?? theme.colorScheme.onSurfaceVariant),
           size: 28,
         ),
         child: isSelected ? (item.activeIcon ?? item.icon!) : item.icon!,

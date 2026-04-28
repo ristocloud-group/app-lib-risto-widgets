@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 
 import '../buttons/custom_action_button.dart';
 import '../buttons/list_tile_button.dart';
-
 /// Enum to internally identify the type of sheet to be built.
 enum _SheetType { standard, confirm, scrollable, expandable }
 
