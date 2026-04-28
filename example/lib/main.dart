@@ -16,6 +16,7 @@ import 'pages/percent_indicators_page.dart';
 import 'pages/risto_notice_card_page.dart';
 import 'pages/risto_toast_page.dart';
 import 'pages/shimmer_page.dart';
+import 'pages/size_reporting_widget_page.dart';
 import 'pages/status_switcher_page.dart';
 
 void main() {
@@ -154,6 +155,12 @@ class HomePage extends StatelessWidget {
       subtitle: 'Segmented controls and tabs',
       icon: Icons.swap_horiz,
       page: NavigationWidgetPage(),
+    ),
+    _DemoRoute(
+      title: 'Size Reporting',
+      subtitle: 'Utility to detect child widget size',
+      icon: Icons.straighten,
+      page: SizeReportingWidgetPage(),
     ),
   ];
 

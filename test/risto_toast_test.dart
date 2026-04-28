@@ -92,8 +92,9 @@ void main() {
     // Pick the first ancestor RistoDecorator and verify its color
     final decorator = tester.firstWidget<RistoDecorator>(decoratorFinder);
 
-    // RistoToast.error is explicitly implemented to use Colors.red.shade700
-    expect(decorator.backgroundColor, Colors.red.shade700);
+    // RistoToast.error uses theme.colorScheme.error
+    final theme = Theme.of(_ctx(tester));
+    expect(decorator.backgroundColor, theme.colorScheme.error);
 
     // Cleanup to prevent pending timers from failing the test suite
     RistoToast.hide();

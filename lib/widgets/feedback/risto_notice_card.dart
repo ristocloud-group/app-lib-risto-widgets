@@ -742,12 +742,12 @@ class RistoNoticeCard extends StatelessWidget {
     switch (kind) {
       case RistoNoticeKind.success:
         return _KindDefaults(
-          accent: Colors.green.shade600,
+          accent: Colors.green.shade600, // Still fallback, but we should ideally use a theme extension
           iconData: Icons.check_circle_outline,
         );
       case RistoNoticeKind.warning:
         return _KindDefaults(
-          accent: Colors.orange.shade700,
+          accent: cs.tertiary,
           iconData: Icons.warning_amber_rounded,
         );
       case RistoNoticeKind.error:

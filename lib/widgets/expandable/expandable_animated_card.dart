@@ -109,7 +109,7 @@ class ExpandableAnimatedCard extends StatefulWidget {
     this.expandedPadding = const EdgeInsets.all(0),
     this.maxWidth,
     this.useSafeArea = true,
-    this.backgroundColor = const Color(0xFF5D5D5D),
+    this.backgroundColor,
     this.backgroundGradient,
     this.borderColor,
     this.borderWidth = 1.0,
@@ -205,7 +205,7 @@ class ExpandableAnimatedCard extends StatefulWidget {
       16,
       16,
     ), // Retro-compatibility
-    this.backgroundColor = const Color(0xFF5D5D5D),
+    this.backgroundColor,
     this.elevation = 8.0,
     this.shadowColor,
     double? maxHeight,

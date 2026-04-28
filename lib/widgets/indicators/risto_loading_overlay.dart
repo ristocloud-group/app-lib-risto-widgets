@@ -198,7 +198,7 @@ class LoadingPanel extends StatelessWidget {
       message: message,
       progress: progress,
       loaderStyle: loaderStyle,
-      barrierColor: Colors.black.withCustomOpacity(0.6),
+      barrierColor: null, // Build method will handle "dark" fallback if we add a flag, or we just use themed surface
       loaderColor: loaderColor,
       blurSigma: 2.0,
       padding: padding,
@@ -225,7 +225,7 @@ class LoadingPanel extends StatelessWidget {
       message: message,
       progress: progress,
       loaderStyle: loaderStyle,
-      barrierColor: Colors.white.withCustomOpacity(0.1),
+      barrierColor: null,
       loaderColor: loaderColor,
       blurSigma: 10.0,
       padding: padding,
@@ -278,7 +278,7 @@ class LoadingPanel extends StatelessWidget {
       message: message,
       progress: progress,
       loaderStyle: loaderStyle,
-      barrierColor: Colors.black.withCustomOpacity(0.08),
+      barrierColor: null,
       blurSigma: 4.0,
       barrierBorderRadius: borderRadius,
     );
@@ -329,7 +329,8 @@ class LoadingPanel extends StatelessWidget {
           progress: progress,
           loaderStyle: loaderStyle,
           blurSigma: blurSigma,
-          barrierColor: barrierColor ?? Colors.black.withCustomOpacity(0.25),
+          barrierColor: barrierColor ??
+              Theme.of(context).colorScheme.scrim.withCustomOpacity(0.25),
           loaderColor: loaderColor,
           padding: padding,
           margin: margin,

@@ -21,6 +21,7 @@ export 'widgets/input/risto_text_field.dart';
 export 'widgets/layouts/padded_widgets.dart';
 export 'widgets/layouts/risto_decorator.dart';
 export 'widgets/layouts/risto_status_switcher.dart';
+export 'widgets/layouts/size_reporting_widget.dart';
 export 'widgets/navigation/custom_nav_bars.dart';
 export 'widgets/navigation/section_switcher.dart';
 export 'widgets/popup/open_custom_dialog.dart';

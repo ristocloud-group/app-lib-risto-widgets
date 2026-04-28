@@ -82,17 +82,13 @@ class RistoShimmer extends StatefulWidget {
     EdgeInsetsGeometry? margin,
     Color? color,
   }) {
-    return Container(
+    return _RistoShimmerShape(
       width: width,
       height: height,
+      borderRadius: borderRadius,
+      shape: shape,
       margin: margin,
-      decoration: BoxDecoration(
-        color: color ?? Colors.white,
-        shape: shape,
-        borderRadius: shape == BoxShape.circle
-            ? null
-            : BorderRadius.circular(borderRadius),
-      ),
+      color: color,
     );
   }
 
@@ -371,5 +367,39 @@ class _SlidingGradientTransform extends GradientTransform {
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
     return Matrix4.translationValues(bounds.width * slidePercent, 0.0, 0.0);
+  }
+}
+
+class _RistoShimmerShape extends StatelessWidget {
+  final double? width;
+  final double? height;
+  final double borderRadius;
+  final BoxShape shape;
+  final EdgeInsetsGeometry? margin;
+  final Color? color;
+
+  const _RistoShimmerShape({
+    this.width,
+    this.height,
+    this.borderRadius = 8.0,
+    this.shape = BoxShape.rectangle,
+    this.margin,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      margin: margin,
+      decoration: BoxDecoration(
+        color: color ?? Theme.of(context).colorScheme.surfaceContainerHighest,
+        shape: shape,
+        borderRadius: shape == BoxShape.circle
+            ? null
+            : BorderRadius.circular(borderRadius),
+      ),
+    );
   }
 }
