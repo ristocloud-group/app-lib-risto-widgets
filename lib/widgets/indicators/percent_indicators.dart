@@ -44,16 +44,23 @@ class LinearPercentIndicator extends StatelessWidget {
               height: lineHeight,
               child: Stack(
                 children: [
-                  Container(color: (backgroundColor ?? Colors.white)),
+                  RistoDecorator(
+                    backgroundColor: backgroundColor ??
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.all(radius),
+                    child: const SizedBox.shrink(),
+                  ),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
                       key: const ValueKey('linear_percent_filled'),
                       width: filled,
-                      child: Container(
-                        color:
+                      child: RistoDecorator(
+                        backgroundColor:
                             progressColor ??
                             Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.all(radius),
+                        child: SizedBox.shrink(),
                       ),
                     ),
                   ),

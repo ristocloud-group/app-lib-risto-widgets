@@ -5,16 +5,11 @@ import 'package:flutter/rendering.dart';
 
 import '../buttons/custom_action_button.dart';
 import '../buttons/list_tile_button.dart';
-
 /// Enum to internally identify the type of sheet to be built.
 enum _SheetType { standard, confirm, scrollable, expandable }
 
 /// A class responsible for displaying customized modal bottom popup.
-///
-/// This refactored class uses specific factory constructors for each sheet type,
-/// ensuring that the build logic is clean, separated, and robust.
 class OpenCustomSheet {
-  // --- COMMON PROPERTIES FOR ALL SHEETS ---
   final bool barrierDismissible;
   final Color? barrierColor;
   final Function(dynamic)? onClose;
@@ -25,14 +20,15 @@ class OpenCustomSheet {
   final bool enableDrag;
   final bool showDragHandle;
 
-  // --- PROPERTIES FOR SCROLLABLE/EXPANDABLE SHEETS ---
   final bool scrollable;
+
+  /// If true, the sheet forces its layout to fill the screen up to [initialChildSize].
+  /// If false, the sheet shrink-wraps to the intrinsic height of its content.
   final bool expand;
   final double initialChildSize;
   final double minChildSize;
   final double maxChildSize;
 
-  // --- PROPERTIES FOR CONFIRMATION BUTTONS (used only by openConfirmSheet) ---
   final bool showDefaultButtons;
   final Color? firstButtonColor;
   final Color? secondButtonColor;
@@ -40,23 +36,19 @@ class OpenCustomSheet {
   final Color? secondButtonTextColor;
   final String? confirmButtonText;
   final String? cancelButtonText;
-  final EdgeInsetsGeometry? padding; // container padding for confirm layout
+  final EdgeInsetsGeometry? padding;
   final double? buttonSpacing;
 
-  // --- INTERNAL MANAGEMENT OF TYPE AND BODY ---
   final _SheetType _type;
   final Widget Function({ScrollController? scrollController})? _standardBody;
   final Widget? _confirmBody;
 
-  // --- PROPERTIES FOR EXPANDABLE SHEET ---
   final Widget? _expandableHeader;
   final Widget? _expandableFooter;
   final Widget Function({ScrollController? scrollController})? _expandableBody;
   final ExpandableController? _expandableController;
   final bool _presentAsRoute;
 
-  /// PUBLIC: Standard (non-scrollable) sheet constructor.
-  /// For confirm/scrollable/expandable use the dedicated factories.
   const OpenCustomSheet({
     required Widget Function({ScrollController? scrollController}) body,
     this.onClose,
@@ -68,11 +60,10 @@ class OpenCustomSheet {
     this.sheetPadding,
     this.enableDrag = true,
     this.showDragHandle = true,
-
-    // NEW: exposed for default sheet (used only when enableDrag == true)
     this.initialChildSize = 0.5,
     this.minChildSize = 0.25,
     this.maxChildSize = 1.0,
+    this.expand = false,
   }) : _type = _SheetType.standard,
        _standardBody = body,
        _confirmBody = null,
@@ -81,11 +72,7 @@ class OpenCustomSheet {
        _expandableBody = null,
        _expandableController = null,
        _presentAsRoute = true,
-       // flags for default sheet
        scrollable = false,
-       // let DS occupy available height
-       expand = true,
-       // force confirm-only options off in the public ctor
        showDefaultButtons = false,
        firstButtonColor = null,
        secondButtonColor = null,
@@ -96,12 +83,8 @@ class OpenCustomSheet {
        padding = null,
        buttonSpacing = null;
 
-  /// PRIVATE: universal constructor used by factories.
   const OpenCustomSheet._internal({
-    // Type
     required _SheetType type,
-
-    // Common
     required this.barrierDismissible,
     this.barrierColor,
     required this.enableDrag,
@@ -111,15 +94,11 @@ class OpenCustomSheet {
     this.sheetShape,
     this.sheetPadding,
     this.showDragHandle = true,
-
-    // Scrollable/expandable sizes
     this.scrollable = false,
-    this.expand = true,
+    this.expand = false,
     this.initialChildSize = 0.5,
     this.minChildSize = 0.25,
     this.maxChildSize = 1.0,
-
-    // Confirm buttons
     this.showDefaultButtons = false,
     this.firstButtonColor,
     this.secondButtonColor,
@@ -129,12 +108,8 @@ class OpenCustomSheet {
     this.cancelButtonText,
     this.padding,
     this.buttonSpacing,
-
-    // Bodies
     Widget Function({ScrollController? scrollController})? standardBody,
     Widget? confirmBody,
-
-    // Expandable bits
     Widget? expandableHeader,
     Widget? expandableFooter,
     Widget Function({ScrollController? scrollController})? expandableBody,
@@ -149,7 +124,6 @@ class OpenCustomSheet {
        _expandableController = expandableController,
        _presentAsRoute = presentAsRoute;
 
-  /// Factory for a simple, non-scrollable confirmation sheet with default buttons.
   factory OpenCustomSheet.openConfirmSheet(
     BuildContext context, {
     required Widget body,
@@ -171,7 +145,6 @@ class OpenCustomSheet {
   }) {
     return OpenCustomSheet._internal(
       type: _SheetType.confirm,
-      // common
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
       enableDrag: enableDrag,
@@ -179,7 +152,6 @@ class OpenCustomSheet {
       backgroundColor: backgroundColor,
       handleColor: handleColor,
       showDragHandle: showDragHandle,
-      // confirm props
       showDefaultButtons: true,
       firstButtonColor: firstButtonColor,
       secondButtonColor: secondButtonColor,
@@ -189,12 +161,10 @@ class OpenCustomSheet {
       cancelButtonText: cancelButtonText,
       padding: padding,
       buttonSpacing: buttonSpacing,
-      // body
       confirmBody: body,
     );
   }
 
-  /// Factory for a standard scrollable sheet.
   factory OpenCustomSheet.scrollableSheet(
     BuildContext context, {
     required Widget Function({ScrollController? scrollController}) body,
@@ -214,7 +184,6 @@ class OpenCustomSheet {
   }) {
     return OpenCustomSheet._internal(
       type: _SheetType.scrollable,
-      // common
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
       enableDrag: enableDrag,
@@ -224,18 +193,15 @@ class OpenCustomSheet {
       sheetShape: sheetShape,
       sheetPadding: sheetPadding,
       showDragHandle: showDragHandle,
-      // sizes
       scrollable: true,
       expand: expand,
       initialChildSize: initialChildSize,
       minChildSize: minChildSize,
       maxChildSize: maxChildSize,
-      // body
       standardBody: body,
     );
   }
 
-  /// Factory for an expandable sheet that can behave as a modal route or as an in-route overlay widget.
   factory OpenCustomSheet.expandable(
     BuildContext context, {
     required Widget header,
@@ -275,13 +241,35 @@ class OpenCustomSheet {
     );
   }
 
-  /// Displays the configured sheet.
   void show(BuildContext context) {
-    // Throw only if this is an expandable created for in-route embedding
     if (_type == _SheetType.expandable && !_presentAsRoute) {
       throw Exception(
         'Use buildExpandable(context) when presentAsRoute is false.',
       );
+    }
+
+    final safeMin = minChildSize.clamp(0.0, 1.0);
+    final safeMax = maxChildSize.clamp(safeMin, 1.0);
+    final init = initialChildSize.clamp(safeMin, safeMax);
+
+    // Helper to safely render standard body with or without ScrollView
+    Widget buildStandardContent(ScrollController? scrollController) {
+      final content = _standardBody!(scrollController: scrollController);
+      final resolvedPadding =
+          sheetPadding ??
+          const EdgeInsets.symmetric(horizontal: 30, vertical: 20);
+
+      // CRITICAL FIX: If expand is true, do NOT use SingleChildScrollView!
+      // This allows the user to safely use Expanded() inside their body.
+      if (expand) {
+        return Padding(padding: resolvedPadding, child: content);
+      } else {
+        return SingleChildScrollView(
+          controller: scrollController,
+          padding: resolvedPadding,
+          child: content,
+        );
+      }
     }
 
     showModalBottomSheet(
@@ -291,14 +279,11 @@ class OpenCustomSheet {
       isScrollControlled: true,
       useSafeArea: false,
       enableDrag: enableDrag,
-      // modal-level drag (close by swipe from top edge)
       context: context,
       builder: (context) {
         switch (_type) {
           case _SheetType.standard:
             if (!enableDrag) {
-              // ---- STATIC default sheet (sizes ignored; intrinsic up to a cap) ----
-              final init = initialChildSize.clamp(minChildSize, maxChildSize);
               return SafeArea(
                 top: false,
                 child: LayoutBuilder(
@@ -307,87 +292,72 @@ class OpenCustomSheet {
 
                     return Container(
                       width: double.infinity,
+                      constraints: BoxConstraints(
+                        maxHeight: expand ? double.infinity : cap,
+                      ),
+                      height: expand ? cap : null,
                       decoration: BoxDecoration(
                         borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(10),
+                          top: Radius.circular(12),
                         ),
                         color: backgroundColor ?? Theme.of(context).cardColor,
                       ),
-                      child: SizedBox(
-                        height: cap, // <- give a tight, finite height
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            if (showDragHandle &&
-                                handleColor != Colors.transparent)
-                              _buildHandle(handleColor),
-                            // Body gets the remaining space; it may contain its own Expanded safely.
-                            Expanded(
-                              child: Padding(
-                                padding:
-                                    sheetPadding ??
-                                    const EdgeInsets.symmetric(
-                                      horizontal: 30,
-                                      vertical: 20,
-                                    ),
-                                child: _standardBody!(scrollController: null),
-                              ),
+                      child: Column(
+                        mainAxisSize: expand
+                            ? MainAxisSize.max
+                            : MainAxisSize.min,
+                        children: [
+                          if (showDragHandle &&
+                              handleColor != Colors.transparent)
+                            _buildHandle(handleColor),
+                          Flexible(
+                            fit: expand ? FlexFit.tight : FlexFit.loose,
+                            child: buildStandardContent(null),
+                          ),
+                          if (showDefaultButtons)
+                            _buildButtons(
+                              context,
+                              firstButtonColor,
+                              secondButtonColor,
+                              firstButtonTextColor,
+                              secondButtonTextColor,
+                              buttonSpacing,
+                              confirmButtonText,
+                              cancelButtonText,
                             ),
-                            if (showDefaultButtons)
-                              _buildButtons(
-                                context,
-                                firstButtonColor,
-                                secondButtonColor,
-                                firstButtonTextColor,
-                                secondButtonTextColor,
-                                buttonSpacing,
-                                confirmButtonText,
-                                cancelButtonText,
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
                     );
                   },
                 ),
               );
             } else {
-              // ---- DRAGGABLE default sheet (uses exposed sizes) ----
-              final init = initialChildSize.clamp(minChildSize, maxChildSize);
               return DraggableScrollableSheet(
-                expand: true,
+                expand: expand,
                 initialChildSize: init,
-                minChildSize: minChildSize,
-                maxChildSize: maxChildSize,
+                minChildSize: safeMin,
+                maxChildSize: safeMax,
                 builder: (context, scrollController) {
                   return Container(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(10),
+                        top: Radius.circular(12),
                       ),
                       color: backgroundColor ?? Theme.of(context).cardColor,
                     ),
                     child: SafeArea(
                       top: false,
                       child: Column(
+                        mainAxisSize: expand
+                            ? MainAxisSize.max
+                            : MainAxisSize.min,
                         children: [
                           if (showDragHandle &&
                               handleColor != Colors.transparent)
                             _buildHandle(handleColor),
-                          // Exactly one scrollable using the provided controller.
-                          Expanded(
-                            child: SingleChildScrollView(
-                              controller: scrollController,
-                              padding:
-                                  sheetPadding ??
-                                  const EdgeInsets.symmetric(
-                                    horizontal: 30,
-                                    vertical: 20,
-                                  ),
-                              child: _standardBody!(
-                                scrollController: scrollController,
-                              ),
-                            ),
+                          Flexible(
+                            fit: expand ? FlexFit.tight : FlexFit.loose,
+                            child: buildStandardContent(scrollController),
                           ),
                         ],
                       ),
@@ -398,7 +368,6 @@ class OpenCustomSheet {
             }
 
           case _SheetType.confirm:
-            // (unchanged) always static; confirm-layout buttons live here
             return SafeArea(
               child: Container(
                 constraints: BoxConstraints(
@@ -406,7 +375,7 @@ class OpenCustomSheet {
                 ),
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(10),
+                    top: Radius.circular(12),
                   ),
                   color: backgroundColor ?? Theme.of(context).cardColor,
                 ),
@@ -442,28 +411,32 @@ class OpenCustomSheet {
                 ),
               ),
             );
-          // ------------------------ DRAGGABLE SCROLLABLE ------------------------
+
           case _SheetType.scrollable:
             return DraggableScrollableSheet(
               expand: expand,
-              initialChildSize: initialChildSize,
-              minChildSize: minChildSize,
-              maxChildSize: maxChildSize,
+              initialChildSize: init,
+              minChildSize: safeMin,
+              maxChildSize: safeMax,
               builder: (context, scrollController) {
                 return Container(
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(10),
+                      top: Radius.circular(12),
                     ),
                     color: backgroundColor ?? Theme.of(context).cardColor,
                   ),
                   child: SafeArea(
                     top: false,
                     child: Column(
+                      mainAxisSize: expand
+                          ? MainAxisSize.max
+                          : MainAxisSize.min,
                       children: [
                         if (handleColor != Colors.transparent)
                           _buildHandle(handleColor),
-                        Expanded(
+                        Flexible(
+                          fit: expand ? FlexFit.tight : FlexFit.loose,
                           child: Padding(
                             padding: sheetPadding ?? EdgeInsets.zero,
                             child: _standardBody!(
@@ -478,7 +451,6 @@ class OpenCustomSheet {
               },
             );
 
-          // ------------------------ EXPANDABLE OVERLAY ------------------------
           case _SheetType.expandable:
             return _ExpandableSheet(
               backgroundColor: backgroundColor,
@@ -489,9 +461,9 @@ class OpenCustomSheet {
               bodyBuilder: _expandableBody!,
               footer: _expandableFooter!,
               controller: _expandableController ?? ExpandableController(),
-              minChildSize: minChildSize,
-              initialChildSize: initialChildSize,
-              maxChildSize: maxChildSize,
+              minChildSize: safeMin,
+              initialChildSize: init,
+              maxChildSize: safeMax,
               onDismiss: () => Navigator.of(context).maybePop(),
             );
         }
@@ -499,8 +471,6 @@ class OpenCustomSheet {
     ).then((value) => onClose?.call(value));
   }
 
-  /// Builds the expandable widget for in-route usage (inside a Stack).
-  /// Use this when the factory was created with `presentAsRoute: false`.
   Widget buildExpandable(BuildContext context) {
     if (_type != _SheetType.expandable) {
       throw Exception(
@@ -522,7 +492,6 @@ class OpenCustomSheet {
     );
   }
 
-  // --- STATIC HELPER METHODS ---
   static Widget _buildButtons(
     BuildContext context,
     Color? firstButtonColor,
@@ -581,8 +550,6 @@ class OpenCustomSheet {
   }
 }
 
-/// Internal widget implementing the expandable behavior with snap-to-states,
-/// coordinated scroll, and header/footer always visible when collapsed.
 class _ExpandableSheet extends StatefulWidget {
   final double initialChildSize;
   final double minChildSize;
@@ -617,12 +584,6 @@ class _ExpandableSheet extends StatefulWidget {
 }
 
 class _ExpandableSheetState extends State<_ExpandableSheet> {
-  static const bool _debug = true;
-
-  void _d(String msg) {
-    if (_debug) debugPrint('[ExpandableSheet] $msg');
-  }
-
   final DraggableScrollableController _dragCtrl =
       DraggableScrollableController();
   late final ScrollController _bodyScrollCtrl;
@@ -633,11 +594,9 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
   bool? _dragStartExpanded;
   double? _dragStartExtent;
 
-  // Actual dynamic measurements (updated by the probe)
-  double _footerHeight = 0.0; // includes SafeArea bottom
+  double _footerHeight = 0.0;
   double _headerHeight = 0.0;
 
-  // Directional snap threshold (between collapsed and expanded)
   static const double _snapThresholdFraction = 0.20;
 
   double get _expandedSize => widget.maxChildSize;
@@ -653,7 +612,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
     return 0.0;
   }
 
-  // Actual calculation of the collapsed extent using only real-time measurements
   double _minCollapsedExtent(BuildContext context) {
     final screenH = MediaQuery.of(context).size.height;
     final neededPx =
@@ -665,7 +623,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
 
   double _collapsedTarget(BuildContext context) {
     final minNeeded = _minCollapsedExtent(context);
-    // Respect the provided initialChildSize (if it's >= the actual minimum)
     return (widget.initialChildSize >= minNeeded)
         ? widget.initialChildSize
         : minNeeded;
@@ -677,7 +634,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
     _bodyScrollCtrl = ScrollController();
     _dragCtrl.addListener(_onDrag);
     widget.controller.addListener(_onControllerChange);
-
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeInitSnap());
   }
 
@@ -693,7 +649,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
   void _onHeaderSize(Size s) {
     if ((_headerHeight - s.height).abs() > 0.5) {
       _headerHeight = s.height;
-      _d('header measured: $_headerHeight');
       _coerceExtentAfterMeasure();
       setState(() {});
     }
@@ -701,9 +656,7 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
 
   void _onFooterSize(Size s) {
     if ((_footerHeight - s.height).abs() > 0.5) {
-      _footerHeight =
-          s.height; // includes SafeArea because we measure it already wrapped
-      _d('footer measured: $_footerHeight');
+      _footerHeight = s.height;
       _coerceExtentAfterMeasure();
       setState(() {});
     }
@@ -712,13 +665,9 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
   void _coerceExtentAfterMeasure() {
     if (!_dragCtrl.isAttached) return;
     final collapsed = _collapsedTarget(context);
-
-    // Update minChildSize by changing the build (setState above) and
-    // if we are in the collapsed state or lower, jump back exactly there.
     if (!widget.controller.expanded && !_snapping) {
       final now = _dragCtrl.size;
       if ((now - collapsed).abs() > 0.005) {
-        _d('coerce to collapsed after measure → $collapsed');
         _dragCtrl.jumpTo(collapsed);
       }
     }
@@ -732,7 +681,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
     if (_dragCtrl.isAttached) {
       _dragCtrl.jumpTo(target);
       _didInitSnap = true;
-      _d('init jumpTo=$target');
       if (mounted) setState(() {});
       return;
     }
@@ -742,7 +690,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
       if (_didInitSnap) return;
       _dragCtrl.jumpTo(target);
       _didInitSnap = true;
-      _d('post-attach jumpTo=$target');
       if (mounted) setState(() {});
     }
 
@@ -753,7 +700,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
     final target = widget.controller.expanded
         ? _expandedSize
         : _collapsedTarget(context);
-    _d('controller change → animateTo=$target');
     _animateTo(target);
   }
 
@@ -768,10 +714,8 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
     final size = _dragCtrl.size;
 
     if (!widget.controller.expanded && size >= (collapsed + threshold)) {
-      _d('crossed ↑ threshold → snap expand');
       _snap(expand: true);
     } else if (widget.controller.expanded && size <= (expanded - threshold)) {
-      _d('crossed ↓ threshold → snap collapse');
       _snap(expand: false);
     }
   }
@@ -780,7 +724,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
     if (_snapping) return;
     _snapping = true;
     final target = expand ? _expandedSize : _collapsedTarget(context);
-    _d('SNAP → $target (expand=$expand)');
     await _dragCtrl.animateTo(
       target,
       duration: const Duration(milliseconds: 260),
@@ -793,7 +736,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
   Future<void> _animateTo(double size) async {
     if (_snapping) return;
     _snapping = true;
-    _d('animateTo=$size');
     await _dragCtrl.animateTo(
       size,
       duration: const Duration(milliseconds: 260),
@@ -804,21 +746,17 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final collapsedNow = _collapsedTarget(
-      context,
-    ); // already dynamic based on actual measurements
+    final collapsedNow = _collapsedTarget(context);
 
     return GestureDetector(
       onVerticalDragStart: (_) {
         _dragStartExpanded = widget.controller.expanded;
         _dragStartExtent = _dragCtrl.size;
-        _d('dragStart expanded=$_dragStartExpanded extent=$_dragStartExtent');
       },
       onVerticalDragEnd: (details) {
         if (!widget.controller.expanded &&
             details.primaryVelocity != null &&
             details.primaryVelocity! > 300) {
-          _d('fast swipe down → dismiss');
           widget.onDismiss?.call();
           return;
         }
@@ -826,7 +764,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
       child: DraggableScrollableSheet(
         controller: _dragCtrl,
         expand: true,
-        // dynamically calculated collapsed size (no fixed default)
         initialChildSize: widget.controller.expanded
             ? _expandedSize
             : collapsedNow,
@@ -839,13 +776,9 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                 behavior: const _NoBounceBehavior(),
                 child: NotificationListener<ScrollNotification>(
                   onNotification: (sn) {
-                    // Snap-back at the end of the gesture (like in your version)
                     if (sn is ScrollStartNotification) {
                       _dragStartExpanded ??= widget.controller.expanded;
                       _dragStartExtent ??= _dragCtrl.size;
-                      _d(
-                        'sheet ScrollStart extent=$_dragStartExtent expanded=$_dragStartExpanded',
-                      );
                     } else if (sn is ScrollEndNotification) {
                       final collapsed = _collapsedTarget(context);
                       final expanded = _expandedSize;
@@ -856,18 +789,13 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                             ? 0.0
                             : size - _dragStartExtent!;
                         final thr = _snapThresholdFraction * range;
-                        _d(
-                          'sheet ScrollEnd size=$size delta=$delta thr=$thr expandedNow=${widget.controller.expanded}',
-                        );
                         if (_dragStartExpanded != null &&
                             widget.controller.expanded != _dragStartExpanded) {
-                          _d('state already changed during drag → ignore end');
                         } else {
                           if (delta.abs() < thr) {
                             final backTarget = (_dragStartExpanded == true)
                                 ? expanded
                                 : collapsed;
-                            _d('snap-back to $backTarget');
                             _animateTo(backTarget);
                           } else {
                             _snap(expand: delta > 0);
@@ -921,22 +849,17 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                                   ),
                                 ),
                               ),
-
-                            // HEADER (actual measured size)
                             _SizeProbe(
                               onSize: _onHeaderSize,
                               child: widget.header,
                             ),
-
                             Expanded(
                               child: LayoutBuilder(
                                 builder: (context, inner) {
-                                  final reservedFooter =
-                                      _footerHeight; // actual; 0 before the first frame
+                                  final reservedFooter = _footerHeight;
                                   return Stack(
                                     fit: StackFit.expand,
                                     children: [
-                                      // BODY with bounce when expanded
                                       NotificationListener<ScrollNotification>(
                                         onNotification: (n) {
                                           if (widget.controller.expanded) {
@@ -951,9 +874,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                                                 (!_bodyScrollCtrl.hasClients ||
                                                     _bodyScrollCtrl.offset <=
                                                         0.0)) {
-                                              _d(
-                                                'body drag-down at top → collapse',
-                                              );
                                               _snap(expand: false);
                                               return true;
                                             }
@@ -975,8 +895,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                                           ),
                                         ),
                                       ),
-
-                                      // Background under the footer to avoid bleed-through
                                       if (reservedFooter > 0)
                                         Positioned(
                                           left: 0,
@@ -989,8 +907,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
                                                 Theme.of(context).cardColor,
                                           ),
                                         ),
-
-                                      // Actual FOOTER + SafeArea and measurement probe
                                       Positioned(
                                         left: 0,
                                         right: 0,
@@ -1029,7 +945,6 @@ class _ExpandableSheetState extends State<_ExpandableSheet> {
   }
 }
 
-/// Reports child's laid-out size each time it changes, without affecting layout.
 class _SizeProbe extends SingleChildRenderObjectWidget {
   final ValueChanged<Size> onSize;
 
@@ -1060,7 +975,6 @@ class _SizeProbeRender extends RenderProxyBox {
     final s = child?.size ?? Size.zero;
     if (_last != s) {
       _last = s;
-      // Notify outside of the layout-pass
       WidgetsBinding.instance.addPostFrameCallback((_) => onSize(s));
     }
   }

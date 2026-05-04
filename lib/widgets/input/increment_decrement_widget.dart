@@ -6,171 +6,74 @@ import 'package:risto_widgets/extensions.dart';
 import '../buttons/custom_action_button.dart';
 
 /// A type definition for a callback function that updates the quantity value.
-///
-/// The [ValueUpdate] function takes an integer parameter [updateValue] representing
-/// the new quantity and returns a dynamic value. This allows flexibility in handling
-/// the updated value, whether it's immediately applied or processed asynchronously.
 typedef ValueUpdate = dynamic Function(int updateValue);
 
 /// A widget that provides increment and decrement functionality with customizable
 /// buttons and display. It allows users to increase or decrease a numerical
 /// value within optional bounds, making it suitable for quantity selectors in
 /// shopping carts, forms, and other interactive UI components.
-///
-/// The [IncrementDecrementWidget] offers multiple factory constructors to cater
-/// to different design requirements, such as flat, raised, minimal, and squared
-/// styles. It also supports long-press actions for continuous incrementing or
-/// decrementing.
 class IncrementDecrementWidget extends StatefulWidget {
   // Quantity properties
-
-  /// The initial quantity to display.
-  ///
-  /// Must be a non-negative integer. Represents the current value of the widget.
   final int quantity;
-
-  /// The maximum allowed quantity.
-  ///
-  /// If provided, the quantity cannot exceed this value. If `null`, there is no upper bound.
   final int? maxQuantity;
-
-  /// The minimum allowed quantity.
-  ///
-  /// If provided, the quantity cannot go below this value. If `null`, there is no lower bound.
   final int? minValue;
-
-  // Callback functions
-
-  /// A callback function that is invoked whenever the quantity changes.
-  ///
-  /// It receives the updated quantity as an integer. This callback can return
-  /// a new integer value to override the incremented or decremented value.
-  /// It supports both synchronous and asynchronous operations.
   final ValueUpdate? onChanged;
 
   // Customization properties
-
-  /// The background color of the widget.
-  ///
-  /// Applies to the area surrounding the buttons and the quantity display.
   final Color? backgroundColor;
-
-  /// The color of the widget's icons.
-  ///
-  /// Applies to both increment and decrement icons. If not specified, defaults to the theme's icon color.
   final Color? iconColor;
-
-  /// The elevation (shadow depth) of the widget.
-  ///
-  /// A higher value increases the shadow's prominence. Defaults vary based on the factory constructor used.
   final double? elevation;
-
-  /// The external margin around the widget.
-  ///
-  /// Adds space outside the widget's boundaries.
   final EdgeInsetsGeometry? margin;
-
-  /// The padding inside the quantity display.
-  ///
-  /// Controls the space between the quantity text and its container.
   final EdgeInsetsGeometry? valuePadding;
-
-  /// The text style for displaying the quantity.
-  ///
-  /// If not provided, defaults to the theme's `titleLarge` text style.
   final TextStyle? quantityTextStyle;
-
-  /// The border radius of the widget's buttons.
-  ///
-  /// Controls the roundness of the buttons' corners. Defaults vary based on the factory constructor used.
   final double? borderRadius;
-
-  /// The width of the entire widget.
-  ///
-  /// If not specified, the widget adapts to its parent constraints.
   final double? width;
-
-  /// The height of the entire widget.
-  ///
-  /// If not specified, the widget adapts to its content.
   final double? height;
-
-  /// The padding inside the increment and decrement buttons.
-  ///
-  /// Controls the space between the button's icon and its boundaries.
   final EdgeInsetsGeometry? buttonPadding;
-
-  /// The external margin around each increment and decrement button.
-  ///
-  /// Adds space outside the buttons' boundaries.
   final EdgeInsetsGeometry? buttonMargin;
-
-  /// The width of the increment and decrement buttons.
-  ///
-  /// If not specified, buttons adapt to their content.
   final double? buttonWidth;
-
-  /// The height of the increment and decrement buttons.
-  ///
-  /// If not specified, buttons adapt to their content.
   final double? buttonHeight;
 
+  // Specific Shapes & Middle Value Display bounds
+  /// Custom shape for the left (decrement) button. Overrides [buttonShape].
+  final OutlinedBorder? leftButtonShape;
+
+  /// Custom shape for the right (increment) button. Overrides [buttonShape].
+  final OutlinedBorder? rightButtonShape;
+
+  /// Decoration for the container wrapping the quantity value.
+  final BoxDecoration? valueDecoration;
+
+  /// Fixed width for the middle quantity value section.
+  final double? valueWidth;
+
+  /// Fixed height for the middle quantity value section.
+  final double? valueHeight;
+
+  /// Optional builder to inject a custom widget (like a TextField) for the value display.
+  /// The `updateValue` callback allows the custom widget to push manual updates
+  /// (which will be automatically clamped to min/max bounds by the widget).
+  /// If `null` is passed (e.g., empty field), it defaults to `minValue` or 0.
+  final Widget Function(
+    BuildContext context,
+    int value,
+    void Function(int?) updateValue,
+  )?
+  valueBuilder;
+
   // CustomActionButton parameters
-
-  /// The splash color of the buttons when tapped.
-  ///
-  /// Defines the color of the ripple effect upon interaction.
   final Color? splashColor;
-
-  /// The border color of the buttons.
-  ///
-  /// If specified, buttons will have a border with this color.
   final Color? borderColor;
-
-  /// The thickness of the border. Defaults to 1.0.
   final double borderWidth;
-
-  /// The splash factory to define interaction effects.
-  ///
-  /// Allows customization of the splash effect (e.g., ripple type).
   final InteractiveInkFeatureFactory? splashFactory;
 
   // Factory-specific properties
-
-  /// The icon widget for the increment button.
-  ///
-  /// If not provided, defaults to a plus icon.
   final Widget? incrementIcon;
-
-  /// The icon widget for the decrement button.
-  ///
-  /// If not provided, defaults to a minus icon.
   final Widget? decrementIcon;
-
-  // Button shape
-
-  /// The shape of the increment and decrement buttons.
-  ///
-  /// Allows for customizing the buttons' outline and borders.
   final OutlinedBorder? buttonShape;
-
-  // Long-press settings
-
-  /// The interval between repeated increment/decrement actions during a long press.
-  ///
-  /// Determines how quickly the quantity changes when the button is held down.
   final Duration longPressInterval;
-
-  // Alignment
-
-  /// The alignment of the buttons and quantity display within the widget.
-  ///
-  /// Controls how the child widgets are placed along the main axis (horizontal).
   final MainAxisAlignment? alignment;
 
-  /// Creates an [IncrementDecrementWidget] with the specified properties.
-  ///
-  /// The [quantity] parameter is required and sets the initial value.
   const IncrementDecrementWidget({
     super.key,
     required this.quantity,
@@ -190,6 +93,12 @@ class IncrementDecrementWidget extends StatefulWidget {
     this.buttonMargin,
     this.buttonWidth,
     this.buttonHeight,
+    this.leftButtonShape,
+    this.rightButtonShape,
+    this.valueDecoration,
+    this.valueWidth,
+    this.valueHeight,
+    this.valueBuilder,
     this.splashColor,
     this.borderColor,
     this.borderWidth = 1.0,
@@ -202,8 +111,6 @@ class IncrementDecrementWidget extends StatefulWidget {
   });
 
   /// Factory constructor for a flat design.
-  ///
-  /// The flat design has no elevation and transparent background by default.
   factory IncrementDecrementWidget.flat({
     required int quantity,
     int? maxQuantity,
@@ -260,8 +167,6 @@ class IncrementDecrementWidget extends StatefulWidget {
   }
 
   /// Factory constructor for a raised design.
-  ///
-  /// The raised design has elevation and an optional background color.
   factory IncrementDecrementWidget.raised({
     required int quantity,
     int? maxQuantity,
@@ -317,9 +222,6 @@ class IncrementDecrementWidget extends StatefulWidget {
   }
 
   /// Factory constructor for a minimalistic design.
-  ///
-  /// The minimal design has no elevation and transparent background by default,
-  /// focusing on simplicity and compactness.
   factory IncrementDecrementWidget.minimal({
     required int quantity,
     int? maxQuantity,
@@ -366,8 +268,7 @@ class IncrementDecrementWidget extends StatefulWidget {
     );
   }
 
-  /// Factory constructor for squared buttons with equal width and height
-  /// and customizable border radius.
+  /// Factory constructor for squared buttons with equal width and height.
   factory IncrementDecrementWidget.squared({
     required int quantity,
     int? maxQuantity,
@@ -405,7 +306,6 @@ class IncrementDecrementWidget extends StatefulWidget {
       margin: margin,
       valuePadding: valuePadding,
       buttonMargin: buttonMargin,
-      // Zero padding ensures perfect centering of the icon inside the strict size limits
       buttonPadding: buttonPadding ?? EdgeInsets.zero,
       quantityTextStyle: quantityTextStyle,
       width: width,
@@ -426,13 +326,86 @@ class IncrementDecrementWidget extends StatefulWidget {
     );
   }
 
+  /// Factory constructor for a perfectly connected "pill" layout.
+  factory IncrementDecrementWidget.connected({
+    required int quantity,
+    int? maxQuantity,
+    int? minValue,
+    ValueUpdate? onChanged,
+    Color? buttonsBackgroundColor,
+    Color? iconColor,
+    Color? middleBackgroundColor,
+    Color? borderColor,
+    double borderWidth = 1.0,
+    double borderRadius = 7.0,
+    double buttonSize = 50.0,
+    double? valueWidth = 60.0,
+    EdgeInsetsGeometry? valuePadding,
+    TextStyle? quantityTextStyle,
+    Widget Function(
+      BuildContext context,
+      int value,
+      void Function(int?) updateValue,
+    )?
+    valueBuilder,
+    Widget? incrementIcon,
+    Widget? decrementIcon,
+    Duration longPressInterval = const Duration(milliseconds: 100),
+    MainAxisAlignment? alignment,
+  }) {
+    final borderStyle = BorderSide(
+      color: borderColor ?? buttonsBackgroundColor ?? Colors.grey,
+      width: borderWidth,
+    );
+
+    return IncrementDecrementWidget(
+      quantity: quantity,
+      maxQuantity: maxQuantity,
+      minValue: minValue,
+      onChanged: onChanged,
+      backgroundColor: buttonsBackgroundColor,
+      iconColor: iconColor,
+      elevation: 0.0,
+      margin: EdgeInsets.zero,
+      buttonMargin: EdgeInsets.zero,
+      buttonPadding: EdgeInsets.zero,
+      valuePadding: valuePadding ?? EdgeInsets.zero,
+      quantityTextStyle: quantityTextStyle,
+      buttonWidth: buttonSize,
+      buttonHeight: buttonSize,
+      valueWidth: valueWidth,
+      valueHeight: buttonSize,
+      valueBuilder: valueBuilder,
+      valueDecoration: BoxDecoration(
+        color: middleBackgroundColor ?? Colors.transparent,
+        border: Border.symmetric(horizontal: borderStyle),
+      ),
+      leftButtonShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(
+          left: Radius.circular(borderRadius),
+        ),
+        side: BorderSide.none,
+      ),
+      rightButtonShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(
+          right: Radius.circular(borderRadius),
+        ),
+        side: BorderSide.none,
+      ),
+      splashColor: Colors.black12,
+      incrementIcon: incrementIcon,
+      decrementIcon: decrementIcon,
+      longPressInterval: longPressInterval,
+      alignment: alignment ?? MainAxisAlignment.center,
+    );
+  }
+
   @override
   State<IncrementDecrementWidget> createState() =>
       _IncrementDecrementWidgetState();
 }
 
 class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
-  /// The current quantity value displayed by the widget.
   late int _currentQuantity;
 
   @override
@@ -441,45 +414,51 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
     _currentQuantity = widget.quantity;
   }
 
-  Future<void> _increment() async {
-    if (widget.maxQuantity == null || _currentQuantity < widget.maxQuantity!) {
-      int updatedQuantity = _currentQuantity + 1;
-      int newQuantity = updatedQuantity;
+  @override
+  void didUpdateWidget(IncrementDecrementWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.quantity != oldWidget.quantity) {
+      _currentQuantity = widget.quantity;
+    }
+  }
 
-      if (widget.onChanged != null) {
-        var result = widget.onChanged!(updatedQuantity);
+  Future<void> _updateFromExternal(int? val) async {
+    // Fallback to minValue (or 0) if the value is null (e.g., empty field)
+    int clamped = val ?? widget.minValue ?? 0;
 
-        if (result is Future<int?>) {
-          newQuantity = await result ?? updatedQuantity;
-        } else if (result is int?) {
-          newQuantity = result ?? updatedQuantity;
-        }
+    if (widget.minValue != null && clamped < widget.minValue!) {
+      clamped = widget.minValue!;
+    }
+    if (widget.maxQuantity != null && clamped > widget.maxQuantity!) {
+      clamped = widget.maxQuantity!;
+    }
+
+    int newQuantity = clamped;
+    if (widget.onChanged != null) {
+      var result = widget.onChanged!(clamped);
+      if (result is Future<int?>) {
+        newQuantity = await result ?? clamped;
+      } else if (result is int?) {
+        newQuantity = result ?? clamped;
       }
+    }
 
+    if (mounted && _currentQuantity != newQuantity) {
       setState(() {
         _currentQuantity = newQuantity;
       });
     }
   }
 
+  Future<void> _increment() async {
+    if (widget.maxQuantity == null || _currentQuantity < widget.maxQuantity!) {
+      await _updateFromExternal(_currentQuantity + 1);
+    }
+  }
+
   Future<void> _decrement() async {
     if (widget.minValue == null || _currentQuantity > widget.minValue!) {
-      int updatedQuantity = _currentQuantity - 1;
-      int newQuantity = updatedQuantity;
-
-      if (widget.onChanged != null) {
-        var result = widget.onChanged!(updatedQuantity);
-
-        if (result is Future<int?>) {
-          newQuantity = await result ?? updatedQuantity;
-        } else if (result is int?) {
-          newQuantity = result ?? updatedQuantity;
-        }
-      }
-
-      setState(() {
-        _currentQuantity = newQuantity;
-      });
+      await _updateFromExternal(_currentQuantity - 1);
     }
   }
 
@@ -495,45 +474,54 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
     final MainAxisAlignment effectiveAlignment =
         widget.alignment ?? MainAxisAlignment.spaceBetween;
 
-    return SizedBox(
-      width: effectiveWidth,
-      child: Row(
-        mainAxisAlignment: effectiveAlignment,
-        children: <Widget>[
-          _buildActionButton(
-            context,
-            widget.decrementIcon ?? const Icon(Icons.remove),
-            onPressed:
-                (widget.minValue == null || _currentQuantity > widget.minValue!)
-                ? _decrement
-                : null,
-            isEnabled:
-                widget.minValue == null || _currentQuantity > widget.minValue!,
-            onLongPress: _decrement,
-            effectiveBackgroundColor: effectiveBackgroundColor,
-            effectiveMargin: buttonMargin,
-            effectiveWidth: widget.buttonWidth,
-            effectiveHeight: widget.buttonHeight,
-          ),
-          _buildQuantityDisplay(context, valuePadding),
-          _buildActionButton(
-            context,
-            widget.incrementIcon ?? const Icon(Icons.add),
-            onPressed:
-                (widget.maxQuantity == null ||
-                    _currentQuantity < widget.maxQuantity!)
-                ? _increment
-                : null,
-            isEnabled:
-                widget.maxQuantity == null ||
-                _currentQuantity < widget.maxQuantity!,
-            onLongPress: _increment,
-            effectiveBackgroundColor: effectiveBackgroundColor,
-            effectiveMargin: buttonMargin,
-            effectiveWidth: widget.buttonWidth,
-            effectiveHeight: widget.buttonHeight,
-          ),
-        ],
+    return TapRegion(
+      onTapOutside: (event) {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: SizedBox(
+        width: effectiveWidth,
+        child: Row(
+          mainAxisAlignment: effectiveAlignment,
+          children: <Widget>[
+            _buildActionButton(
+              context,
+              widget.decrementIcon ?? const Icon(Icons.remove),
+              onPressed:
+                  (widget.minValue == null ||
+                      _currentQuantity > widget.minValue!)
+                  ? _decrement
+                  : null,
+              isEnabled:
+                  widget.minValue == null ||
+                  _currentQuantity > widget.minValue!,
+              onLongPress: _decrement,
+              effectiveBackgroundColor: effectiveBackgroundColor,
+              effectiveMargin: buttonMargin,
+              effectiveWidth: widget.buttonWidth,
+              effectiveHeight: widget.buttonHeight,
+              specificShape: widget.leftButtonShape,
+            ),
+            _buildQuantityDisplay(context, valuePadding),
+            _buildActionButton(
+              context,
+              widget.incrementIcon ?? const Icon(Icons.add),
+              onPressed:
+                  (widget.maxQuantity == null ||
+                      _currentQuantity < widget.maxQuantity!)
+                  ? _increment
+                  : null,
+              isEnabled:
+                  widget.maxQuantity == null ||
+                  _currentQuantity < widget.maxQuantity!,
+              onLongPress: _increment,
+              effectiveBackgroundColor: effectiveBackgroundColor,
+              effectiveMargin: buttonMargin,
+              effectiveWidth: widget.buttonWidth,
+              effectiveHeight: widget.buttonHeight,
+              specificShape: widget.rightButtonShape,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -546,13 +534,13 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
     required VoidCallback onLongPress,
     required Color effectiveBackgroundColor,
     required EdgeInsetsGeometry effectiveMargin,
+    OutlinedBorder? specificShape,
     double? effectiveWidth,
     double? effectiveHeight,
   }) {
     final Color effectiveIconColor =
         _iconColor(context, isEnabled) ?? Theme.of(context).iconTheme.color!;
 
-    // When the button is disabled, set onLongPress to null to prevent the timer from running.
     final VoidCallback? effectiveOnLongPress = isEnabled ? onLongPress : null;
 
     Widget button = CustomActionButton.longPress(
@@ -564,6 +552,7 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
       borderColor: widget.borderColor,
       borderWidth: widget.borderWidth,
       shape:
+          specificShape ??
           widget.buttonShape ??
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(widget.borderRadius ?? 10.0),
@@ -595,16 +584,29 @@ class _IncrementDecrementWidgetState extends State<IncrementDecrementWidget> {
     BuildContext context,
     EdgeInsetsGeometry padding,
   ) {
-    // Replaced Expanded(flex: 0) with a simple Padding widget.
-    // This allows the text to comfortably sit between the buttons without constraint errors.
-    return Padding(
-      padding: padding,
-      child: Text(
-        _currentQuantity.toString(),
-        style:
-            widget.quantityTextStyle ?? Theme.of(context).textTheme.titleLarge,
-      ),
-    );
+    Widget content = widget.valueBuilder != null
+        ? widget.valueBuilder!(context, _currentQuantity, _updateFromExternal)
+        : Text(
+            _currentQuantity.toString(),
+            style:
+                widget.quantityTextStyle ??
+                Theme.of(context).textTheme.titleLarge,
+          );
+
+    if (widget.valueDecoration != null ||
+        widget.valueWidth != null ||
+        widget.valueHeight != null) {
+      return Container(
+        width: widget.valueWidth,
+        height: widget.valueHeight,
+        padding: padding,
+        decoration: widget.valueDecoration,
+        alignment: Alignment.center,
+        child: content,
+      );
+    } else {
+      return Padding(padding: padding, child: content);
+    }
   }
 
   Color? _iconColor(BuildContext context, bool isEnabled) {

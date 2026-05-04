@@ -72,6 +72,8 @@ class RistoDecorator extends StatelessWidget {
         ? null
         : (borderRadius ?? BorderRadius.circular(12.0));
 
+    final bool isShadowVisible = elevation > 0 && effectiveShadowColor.a > 0;
+
     return Container(
       margin: margin,
       padding: padding,
@@ -86,10 +88,12 @@ class RistoDecorator extends StatelessWidget {
         border: borderColor != null
             ? Border.all(color: borderColor!, width: borderWidth)
             : null,
-        boxShadow: elevation > 0
+        boxShadow: isShadowVisible
             ? [
                 BoxShadow(
-                  color: effectiveShadowColor.withCustomOpacity(0.15),
+                  color: effectiveShadowColor.withCustomOpacity(
+                    effectiveShadowColor.a * 0.15,
+                  ),
                   blurRadius: elevation * 2.5,
                   spreadRadius: 0,
                   offset: Offset(0, elevation * 0.8),
