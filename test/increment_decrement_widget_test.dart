@@ -140,16 +140,20 @@ void main() {
                     quantity: currentQuantity,
                     minValue: 1,
                     maxQuantity: 10,
+                    valueWidth: null,
+                    // Allow flexible width to prevent RenderFlex overflow in tests
                     onChanged: (val) {
                       setState(() => currentQuantity = val);
                       return val;
                     },
                     valueBuilder: (context, value, updateValue) {
                       return Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text('Custom: $value'),
-                          ElevatedButton(
-                            onPressed: () => updateValue(999),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => updateValue(999),
                             // Force an out-of-bounds update
                             child: const Text('Force Update'),
                           ),
@@ -179,6 +183,60 @@ void main() {
 
         // Verify the widget correctly clamped 999 to maxQuantity (10)
         expect(find.text('Custom: 10'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Connected factory snaps safely to minValue when updateValue receives null (empty field)',
+      (WidgetTester tester) async {
+        int currentQuantity = 5;
+        const int expectedMinValue = 2;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: StatefulBuilder(
+                builder: (context, setState) {
+                  return IncrementDecrementWidget.connected(
+                    quantity: currentQuantity,
+                    minValue: expectedMinValue,
+                    maxQuantity: 10,
+                    valueWidth: null,
+                    // Allow flexible width to prevent RenderFlex overflow in tests
+                    onChanged: (val) {
+                      setState(() => currentQuantity = val);
+                      return val;
+                    },
+                    valueBuilder: (context, value, updateValue) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('Custom: $value'),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            // Simulate an empty TextField returning null from tryParse("")
+                            onTap: () => updateValue(null),
+                            child: const Text('Clear Field'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+
+        // Verify the initial state is 5
+        expect(find.text('Custom: 5'), findsOneWidget);
+
+        // Tap the button that simulates clearing the text field (passing null)
+        await tester.tap(find.text('Clear Field'));
+        await tester.pump();
+
+        // Verify the widget correctly caught the null and snapped to minValue (2)
+        expect(find.text('Custom: 2'), findsOneWidget);
       },
     );
   });
