@@ -74,8 +74,8 @@ void main() {
       expect(find.text('It worked.'), findsOneWidget);
       expect(find.text('OK'), findsOneWidget);
 
-      // The icon should inherit the passed accentColor
-      final icon = tester.widget<Icon>(find.byType(Icon));
+      // FIX: Use find.byIcon instead of find.byType to avoid catching the close 'X' icon
+      final icon = tester.widget<Icon>(find.byIcon(Icons.check_circle_outline));
       expect(icon.color, Colors.deepPurple);
 
       // Close the dialog

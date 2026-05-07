@@ -6,13 +6,14 @@ import 'package:risto_widgets_example/pages/nav_bars_page.dart';
 import 'pages/action_button_page.dart';
 import 'pages/custom_dialog_page.dart';
 import 'pages/custom_sheet_page.dart';
+import 'pages/icon_text_page.dart';
 import 'pages/increment_decrement_page.dart';
 import 'pages/infinite_snap_list_page.dart';
 import 'pages/inputs_page.dart';
-import 'pages/interactive_map_page.dart'; // <--- Nuovo Import
 import 'pages/list_tile_button_page.dart';
 import 'pages/loading_overlay_page.dart';
 import 'pages/navigation_widget_page.dart';
+import 'pages/padded_widgets_page.dart';
 import 'pages/percent_indicators_page.dart';
 import 'pages/risto_notice_card_page.dart';
 import 'pages/risto_toast_page.dart';
@@ -61,10 +62,16 @@ class HomePage extends StatelessWidget {
   // Centralized list of all demo routes. Infinitely scalable!
   static const List<_DemoRoute> _routes = [
     _DemoRoute(
-      title: 'Interactive Map',
-      subtitle: 'Navigable map with clustering & tracking',
-      icon: Icons.map_outlined,
-      page: InteractiveMapPage(),
+      title: 'Icon Text',
+      subtitle: 'Horizontal icon and text combinations',
+      icon: Icons.text_snippet_outlined,
+      page: IconTextPage(),
+    ),
+    _DemoRoute(
+      title: 'Padding Utilities',
+      subtitle: 'PaddingWrapper and PaddedChildrenList',
+      icon: Icons.space_bar,
+      page: PaddedWidgetsPage(),
     ),
     _DemoRoute(
       title: 'Navigation bars',

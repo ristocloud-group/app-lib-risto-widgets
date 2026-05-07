@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// A widget that displays an icon alongside text in a horizontal row.
+/// A widget that displays an icon alongside text in a horizontal or vertical layout.
 ///
 /// The [CustomIconText] widget is useful for creating UI elements that combine
 /// an icon and text, such as buttons, labels, or informational displays. It
-/// provides flexibility in styling and alignment, allowing for consistent
-/// presentation across different parts of the application.
+/// provides flexibility in styling, alignment, and orientation.
 ///
-/// This widget will shrink-wrap its content horizontally.
+/// This widget will shrink-wrap its content based on the specified [axis].
 class CustomIconText extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -17,6 +16,14 @@ class CustomIconText extends StatelessWidget {
   final int? maxLines;
   final double? iconSize;
   final double spacing;
+
+  /// Whether to invert the order of the icon and text.
+  /// If false (default), the icon comes first.
+  final bool invert;
+
+  /// The axis along which to lay out the icon and text.
+  /// Defaults to [Axis.horizontal].
+  final Axis axis;
 
   const CustomIconText({
     super.key,
@@ -28,6 +35,8 @@ class CustomIconText extends StatelessWidget {
     this.maxLines = 2,
     this.iconSize,
     this.spacing = 8.0,
+    this.invert = false,
+    this.axis = Axis.horizontal,
   });
 
   @override
@@ -39,26 +48,38 @@ class CustomIconText extends StatelessWidget {
         textStyle ??
         theme.textTheme.bodyMedium!.copyWith(color: effectiveColor);
 
-    return Row(
-      mainAxisSize: MainAxisSize.min, // Crucial for button layouts
+    final iconWidget = Icon(
+      icon,
+      size: iconSize ?? effectiveTextStyle.fontSize,
+      color: effectiveColor,
+    );
+
+    final textWidget = Flexible(
+      child: Text(
+        text,
+        style: effectiveTextStyle,
+        overflow: TextOverflow.ellipsis,
+        maxLines: maxLines,
+        textAlign: axis == Axis.vertical ? TextAlign.center : null,
+      ),
+    );
+
+    final spacer = SizedBox(
+      width: axis == Axis.horizontal ? spacing : null,
+      height: axis == Axis.vertical ? spacing : null,
+    );
+
+    final children =
+        invert
+            ? [textWidget, spacer, iconWidget]
+            : [iconWidget, spacer, textWidget];
+
+    return Flex(
+      direction: axis,
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          size: iconSize ?? effectiveTextStyle.fontSize,
-          color: effectiveColor,
-        ),
-        SizedBox(width: spacing),
-        Flexible(
-          child: Text(
-            text,
-            style: effectiveTextStyle,
-            overflow: TextOverflow.ellipsis,
-            maxLines: maxLines,
-          ),
-        ),
-      ],
+      children: children,
     );
   }
 }

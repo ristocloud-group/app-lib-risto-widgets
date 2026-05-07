@@ -782,11 +782,12 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _buildElevatedButton(BuildContext context) {
+    final theme = Theme.of(context);
     final shape = _resolveShapeFor(type: ButtonType.elevated, context: context);
-    final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
+    final solid = widget.backgroundColor ?? theme.primaryColor;
 
     final style = ElevatedButton.styleFrom(
-      foregroundColor: widget.foregroundColor ?? Colors.white,
+      foregroundColor: widget.foregroundColor ?? theme.colorScheme.onPrimary,
       padding:
           widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -824,12 +825,14 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _buildFlatButton(BuildContext context) {
+    final theme = Theme.of(context);
     final shape = _resolveShapeFor(type: ButtonType.flat, context: context);
-    final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
+    final solid = widget.backgroundColor ?? theme.primaryColor;
 
     final style = TextButton.styleFrom(
-      foregroundColor: widget.foregroundColor ?? Colors.white,
-      overlayColor: widget.splashColor ?? Colors.grey.withCustomOpacity(0.2),
+      foregroundColor: widget.foregroundColor ?? theme.colorScheme.onPrimary,
+      overlayColor:
+          widget.splashColor ?? theme.colorScheme.onSurface.withCustomOpacity(0.12),
       padding:
           widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -865,23 +868,22 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _buildMinimalButton(BuildContext context) {
+    final theme = Theme.of(context);
     final shape = _resolveShapeFor(type: ButtonType.minimal, context: context);
     final solid = widget.backgroundColor ?? Colors.transparent;
 
-    final style =
-        TextButton.styleFrom(
-          foregroundColor: widget.foregroundColor ?? Colors.black,
-          padding:
-              widget.padding ??
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: shape,
-          tapTargetSize:
-              widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
-          minimumSize: _getEffectiveMinimumSize(),
-        ).copyWith(
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          splashFactory: NoSplash.splashFactory,
-        );
+    final style = TextButton.styleFrom(
+      foregroundColor: widget.foregroundColor ?? theme.colorScheme.primary,
+      padding:
+          widget.padding ??
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: shape,
+      tapTargetSize: widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
+      minimumSize: _getEffectiveMinimumSize(),
+    ).copyWith(
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      splashFactory: NoSplash.splashFactory,
+    );
 
     return RistoDecorator(
       margin: widget.margin,
@@ -909,28 +911,27 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _buildLongPressButton(BuildContext context) {
+    final theme = Theme.of(context);
     final shape = _resolveShapeFor(
       type: ButtonType.longPress,
       context: context,
     );
-    final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
+    final solid = widget.backgroundColor ?? theme.primaryColor;
 
-    final style =
-        ElevatedButton.styleFrom(
-          foregroundColor: widget.foregroundColor ?? Colors.white,
-          padding:
-              widget.padding ??
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: shape,
-          tapTargetSize:
-              widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
-          minimumSize: _getEffectiveMinimumSize(),
-        ).copyWith(
-          overlayColor: widget.splashColor != null
-              ? WidgetStateProperty.all(widget.splashColor)
-              : null,
-          splashFactory: widget.splashFactory,
-        );
+    final style = ElevatedButton.styleFrom(
+      foregroundColor: widget.foregroundColor ?? theme.colorScheme.onPrimary,
+      padding:
+          widget.padding ??
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: shape,
+      tapTargetSize: widget.tapTargetSize ?? MaterialTapTargetSize.shrinkWrap,
+      minimumSize: _getEffectiveMinimumSize(),
+    ).copyWith(
+      overlayColor: widget.splashColor != null
+          ? WidgetStateProperty.all(widget.splashColor)
+          : null,
+      splashFactory: widget.splashFactory,
+    );
 
     final btn = GestureDetector(
       onTap: widget.isLoading ? null : widget.onPressed,
@@ -961,11 +962,12 @@ class _CustomActionButtonState extends State<CustomActionButton> {
   }
 
   Widget _buildRoundedButton(BuildContext context) {
+    final theme = Theme.of(context);
     final shape = _resolveShapeFor(type: ButtonType.rounded, context: context);
-    final solid = widget.backgroundColor ?? Theme.of(context).primaryColor;
+    final solid = widget.backgroundColor ?? theme.primaryColor;
 
     final style = ElevatedButton.styleFrom(
-      foregroundColor: widget.foregroundColor ?? Colors.white,
+      foregroundColor: widget.foregroundColor ?? theme.colorScheme.onPrimary,
       padding:
           widget.padding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

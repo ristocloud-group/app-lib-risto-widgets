@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:risto_widgets/risto_widgets.dart';
 
 import 'expandable_stack_page.dart';
@@ -25,7 +26,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
           ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
-              // Confirm sheet
+              // 1. Confirm sheet
               CustomActionButton(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 onPressed: () {
@@ -37,7 +38,7 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                 child: const Text('Open Confirm Sheet'),
               ),
 
-              // Scrollable sheet
+              // 2. Scrollable sheet
               CustomActionButton(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 onPressed: () {
@@ -55,13 +56,15 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                 child: const Text('Open Scrollable Sheet'),
               ),
 
-              // Standard (direct constructor) custom form sheet
+              // 3. Standard custom form sheet
               CustomActionButton(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 onPressed: () {
                   OpenCustomSheet(
+                    expand: false,
                     body:
                         ({scrollController}) => Column(
+                          mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
@@ -103,7 +106,129 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                 child: const Text('Open Custom Form Sheet'),
               ),
 
-              // Expandable overlay trigger
+              // 4. Draggable Planner Sheet with Footer Pinned
+              CustomActionButton(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                onPressed: () {
+                  OpenCustomSheet.scrollableSheet(
+                    context,
+                    enableDrag: true,
+                    expand: true,
+                    initialChildSize: 0.85,
+                    minChildSize: 0.8,
+                    maxChildSize: 0.95,
+                    sheetPadding: EdgeInsets.zero,
+                    body: ({scrollController}) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Aprile 2026',
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(height: 1),
+
+                          Expanded(
+                            child: ListView(
+                              controller: scrollController,
+                              padding: EdgeInsets.zero,
+                              children: [
+                                ...List.generate(7, (index) {
+                                  final date = DateTime.now().add(
+                                    Duration(days: index),
+                                  );
+                                  return CheckboxListTile(
+                                    value: index == 3,
+                                    onChanged: (val) {},
+                                    title: Text(
+                                      'Giorno ${date.day}/${date.month}',
+                                    ),
+                                    subtitle: const Text(
+                                      'Disponibile per assenza',
+                                    ),
+                                    secondary: const Icon(
+                                      Icons.calendar_month,
+                                      color: Colors.blueGrey,
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12.0),
+                            child: Text(
+                              "Seleziona il giorno finale oppure\nconferma l'assenza singola",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 24.0,
+                              right: 24.0,
+                              bottom: 24.0,
+                            ),
+                            child: DoubleListTileButtons(
+                              expanded: true,
+                              space: 12,
+                              firstButton: CustomActionButton.flat(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                borderColor: const Color(0xFF003859),
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text(
+                                  'Annulla',
+                                  style: TextStyle(
+                                    color: Color(0xFF003859),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              secondButton: CustomActionButton.elevated(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                backgroundColor: const Color(0xFF003859),
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text(
+                                  'Conferma',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ).show(context);
+                },
+                child: const Text('Open Absence Planner (Pinned Footer)'),
+              ),
+
+              // 5. Expandable overlay trigger
               CustomActionButton(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 onPressed: () {
@@ -116,11 +241,11 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                 onPressed: () {
                   OpenCustomSheet.expandable(
                     context,
-                    header: Center(child: Text("Test Header")),
+                    header: const Center(child: Text("Test Header")),
                     body:
                         ({scrollController}) =>
                             Container(height: 200, color: Colors.red),
-                    footer: Center(child: Text("Test Footer")),
+                    footer: const Center(child: Text("Test Footer")),
                   ).show(context);
                 },
                 child: const Text('Show Expandable Overlay'),
@@ -138,177 +263,28 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
                 child: const Text('Show Expandable Stack in page'),
               ),
 
+              // 6. ANIMATED WALLET RECHARGE
               CustomActionButton(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 onPressed: () {
                   OpenCustomSheet(
-                    enableDrag: false,
                     showDragHandle: false,
-                    initialChildSize: 0.65,
-                    sheetPadding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                    body: ({scrollController}) {
-                      // Local amount (in cents)
-                      final value = ValueNotifier<int>(5500);
-
-                      String formatEuro(int cents) {
-                        final euros = cents ~/ 100;
-                        final dec = (cents % 100).toString().padLeft(2, '0');
-                        final eurosStr = euros.toString().replaceAllMapped(
-                          RegExp(r'\B(?=(\d{3})+(?!\d))'),
-                          (m) => '.',
-                        );
-                        return '$eurosStr,$dec €';
+                    enableDrag: false,
+                    expand: true,
+                    initialChildSize: 0.75,
+                    backgroundColor: Colors.transparent,
+                    sheetPadding: EdgeInsets.zero,
+                    onClose: (value) {
+                      if (value != null) {
+                        RistoToast.success(context, message: 'Added $value €');
                       }
-
-                      void onDigit(int d) {
-                        final old = value.value;
-                        if (old > 999999999) return; // soft cap
-                        value.value = old * 10 + d;
-                      }
-
-                      void onBackspace() => value.value = value.value ~/ 10;
-
-                      Widget keyButton(String label, VoidCallback onTap) {
-                        return InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: onTap,
-                          child: Center(
-                            child: Text(
-                              label,
-                              style: const TextStyle(fontSize: 20),
-                            ),
-                          ),
-                        );
-                      }
-
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.max,
-                            // IMPORTANT: bounded column
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Header
-                              Row(
-                                children: [
-                                  const Expanded(
-                                    child: Text(
-                                      'Recharge wallet',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.close),
-                                    onPressed: () => Navigator.pop(context),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-
-                              // Amount
-                              ValueListenableBuilder<int>(
-                                valueListenable: value,
-                                builder: (context, cents, _) {
-                                  return Text(
-                                    formatEuro(cents),
-                                    style: const TextStyle(
-                                      fontSize: 44,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 12),
-                              const Divider(height: 1),
-                              const SizedBox(height: 8),
-
-                              // === PANEL THAT EXPANDS TO FILL THE SHEET ===
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainerHighest,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    children: [
-                                      // Grid grows within the panel
-                                      Expanded(
-                                        child: GridView.count(
-                                          // We are inside a bounded area: no need for shrinkWrap.
-                                          crossAxisCount: 3,
-                                          mainAxisSpacing: 8,
-                                          crossAxisSpacing: 8,
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
-                                          childAspectRatio: 1.85,
-                                          children: [
-                                            for (var d = 1; d <= 9; d++)
-                                              keyButton(
-                                                '$d',
-                                                () =>
-                                                    setState(() => onDigit(d)),
-                                              ),
-                                            keyButton(
-                                              '⌫',
-                                              () => setState(onBackspace),
-                                            ),
-                                            keyButton(
-                                              '0',
-                                              () => setState(() => onDigit(0)),
-                                            ),
-                                            const SizedBox.shrink(),
-                                            // placeholder
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-
-                                      // CTA pinned at bottom of the panel (with SafeArea)
-                                      SafeArea(
-                                        top: false,
-                                        left: false,
-                                        right: false,
-                                        minimum: const EdgeInsets.only(
-                                          bottom: 8,
-                                        ),
-                                        child: SizedBox(
-                                          width: double.infinity,
-                                          height: 52,
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              shape: const StadiumBorder(),
-                                            ),
-                                            onPressed:
-                                                () => Navigator.pop(
-                                                  context,
-                                                  value.value,
-                                                ),
-                                            child: const Text(
-                                              'Send',
-                                              style: TextStyle(fontSize: 18),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
                     },
+                    body:
+                        ({scrollController}) =>
+                            const _CustomAmountSheetBody(initialAmount: 0),
                   ).show(context);
                 },
-                child: const Text('Open Custom Sheet'),
+                child: const Text('Open Animated Wallet Recharge'),
               ),
             ],
           ),
@@ -445,6 +421,321 @@ class _CustomSheetPageState extends State<CustomSheetPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ============================================================================
+// CUSTOM ANIMATED AMOUNT SHEET COMPONENTS
+// ============================================================================
+
+class _CustomAmountSheetBody extends StatefulWidget {
+  final double initialAmount;
+
+  const _CustomAmountSheetBody({required this.initialAmount});
+
+  @override
+  State<_CustomAmountSheetBody> createState() => _CustomAmountSheetBodyState();
+}
+
+class _CustomAmountSheetBodyState extends State<_CustomAmountSheetBody> {
+  late final ValueNotifier<String> _digitsNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _digitsNotifier = ValueNotifier(
+      (widget.initialAmount * 100).round().clamp(0, 999999999).toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _digitsNotifier.dispose();
+    super.dispose();
+  }
+
+  void _addDigit(int d) {
+    HapticFeedback.selectionClick();
+    final currentDigits = _digitsNotifier.value;
+    if (currentDigits == '0') {
+      _digitsNotifier.value = '$d';
+    } else if (currentDigits.length < 9) {
+      _digitsNotifier.value = '$currentDigits$d';
+    }
+  }
+
+  void _backspace() {
+    HapticFeedback.selectionClick();
+    final currentDigits = _digitsNotifier.value;
+    _digitsNotifier.value =
+        (currentDigits.length <= 1)
+            ? '0'
+            : currentDigits.substring(0, currentDigits.length - 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.primaryColor;
+    final textStyle = theme.textTheme.displayMedium?.copyWith(
+      fontWeight: FontWeight.w300,
+    );
+
+    return SafeArea(
+      bottom: false,
+      child: Column(
+        children: [
+          ValueListenableBuilder<String>(
+            valueListenable: _digitsNotifier,
+            builder: (context, digits, _) {
+              final currentCents = int.tryParse(digits) ?? 0;
+              final euros = currentCents ~/ 100;
+              final cents = currentCents % 100;
+
+              // Basic Euro formatter
+              final eurosStr = euros.toString().replaceAllMapped(
+                RegExp(r'\B(?=(\d{3})+(?!\d))'),
+                (m) => '.',
+              );
+              final formattedNumber =
+                  '$eurosStr,${cents.toString().padLeft(2, '0')}';
+
+              return Container(
+                padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 8.0),
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16.0),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Ricarica credito',
+                            style: theme.textTheme.titleLarge,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          splashRadius: 22,
+                          onPressed: () => Navigator.of(context).maybePop(null),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 56.0,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 100),
+                              child: Text(
+                                formattedNumber,
+                                key: ValueKey(formattedNumber),
+                                style: textStyle,
+                              ),
+                            ),
+                            const _BlinkingCursor(),
+                            Text(' €', style: textStyle),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1, thickness: 1),
+          Expanded(
+            child: Container(
+              color: theme.cardColor,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 12.0,
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: _AnimatedNumpad(
+                      onDigitTap: _addDigit,
+                      onBackspaceTap: _backspace,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  ValueListenableBuilder<String>(
+                    valueListenable: _digitsNotifier,
+                    builder: (context, digits, _) {
+                      final currentCents = int.tryParse(digits) ?? 0;
+                      return CustomActionButton.rounded(
+                        minHeight: 48.0,
+                        width: double.infinity,
+                        foregroundColor: Colors.white,
+                        backgroundColor: primary,
+                        elevation: 0,
+                        onPressed:
+                            (currentCents > 0)
+                                ? () => Navigator.of(
+                                  context,
+                                ).maybePop(currentCents / 100.0)
+                                : null,
+                        child: const Text('Invia'),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BlinkingCursor extends StatefulWidget {
+  const _BlinkingCursor();
+
+  @override
+  State<_BlinkingCursor> createState() => _BlinkingCursorState();
+}
+
+class _BlinkingCursorState extends State<_BlinkingCursor>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return FadeTransition(
+      opacity: _controller,
+      child: Text(
+        '|',
+        style: theme.textTheme.displayMedium?.copyWith(
+          fontWeight: FontWeight.w100,
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedNumpad extends StatefulWidget {
+  final void Function(int) onDigitTap;
+  final void Function() onBackspaceTap;
+
+  const _AnimatedNumpad({
+    required this.onDigitTap,
+    required this.onBackspaceTap,
+  });
+
+  @override
+  State<_AnimatedNumpad> createState() => _AnimatedNumpadState();
+}
+
+class _AnimatedNumpadState extends State<_AnimatedNumpad>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final keys = [
+      for (var i = 1; i <= 9; i++)
+        _NumKey(i, onTap: () => widget.onDigitTap(i)),
+      _BackKey(onTap: widget.onBackspaceTap),
+      _NumKey(0, onTap: () => widget.onDigitTap(0)),
+      const SizedBox.shrink(),
+    ];
+    return GridView.count(
+      primary: false,
+      crossAxisCount: 3,
+      mainAxisSpacing: 12.0,
+      crossAxisSpacing: 12.0,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 1.8,
+      children: List.generate(keys.length, (index) {
+        final animation = CurvedAnimation(
+          parent: _controller,
+          curve: Interval(
+            0.1 * (index / 3),
+            0.5 + 0.1 * (index / 3),
+            curve: Curves.easeInOutCubic,
+          ),
+        );
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(scale: animation, child: keys[index]),
+        );
+      }),
+    );
+  }
+}
+
+class _NumKey extends StatelessWidget {
+  final int n;
+  final VoidCallback onTap;
+
+  const _NumKey(this.n, {required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.headlineSmall;
+    return CustomActionButton.flat(
+      onPressed: onTap,
+      backgroundColor: Colors.transparent,
+      child: Text('$n', style: textStyle),
+    );
+  }
+}
+
+class _BackKey extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _BackKey({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomActionButton.flat(
+      onPressed: onTap,
+      backgroundColor: Colors.transparent,
+      child: const Icon(Icons.backspace_outlined, size: 28),
     );
   }
 }

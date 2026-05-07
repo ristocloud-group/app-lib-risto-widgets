@@ -1,0 +1,70 @@
+name: Flutter Analyze, Test & Coverage
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - "**/README.md"
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  test-and-coverage:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze Dart Code
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Generate coverage report & Badge
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lcov
+          genhtml -o coverage coverage/lcov.info
+          
+          # Calcola la percentuale
+          COVERAGE_PERCENT=$(lcov --summary coverage/lcov.info | grep "lines......" | grep -o '[0-9.]*%' | tr -d '%')
+          echo "COVERAGE_PERCENT=$COVERAGE_PERCENT" >> $GITHUB_ENV
+          
+          # Scarica il badge
+          curl -o coverage-badge.svg "https://img.shields.io/badge/Coverage-${COVERAGE_PERCENT}%25-brightgreen.svg"
+          mkdir -p .github/badges/
+          mv coverage-badge.svg .github/badges/coverage-badge.svg
+
+      - name: Create Pull Request with Coverage Badge
+        if: success() && github.ref == 'refs/heads/main' # Crea la PR solo se siamo su main
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: Update coverage badge [skip ci]"
+          title: "Update Coverage Badge"
+          body: |
+            Coverage report updated automatically.
+            - **Coverage**: `${{ env.COVERAGE_PERCENT }}%`
+          branch: "chore/update-coverage-badge"
+          base: main
+          committer: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"

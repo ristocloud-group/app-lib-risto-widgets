@@ -1,5 +1,7 @@
 name: "PR Labeler"
-on: [pull_request_target]
+on:
+  pull_request_target:
+    types: [ opened, synchronize, reopened ]
 
 jobs:
   triage:
@@ -8,11 +10,8 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-    - name: "Cancel similar actions in progress"
-      uses: styfle/cancel-workflow-action@0.12.1
-      with:
-        all_but_latest: true
-        access_token: ${{ github.token }}
-    - uses: actions/labeler@v4
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Apply Labels
+        uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          sync-labels: true
