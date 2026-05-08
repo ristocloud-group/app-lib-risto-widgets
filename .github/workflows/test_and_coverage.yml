@@ -54,20 +54,11 @@ jobs:
           mkdir -p .github/badges/
           mv coverage-badge.svg .github/badges/coverage-badge.svg
 
-      - name: Generate GitHub App Token for PR
-        id: generate_pr_token
-        if: success() && github.ref == 'refs/heads/main'
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.ORG_CI_APP_ID }}
-          private-key: ${{ secrets.ORG_CI_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
       - name: Create Pull Request with Coverage Badge
         if: success() && github.ref == 'refs/heads/main'
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ steps.generate_pr_token.outputs.token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: Update coverage badge [skip ci]"
           title: "Update Coverage Badge"
           body: |
