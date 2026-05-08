@@ -14,16 +14,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate GitHub App Token
-        id: generate_token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.ORG_CI_APP_ID }}
-          private-key: ${{ secrets.ORG_CI_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
       - name: Apply Labels
         uses: actions/labeler@v6
         with:
-          repo-token: "${{ steps.generate_token.outputs.token }}"
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
           sync-labels: true
