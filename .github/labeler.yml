@@ -1,20 +1,26 @@
 documentation:
-  - .github/**/*
-  - CHANGELOG.md
-  - LICENSE
-  - README.md
+  - any:
+      - '.github/**/*'
+      - 'CHANGELOG.md'
+      - 'LICENSE'
+      - 'README.md'
 
 test:
-  - test/**/*
+  - any:
+      - 'test/**/*'
 
 example:
-  - example/**/*
+  - any:
+      - 'example/**/*'
 
 android:
-  - android/**/*
+  - any:
+      - 'android/**/*'
 
 workflows:
-  - .github/workflows/**/*
+  - any:
+      - '.github/workflows/**/*'
 
 lib:
-  - lib/**/*
+  - any:
+      - 'lib/**/*'
