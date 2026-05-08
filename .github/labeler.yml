@@ -1,26 +1,32 @@
 documentation:
-  - any:
-      - '.github/**/*'
-      - 'CHANGELOG.md'
-      - 'LICENSE'
-      - 'README.md'
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**/*'
+          - 'CHANGELOG.md'
+          - 'LICENSE'
+          - 'README.md'
 
 test:
-  - any:
-      - 'test/**/*'
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'test/**/*'
 
 example:
-  - any:
-      - 'example/**/*'
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'example/**/*'
 
 android:
-  - any:
-      - 'android/**/*'
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'android/**/*'
 
 workflows:
-  - any:
-      - '.github/workflows/**/*'
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/workflows/**/*'
 
 lib:
-  - any:
-      - 'lib/**/*'
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/**/*'
