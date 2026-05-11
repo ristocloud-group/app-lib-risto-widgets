@@ -1,0 +1,59 @@
+name: 3. Deploy Web Example & Coverage
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    name: Build Web & Deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Interactive HTML Coverage
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lcov
+          flutter test --coverage
+          genhtml -o coverage coverage/lcov.info
+
+      - name: Build Flutter Web Example
+        run: |
+          cd example 
+          flutter build web --release --base-href "/app-lib-risto-widgets/"
+
+      - name: Inject Coverage into Web Build
+        run: |
+          mv coverage example/build/web/coverage
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'example/build/web'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
