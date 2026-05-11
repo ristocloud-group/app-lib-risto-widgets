@@ -1,4 +1,4 @@
-name: 2. Coverage Badge Updater
+name: Coverage Badge & Web Report
 
 on:
   push:
@@ -7,13 +7,19 @@ on:
       - "**/README.md"
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+  pages: write
+  id-token: write
+
 jobs:
-  update-badge:
-    name: Generate & Update Badge
+  coverage-and-deploy:
+    name: Coverage & Deploy Pages
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,16 +38,16 @@ jobs:
       - name: Run tests with coverage
         run: flutter test --coverage
 
-      - name: Generate Badge SVG
+      - name: Generate HTML & Badge SVG
         run: |
           sudo apt-get update
           sudo apt-get install -y lcov
           
-          # Calcola la percentuale
+          genhtml -o coverage coverage/lcov.info
+          
           COVERAGE_PERCENT=$(lcov --summary coverage/lcov.info | grep "lines......" | grep -o '[0-9.]*%' | tr -d '%')
           echo "COVERAGE_PERCENT=$COVERAGE_PERCENT" >> $GITHUB_ENV
           
-          # Scarica il badge
           curl -o coverage-badge.svg "https://img.shields.io/badge/Coverage-${COVERAGE_PERCENT}%25-brightgreen.svg"
           mkdir -p .github/badges/
           mv coverage-badge.svg .github/badges/coverage-badge.svg
@@ -55,6 +61,7 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: Create Pull Request with Coverage Badge
+        id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ steps.generate_pr_token.outputs.token }}
@@ -65,3 +72,21 @@ jobs:
           base: main
           committer: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
           author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+      - name: Auto-merge Coverage PR
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ steps.generate_pr_token.outputs.token }}
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'coverage'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
