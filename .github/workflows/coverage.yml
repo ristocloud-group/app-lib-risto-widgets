@@ -1,4 +1,4 @@
-name: 2. Coverage Badge & Web Report
+name: Coverage Badge & Web Report
 
 on:
   push:
@@ -79,14 +79,19 @@ jobs:
           body: "Coverage report updated automatically.\n- **Coverage**: `${{ env.COVERAGE_PERCENT }}%`"
           branch: "chore/update-coverage-badge"
           base: main
-          committer: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-          author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+      - name: Approve Coverage PR
+        if: steps.cpr.outputs.pull-request-number != ''
+        run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Auto-merge Coverage PR
-        if: steps.cpr.outputs.pull-request-operation == 'created'
+        if: steps.cpr.outputs.pull-request-number != ''
         run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-number }}"
         env:
           GH_TOKEN: ${{ steps.generate_pr_token.outputs.token }}
+
 
       - name: Deploy to GitHub Pages
         id: deployment
