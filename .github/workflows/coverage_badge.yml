@@ -1,0 +1,67 @@
+name: 2. Coverage Badge Updater
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - "**/README.md"
+  workflow_dispatch:
+
+jobs:
+  update-badge:
+    name: Generate & Update Badge
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Generate Badge SVG
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lcov
+          
+          # Calcola la percentuale
+          COVERAGE_PERCENT=$(lcov --summary coverage/lcov.info | grep "lines......" | grep -o '[0-9.]*%' | tr -d '%')
+          echo "COVERAGE_PERCENT=$COVERAGE_PERCENT" >> $GITHUB_ENV
+          
+          # Scarica il badge
+          curl -o coverage-badge.svg "https://img.shields.io/badge/Coverage-${COVERAGE_PERCENT}%25-brightgreen.svg"
+          mkdir -p .github/badges/
+          mv coverage-badge.svg .github/badges/coverage-badge.svg
+
+      - name: Generate GitHub App Token
+        id: generate_pr_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.ORG_CI_APP_ID }}
+          private-key: ${{ secrets.ORG_CI_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Create Pull Request with Coverage Badge
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.generate_pr_token.outputs.token }}
+          commit-message: "chore: Update coverage badge [skip ci]"
+          title: "Update Coverage Badge"
+          body: "Coverage report updated automatically.\n- **Coverage**: `${{ env.COVERAGE_PERCENT }}%`"
+          branch: "chore/update-coverage-badge"
+          base: main
+          committer: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"

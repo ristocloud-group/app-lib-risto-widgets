@@ -2,7 +2,7 @@
 
 [![pub package](https://img.shields.io/pub/v/risto_widgets.svg)](https://pub.dev/packages/risto_widgets)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/ristocloud-group/app-lib-risto-widgets/flutter.yml)](https://github.com/ristocloud-group/app-lib-risto-widgets/actions/workflows/flutter.yml)
-[![Coverage Status](https://github.com/ristocloud-group/app-lib-risto-widgets/raw/gh-pages/coverage-badge.svg)](https://ristocloud-group.github.io/app-lib-risto-widgets/)
+[![Coverage Status](https://raw.githubusercontent.com/ristocloud-group/app-lib-risto-widgets/main/.github/badges/coverage-badge.svg)](https://ristocloud-group.github.io/app-lib-risto-widgets/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
