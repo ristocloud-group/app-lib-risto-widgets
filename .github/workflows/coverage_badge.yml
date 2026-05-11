@@ -1,23 +1,19 @@
-name: Flutter Analyze, Test & Coverage
+name: 2. Coverage Badge Updater
 
 on:
   push:
     branches: [ "main" ]
     paths-ignore:
       - "**/README.md"
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
-  test-and-coverage:
-    name: Analyze & Test
+  update-badge:
+    name: Generate & Update Badge
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
-      actions: read
-      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,17 +29,13 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze Dart Code
-        run: flutter analyze --no-fatal-warnings --no-fatal-infos
-
       - name: Run tests with coverage
         run: flutter test --coverage
 
-      - name: Generate coverage report & Badge
+      - name: Generate Badge SVG
         run: |
           sudo apt-get update
           sudo apt-get install -y lcov
-          genhtml -o coverage coverage/lcov.info
           
           # Calcola la percentuale
           COVERAGE_PERCENT=$(lcov --summary coverage/lcov.info | grep "lines......" | grep -o '[0-9.]*%' | tr -d '%')
@@ -54,9 +46,8 @@ jobs:
           mkdir -p .github/badges/
           mv coverage-badge.svg .github/badges/coverage-badge.svg
 
-      - name: Generate GitHub App Token for PR
+      - name: Generate GitHub App Token
         id: generate_pr_token
-        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ secrets.ORG_CI_APP_ID }}
@@ -64,15 +55,12 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: Create Pull Request with Coverage Badge
-        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ steps.generate_pr_token.outputs.token }}
           commit-message: "chore: Update coverage badge [skip ci]"
           title: "Update Coverage Badge"
-          body: |
-            Coverage report updated automatically.
-            - **Coverage**: `${{ env.COVERAGE_PERCENT }}%`
+          body: "Coverage report updated automatically.\n- **Coverage**: `${{ env.COVERAGE_PERCENT }}%`"
           branch: "chore/update-coverage-badge"
           base: main
           committer: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
