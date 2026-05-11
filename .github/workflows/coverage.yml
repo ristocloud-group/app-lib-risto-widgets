@@ -1,4 +1,4 @@
-name: Coverage Badge & Web Report
+name: 2. Coverage Badge & Web Report
 
 on:
   push:
@@ -52,6 +52,14 @@ jobs:
           mkdir -p .github/badges/
           mv coverage-badge.svg .github/badges/coverage-badge.svg
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'coverage'
+
       - name: Generate GitHub App Token
         id: generate_pr_token
         uses: actions/create-github-app-token@v1
@@ -65,6 +73,7 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ steps.generate_pr_token.outputs.token }}
+          add-paths: .github/badges/coverage-badge.svg
           commit-message: "chore: Update coverage badge [skip ci]"
           title: "Update Coverage Badge"
           body: "Coverage report updated automatically.\n- **Coverage**: `${{ env.COVERAGE_PERCENT }}%`"
@@ -78,14 +87,6 @@ jobs:
         run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-number }}"
         env:
           GH_TOKEN: ${{ steps.generate_pr_token.outputs.token }}
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'coverage'
 
       - name: Deploy to GitHub Pages
         id: deployment
