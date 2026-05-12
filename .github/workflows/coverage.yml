@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
   pages: write
   id-token: write
 
@@ -60,6 +59,10 @@ jobs:
         with:
           path: 'coverage'
 
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
       - name: Generate GitHub App Token
         id: generate_pr_token
         uses: actions/create-github-app-token@v1
@@ -68,31 +71,21 @@ jobs:
           private-key: ${{ secrets.ORG_CI_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      - name: Create Pull Request with Coverage Badge
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ steps.generate_pr_token.outputs.token }}
-          add-paths: .github/badges/coverage-badge.svg
-          commit-message: "chore: Update coverage badge [skip ci]"
-          title: "Update Coverage Badge"
-          body: "Coverage report updated automatically.\n- **Coverage**: `${{ env.COVERAGE_PERCENT }}%`"
-          branch: "chore/update-coverage-badge"
-          base: main
-
-      - name: Approve Coverage PR
-        if: steps.cpr.outputs.pull-request-number != ''
-        run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-number }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Auto-merge Coverage PR
-        if: steps.cpr.outputs.pull-request-number != ''
-        run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-number }}"
-        env:
-          GH_TOKEN: ${{ steps.generate_pr_token.outputs.token }}
-
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Push Badge to coverage branch
+        run: |
+          # 1. Configuriamo il bot
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 2. Creiamo o ci spostiamo sul branch 'coverage'
+          git checkout -B coverage
+          
+          # 3. Aggiungiamo solo il badge SVG
+          git add -f .github/badges/coverage-badge.svg
+          
+          # 4. Facciamo il commit (se non ci sono modifiche, non fallisce)
+          git commit -m "chore: Update coverage badge [skip ci]" || echo "No changes to commit"
+          
+          # 5. Autentichiamo Git con il token della nostra App e forziamo il push
+          git remote set-url origin https://x-access-token:${{ steps.generate_pr_token.outputs.token }}@github.com/${{ github.repository }}.git
+          git push origin coverage --force
