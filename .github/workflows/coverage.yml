@@ -65,7 +65,7 @@ jobs:
 
       - name: Generate GitHub App Token
         id: generate_pr_token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.ORG_CI_APP_ID }}
           private-key: ${{ secrets.ORG_CI_APP_PRIVATE_KEY }}
